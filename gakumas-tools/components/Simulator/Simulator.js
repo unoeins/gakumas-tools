@@ -111,7 +111,8 @@ export default function Simulator() {
       setResult(result);
     } else {
       const numWorkers = workersRef.current.length;
-      const runsPerWorker = Math.round(numRuns / numWorkers);
+      const runsPerWorker = Math.floor(numRuns / numWorkers);
+      const extraRuns = numRuns - numWorkers * runsPerWorker;
 
       let promises = [];
       for (let i = 0; i < numWorkers; i++) {
@@ -121,7 +122,7 @@ export default function Simulator() {
             workersRef.current[i].postMessage({
               idolStageConfig: config,
               strategyName: strategy,
-              numRuns: runsPerWorker,
+              numRuns: i == 0 ? runsPerWorker + extraRuns : runsPerWorker
             });
           })
         );
@@ -221,9 +222,9 @@ export default function Simulator() {
           type="range"
           value={numRuns}
           onChange={(e) => setNumRuns(parseInt(e.target.value, 10))}
-          min={200}
+          min={1}
           max={4000}
-          step={200}
+          step={1}
         />
         <Button style="blue" onClick={runSimulation} disabled={running}>
           {running ? <Loader /> : `${t("simulate")} (n=${numRuns})`}
