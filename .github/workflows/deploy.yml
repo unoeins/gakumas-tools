@@ -24,7 +24,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: surisuririsu/gakumas-tools
+          images: ${{ env.FULL_IMAGE_NAME }}
 
       - name: Build and push Docker image
         id: push
