@@ -106,7 +106,7 @@ export default function Simulator() {
 
     console.time("simulation");
 
-    if (SYNC || !workersRef.current) {
+    if (SYNC || !workersRef.current || numRuns < 100) {
       const result = simulate(config, strategy, numRuns);
       setResult(result);
     } else {
