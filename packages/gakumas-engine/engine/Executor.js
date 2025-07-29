@@ -113,6 +113,7 @@ export default class Executor extends EngineComponent {
       genki: (...args) => this.resolveGenki(...args),
       stamina: (...args) => this.resolveStamina(...args),
       fullPowerCharge: (...args) => this.resolveFullPowerCharge(...args),
+      goodConditionTurns: (...args) => this.resolveGoodConditionTurns(...args),
     };
   }
 
@@ -583,9 +584,25 @@ export default class Executor extends EngineComponent {
   }
 
   resolveFullPowerCharge(state, fullPowerCharge) {
+    // Apply full power charge buffs
+    fullPowerCharge *= state[S.fullPowerChargeBuffs].reduce(
+      (acc, cur) => acc + cur.amount,
+      1
+    );
     if (fullPowerCharge > 0) {
       state[S.cumulativeFullPowerCharge] += fullPowerCharge;
     }
     state[S.fullPowerCharge] += fullPowerCharge;
   }
+
+  resolveGoodConditionTurns(state, goodConditionTurns) {
+    // Apply good condition turns buffs
+    goodConditionTurns *= state[S.goodConditionTurnsBuffs].reduce(
+      (acc, cur) => acc + cur.amount,
+      1
+    );
+
+    state[S.goodConditionTurns] += goodConditionTurns;
+  }
+
 }
