@@ -315,6 +315,7 @@ export const WHOLE_FIELDS = [
   S.goodImpressionTurns,
   S.motivation,
   S.enthusiasm,
+  S.fullPowerCharge,
 ];
 
 export const LOGGED_FIELDS = [
