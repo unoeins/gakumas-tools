@@ -584,12 +584,13 @@ export default class Executor extends EngineComponent {
   }
 
   resolveFullPowerCharge(state, fullPowerCharge) {
-    // Apply full power charge buffs
-    fullPowerCharge *= state[S.fullPowerChargeBuffs].reduce(
-      (acc, cur) => acc + cur.amount,
-      1
-    );
     if (fullPowerCharge > 0) {
+      // Apply full power charge buffs
+      fullPowerCharge *= state[S.fullPowerChargeBuffs].reduce(
+        (acc, cur) => acc + cur.amount,
+        1
+      );
+
       state[S.cumulativeFullPowerCharge] += fullPowerCharge;
     }
     state[S.fullPowerCharge] += fullPowerCharge;
