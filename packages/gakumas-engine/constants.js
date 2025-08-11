@@ -224,6 +224,10 @@ export const ALL_FIELDS = [
   "goodConditionTurnsDelta",
   "concentrationDelta",
   "staminaDelta",
+
+  // Card Order
+  "cardOrderGroups",
+  "shuffleCount",
 ];
 
 export const S = ALL_FIELDS.reduce((acc, cur, i) => {

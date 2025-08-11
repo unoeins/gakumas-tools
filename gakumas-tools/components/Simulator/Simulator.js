@@ -39,6 +39,7 @@ import { formatStageShortName } from "@/utils/stages";
 import SimulatorButtons from "./SimulatorButtons";
 import SimulatorSubTools from "./SimulatorSubTools";
 import styles from "./Simulator.module.scss";
+import SkillCardOrderGroups from "@/components/SkillCardOrderGroups";
 
 export default function Simulator() {
   const t = useTranslations("Simulator");
@@ -230,6 +231,12 @@ export default function Simulator() {
           min={1}
           max={4000}
           step={1}
+        />
+        <SkillCardOrderGroups
+          skillCardIdOrderGroups={loadout.skillCardIdOrderGroups}
+          customizationOrderGroups={loadout.customizationOrderGroups}
+          idolId={config.idol.idolId || idolId}
+          defaultCardIds={config.defaultCardIds}
         />
         <Button style="blue" onClick={runSimulation} disabled={running}>
           {running ? <Loader /> : `${t("simulate")} (n=${numRuns})`}

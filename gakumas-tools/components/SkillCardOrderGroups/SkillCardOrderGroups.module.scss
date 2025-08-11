@@ -1,0 +1,97 @@
+@use "../../styles/colors";
+
+.skillCardOrderGroup {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 52px);
+  grid-auto-rows: 52px;
+  gap: 4px;
+}
+
+.entities {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 68px);
+  grid-auto-rows: 68px;
+  gap: 8px;
+  justify-content: space-around;
+  padding: 8px;
+  overflow-y: scroll;
+}
+
+.sub {
+  display: flex;
+  align-items: center;
+  margin-top: 2px;
+
+  &:hover,
+  &:focus-within {
+    .buttonGroup {
+      opacity: 1;
+    }
+  }
+
+  button {
+    font-size: 22px;
+
+    &:disabled {
+      color: colors.$gray-light;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.index {
+  flex: 1;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 4px;
+
+  @media (hover: hover) {
+    opacity: 0;
+    transition: all 0.3s;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  @media (hover: none) {
+    button {
+      font-size: 20px;
+      display: none;
+    }
+
+    &.expanded button {
+      display: flex;
+      opacity: 1;
+    }
+  }
+}
+
+.pickButton {
+  color: colors.$gk-orange;
+}
+
+.addButton {
+  color: colors.$green;
+}
+
+.moveButton {
+  color: colors.$blue;
+}
+
+.deleteButton {
+  color: colors.$red;
+}
+
+.expandButton {
+  display: none;
+  margin-left: 4px;
+  color: colors.$gray;
+
+  @media (hover: none) {
+    display: flex;
+  }
+}

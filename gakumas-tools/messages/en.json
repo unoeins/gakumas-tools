@@ -330,5 +330,8 @@
     "accuracyNotGuaranteed": "Accuracy is not guaranteed. It is recommended to manually verify the results by comparing with your screenshots.",
     "stage": "Stage {n}",
     "score": "Score"
+  },
+  "SkillCardOrderGroups": {
+    "Nth_order": "{n}th Card Order"
   }
 }

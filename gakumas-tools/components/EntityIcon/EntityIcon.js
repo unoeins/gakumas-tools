@@ -17,6 +17,7 @@ function EntityIcon({
   size = "large",
   onClick,
   showTier,
+  argumentType = "entity",
 }) {
   const entity = ENTITY_DATA_BY_TYPE[type].getById(id);
   const { icon } = gkImg(entity, idolId);
@@ -50,8 +51,10 @@ function EntityIcon({
   );
 
   if (onClick) {
+    const onClickHandler = argumentType === "entity" ? 
+      () => onClick(entity) : () => onClick(id, customizations || {});
     return (
-      <button className={className} onClick={() => onClick(entity || {})}>
+      <button className={className} onClick={onClickHandler}>
         {unwrappedElement}
       </button>
     );

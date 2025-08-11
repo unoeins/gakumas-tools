@@ -33,6 +33,12 @@ export function LoadoutContextProvider({ children }) {
   const [customizationGroups, setCustomizationGroups] = useState(
     initial.customizationGroups
   );
+  const [skillCardIdOrderGroups, setSkillCardIdOrderGroups] = useState(
+    initial.skillCardIdOrderGroups
+  );
+  const [customizationOrderGroups, setCustomizationOrderGroups] = useState(
+    initial.customizationOrderGroups
+  );
   const [loadoutHistory, setLoadoutHistory] = useState([]);
 
   let stage = FALLBACK_STAGE;
@@ -51,6 +57,8 @@ export function LoadoutContextProvider({ children }) {
       pItemIds,
       skillCardIdGroups,
       customizationGroups,
+      skillCardIdOrderGroups,
+      customizationOrderGroups,
     }),
     [
       stageId,
@@ -60,6 +68,8 @@ export function LoadoutContextProvider({ children }) {
       pItemIds,
       skillCardIdGroups,
       customizationGroups,
+      skillCardIdOrderGroups,
+      customizationOrderGroups,
     ]
   );
 
@@ -90,6 +100,22 @@ export function LoadoutContextProvider({ children }) {
       } catch (e) {
         console.error(e);
       }
+    }
+    if (loadout.skillCardIdOrderGroups) {
+      setSkillCardIdOrderGroups(loadout.skillCardIdOrderGroups);
+    } else {
+      setSkillCardIdOrderGroups([new Array(loadout.skillCardIdGroups.length * 6 + 8).fill(0)]);
+    }
+    if (loadout.customizationOrderGroups) {
+      try {
+        setCustomizationOrderGroups(
+          loadout.customizationOrderGroups.map((g) => g.map(fixCustomizations))
+        );
+      } catch (e) {
+        console.error(e);
+      }
+    } else {
+      setCustomizationOrderGroups([new Array(loadout.customizationGroups.length * 6 + 8).fill({})]);
     }
   };
 
@@ -139,6 +165,8 @@ export function LoadoutContextProvider({ children }) {
       [0, 0, 0, 0, 0, 0],
     ]);
     setCustomizationGroups([[], []]);
+    setSkillCardIdOrderGroups([new Array(20).fill(0)]);
+    setCustomizationOrderGroups([new Array(20).fill({})]);
   }
 
   function replacePItemId(index, itemId) {
@@ -182,6 +210,20 @@ export function LoadoutContextProvider({ children }) {
     });
   }
 
+  function replaceSkillCardOrder(groupIndex, index, cardId, customizations) {
+    console.log("replaceSkillCardOrder", groupIndex, index, cardId, customizations);
+    setSkillCardIdOrderGroups((cur) => {
+      const updatedSkillCardIdOrderGroups = [...cur];
+      updatedSkillCardIdOrderGroups[groupIndex][index] = cardId;
+      return updatedSkillCardIdOrderGroups;
+    });
+    setCustomizationOrderGroups((cur) => {
+      const updatedCustomizationOrderGroups = [...cur];
+      updatedCustomizationOrderGroups[groupIndex][index] = customizations;
+      return updatedCustomizationOrderGroups;
+    });
+  }
+
   const insertSkillCardIdGroup = (groupIndex) => {
     setSkillCardIdGroups((cur) => {
       const updatedSkillCardIds = [...cur];
@@ -192,6 +234,22 @@ export function LoadoutContextProvider({ children }) {
       const updatedCustomizations = [...cur];
       updatedCustomizations.splice(groupIndex, 0, []);
       return updatedCustomizations;
+    });
+    setSkillCardIdOrderGroups((cur) => {
+      const updatedSkillCardIdOrderGroups = [...cur];
+      updatedSkillCardIdOrderGroups = updatedSkillCardIdOrderGroups.map((skillCardIdOrderGroup) => {
+         return [...skillCardIdOrderGroup, 0, 0, 0, 0, 0, 0];
+      });
+      console.log("insertSkillCardIdGroup updatedSkillCardIdOrderGroups", updatedSkillCardIdOrderGroups);
+      return updatedSkillCardIdOrderGroups;
+    });
+    setCustomizationOrderGroups((cur) => {
+      const updatedCustomizationOrderGroups = [...cur];
+      updatedCustomizationOrderGroups = updatedCustomizationOrderGroups.map((customizationOrderGroup) => {
+         return [...customizationOrderGroup, {}, {}, {}, {}, {}, {}];
+      });
+      console.log("insertSkillCardIdGroup updatedCustomizationOrderGroups", updatedCustomizationOrderGroups);
+      return updatedCustomizationOrderGroups;
     });
   };
 
@@ -205,6 +263,24 @@ export function LoadoutContextProvider({ children }) {
       const updatedCustomizations = [...cur];
       updatedCustomizations.splice(groupIndex, 1);
       return updatedCustomizations;
+    });
+    setSkillCardIdOrderGroups((cur) => {
+      const updatedSkillCardIdOrderGroups = [...cur];
+      updatedSkillCardIdOrderGroups = updatedSkillCardIdOrderGroups.map((skillCardIdOrderGroup) => {
+        skillCardIdOrderGroup.splice(skillCardIdOrderGroup.length-6, 6);
+        return skillCardIdOrderGroup;
+      });
+      console.log("deleteSkillCardIdGroup updatedSkillCardIdOrderGroups", updatedSkillCardIdOrderGroups);
+      return updatedSkillCardIdOrderGroups;
+    });
+    setCustomizationOrderGroups((cur) => {
+      const updatedCustomizationOrderGroups = [...cur];
+      updatedCustomizationOrderGroups = updatedCustomizationOrderGroups.map((customizationOrderGroup) => {
+        customizationOrderGroup.splice(customizationOrderGroup.length-6, 6);
+        return customizationOrderGroup;
+      });
+      console.log("deleteSkillCardIdGroup updatedCustomizationOrderGroups", updatedCustomizationOrderGroups);
+      return updatedCustomizationOrderGroups;
     });
   };
 
@@ -222,6 +298,40 @@ export function LoadoutContextProvider({ children }) {
       updatedCustomizations[groupIndexA] = updatedCustomizations[groupIndexB];
       updatedCustomizations[groupIndexB] = temp;
       return updatedCustomizations;
+    });
+  };
+
+  const insertSkillCardOrderGroup = (groupIndex) => {
+    console.log("insertSkillCardOrderGroup", groupIndex);
+    setSkillCardIdOrderGroups((cur) => {
+      const size = skillCardIdGroups.length * 6 + 8;//cur[0].length;
+      const updatedSkillCardIdOrderGroups = [...cur];
+      updatedSkillCardIdOrderGroups.splice(groupIndex, 0, new Array(size).fill(0));
+      console.log("insertSkillCardOrderGroup updatedSkillCardIdOrderGroups", updatedSkillCardIdOrderGroups);
+      return updatedSkillCardIdOrderGroups;
+    });
+    setCustomizationOrderGroups((cur) => {
+      const size = skillCardIdGroups.length * 6 + 8;//cur[0].length;
+      const updatedCustomizationOrderGroups = [...cur];
+      updatedCustomizationOrderGroups.splice(groupIndex, 0, new Array(size).fill({}));
+      console.log("insertSkillCardOrderGroup updatedCustomizationOrderGroups", updatedCustomizationOrderGroups);
+      return updatedCustomizationOrderGroups;
+    });
+  };
+
+  const deleteSkillCardOrderGroup = (groupIndex) => {
+    console.log("deleteSkillCardOrderGroup", groupIndex);
+    setSkillCardIdOrderGroups((cur) => {
+      const updatedSkillCardIdOrderGroups = [...cur];
+      updatedSkillCardIdOrderGroups.splice(groupIndex, 1);
+      console.log("deleteSkillCardOrderGroup updatedSkillCardIdOrderGroups", updatedSkillCardIdOrderGroups);
+      return updatedSkillCardIdOrderGroups;
+    });
+    setCustomizationOrderGroups((cur) => {
+      const updatedCustomizationOrderGroups = [...cur];
+      updatedCustomizationOrderGroups.splice(groupIndex, 1);
+      console.log("deleteSkillCardOrderGroup updatedCustomizationOrderGroups", updatedCustomizationOrderGroups);
+      return updatedCustomizationOrderGroups;
     });
   };
 
@@ -293,6 +403,7 @@ export function LoadoutContextProvider({ children }) {
     });
   }
 
+  console.log("LoadoutContext", loadout);
   return (
     <LoadoutContext.Provider
       value={{
@@ -306,10 +417,13 @@ export function LoadoutContextProvider({ children }) {
         replacePItemId,
         replaceSkillCardId,
         replaceCustomizations,
+        replaceSkillCardOrder,
         clear,
         insertSkillCardIdGroup,
         deleteSkillCardIdGroup,
         swapSkillCardIdGroups,
+        insertSkillCardOrderGroup,
+        deleteSkillCardOrderGroup,
         stage,
         simulatorUrl,
         loadoutHistory,

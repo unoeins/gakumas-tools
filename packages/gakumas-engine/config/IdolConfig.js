@@ -9,6 +9,8 @@ export default class IdolConfig {
       pItemIds,
       skillCardIdGroups,
       customizationGroups,
+      skillCardIdOrderGroups,
+      customizationOrderGroups,
     } = loadout;
 
     let skillCardIds = [];
@@ -35,6 +37,27 @@ export default class IdolConfig {
         k++;
       }
     }
+
+    let cardOrderGroups = [];
+    for (let i = 0; i < skillCardIdOrderGroups.length; i++) {
+      cardOrderGroups[i] = [];
+      for (let j = 0; j < skillCardIdOrderGroups[i].length; j++) {
+        const customizations = customizationOrderGroups?.[i]?.[j];
+        if (customizations) {
+          Object.keys(customizations).forEach((k) => {
+            if (!Customizations.getById(k) || !customizations[k]) {
+              delete customizations[k];
+            }
+          });
+        }
+        cardOrderGroups[i][j] = {
+          id: skillCardIdOrderGroups[i][j],
+          customizations,
+        };
+      }
+    }
+    console.log("IdolConfig cardOrderGroups", cardOrderGroups);
+    this.cardOrderGroups = cardOrderGroups;
 
     // P-items and skill cards
     this.pItemIds = [...new Set(pItemIds.filter((id) => id))];

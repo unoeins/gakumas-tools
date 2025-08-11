@@ -15,12 +15,23 @@ const DEFAULTS = {
   pItemIds: "0-0-0-0",
   skillCardIdGroups: "0-0-0-0-0-0_0-0-0-0-0-0",
   customizationGroups: "-----_-----",
+  skillCardIdOrderGroups: "0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0",
+  customizationOrderGroups: "-------------------",
 };
 
 const SIMULATOR_BASE_URL = "https://gktools.ris.moe/simulator";
 
 export function getSimulatorUrl(loadout) {
   const searchParams = loadoutToSearchParams(loadout);
+  try {
+    const protocol = window.location.protocol;
+    const host = window.location.host;
+    if(protocol && host) {
+      return `${protocol}//${host}/simulator?${searchParams.toString()}`;
+    }
+  } catch(e) {
+    // ignore
+  }
   return `${SIMULATOR_BASE_URL}/?${searchParams.toString()}`;
 }
 
@@ -31,6 +42,8 @@ export function loadoutFromSearchParams(searchParams) {
   let pItemIds = searchParams.get("items");
   let skillCardIdGroups = searchParams.get("cards");
   let customizationGroups = searchParams.get("customizations");
+  let skillCardIdOrderGroups = searchParams.get("order_cards");
+  let customizationOrderGroups = searchParams.get("order_customs");
   const hasDataFromParams =
     stageId || params || pItemIds || skillCardIdGroups || customizationGroups;
 
@@ -40,6 +53,8 @@ export function loadoutFromSearchParams(searchParams) {
   pItemIds = pItemIds || DEFAULTS.pItemIds;
   skillCardIdGroups = skillCardIdGroups || DEFAULTS.skillCardIdGroups;
   customizationGroups = customizationGroups || DEFAULTS.customizationGroups;
+  skillCardIdOrderGroups = skillCardIdOrderGroups || DEFAULTS.skillCardIdOrderGroups;
+  customizationOrderGroups = customizationOrderGroups || DEFAULTS.customizationOrderGroups;
 
   stageId = parseInt(stageId, 10) || null;
   supportBonus = parseFloat(supportBonus) || null;
@@ -49,10 +64,21 @@ export function loadoutFromSearchParams(searchParams) {
   customizationGroups = customizationGroups
     .split("_")
     .map(deserializeCustomizations);
+  skillCardIdOrderGroups = skillCardIdOrderGroups
+    .split("_")
+    .map(deserializeIds);
+  customizationOrderGroups = customizationOrderGroups
+    .split("_")
+    .map(deserializeCustomizations);
 
   // Ensure customizations are same shape as skill cards
   if (skillCardIdGroups.length != customizationGroups.length) {
     customizationGroups = skillCardIdGroups.map((g) => g.map(() => ({})));
+  }
+
+  // Ensure customization order are same shape as skill card order
+  if (skillCardIdOrderGroups.length != customizationOrderGroups.length) {
+    customizationOrderGroups = skillCardIdOrderGroups.map((g) => g.map(() => ({})));
   }
 
   return {
@@ -63,6 +89,8 @@ export function loadoutFromSearchParams(searchParams) {
     skillCardIdGroups,
     customizationGroups,
     hasDataFromParams,
+    skillCardIdOrderGroups,
+    customizationOrderGroups,
   };
 }
 
@@ -74,6 +102,8 @@ export function loadoutToSearchParams(loadout) {
     pItemIds,
     skillCardIdGroups,
     customizationGroups,
+    skillCardIdOrderGroups,
+    customizationOrderGroups,
   } = loadout;
   const searchParams = new URLSearchParams();
   searchParams.set("stage", stageId);
@@ -84,6 +114,11 @@ export function loadoutToSearchParams(loadout) {
   searchParams.set(
     "customizations",
     customizationGroups.map(serializeCustomizations).join("_")
+  );
+  searchParams.set("order_cards", skillCardIdOrderGroups.map(serializeIds).join("_"));
+  searchParams.set(
+    "order_customs",
+    customizationOrderGroups.map(serializeCustomizations).join("_")
   );
   return searchParams;
 }

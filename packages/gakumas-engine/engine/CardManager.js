@@ -8,6 +8,7 @@ import {
 } from "../constants";
 import EngineComponent from "./EngineComponent";
 import { getBaseId, getRand, shallowCopy, shuffle } from "../utils";
+import deepEqual from 'fast-deep-equal';
 
 export default class CardManager extends EngineComponent {
   constructor(engine) {
@@ -40,6 +41,24 @@ export default class CardManager extends EngineComponent {
       }
       return card;
     });
+    // mapping cardOrder to cardMap index
+    const cardOrderGroups = this.config.idol.cardOrderGroups.map((cardOrderGroup) => {
+      let restCards = cardMap.map((card, i) => ({ id: card.id, c11n: card.c11n, index: i }));
+      return cardOrderGroup.map((cardOrder) => {
+        const index = restCards.findIndex((card) => card.id === cardOrder.id &&
+          (card.c11n ? deepEqual(card.c11n, cardOrder.customizations) :
+                       !cardOrder.customizations || Object.keys(cardOrder.customizations).length === 0));
+        if(index >= 0) {
+          const foundCard = restCards[index];
+          restCards.splice(index, 1);
+          return foundCard.index;
+        } else {
+          return -1;
+        }
+      });
+    });
+    console.log("initializeState cardMap", cardMap);
+    console.log("initializeState cardOrderGroups", cardOrderGroups);
 
     state[S.cardMap] = cardMap;
     state[S.deckCards] = cardMap.map((_, i) => i);
@@ -49,6 +68,9 @@ export default class CardManager extends EngineComponent {
       if (this.isForceInitialHand(state, b)) return -1;
       return 0;
     });
+    state[S.cardOrderGroups] = cardOrderGroups;
+    state[S.shuffleCount] = 0;
+    this.applyCardOrder(state);
     state[S.handCards] = [];
     state[S.discardedCards] = [];
     state[S.removedCards] = [];
@@ -78,6 +100,37 @@ export default class CardManager extends EngineComponent {
     }
 
     return false;
+  }
+
+  applyCardOrder(state) {
+    const cardOrderGroup = state[S.cardOrderGroups][state[S.shuffleCount]];
+    state[S.shuffleCount]++;
+    if(cardOrderGroup) {
+      const deckSize = state[S.deckCards].length;
+      const remainingCardOrder = cardOrderGroup.filter((id) => state[S.deckCards].includes(id) || id < 0);
+      let restDeckCards = state[S.deckCards].toReversed().filter((id) => !cardOrderGroup.includes(id));
+      let updatedDeckCards = [];
+      console.log("applyCardOrder cardOrderGroup", cardOrderGroup);
+      console.log("applyCardOrder remainingCardOrder", remainingCardOrder);
+      console.log("applyCardOrder deckCards", state[S.deckCards]);
+      console.log("applyCardOrder restDeckCards", restDeckCards);
+      for(let i = 0; i < deckSize; i++) {
+        const cardOrder = remainingCardOrder[i];
+        if(cardOrder >= 0) {
+          updatedDeckCards.push(cardOrder);
+        } else if(restDeckCards.length > 0) {
+          updatedDeckCards.push(restDeckCards.shift());
+        }
+      }
+      if(remainingCardOrder.length > deckSize) {
+        updatedDeckCards = updatedDeckCards.concat(
+          remainingCardOrder.filter((id, i) => i >= deckSize && id > -1)
+        );
+      }
+
+      console.log("applyCardOrder updatedDeckCards", updatedDeckCards);
+      state[S.deckCards] = updatedDeckCards.toReversed();
+    }
   }
 
   getLines(state, card, attribute) {
@@ -166,6 +219,8 @@ export default class CardManager extends EngineComponent {
     shuffle(state[S.discardedCards]);
     state[S.deckCards] = state[S.discardedCards];
     state[S.discardedCards] = [];
+    this.applyCardOrder(state);
+
     this.logger.debug("Recycled discard pile");
   }
 
