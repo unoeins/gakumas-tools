@@ -6,6 +6,29 @@ Dates are based on Eastern Time Zone.
 
 
 
+
+
+
+
+## 2025-08-08
+
+- Add preview of Jibaku Kotone
+
+## 2025-08-06
+
+- Change order of stage 2 effect
+
+## 2025-08-05
+
+- Update turn counts for S29
+
+## 2025-08-04
+
+- Adjust behavior of 夢見る星, あの日、この場所で+
+- Include delayed effects in evaluation
+- Add preview of contest season 29
+- Include delayed effects in cardEffects
+
 ## 2025-07-31
 
 - Update Star-mine p-idols
