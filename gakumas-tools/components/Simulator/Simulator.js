@@ -52,6 +52,7 @@ export default function Simulator() {
     setSupportBonus,
     setParams,
     replacePItemId,
+    setRemovedCardOrder,
     pushLoadoutHistory,
   } = useContext(LoadoutContext);
   const { plan, idolId } = useContext(WorkspaceContext);
@@ -230,6 +231,8 @@ export default function Simulator() {
           customizationOrderGroups={loadout.customizationOrderGroups}
           idolId={config.idol.idolId || idolId}
           defaultCardIds={config.defaultCardIds}
+          removedCardOrder={loadout.removedCardOrder}
+          setRemovedCardOrder={setRemovedCardOrder}
         />
         <TurnTypeOrder
           turnTypeOrder={loadout.turnTypeOrder}

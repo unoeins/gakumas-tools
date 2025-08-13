@@ -103,11 +103,14 @@ export default class CardManager extends EngineComponent {
   }
 
   applyCardOrder(state) {
+    const skipRemovedCard = this.config.idol.removedCardOrder == "skip";
     const cardOrderGroup = state[S.cardOrderGroups][state[S.shuffleCount]];
     state[S.shuffleCount]++;
     if(cardOrderGroup) {
       const deckSize = state[S.deckCards].length;
-      const remainingCardOrder = cardOrderGroup.filter((id) => state[S.deckCards].includes(id) || id < 0);
+      const remainingCardOrder = skipRemovedCard ? 
+        cardOrderGroup.filter((id) => state[S.deckCards].includes(id) || id < 0) :
+        cardOrderGroup.map((id) => state[S.deckCards].includes(id) ? id : -1);
       let restDeckCards = state[S.deckCards].toReversed().filter((id) => !cardOrderGroup.includes(id));
       let updatedDeckCards = [];
       console.log("applyCardOrder cardOrderGroup", cardOrderGroup);

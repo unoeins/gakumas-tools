@@ -39,6 +39,7 @@ export function LoadoutContextProvider({ children }) {
   const [customizationOrderGroups, setCustomizationOrderGroups] = useState(
     initial.customizationOrderGroups
   );
+  const [removedCardOrder, setRemovedCardOrder] = useState(initial.removedCardOrder);
   const [turnTypeOrder, setTurnTypeOrder] = useState(initial.turnTypeOrder);
   const [loadoutHistory, setLoadoutHistory] = useState([]);
 
@@ -60,6 +61,7 @@ export function LoadoutContextProvider({ children }) {
       customizationGroups,
       skillCardIdOrderGroups,
       customizationOrderGroups,
+      removedCardOrder,
       turnTypeOrder,
     }),
     [
@@ -72,6 +74,7 @@ export function LoadoutContextProvider({ children }) {
       customizationGroups,
       skillCardIdOrderGroups,
       customizationOrderGroups,
+      removedCardOrder,
       turnTypeOrder,
     ]
   );
@@ -120,6 +123,7 @@ export function LoadoutContextProvider({ children }) {
     } else {
       setCustomizationOrderGroups([new Array(loadout.customizationGroups.length * 6 + 8).fill({})]);
     }
+    setRemovedCardOrder(loadout.removedCardOrder || "random");
     if (loadout.turnTypeOrder) {
       setTurnTypeOrder(loadout.turnTypeOrder);
     } else {
@@ -176,6 +180,7 @@ export function LoadoutContextProvider({ children }) {
     setCustomizationGroups([[], []]);
     setSkillCardIdOrderGroups([new Array(20).fill(0)]);
     setCustomizationOrderGroups([new Array(20).fill({})]);
+    setRemovedCardOrder("random");
     setTurnTypeOrder(new Array(turnTypeOrder.length).fill("none"));
   }
 
@@ -463,6 +468,7 @@ export function LoadoutContextProvider({ children }) {
         swapSkillCardIdGroups,
         insertSkillCardOrderGroup,
         deleteSkillCardOrderGroup,
+        setRemovedCardOrder,
         replaceTurnTypeOrder,
         stage,
         simulatorUrl,

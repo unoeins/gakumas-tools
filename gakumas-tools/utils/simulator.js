@@ -18,6 +18,7 @@ const DEFAULTS = {
   skillCardIdOrderGroups: "0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0",
   customizationOrderGroups: "-------------------",
   turnTypeOrder: "0-0-0-0-0-0-0-0-0-0-0-0",
+  removedCardOrder: "0",
 };
 
 const SIMULATOR_BASE_URL = "https://gktools.ris.moe/simulator";
@@ -45,6 +46,7 @@ export function loadoutFromSearchParams(searchParams) {
   let customizationGroups = searchParams.get("customizations");
   let skillCardIdOrderGroups = searchParams.get("order_cards");
   let customizationOrderGroups = searchParams.get("order_customs");
+  let removedCardOrder = searchParams.get("order_removed");
   let turnTypeOrder = searchParams.get("order_turns");
   const hasDataFromParams =
     stageId || params || pItemIds || skillCardIdGroups || customizationGroups || 
@@ -58,6 +60,7 @@ export function loadoutFromSearchParams(searchParams) {
   customizationGroups = customizationGroups || DEFAULTS.customizationGroups;
   skillCardIdOrderGroups = skillCardIdOrderGroups || DEFAULTS.skillCardIdOrderGroups;
   customizationOrderGroups = customizationOrderGroups || DEFAULTS.customizationOrderGroups;
+  removedCardOrder = removedCardOrder || DEFAULTS.removedCardOrder;
 
   stageId = parseInt(stageId, 10) || null;
   supportBonus = parseFloat(supportBonus) || null;
@@ -73,6 +76,7 @@ export function loadoutFromSearchParams(searchParams) {
   customizationOrderGroups = customizationOrderGroups
     .split("_")
     .map(deserializeCustomizations);
+  removedCardOrder = removedCardOrder == "1" ? "skip" : "random";
   if (turnTypeOrder) {
     turnTypeOrder = turnTypeOrder.split("-")
       .map((x) => parseInt(x, 10) || 0)
@@ -107,6 +111,7 @@ export function loadoutFromSearchParams(searchParams) {
     hasDataFromParams,
     skillCardIdOrderGroups,
     customizationOrderGroups,
+    removedCardOrder,
     turnTypeOrder,
   };
 }
@@ -121,6 +126,7 @@ export function loadoutToSearchParams(loadout) {
     customizationGroups,
     skillCardIdOrderGroups,
     customizationOrderGroups,
+    removedCardOrder,
     turnTypeOrder,
   } = loadout;
   const searchParams = new URLSearchParams();
@@ -138,6 +144,7 @@ export function loadoutToSearchParams(loadout) {
     "order_customs",
     customizationOrderGroups.map(serializeCustomizations).join("_")
   );
+  searchParams.set("order_removed", removedCardOrder == "random" ? "0" : "1");
   searchParams.set(
     "order_turns",
     turnTypeOrder.map((t) => ["none", "vocal", "dance", "visual"].indexOf(t)).join("-")

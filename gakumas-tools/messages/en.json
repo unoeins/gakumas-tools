@@ -332,7 +332,10 @@
     "score": "Score"
   },
   "SkillCardOrderGroups": {
-    "Nth_order": "{n}th Card Order"
+    "Nth_order": "{n}th Card Order",
+    "removed_card_order_header": "If the specified card was removed:",
+    "removed_card_random": "Insert another random card",
+    "removed_card_skip": "Skip card insertion"
   },
   "TurnTypeOrder": {
     "turn_type_order": "Turn Type Order"

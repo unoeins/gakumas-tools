@@ -332,7 +332,10 @@
     "score": "スコア"
   },
   "SkillCardOrderGroups": {
-    "Nth_order": "{n}週目のカード順"
+    "Nth_order": "{n}週目のカード順",
+    "removed_card_order_header": "指定したカードが除外されていた場合:",
+    "removed_card_random": "他のランダムなカードを挿入する",
+    "removed_card_skip": "カードの挿入をスキップする"
   },
   "TurnTypeOrder": {
     "turn_type_order": "ターン順"

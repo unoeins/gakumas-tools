@@ -11,6 +11,7 @@ export default class IdolConfig {
       customizationGroups,
       skillCardIdOrderGroups,
       customizationOrderGroups,
+      removedCardOrder,
       turnTypeOrder,
     } = loadout;
 
@@ -87,6 +88,7 @@ export default class IdolConfig {
     this.supportBonus = supportBonus || 0;
 
     this.turnTypeOrder = turnTypeOrder || [];
+    this.removedCardOrder = removedCardOrder || "random";
   }
 
   inferPIdolId(pItemIds, skillCardIds) {
