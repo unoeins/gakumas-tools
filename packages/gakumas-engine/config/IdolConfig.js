@@ -11,6 +11,7 @@ export default class IdolConfig {
       customizationGroups,
       skillCardIdOrderGroups,
       customizationOrderGroups,
+      turnTypeOrder,
     } = loadout;
 
     let skillCardIds = [];
@@ -84,6 +85,8 @@ export default class IdolConfig {
     const [vocal, dance, visual, stamina] = params.map((p) => p || 0);
     this.params = { vocal, dance, visual, stamina };
     this.supportBonus = supportBonus || 0;
+
+    this.turnTypeOrder = turnTypeOrder || [];
   }
 
   inferPIdolId(pItemIds, skillCardIds) {

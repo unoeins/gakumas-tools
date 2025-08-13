@@ -333,5 +333,8 @@
   },
   "SkillCardOrderGroups": {
     "Nth_order": "{n}th Card Order"
+  },
+  "TurnTypeOrder": {
+    "turn_type_order": "Turn Type Order"
   }
 }

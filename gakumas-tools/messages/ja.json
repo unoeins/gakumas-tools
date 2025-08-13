@@ -333,5 +333,8 @@
   },
   "SkillCardOrderGroups": {
     "Nth_order": "{n}週目のカード順"
+  },
+  "TurnTypeOrder": {
+    "turn_type_order": "ターン順"
   }
 }

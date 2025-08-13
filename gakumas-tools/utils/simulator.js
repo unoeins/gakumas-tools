@@ -17,6 +17,7 @@ const DEFAULTS = {
   customizationGroups: "-----_-----",
   skillCardIdOrderGroups: "0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0",
   customizationOrderGroups: "-------------------",
+  turnTypeOrder: "0-0-0-0-0-0-0-0-0-0-0-0",
 };
 
 const SIMULATOR_BASE_URL = "https://gktools.ris.moe/simulator";
@@ -44,8 +45,10 @@ export function loadoutFromSearchParams(searchParams) {
   let customizationGroups = searchParams.get("customizations");
   let skillCardIdOrderGroups = searchParams.get("order_cards");
   let customizationOrderGroups = searchParams.get("order_customs");
+  let turnTypeOrder = searchParams.get("order_turns");
   const hasDataFromParams =
-    stageId || params || pItemIds || skillCardIdGroups || customizationGroups;
+    stageId || params || pItemIds || skillCardIdGroups || customizationGroups || 
+    skillCardIdOrderGroups || customizationOrderGroups || turnTypeOrder;
 
   stageId = stageId || DEFAULTS.stageId;
   supportBonus = supportBonus || DEFAULTS.supportBonus;
@@ -70,6 +73,19 @@ export function loadoutFromSearchParams(searchParams) {
   customizationOrderGroups = customizationOrderGroups
     .split("_")
     .map(deserializeCustomizations);
+  if (turnTypeOrder) {
+    turnTypeOrder = turnTypeOrder.split("-")
+      .map((x) => parseInt(x, 10) || 0)
+      .map((i) => ["none", "vocal", "dance", "visual"][i]);
+  } else {
+    // init turn type order by stage
+    if (stageId == null || stageId == "custom") {
+      turnTypeOrder = new Array(12).fill("none");
+    } else {
+      const turnCounts = Stages.getById(stageId).turnCounts;
+      turnTypeOrder = new Array(turnCounts.vocal + turnCounts.dance + turnCounts.visual).fill("none");
+    }
+  }
 
   // Ensure customizations are same shape as skill cards
   if (skillCardIdGroups.length != customizationGroups.length) {
@@ -91,6 +107,7 @@ export function loadoutFromSearchParams(searchParams) {
     hasDataFromParams,
     skillCardIdOrderGroups,
     customizationOrderGroups,
+    turnTypeOrder,
   };
 }
 
@@ -104,6 +121,7 @@ export function loadoutToSearchParams(loadout) {
     customizationGroups,
     skillCardIdOrderGroups,
     customizationOrderGroups,
+    turnTypeOrder,
   } = loadout;
   const searchParams = new URLSearchParams();
   searchParams.set("stage", stageId);
@@ -119,6 +137,10 @@ export function loadoutToSearchParams(loadout) {
   searchParams.set(
     "order_customs",
     customizationOrderGroups.map(serializeCustomizations).join("_")
+  );
+  searchParams.set(
+    "order_turns",
+    turnTypeOrder.map((t) => ["none", "vocal", "dance", "visual"].indexOf(t)).join("-")
   );
   return searchParams;
 }

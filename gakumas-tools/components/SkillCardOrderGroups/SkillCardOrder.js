@@ -23,6 +23,7 @@ function SkillCardOrder({
             key={`${i}_${cardId}`}
             type={EntityTypes.SKILL_CARD}
             id={cardId}
+            label={i + 1}
             customizations={customizations}
             onClick={() =>
               setModal(

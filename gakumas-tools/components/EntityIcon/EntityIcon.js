@@ -17,6 +17,7 @@ function EntityIcon({
   size = "large",
   onClick,
   showTier,
+  label,
   argumentType = "entity",
 }) {
   const entity = ENTITY_DATA_BY_TYPE[type].getById(id);
@@ -42,6 +43,8 @@ function EntityIcon({
         {!!indications && <Indications indications={indications} />}
       </>
     );
+  } else if(label) {
+    unwrappedElement = (<span className={styles.label}>{label}</span>);
   }
 
   const className = c(

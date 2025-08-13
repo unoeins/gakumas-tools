@@ -39,6 +39,7 @@ export function LoadoutContextProvider({ children }) {
   const [customizationOrderGroups, setCustomizationOrderGroups] = useState(
     initial.customizationOrderGroups
   );
+  const [turnTypeOrder, setTurnTypeOrder] = useState(initial.turnTypeOrder);
   const [loadoutHistory, setLoadoutHistory] = useState([]);
 
   let stage = FALLBACK_STAGE;
@@ -59,6 +60,7 @@ export function LoadoutContextProvider({ children }) {
       customizationGroups,
       skillCardIdOrderGroups,
       customizationOrderGroups,
+      turnTypeOrder,
     }),
     [
       stageId,
@@ -70,6 +72,7 @@ export function LoadoutContextProvider({ children }) {
       customizationGroups,
       skillCardIdOrderGroups,
       customizationOrderGroups,
+      turnTypeOrder,
     ]
   );
 
@@ -116,6 +119,12 @@ export function LoadoutContextProvider({ children }) {
       }
     } else {
       setCustomizationOrderGroups([new Array(loadout.customizationGroups.length * 6 + 8).fill({})]);
+    }
+    if (loadout.turnTypeOrder) {
+      setTurnTypeOrder(loadout.turnTypeOrder);
+    } else {
+      const turnCounts = loadout.stageId == "custom" ? loadout.customStage.turnCounts : Stages.getById(loadout.stageId).turnCounts; 
+      setTurnTypeOrder(new Array(turnCounts.vocal + turnCounts.dance + turnCounts.visual).fill("none"));
     }
   };
 
@@ -167,6 +176,7 @@ export function LoadoutContextProvider({ children }) {
     setCustomizationGroups([[], []]);
     setSkillCardIdOrderGroups([new Array(20).fill(0)]);
     setCustomizationOrderGroups([new Array(20).fill({})]);
+    setTurnTypeOrder(new Array(turnTypeOrder.length).fill("none"));
   }
 
   function replacePItemId(index, itemId) {
@@ -335,6 +345,34 @@ export function LoadoutContextProvider({ children }) {
     });
   };
 
+  const updateStage = (stageId, customStage) => {
+    console.log("updateStage", {stageId, customStage});
+    setStageId(stageId);
+    setCustomStage(customStage);
+    
+    setTurnTypeOrder((cur) => {
+      const updatedTurnTypeOrder = [...cur];
+      const turnCounts = stageId == "custom" ? customStage.turnCounts : Stages.getById(stageId).turnCounts; 
+      const totalTurns = turnCounts.vocal + turnCounts.dance + turnCounts.visual;
+      if (updatedTurnTypeOrder.length < totalTurns) {
+        updatedTurnTypeOrder.push(...Array(totalTurns - updatedTurnTypeOrder.length).fill("none"));
+      } else if (updatedTurnTypeOrder.length > totalTurns) {
+        updatedTurnTypeOrder.length = totalTurns;
+      }
+      console.log("updateStage updatedTurnTypeOrder", updatedTurnTypeOrder);
+      return updatedTurnTypeOrder;
+    });
+  };
+
+  const replaceTurnTypeOrder = (index, turnType) => {
+    setTurnTypeOrder((cur) => {
+      const updatedTurnTypeOrder = [...cur];
+      updatedTurnTypeOrder[index] = turnType;
+      console.log("replaceTurnTypeOrder updatedTurnTypeOrder", updatedTurnTypeOrder);
+      return updatedTurnTypeOrder;
+    });
+  };
+
   function setMemory(memory, index) {
     const multiplier = index ? 0.2 : 1;
 
@@ -412,6 +450,7 @@ export function LoadoutContextProvider({ children }) {
         setMemory,
         setStageId,
         setCustomStage,
+        updateStage,
         setSupportBonus,
         setParams,
         replacePItemId,
@@ -424,6 +463,7 @@ export function LoadoutContextProvider({ children }) {
         swapSkillCardIdGroups,
         insertSkillCardOrderGroup,
         deleteSkillCardOrderGroup,
+        replaceTurnTypeOrder,
         stage,
         simulatorUrl,
         loadoutHistory,
