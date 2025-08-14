@@ -12,12 +12,21 @@ import styles from "./Simulator.module.scss";
 function SimulatorButtons() {
   const t = useTranslations("SimulatorButtons");
 
-  const { clear, simulatorUrl } = useContext(LoadoutContext);
+  const { clear, clearOrders, simulatorUrl } = useContext(LoadoutContext);
   const { setModal } = useContext(ModalContext);
   const [linkCopied, setLinkCopied] = useState(false);
 
   return (
     <div className={styles.buttons}>
+      <Button
+        style="red-secondary"
+        onClick={() =>
+          setModal(<ConfirmModal message={t("confirmClearOrders")} onConfirm={clearOrders} />)
+        }
+      >
+        {t("clearOrders")}
+      </Button>
+
       <Button
         style="red-secondary"
         onClick={() =>

@@ -236,6 +236,8 @@
   "SimulatorButtons": {
     "confirm": "Are you sure you want to clear the loadout?",
     "clear": "Clear",
+    "confirmClearOrders": "Are you sure you want to clear the card and turn order?",
+    "clearOrders": "Clear card and turn order",
     "manageLoadouts": "Save/Load β"
   },
   "ConfirmModal": {

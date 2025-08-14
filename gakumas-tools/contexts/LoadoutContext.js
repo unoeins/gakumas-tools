@@ -184,6 +184,14 @@ export function LoadoutContextProvider({ children }) {
     setTurnTypeOrder(new Array(turnTypeOrder.length).fill("none"));
   }
 
+  function clearOrders() {
+    const size = skillCardIdGroups.length * 6 + 8;
+    setSkillCardIdOrderGroups([new Array(size).fill(0)]);
+    setCustomizationOrderGroups([new Array(size).fill({})]);
+    setRemovedCardOrder("random");
+    setTurnTypeOrder(new Array(turnTypeOrder.length).fill("none"));
+  }
+
   function replacePItemId(index, itemId) {
     setPItemIds((cur) => {
       const next = [...cur];
@@ -463,6 +471,7 @@ export function LoadoutContextProvider({ children }) {
         replaceCustomizations,
         replaceSkillCardOrder,
         clear,
+        clearOrders,
         insertSkillCardIdGroup,
         deleteSkillCardIdGroup,
         swapSkillCardIdGroups,

@@ -236,6 +236,8 @@
   "SimulatorButtons": {
     "confirm": "編成をクリアしますか？",
     "clear": "クリア",
+    "confirmClearOrders": "カード順、ターン順をクリアしますか？",
+    "clearOrders": "カード順、ターン順をクリア",
     "manageLoadouts": "保存・読み込みβ"
   },
   "ConfirmModal": {
