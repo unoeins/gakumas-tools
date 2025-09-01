@@ -13,6 +13,7 @@
   "dependencies": {
     "@next/third-parties": "^15.3.5",
     "@sgratzl/chartjs-chart-boxplot": "^4.4.4",
+    "@vercel/analytics": "^1.5.0",
     "chart.js": "^4.5.0",
     "gakumas-data": "workspace:*",
     "gakumas-engine": "workspace:*",

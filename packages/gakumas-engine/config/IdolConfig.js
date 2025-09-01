@@ -58,7 +58,6 @@ export default class IdolConfig {
         };
       }
     }
-    console.log("IdolConfig cardOrderGroups", cardOrderGroups);
     this.cardOrderGroups = cardOrderGroups;
 
     // P-items and skill cards

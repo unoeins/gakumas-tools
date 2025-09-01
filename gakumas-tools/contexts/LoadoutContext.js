@@ -234,7 +234,6 @@ export function LoadoutContextProvider({ children }) {
   }
 
   function replaceSkillCardOrder(groupIndex, index, cardId, customizations) {
-    console.log("replaceSkillCardOrder", groupIndex, index, cardId, customizations);
     setSkillCardIdOrderGroups((cur) => {
       const updatedSkillCardIdOrderGroups = [...cur];
       updatedSkillCardIdOrderGroups[groupIndex][index] = cardId;
@@ -263,7 +262,6 @@ export function LoadoutContextProvider({ children }) {
       updatedSkillCardIdOrderGroups = updatedSkillCardIdOrderGroups.map((skillCardIdOrderGroup) => {
          return [...skillCardIdOrderGroup, 0, 0, 0, 0, 0, 0];
       });
-      console.log("insertSkillCardIdGroup updatedSkillCardIdOrderGroups", updatedSkillCardIdOrderGroups);
       return updatedSkillCardIdOrderGroups;
     });
     setCustomizationOrderGroups((cur) => {
@@ -271,7 +269,6 @@ export function LoadoutContextProvider({ children }) {
       updatedCustomizationOrderGroups = updatedCustomizationOrderGroups.map((customizationOrderGroup) => {
          return [...customizationOrderGroup, {}, {}, {}, {}, {}, {}];
       });
-      console.log("insertSkillCardIdGroup updatedCustomizationOrderGroups", updatedCustomizationOrderGroups);
       return updatedCustomizationOrderGroups;
     });
   };
@@ -293,7 +290,6 @@ export function LoadoutContextProvider({ children }) {
         skillCardIdOrderGroup.splice(skillCardIdOrderGroup.length-6, 6);
         return skillCardIdOrderGroup;
       });
-      console.log("deleteSkillCardIdGroup updatedSkillCardIdOrderGroups", updatedSkillCardIdOrderGroups);
       return updatedSkillCardIdOrderGroups;
     });
     setCustomizationOrderGroups((cur) => {
@@ -302,7 +298,6 @@ export function LoadoutContextProvider({ children }) {
         customizationOrderGroup.splice(customizationOrderGroup.length-6, 6);
         return customizationOrderGroup;
       });
-      console.log("deleteSkillCardIdGroup updatedCustomizationOrderGroups", updatedCustomizationOrderGroups);
       return updatedCustomizationOrderGroups;
     });
   };
@@ -325,41 +320,34 @@ export function LoadoutContextProvider({ children }) {
   };
 
   const insertSkillCardOrderGroup = (groupIndex) => {
-    console.log("insertSkillCardOrderGroup", groupIndex);
     setSkillCardIdOrderGroups((cur) => {
       const size = skillCardIdGroups.length * 6 + 8;//cur[0].length;
       const updatedSkillCardIdOrderGroups = [...cur];
       updatedSkillCardIdOrderGroups.splice(groupIndex, 0, new Array(size).fill(0));
-      console.log("insertSkillCardOrderGroup updatedSkillCardIdOrderGroups", updatedSkillCardIdOrderGroups);
       return updatedSkillCardIdOrderGroups;
     });
     setCustomizationOrderGroups((cur) => {
       const size = skillCardIdGroups.length * 6 + 8;//cur[0].length;
       const updatedCustomizationOrderGroups = [...cur];
       updatedCustomizationOrderGroups.splice(groupIndex, 0, new Array(size).fill({}));
-      console.log("insertSkillCardOrderGroup updatedCustomizationOrderGroups", updatedCustomizationOrderGroups);
       return updatedCustomizationOrderGroups;
     });
   };
 
   const deleteSkillCardOrderGroup = (groupIndex) => {
-    console.log("deleteSkillCardOrderGroup", groupIndex);
     setSkillCardIdOrderGroups((cur) => {
       const updatedSkillCardIdOrderGroups = [...cur];
       updatedSkillCardIdOrderGroups.splice(groupIndex, 1);
-      console.log("deleteSkillCardOrderGroup updatedSkillCardIdOrderGroups", updatedSkillCardIdOrderGroups);
       return updatedSkillCardIdOrderGroups;
     });
     setCustomizationOrderGroups((cur) => {
       const updatedCustomizationOrderGroups = [...cur];
       updatedCustomizationOrderGroups.splice(groupIndex, 1);
-      console.log("deleteSkillCardOrderGroup updatedCustomizationOrderGroups", updatedCustomizationOrderGroups);
       return updatedCustomizationOrderGroups;
     });
   };
 
   const updateStage = (stageId, customStage) => {
-    console.log("updateStage", {stageId, customStage});
     setStageId(stageId);
     setCustomStage(customStage);
     
@@ -372,7 +360,6 @@ export function LoadoutContextProvider({ children }) {
       } else if (updatedTurnTypeOrder.length > totalTurns) {
         updatedTurnTypeOrder.length = totalTurns;
       }
-      console.log("updateStage updatedTurnTypeOrder", updatedTurnTypeOrder);
       return updatedTurnTypeOrder;
     });
   };
@@ -381,7 +368,6 @@ export function LoadoutContextProvider({ children }) {
     setTurnTypeOrder((cur) => {
       const updatedTurnTypeOrder = [...cur];
       updatedTurnTypeOrder[index] = turnType;
-      console.log("replaceTurnTypeOrder updatedTurnTypeOrder", updatedTurnTypeOrder);
       return updatedTurnTypeOrder;
     });
   };
@@ -454,7 +440,6 @@ export function LoadoutContextProvider({ children }) {
     });
   }
 
-  console.log("LoadoutContext", loadout);
   return (
     <LoadoutContext.Provider
       value={{

@@ -57,8 +57,6 @@ export default class CardManager extends EngineComponent {
         }
       });
     });
-    console.log("initializeState cardMap", cardMap);
-    console.log("initializeState cardOrderGroups", cardOrderGroups);
 
     state[S.cardMap] = cardMap;
     state[S.deckCards] = cardMap.map((_, i) => i);
@@ -114,10 +112,6 @@ export default class CardManager extends EngineComponent {
         cardOrderGroup.map((id) => state[S.deckCards].includes(id) ? id : -1);
       let restDeckCards = state[S.deckCards].toReversed().filter((id) => !cardOrderGroup.includes(id));
       let updatedDeckCards = [];
-      console.log("applyCardOrder cardOrderGroup", cardOrderGroup);
-      console.log("applyCardOrder remainingCardOrder", remainingCardOrder);
-      console.log("applyCardOrder deckCards", state[S.deckCards]);
-      console.log("applyCardOrder restDeckCards", restDeckCards);
       for(let i = 0; i < deckSize; i++) {
         const cardOrder = remainingCardOrder[i];
         if(cardOrder >= 0) {
@@ -132,7 +126,6 @@ export default class CardManager extends EngineComponent {
         );
       }
 
-      console.log("applyCardOrder updatedDeckCards", updatedDeckCards);
       state[S.deckCards] = updatedDeckCards.toReversed();
     }
   }

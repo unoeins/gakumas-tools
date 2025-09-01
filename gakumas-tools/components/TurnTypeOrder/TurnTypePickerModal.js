@@ -10,7 +10,6 @@ function TurnTypePickerModal({
 }) {
   const { closeModal } = useContext(ModalContext);
 
-  console.log("TurnTypePickerModal");
   let turnTypes = ["vocal", "dance", "visual"]
   if(includeNull) {
     turnTypes.unshift("none");

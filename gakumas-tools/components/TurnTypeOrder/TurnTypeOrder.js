@@ -14,7 +14,6 @@ function TurnTypeOrder({
     replaceTurnTypeOrder,
   } = useContext(LoadoutContext);
   const { setModal } = useContext(ModalContext);
-  console.log("TurnTypeOrder", turnTypeOrder);
   return (
     <>
         <div id="turnTypeOrder" className={styles.turnTypeOrder}>

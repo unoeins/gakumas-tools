@@ -70,7 +70,6 @@ export default class TurnManager extends EngineComponent {
     const { turnCounts, firstTurns, criteria } = this.config.stage;
     const { turnTypeOrder } = this.config.idol;
 
-    console.log("generateOrderedTurnTypes", { turnTypeOrder, turnCounts, firstTurns, criteria });
     // Initialize remaining counts for each turn type
     const remainingTurns = { ...turnCounts };
 
@@ -82,7 +81,6 @@ export default class TurnManager extends EngineComponent {
       }
       return "none";
     });
-    console.log("generateOrderedTurnTypes initial turnTypes", { turnTypes, remainingTurns });
 
     // Pick first turn based on configured distribution
     if(turnTypes[0] == "none") {
@@ -104,7 +102,6 @@ export default class TurnManager extends EngineComponent {
       if (rand > updatedFirstTurns.vocal + updatedFirstTurns.dance) firstTurn = "visual";
       remainingTurns[firstTurn]--;
       turnTypes[0] = firstTurn;
-      console.log("generateOrderedTurnTypes updatedFirstTurns", { updatedFirstTurns, remainingTurns });
     }
 
     // Pick last 3 turns based on stage criteria
@@ -118,7 +115,6 @@ export default class TurnManager extends EngineComponent {
         turnTypes[turnTypes.length - 3 + i] = t;
       }
     });
-    console.log("generateOrderedTurnTypes lastThreeTurns turnTypes", { turnTypes, remainingTurns });
 
     let randomTurns = [];
     for (let k in remainingTurns) {
@@ -127,12 +123,10 @@ export default class TurnManager extends EngineComponent {
       }
     }
     shuffle(randomTurns);
-    console.log("generateOrderedTurnTypes randomTurns", { randomTurns, remainingTurns });
 
     let result = turnTypes.map((turnType) => 
       turnType == "none" ? randomTurns.shift() : turnType
     );
-    console.log("generateOrderedTurnTypes result", { result, remainingTurns });
     return result;
   }
 

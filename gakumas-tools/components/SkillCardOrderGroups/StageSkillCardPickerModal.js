@@ -17,7 +17,6 @@ function StageSkillCardPickerModal({
     loadout,
   } = useContext(LoadoutContext);
 
-  console.log("StageSkillCardPickerModal loadout", { loadout });
   let skillCardIds = [].concat(...loadout.skillCardIdGroups, defaultCardIds);
   let customizations = [].concat(...loadout.customizationGroups);
   if(includeNull) {
