@@ -17,7 +17,7 @@ function Navbar() {
 
   return (
     <>
-      <nav className={c(styles.navbar, OSHI_PROPS && styles.hasOshi)}>
+      <nav className={c(styles.navbar)}>
         <Link href="/">
           <h1>Gakumas Tools</h1>
         </Link>
@@ -38,7 +38,6 @@ function Navbar() {
           <NavbarMenu />
         </div>
       </nav>
-      {OSHI_PROPS && <Oshi {...OSHI_PROPS} />}
     </>
   );
 }
