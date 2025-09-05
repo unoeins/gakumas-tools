@@ -2,19 +2,6 @@ import { Idols } from "gakumas-data";
 import gkImg from "gakumas-images";
 import Image from "@/components/Image";
 
-const Badge = () => (
-  <div
-    style={{
-      display: "inline-block",
-      marginRight: 8,
-      backgroundColor: "#ff3333",
-      borderRadius: 5,
-      width: 10,
-      height: 10,
-    }}
-  />
-);
-
 const IdolIcon = ({ idolId }) => {
   const idol = Idols.getById(idolId);
   return (
@@ -32,16 +19,29 @@ const IdolIcon = ({ idolId }) => {
 export const OSHI_PROPS = {
   text: (
     <div>
-      今夜19時に
-      <IdolIcon idolId={9} />
-      「薄井友里のツイてる！フロンティア」に
+      <IdolIcon idolId={12} />
+      <IdolIcon idolId={10} />
       <IdolIcon idolId={6} />
-      伊藤舞音さんがゲスト出演します！
+      <IdolIcon idolId={8} />
+      「Let's GO!! ICHI-NO-NI!!」
     </div>
   ),
-  initiallyExpanded: true,
-  url: "https://nicochannel.jp/usui/live/smJwrvRwxbnuTZLz3cbbzNYi",
+  videoId: "RYMg75Xn6sw",
 };
+
+// export const OSHI_PROPS = {
+//   text: (
+//     <div>
+//       今夜19時に
+//       <IdolIcon idolId={9} />
+//       「薄井友里のツイてる！フロンティア」に
+//       <IdolIcon idolId={6} />
+//       伊藤舞音さんがゲスト出演します！
+//     </div>
+//   ),
+//   initiallyExpanded: true,
+//   url: "https://nicochannel.jp/usui/live/smJwrvRwxbnuTZLz3cbbzNYi",
+// };
 
 // export const OSHI_PROPS = {
 //   text: (
