@@ -4,6 +4,16 @@ All notable changes to the contest simulator will be documented in this file.
 Dates are based on Eastern Time Zone.
 
 
+
+
+## 2025-09-07
+
+- Preview of Na Now Hiro
+
+## 2025-09-06
+
+- Added event stages
+
 ## 2025-09-05
 
 - Season 31 preview

@@ -24,6 +24,7 @@ export default class CardManager extends EngineComponent {
         state[S.usedCard] && state[S.cardMap][state[S.usedCard]].baseId,
       numHeldCards: (state) => state[S.heldCards].length,
       numRemovedCards: (state) => state[S.removedCards].length,
+      countRemovedCardsByBaseId: (state, baseId) => this.getTargetRuleCards(state, `removed*${baseId}`, null).size,
     };
   }
 
@@ -584,13 +585,17 @@ export default class CardManager extends EngineComponent {
 
   moveActiveCardsToDeckFromRemoved(state) {
     let cards = state[S.cardMap]
-      .map((c, i) => (state[S.removedCards].includes(i) && 
-                      SkillCards.getById(c.id).type == "active") ? i : -1)
+      .map((c, i) =>
+        state[S.removedCards].includes(i) &&
+        SkillCards.getById(c.id).type == "active"
+          ? i
+          : -1
+      )
       .filter((i) => i != -1);
 
     if (!cards.length) return;
 
-    cards.forEach(card => {
+    cards.forEach((card) => {
       const index = state[S.removedCards].indexOf(card);
       if (index != -1) {
         state[S.removedCards].splice(index, 1);
@@ -750,6 +755,10 @@ export default class CardManager extends EngineComponent {
     } else if (target == "held") {
       for (let k = 0; k < state[S.heldCards].length; k++) {
         targetCards.add(state[S.heldCards][k]);
+      }
+    } else if (target == "removed") {
+      for (let k = 0; k < state[S.removedCards].length; k++) {
+        targetCards.add(state[S.removedCards][k]);
       }
     } else if (target == "all") {
       for (let k = 0; k < state[S.cardMap].length; k++) {
