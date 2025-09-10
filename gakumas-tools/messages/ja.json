@@ -238,7 +238,12 @@
     "clear": "クリア",
     "confirmClearOrders": "カード順、ターン順をクリアしますか？",
     "clearOrders": "カード順、ターン順をクリア",
-    "manageLoadouts": "保存・読み込みβ"
+    "manageLoadouts": "保存・読み込みβ",
+    "readLoadoutFromUrl": "URL読み込み",
+    "invalidUrl": "有効なURLではありません。",
+    "invalidLoadout": "URLから編成を読み込めません。",
+    "clipboardError": "クリップボードを読み込めません。",
+    "confirmSetLoadout": "クリップボードのURLから編成をセットしますか？"
   },
   "ConfirmModal": {
     "cancel": "キャンセル",
