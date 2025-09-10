@@ -56,7 +56,7 @@ function EntityIcon({
 
   if (onClick) {
     const onClickHandler = argumentType === "entity" ? 
-      () => onClick(entity) : () => onClick(id, customizations || {});
+      () => onClick(entity || {}) : () => onClick(id, customizations || {});
     return (
       <button className={className} onClick={onClickHandler}>
         {unwrappedElement}
