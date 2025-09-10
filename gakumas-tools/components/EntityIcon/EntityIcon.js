@@ -30,6 +30,7 @@ function EntityIcon({
         <Image
           src={icon}
           alt={entity.name}
+          title={entity.name}
           fill
           sizes="64px"
           draggable={false}

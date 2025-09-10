@@ -643,7 +643,7 @@ export default class CardManager extends EngineComponent {
     if (!cards.length) return;
 
     // Pick card to hold based on strategy
-    let indicesToHold = this.engine.strategy.pickCardsToHold(state, cards, num);
+    let indicesToHold = this.engine.strategy.pickCardsToHold(state, cards, num).sort((a, b) => b - a);
     if (indicesToHold.length === 0) return;
 
     // Find cards and move to hold
