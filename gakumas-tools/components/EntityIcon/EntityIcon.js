@@ -30,6 +30,7 @@ function EntityIcon({
         <Image
           src={icon}
           alt={entity.name}
+          title={entity.name}
           fill
           sizes="64px"
           draggable={false}
@@ -55,7 +56,7 @@ function EntityIcon({
 
   if (onClick) {
     const onClickHandler = argumentType === "entity" ? 
-      () => onClick(entity) : () => onClick(id, customizations || {});
+      () => onClick(entity || {}) : () => onClick(id, customizations || {});
     return (
       <button className={className} onClick={onClickHandler}>
         {unwrappedElement}

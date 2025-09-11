@@ -238,7 +238,12 @@
     "clear": "Clear",
     "confirmClearOrders": "Are you sure you want to clear the card and turn order?",
     "clearOrders": "Clear card and turn order",
-    "manageLoadouts": "Save/Load β"
+    "manageLoadouts": "Save/Load β",
+    "readLoadoutFromUrl": "Read URL",
+    "invalidUrl": "Invalid URL.",
+    "invalidLoadout": "Cannot load loadout from URL.",
+    "clipboardError": "Cannot read from clipboard.",
+    "confirmSetLoadout": "Are you sure you want to set loadout from clipboard URL?"
   },
   "ConfirmModal": {
     "cancel": "Cancel",
