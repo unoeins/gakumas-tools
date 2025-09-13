@@ -52,6 +52,7 @@ export default function Simulator() {
     setSupportBonus,
     setParams,
     replacePItemId,
+    swapPItemIds,
     setRemovedCardOrder,
     pushLoadoutHistory,
   } = useContext(LoadoutContext);
@@ -198,6 +199,7 @@ export default function Simulator() {
             <StagePItems
               pItemIds={loadout.pItemIds}
               replacePItemId={replacePItemId}
+              swapPItemIds={swapPItemIds}
               indications={pItemIndications}
               size="medium"
             />

@@ -200,6 +200,14 @@ export function LoadoutContextProvider({ children }) {
     });
   }
 
+  function swapPItemIds(indexA, indexB) {
+    setPItemIds((cur) => {
+      const next = [...cur];
+      [next[indexA], next[indexB]] = [next[indexB], next[indexA]];
+      return next;
+    });
+  }
+
   function replaceSkillCardId(index, cardId) {
     let changed = false;
     setSkillCardIdGroups((cur) => {
@@ -218,6 +226,32 @@ export function LoadoutContextProvider({ children }) {
     if (changed) {
       replaceCustomizations(index, []);
     }
+  }
+
+  function swapSkillCardIds(indexA, indexB) {
+    setSkillCardIdGroups((cur) => {
+      const skillCardIds = [].concat(...cur);
+      const temp = skillCardIds[indexA];
+      skillCardIds[indexA] = skillCardIds[indexB];
+      skillCardIds[indexB] = temp;
+      let chunks = [];
+      for (let i = 0; i < skillCardIds.length; i += 6) {
+        chunks.push(skillCardIds.slice(i, i + 6));
+      }
+      return chunks;
+    });
+
+    setCustomizationGroups((cur) => {
+      const curCustomizations = [].concat(...cur);
+      const temp = curCustomizations[indexA];
+      curCustomizations[indexA] = curCustomizations[indexB];
+      curCustomizations[indexB] = temp;
+      let chunks = [];
+      for (let i = 0; i < curCustomizations.length; i += 6) {
+        chunks.push(curCustomizations.slice(i, i + 6));
+      }
+      return chunks;
+    });
   }
 
   function replaceCustomizations(index, customizations) {
@@ -452,7 +486,9 @@ export function LoadoutContextProvider({ children }) {
         setSupportBonus,
         setParams,
         replacePItemId,
+        swapPItemIds,
         replaceSkillCardId,
+        swapSkillCardIds,
         replaceCustomizations,
         replaceSkillCardOrder,
         clear,
