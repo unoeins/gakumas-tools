@@ -7,6 +7,7 @@ import * as ort from "onnxruntime-web";
 import Image from "@/components/Image";
 import Modal from "@/components/Modal";
 import { getMemoryFromFile } from "@/utils/imageProcessing/memory";
+import { logEvent } from "@/utils/logging";
 import styles from "./MemoryImporterModal.module.scss";
 
 const MAX_WORKERS = 1;
@@ -51,15 +52,15 @@ function MemoryImporterModal({ onSuccess, multiple = true }) {
     const pItemSession = await ort.InferenceSession.create(
       "/p_item_model.onnx"
     );
-    const pItemEmbeddings = await fetch("/p_item_embeddings.json").then((r) =>
+    const pItemClasses = await fetch("/p_item_classes.json").then((r) =>
       r.json()
     );
 
     const skillCardSession = await ort.InferenceSession.create(
       "/skill_card_model.onnx"
     );
-    const skillCardEmbeddings = await fetch("/skill_card_embeddings.json").then(
-      (r) => r.json()
+    const skillCardClasses = await fetch("/skill_card_classes.json").then((r) =>
+      r.json()
     );
 
     let results = [];
@@ -75,9 +76,9 @@ function MemoryImporterModal({ onSuccess, multiple = true }) {
           file,
           engWorker,
           pItemSession,
-          pItemEmbeddings,
+          pItemClasses,
           skillCardSession,
-          skillCardEmbeddings
+          skillCardClasses
         );
         setProgress((p) => p + 1);
         return memory;
@@ -88,6 +89,11 @@ function MemoryImporterModal({ onSuccess, multiple = true }) {
     }
 
     console.timeEnd("All memories parsed");
+
+    logEvent("memories.import", {
+      num: results.length,
+    });
+
     onSuccess(results);
   }, []);
 

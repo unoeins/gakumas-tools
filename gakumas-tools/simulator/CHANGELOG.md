@@ -8,6 +8,16 @@ Dates are based on Eastern Time Zone.
 
 
 
+
+
+## 2025-09-17
+
+- Update for 36degCUBU Rinami
+
+## 2025-09-16
+
+- Add preview of gekkan anime talk
+
 ## 2025-09-10
 
 - Fix holding multiple cards
