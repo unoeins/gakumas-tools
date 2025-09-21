@@ -1,4 +1,4 @@
-import { S } from "../constants";
+import { S, EVENTS } from "../constants";
 
 export default class StagePlayer {
   constructor(engine, strategy) {
@@ -15,9 +15,12 @@ export default class StagePlayer {
       state = this.strategy.evaluate(state).state;
     }
 
+    const logs = this.engine.logger.pickLogs(state);
+    this.engine.listenerManager.triggerEvent(EVENTS.STAGE_ENDED, state, logs);
+
     return {
       score: state[S.score],
-      logs: this.engine.logger.pickLogs(state),
+      logs: logs,
       graphData: state.graphData,
     };
   }

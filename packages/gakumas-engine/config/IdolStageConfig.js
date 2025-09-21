@@ -14,9 +14,10 @@ const EVENT_DEFAULT_CARD_IDS_BY_RECOMMENDED_EFFECT = {
 };
 
 export default class IdolStageConfig {
-  constructor(idolConfig, stageConfig) {
+  constructor(idolConfig, stageConfig, simulatorConfig = {}) {
     this.idol = idolConfig;
     this.stage = stageConfig;
+    this.simulator = simulatorConfig;
     this.typeMultipliers = this.calculateTypeMultipliers(
       idolConfig,
       stageConfig

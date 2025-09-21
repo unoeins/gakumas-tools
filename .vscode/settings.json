@@ -1,4 +1,7 @@
 {
+  "editor.codeActionsOnSave": {
+    "source.addMissingImports": "explicit",
+  },
   "github.copilot.enable": {
     "*": true,
     "plaintext": false,
