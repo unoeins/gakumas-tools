@@ -177,7 +177,10 @@ export function LoadoutContextProvider({ children }) {
       [0, 0, 0, 0, 0, 0],
       [0, 0, 0, 0, 0, 0],
     ]);
-    setCustomizationGroups([[], []]);
+    setCustomizationGroups([
+      [{}, {}, {}, {}, {}, {}],
+      [{}, {}, {}, {}, {}, {}],
+    ]);
     setSkillCardIdOrderGroups([new Array(20).fill(0)]);
     setCustomizationOrderGroups([new Array(20).fill({})]);
     setRemovedCardOrder("random");
