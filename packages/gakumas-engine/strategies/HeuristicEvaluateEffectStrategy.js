@@ -4,7 +4,7 @@ import BaseStrategy from "./BaseStrategy";
 
 const MAX_DEPTH = 3;
 
-export default class BasicCardStrategy extends BaseStrategy {
+export default class HeuristicEvaluateEffectStrategy extends BaseStrategy {
   constructor(engine) {
     super(engine);
 
@@ -18,13 +18,13 @@ export default class BasicCardStrategy extends BaseStrategy {
     );
 
     this.goodConditionTurnsMultiplier =
-      config.idol.recommendedEffect == "goodConditionTurns" ? 1 : 1;
+      config.idol.recommendedEffect == "goodConditionTurns" ? 1.75 : 1;
     this.concentrationMultiplier =
-      config.idol.recommendedEffect == "concentration" ? 1 : 1;
+      config.idol.recommendedEffect == "concentration" ? 3 : 1;
     this.goodImpressionTurnsMultiplier =
-      config.idol.recommendedEffect == "goodImpressionTurns" ? 1 : 1;
+      config.idol.recommendedEffect == "goodImpressionTurns" ? 3.5 : 1;
     this.motivationMultiplier =
-      config.idol.recommendedEffect == "motivation" ? 1 : 1;
+      config.idol.recommendedEffect == "motivation" ? 5.5 : 1;
     this.fullPowerMultiplier =
       config.idol.recommendedEffect == "fullPower" ? 5 : 1;
 
@@ -147,7 +147,7 @@ export default class BasicCardStrategy extends BaseStrategy {
     // Effects -- TODO: make this not suck
     const effects = state[S.effects];
     const limits = effects.map(effect => {
-      let limit = Math.min(state[S.turnsRemaining], 6);
+      let limit = Math.min(state[S.turnsRemaining], 3);
       if (
         effect.limit != null &&
         effect.limit < limit
@@ -177,7 +177,6 @@ export default class BasicCardStrategy extends BaseStrategy {
       }
     }
 
-    const { recommendedEffect } = this.engine.config.idol;
     let score = 0;
 
     // Effect score
@@ -187,22 +186,24 @@ export default class BasicCardStrategy extends BaseStrategy {
     score += state[S.handCards].length * 3;
 
     // Stamina
-    score += state[S.stamina] * state[S.turnsRemaining] * 0.01;
+    score += state[S.stamina] * state[S.turnsRemaining] * 0.05;
 
     // Genki
-    score += state[S.genki] * state[S.turnsRemaining] * 0.01;
+    score +=
+      state[S.genki] *
+      Math.tanh(state[S.turnsRemaining] / 3) *
+      0.7 *
+      this.motivationMultiplier;
 
-    // TODO consider double cost turns, half cost turns and cost reduction
-    const appealTime = Math.floor((state[S.stamina] + state[S.genki]) / 4);
     // Good condition turns
     score +=
-      Math.min(state[S.goodConditionTurns], state[S.turnsRemaining], appealTime) *
+      Math.min(state[S.goodConditionTurns], state[S.turnsRemaining]) *
       (9 + state[S.concentration]) * 0.5 *
       this.goodConditionTurnsMultiplier;
 
     // Perfect condition turns
     score +=
-      Math.min(state[S.perfectConditionTurns], state[S.turnsRemaining], appealTime) *
+      Math.min(state[S.perfectConditionTurns], state[S.turnsRemaining]) *
       state[S.goodConditionTurns] *
       (9 + state[S.concentration]) * 0.1 *
       this.goodConditionTurnsMultiplier;
@@ -210,7 +211,7 @@ export default class BasicCardStrategy extends BaseStrategy {
     // Concentration
     score +=
       state[S.concentration] *
-      Math.min(state[S.turnsRemaining], appealTime) *
+      state[S.turnsRemaining] *
       this.concentrationMultiplier;
 
     // Stance
@@ -238,42 +239,24 @@ export default class BasicCardStrategy extends BaseStrategy {
     }
 
     // Good impression turns
-    if(recommendedEffect == "goodImpressionTurns") {
-      const g = state[S.goodImpressionTurns];
-      const t = state[S.turnsRemaining];
-      const s = state[S.stamina] + state[S.genki];
-      score +=
-        (g * t + t * (t - 1) / 2)  +
-        (g * (s >= 10 ? 2 : s >= 5 ? 1 : 0)) *
-        this.goodImpressionTurnsMultiplier;
-    } else {
-      const g = state[S.goodImpressionTurns];
-      const t = state[S.turnsRemaining];
-      score +=
-        (g * Math.min(g, t) - (g > t ? t : g) * (g > t ? t - 1 : g - 1) / 2) *
-        this.goodImpressionTurnsMultiplier;
-    }
+    score +=
+      state[S.goodImpressionTurns] *
+      state[S.turnsRemaining] *
+      this.goodImpressionTurnsMultiplier;
 
     // Motivation
-    if(recommendedEffect == "motivation") {
-      let m = state[S.motivation];
-      let g = state[S.genki];
-      const t = state[S.turnsRemaining];
-      for(let i=0; i < Math.max(t - 2, 0); i++) {
-        g += m + 1;
-        m += 2;
-      }
-      score += t >= 2 ?
-        (g * (state[S.stamina] >= 10 ? 2 : state[S.stamina] / 5)) :
-        (g * (state[S.stamina] >= 5 ? 1 : state[S.stamina] / 5)) *
-        this.motivationMultiplier;
-    } else {
-      score +=
-        state[S.motivation] *
-        state[S.turnsRemaining] *
-        0.45 *
-        this.motivationMultiplier;
-    }
+    score +=
+      state[S.motivation] *
+      state[S.turnsRemaining] *
+      0.45 *
+      this.motivationMultiplier;
+
+    // Score buffs
+    score +=
+      state[S.scoreBuffs].reduce(
+        (acc, cur) => acc + cur.amount * (cur.turns || state[S.turnsRemaining]),
+        0
+      ) * 8;
 
     // Half cost turns
     score += Math.min(state[S.halfCostTurns], state[S.turnsRemaining]) * 6;
@@ -335,53 +318,28 @@ export default class BasicCardStrategy extends BaseStrategy {
     // Turn cards upgraded
     score += state[S.turnCardsUpgraded] * 20;
 
-    if(state[S.turnsRemaining]) {
-      // Score buffs
-      const totalScoreBuffs = state[S.scoreBuffs].reduce(
-        (acc, cur) => 
-          acc + cur.amount * 
-          (cur.turns ? 
-            Math.min(cur.turns, state[S.turnsRemaining]) : 
-            state[S.turnsRemaining]),
-        0
-      ) / state[S.turnsRemaining];
-      score *= totalScoreBuffs + 1;
-
-      // Score debuffs
-      const totalScoreDebuffs = state[S.scoreDebuffs].reduce(
-        (acc, cur) => 
-          acc + cur.amount * 
-          (cur.turns ? 
-            Math.min(cur.turns, state[S.turnsRemaining]) : 
-            state[S.turnsRemaining]),
-        0
-      ) / state[S.turnsRemaining];
-      score *= totalScoreDebuffs < 1 ? 1 - totalScoreDebuffs : 0;
-    }
-
     // Scale score
     score = this.scaleScore(score);
 
+    const { recommendedEffect } = this.engine.config.idol;
     if (recommendedEffect == "goodConditionTurns") {
-      baseScore *= 0.4;
+      score += baseScore * 0.4;
     } else if (recommendedEffect == "concentration") {
-      baseScore *= 0.6;
+      score += baseScore * 0.6;
     } else if (recommendedEffect == "goodImpressionTurns") {
-      baseScore *= 1.1;
+      score += baseScore * 1.1;
     } else if (recommendedEffect == "motivation") {
-      const turnCount = this.engine.config.stage.turnCount;
-      baseScore *= (Math.tanh(state[S.turnsElapsed] / turnCount * 4 - 4) / 2 + 0.5);
+      score += baseScore * 0.6;
     } else if (recommendedEffect == "strength") {
-      baseScore *= 0.65;
+      score += baseScore * 0.65;
     } else if (recommendedEffect == "preservation") {
-      baseScore *= 0.65;
+      score += baseScore * 0.65;
     } else if (recommendedEffect == "fullPower") {
-      baseScore *= 0.8;
+      score += baseScore * 0.8;
     } else {
-      baseScore *= 1;
+      score += baseScore;
     }
 
-    score += baseScore;
     return Math.round(score);
   }
 

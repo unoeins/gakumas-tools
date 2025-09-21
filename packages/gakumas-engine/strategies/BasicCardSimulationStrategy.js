@@ -3,8 +3,9 @@ import { deepCopy } from "../utils";
 import BaseStrategy from "./BaseStrategy";
 
 const MAX_DEPTH = 3;
+const MAX_TURNS = 6;
 
-export default class BasicCardStrategy extends BaseStrategy {
+export default class BasicCardSimulationStrategy extends BaseStrategy {
   constructor(engine) {
     super(engine);
 
@@ -89,38 +90,6 @@ export default class BasicCardStrategy extends BaseStrategy {
 
     let score = 0;
 
-    // // Effects -- TODO: make this not suck
-    // const effectsDiff = previewState[S.effects].length - this.rootEffectCount;
-    // for (let i = 0; i < effectsDiff; i++) {
-    //   const effect =
-    //     previewState[S.effects][previewState[S.effects].length - i - 1];
-    //   let limit = previewState[S.turnsRemaining];
-    //   if (
-    //     effect.limit != null &&
-    //     effect.limit < previewState[S.turnsRemaining]
-    //   ) {
-    //     limit = effect.limit + 1;
-    //   }
-    //   if (limit == 0) continue;
-    //   const postEffectState = deepCopy(previewState);
-    //   this.engine.effectManager.triggerEffects(
-    //     postEffectState,
-    //     [
-    //       {
-    //         ...effect,
-    //         phase: null,
-    //         delay: effect.delay - previewState[S.turnsRemaining],
-    //       },
-    //     ],
-    //     null,
-    //     null,
-    //     true
-    //   );
-    //   const scoreDelta =
-    //     this.getStateScore(postEffectState) - this.getStateScore(previewState);
-    //   score += 3 * scoreDelta * Math.min(limit, 6);
-    // }
-
     if (this.engine.config.idol.plan != "anomaly") {
       // Cards removed
       score +=
@@ -144,10 +113,9 @@ export default class BasicCardStrategy extends BaseStrategy {
     state = deepCopy(state);
     const baseScore = state[S.score];
     
-    // Effects -- TODO: make this not suck
     const effects = state[S.effects];
     const limits = effects.map(effect => {
-      let limit = Math.min(state[S.turnsRemaining], 6);
+      let limit = Math.min(state[S.turnsRemaining], MAX_TURNS);
       if (
         effect.limit != null &&
         effect.limit < limit
@@ -156,7 +124,30 @@ export default class BasicCardStrategy extends BaseStrategy {
       }
       return limit;
     });
-    for(let i=0; i < 6; i++) {
+
+    const { recommendedEffect } = this.engine.config.idol;
+    let score = 0;
+
+    // Turn simulation based on using only basic card
+    const maxTurns = Math.min(state[S.turnsRemaining], MAX_TURNS);
+    for(let i=0; i < maxTurns; i++) {
+      if(recommendedEffect == "goodConditionTurns" || recommendedEffect == "concentration") {
+        score +=
+          (9 + state[S.concentration]) *
+          (state[S.goodConditionTurns] ? 
+            1.5 + (state[S.perfectConditionTurns] ? 
+              state[S.goodConditionTurns] * 0.1 : 0) : 
+            1);
+      } else if (recommendedEffect == "goodImpressionTurns") {
+        state[S.goodImpressionTurns] += 2;
+        score += state[S.goodImpressionTurns];
+      } else if (recommendedEffect == "motivation") {
+        state[S.genki] += state[S.motivation] + 1;
+        state[S.motivation] += 2;
+        score += state[S.goodImpressionTurns];
+      }
+
+      // Effects -- TODO: make this not suck
       for (let j = 0; j < effects.length; j++) {
         const effect = effects[j];
         const limit = limits[j];
@@ -175,12 +166,20 @@ export default class BasicCardStrategy extends BaseStrategy {
           true
         );
       }
+
+      // Decrement turn based buffs
+      if(state[S.goodConditionTurns]) {
+        state[S.goodConditionTurns] -= 1;
+      }
+      if(state[S.perfectConditionTurns]) {
+        state[S.perfectConditionTurns] -= 1;
+      }
+      if(state[S.goodImpressionTurns]) {
+        state[S.goodImpressionTurns] -= 1;
+      }
     }
 
-    const { recommendedEffect } = this.engine.config.idol;
-    let score = 0;
-
-    // Effect score
+    // Simulation score
     score += state[S.score] - baseScore;
 
     // Cards in hand
@@ -191,27 +190,6 @@ export default class BasicCardStrategy extends BaseStrategy {
 
     // Genki
     score += state[S.genki] * state[S.turnsRemaining] * 0.01;
-
-    // TODO consider double cost turns, half cost turns and cost reduction
-    const appealTime = Math.floor((state[S.stamina] + state[S.genki]) / 4);
-    // Good condition turns
-    score +=
-      Math.min(state[S.goodConditionTurns], state[S.turnsRemaining], appealTime) *
-      (9 + state[S.concentration]) * 0.5 *
-      this.goodConditionTurnsMultiplier;
-
-    // Perfect condition turns
-    score +=
-      Math.min(state[S.perfectConditionTurns], state[S.turnsRemaining], appealTime) *
-      state[S.goodConditionTurns] *
-      (9 + state[S.concentration]) * 0.1 *
-      this.goodConditionTurnsMultiplier;
-
-    // Concentration
-    score +=
-      state[S.concentration] *
-      Math.min(state[S.turnsRemaining], appealTime) *
-      this.concentrationMultiplier;
 
     // Stance
     if (
@@ -239,34 +217,19 @@ export default class BasicCardStrategy extends BaseStrategy {
 
     // Good impression turns
     if(recommendedEffect == "goodImpressionTurns") {
-      const g = state[S.goodImpressionTurns];
-      const t = state[S.turnsRemaining];
-      const s = state[S.stamina] + state[S.genki];
-      score +=
-        (g * t + t * (t - 1) / 2)  +
-        (g * (s >= 10 ? 2 : s >= 5 ? 1 : 0)) *
-        this.goodImpressionTurnsMultiplier;
-    } else {
-      const g = state[S.goodImpressionTurns];
-      const t = state[S.turnsRemaining];
-      score +=
-        (g * Math.min(g, t) - (g > t ? t : g) * (g > t ? t - 1 : g - 1) / 2) *
-        this.goodImpressionTurnsMultiplier;
+      if(state[S.turnsRemaining]) {
+        const s = state[S.stamina] + state[S.genki];
+        score += (state[S.goodImpressionTurns] * (s >= 5 ? 1 : s / 5));
+      }
     }
 
     // Motivation
     if(recommendedEffect == "motivation") {
-      let m = state[S.motivation];
-      let g = state[S.genki];
-      const t = state[S.turnsRemaining];
-      for(let i=0; i < Math.max(t - 2, 0); i++) {
-        g += m + 1;
-        m += 2;
+      if(state[S.turnsRemaining] >= 2) {
+        score += (state[S.genki] * (state[S.stamina] >= 10 ? 2 : state[S.stamina] / 5));
+      } else if(state[S.turnsRemaining] >= 1) {
+        score += (state[S.genki] * (state[S.stamina] >= 5 ? 1 : state[S.stamina] / 5));
       }
-      score += t >= 2 ?
-        (g * (state[S.stamina] >= 10 ? 2 : state[S.stamina] / 5)) :
-        (g * (state[S.stamina] >= 5 ? 1 : state[S.stamina] / 5)) *
-        this.motivationMultiplier;
     } else {
       score +=
         state[S.motivation] *
