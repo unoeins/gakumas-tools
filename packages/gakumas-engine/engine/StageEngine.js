@@ -1,4 +1,4 @@
-import { S } from "../constants";
+import { S, EVENTS } from "../constants";
 import BuffManager from "./BuffManager";
 import CardManager from "./CardManager";
 import EffectManager from "./EffectManager";
@@ -6,6 +6,7 @@ import Evaluator from "./Evaluator";
 import Executor from "./Executor";
 import StageLogger from "./StageLogger";
 import TurnManager from "./TurnManager";
+import ListenerManager from "./ListenerManager";
 import { deepCopy } from "../utils";
 
 export default class StageEngine {
@@ -18,6 +19,7 @@ export default class StageEngine {
     this.turnManager = new TurnManager(this);
     this.evaluator = new Evaluator(this);
     this.executor = new Executor(this);
+    this.listenerManager = new ListenerManager(this);
   }
 
   getInitialState(skipEffects = false) {
@@ -70,12 +72,14 @@ export default class StageEngine {
   useCard(prevState, card) {
     const state = deepCopy(prevState);
     this.cardManager.useCard(state, card);
+    this.listenerManager.triggerEvent(EVENTS.CARD_USED, state, card);
     return state;
   }
 
   endTurn(prevState) {
     const state = deepCopy(prevState);
     this.turnManager.endTurn(state);
+    this.listenerManager.triggerEvent(EVENTS.TURN_ENDED, state);
     return state;
   }
 }

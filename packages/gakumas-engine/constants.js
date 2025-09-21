@@ -386,3 +386,12 @@ export const HOLD_SOURCES_BY_ALIAS = {
   deck: S.deckCards,
   discards: S.discardedCards,
 };
+
+export const EVENTS = {
+  CARD_USED: "cardUsed",
+  TURN_ENDED: "turnEnded",
+  STAGE_STARTED: "stageStarted",
+  STAGE_ENDED: "stageEnded",
+};
+
+export const LISTENER_KEYS = ["UseStats"];

@@ -1,0 +1,47 @@
+@use "sass:color";
+@use "../../styles/colors";
+
+.useStats {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: colors.$black-dark;
+}
+
+.useStatsTurnData {
+  border-left: 4px solid;
+  margin-bottom: -8px;
+  border-color: color.adjust(colors.$gk-orange, $lightness: 40%);
+}
+
+.useStatsTurn {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  justify-content: start;
+  border-radius: 0 16px 2px 0;
+  padding: 6px;
+  padding-left: 8px;
+  color: colors.$gray-dark;
+  font-weight: 600;
+  background-color: color.adjust(colors.$gk-orange, $lightness: 40%);
+}
+
+.useStatsData {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 52px);
+  // grid-auto-rows: 52px;
+  gap: 4px;
+  align-content: center;
+  align-items: center;
+  justify-content: start;
+  padding: 12px;
+  padding-right: 0;
+}
+
+.useStatsCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}

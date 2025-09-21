@@ -1,11 +1,13 @@
 import { PIdols, PItems, SkillCards, Stages } from "gakumas-data";
 import { GRAPHED_FIELDS } from "gakumas-engine";
+import { LISTENER_KEYS } from "gakumas-engine/constants";
 import { MIN_BUCKET_SIZE } from "@/simulator/constants";
 import {
   deserializeCustomizations,
   serializeCustomizations,
 } from "./customizations";
 import { deserializeIds, serializeIds } from "./ids";
+import deepEqual from 'fast-deep-equal';
 
 const DEFAULTS = {
   stageId: Stages.getAll().findLast((s) => s.type == "contest" && !s.preview)
@@ -223,6 +225,10 @@ export function mergeResults(results) {
   const graphDatas = results.map((result) => result.graphData);
   const mergedGraphData = mergeGraphDatas(graphDatas);
 
+  console.log("Merging results", results);
+  const listenerDatas = results.map((result) => result.listenerData);
+  const mergedListenerData = mergeListenerDatas(listenerDatas);
+
   return {
     graphData: mergedGraphData,
     minRun,
@@ -230,6 +236,7 @@ export function mergeResults(results) {
     maxRun,
     averageScore,
     scores,
+    listenerData: mergedListenerData,
   };
 }
 
@@ -257,6 +264,47 @@ export function mergeGraphDatas(graphDatas) {
   }
 
   return mergedGraphData;
+}
+
+export function mergeListenerDatas(listenerDatas) {
+  console.log("Merging listener data", listenerDatas);
+  let mergedListenerData = {};
+  for (let key of LISTENER_KEYS) {
+    const datas = listenerDatas.map((data) => data[key]).filter((d) => d);
+    console.log("datas", datas);
+    if (datas.length == 0) continue;
+    switch (key) {
+      case "UseStats":
+        const mergedData = mergeUseStatsResults(datas);
+        mergedListenerData[key] = mergedData;
+        break;
+      default:
+        console.warn("No merge function for listener key", key);
+        continue;
+    }
+  }
+
+  return mergedListenerData;
+}
+
+function mergeUseStatsResults(statsArray) {
+  const merged = { "data": [] };
+  for (const stats of statsArray) {
+    for (const [turn, cardsUsed] of stats.data.entries()) {
+      merged.data[turn] = (merged.data[turn] || []);
+      for (const { id, c, count } of cardsUsed) {
+        const index = merged.data[turn].findIndex(
+          (data) => data.id === id &&
+                    (c ? deepEqual(c, data.c) : !data.c));
+        if (index >= 0) {
+          merged.data[turn][index].count += count;
+        } else {
+          merged.data[turn].push({ id, c, count });
+        }
+      }
+    }
+  }
+  return merged;
 }
 
 export function getIndications(config, loadout) {

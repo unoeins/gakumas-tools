@@ -12,6 +12,7 @@ import { Tooltip } from "react-tooltip";
 import {
   IdolConfig,
   StageConfig,
+  SimulatorConfig,
   IdolStageConfig,
   STRATEGIES,
 } from "gakumas-engine";
@@ -41,6 +42,7 @@ import SimulatorSubTools from "./SimulatorSubTools";
 import styles from "./Simulator.module.scss";
 import SkillCardOrderGroups from "@/components/SkillCardOrderGroups";
 import TurnTypeOrder from "@/components/TurnTypeOrder";
+import SimulatorUseStats from "@/components/SimulatorUseStats";
 
 export default function Simulator() {
   const t = useTranslations("Simulator");
@@ -61,13 +63,16 @@ export default function Simulator() {
   const [simulatorData, setSimulatorData] = useState(null);
   const [running, setRunning] = useState(false);
   const [numRuns, setNumRuns] = useState(DEFAULT_NUM_RUNS);
+  const [enableUseStats, setEnableUseStats] = useState(true);
+  const [useStatsData, setUseStatsData] = useState(null);
   const workersRef = useRef();
 
   const config = useMemo(() => {
     const idolConfig = new IdolConfig(loadout);
     const stageConfig = new StageConfig(stage);
-    return new IdolStageConfig(idolConfig, stageConfig);
-  }, [loadout, stage]);
+    const simulatorConfig = new SimulatorConfig({enableUseStats});
+    return new IdolStageConfig(idolConfig, stageConfig, simulatorConfig);
+  }, [loadout, stage, enableUseStats]);
 
   const { pItemIndications, skillCardIndicationGroups } = getIndications(
     config,
@@ -100,6 +105,7 @@ export default function Simulator() {
       console.timeEnd("simulation");
 
       setSimulatorData({ bucketedScores, medianScore, bucketSize, ...result });
+      setUseStatsData(result.listenerData["UseStats"]);
       setRunning(false);
     },
     [setSimulatorData, setRunning]
@@ -112,6 +118,7 @@ export default function Simulator() {
 
     if (SYNC || !workersRef.current || numRuns < 100) {
       const result = simulate(config, strategy, numRuns);
+      console.log("Simulation result:", result);
       setResult(result);
     } else {
       const numWorkers = workersRef.current.length;
@@ -268,6 +275,12 @@ export default function Simulator() {
             {t("lastUpdated")}: 2025-09-10
           </a>
         </div>
+        {enableUseStats && useStatsData && (
+          <SimulatorUseStats
+            useStats={useStatsData}
+            idolId={config.idol.idolId || idolId}
+          />
+        )}
         {!simulatorData && (
           <div className={styles.ad}>
             <KofiAd />

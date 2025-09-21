@@ -5,6 +5,7 @@ export function simulate(idolStageConfig, strategyName, numRuns) {
   const engine = new StageEngine(idolStageConfig);
   const strategy = new STRATEGIES[strategyName](engine);
   engine.strategy = strategy;
+  const listenerData = engine.listenerManager.registerListeners();
 
   let totalScore = 0;
   let averageScore = 0;
@@ -45,5 +46,6 @@ export function simulate(idolStageConfig, strategyName, numRuns) {
     maxRun: formatRun(maxRun),
     averageScore,
     scores,
+    listenerData: listenerData,
   };
 }
