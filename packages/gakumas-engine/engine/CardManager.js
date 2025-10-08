@@ -18,6 +18,8 @@ export default class CardManager extends EngineComponent {
       cardEffects: (state) => this.getCardEffects(state, state[S.usedCard]),
       cardSourceType: (state) =>
         this.getCardSourceType(state, state[S.usedCard]),
+      cardRarity: (state) =>
+        this.getCardRarity(state, state[S.usedCard]),
       usedCardId: (state) =>
         state[S.usedCard] && state[S.cardMap][state[S.usedCard]].id,
       usedCardBaseId: (state) =>
@@ -180,6 +182,12 @@ export default class CardManager extends EngineComponent {
     if (card == null) return null;
     const skillCard = SkillCards.getById(state[S.cardMap][card].id);
     return skillCard.sourceType;
+  }
+
+  getCardRarity(state, card) {
+    if (card == null) return null;
+    const skillCard = SkillCards.getById(state[S.cardMap][card].id);
+    return skillCard.rarity;
   }
 
   grow(state, cards, actions) {
