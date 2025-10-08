@@ -1,7 +1,7 @@
 @use "sass:color";
 @use "../../styles/colors";
 
-.useStats {
+.priorityStats {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -9,19 +9,13 @@
   color: colors.$black-dark;
 }
 
-.useStatsHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.useStatsTurnData {
+.priorityStatsTurnData {
   border-left: 4px solid;
   margin-bottom: -8px;
   border-color: color.adjust(colors.$gk-orange, $lightness: 20%);
 }
 
-.useStatsTurn {
+.priorityStatsTurn {
   display: flex;
   gap: 4px;
   align-items: center;
@@ -29,12 +23,12 @@
   border-radius: 0 16px 2px 0;
   padding: 6px;
   padding-left: 8px;
-  color: colors.$white;
+  color: colors.$black-dark;
   font-weight: 600;
   background-color: color.adjust(colors.$gk-orange, $lightness: 20%);
 }
 
-.useStatsData {
+.priorityStatsData {
   display: grid;
   grid-template-columns: repeat(auto-fill, 52px);
   // grid-auto-rows: 52px;
@@ -46,9 +40,20 @@
   padding-right: 0;
 }
 
-.useStatsCard {
+.priorityStatsCard {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 4px;
+}
+
+.entities {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 68px);
+  grid-auto-rows: 68px;
+  gap: 8px;
+  justify-content: space-around;
+  padding: 8px;
+  overflow-y: scroll;
 }

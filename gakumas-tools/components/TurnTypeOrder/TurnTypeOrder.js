@@ -15,32 +15,25 @@ function TurnTypeOrder({
   } = useContext(LoadoutContext);
   const { setModal } = useContext(ModalContext);
   return (
-    <>
-        <div id="turnTypeOrder" className={styles.turnTypeOrder}>
-            {turnTypeOrder.map((turnType, i) => (
-              <TurnTypeIcon
-                key={i}
-                turnType={turnType}
-                label={i + 1}
-                onClick={() =>
-                  setModal(
-                    <TurnTypePickerModal
-                      onPick={(turnType) => {
-                        replaceTurnTypeOrder(i, turnType);
-                      }}
-                    />
-                  )
-                }
-                size="fill"
-              />
-            ))}
-        </div>
-        <div className={styles.sub}>
-          <div className={styles.title}>
-            {t("turn_type_order")}
-          </div>
-        </div>
-      </>
+    <div id="turnTypeOrder" className={styles.turnTypeOrder}>
+        {turnTypeOrder.map((turnType, i) => (
+          <TurnTypeIcon
+            key={i}
+            turnType={turnType}
+            label={i + 1}
+            onClick={() =>
+              setModal(
+                <TurnTypePickerModal
+                  onPick={(turnType) => {
+                    replaceTurnTypeOrder(i, turnType);
+                  }}
+                />
+              )
+            }
+            size="fill"
+          />
+        ))}
+    </div>
   );
 }
 

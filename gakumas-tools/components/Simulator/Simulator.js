@@ -43,6 +43,7 @@ import styles from "./Simulator.module.scss";
 import SkillCardOrderGroups from "@/components/SkillCardOrderGroups";
 import TurnTypeOrder from "@/components/TurnTypeOrder";
 import SimulatorUseStats from "@/components/SimulatorUseStats";
+import SimulatorPriorityStats from "@/components/SimulatorPriorityStats";
 
 export default function Simulator() {
   const t = useTranslations("Simulator");
@@ -63,16 +64,19 @@ export default function Simulator() {
   const [simulatorData, setSimulatorData] = useState(null);
   const [running, setRunning] = useState(false);
   const [numRuns, setNumRuns] = useState(DEFAULT_NUM_RUNS);
+  const [enableSkillCardOrder, setEnableSkillCardOrder] = useState(true);
   const [enableUseStats, setEnableUseStats] = useState(true);
   const [useStatsData, setUseStatsData] = useState(null);
+  const [enablePriorityStats, setEnablePriorityStats] = useState(false);
+  const [priorityStatsData, setPriorityStatsData] = useState(null);
   const workersRef = useRef();
 
   const config = useMemo(() => {
     const idolConfig = new IdolConfig(loadout);
     const stageConfig = new StageConfig(stage);
-    const simulatorConfig = new SimulatorConfig({enableUseStats});
+    const simulatorConfig = new SimulatorConfig({enableSkillCardOrder, enableUseStats, enablePriorityStats});
     return new IdolStageConfig(idolConfig, stageConfig, simulatorConfig);
-  }, [loadout, stage, enableUseStats]);
+  }, [loadout, stage, enableSkillCardOrder, enableUseStats, enablePriorityStats]);
 
   const { pItemIndications, skillCardIndicationGroups } = getIndications(
     config,
@@ -106,6 +110,7 @@ export default function Simulator() {
 
       setSimulatorData({ bucketedScores, medianScore, bucketSize, ...result });
       setUseStatsData(result.listenerData["UseStats"]);
+      setPriorityStatsData(result.listenerData["PriorityStats"]);
       setRunning(false);
     },
     [setSimulatorData, setRunning]
@@ -226,17 +231,6 @@ export default function Simulator() {
             </option>
           ))}
         </select>
-        <SkillCardOrderGroups
-          skillCardIdOrderGroups={loadout.skillCardIdOrderGroups}
-          customizationOrderGroups={loadout.customizationOrderGroups}
-          idolId={config.idol.idolId || idolId}
-          defaultCardIds={config.defaultCardIds}
-          removedCardOrder={loadout.removedCardOrder}
-          setRemovedCardOrder={setRemovedCardOrder}
-        />
-        <TurnTypeOrder
-          turnTypeOrder={loadout.turnTypeOrder}
-        />
         <input
           type="range"
           value={numRuns}
@@ -250,6 +244,60 @@ export default function Simulator() {
         </Button>
         <SimulatorButtons />
         {/* <div className={styles.url}>{simulatorUrl}</div> */}
+        <div className={styles.skillCardOrderToggle}>
+          <input
+            type="checkbox"
+            id="enableSkillCardOrder"
+            checked={enableSkillCardOrder}
+            onChange={(e) => setEnableSkillCardOrder(e.target.checked)}
+          />
+          <label htmlFor="enableSkillCardOrder">{t("enableSkillCardOrder")}</label>
+        </div>
+        {enableSkillCardOrder && (
+          <>
+            <SkillCardOrderGroups
+              skillCardIdOrderGroups={loadout.skillCardIdOrderGroups}
+              customizationOrderGroups={loadout.customizationOrderGroups}
+              idolId={config.idol.idolId || idolId}
+              defaultCardIds={config.defaultCardIds}
+              removedCardOrder={loadout.removedCardOrder}
+              setRemovedCardOrder={setRemovedCardOrder}
+            />
+            <TurnTypeOrder
+              turnTypeOrder={loadout.turnTypeOrder}
+            />
+          </>
+        )}
+        <div className={styles.useStatsToggle}>
+          <input
+            type="checkbox"
+            id="enableUseStats"
+            checked={enableUseStats}
+            onChange={(e) => setEnableUseStats(e.target.checked)}
+          />
+          <label htmlFor="enableUseStats">{t("enableUseStats")}</label>
+        </div>
+        {/* <div className={styles.priorityStatsToggle}>
+          <input
+            type="checkbox"
+            id="enablePriorityStats"
+            checked={enablePriorityStats}
+            onChange={(e) => setEnablePriorityStats(e.target.checked)}
+          />
+          <label htmlFor="enablePriorityStats">{t("enablePriorityStats")}</label>
+        </div> */}
+        {enableUseStats && useStatsData && (
+          <SimulatorUseStats
+            useStats={useStatsData}
+            idolId={config.idol.idolId || idolId}
+          />
+        )}
+        {enablePriorityStats && priorityStatsData && (
+          <SimulatorPriorityStats
+            priorityStats={priorityStatsData}
+            idolId={config.idol.idolId || idolId}
+          />
+        )}
         <div className={styles.subLinks}>
           <a
             href={`https://docs.google.com/forms/d/e/1FAIpQLScNquedw8Lp2yVfZjoBFMjQxIFlX6-rkzDWIJTjWPdQVCJbiQ/viewform?usp=pp_url&entry.1787906485=${encodeURIComponent(
@@ -263,15 +311,9 @@ export default function Simulator() {
             href="https://github.com/surisuririsu/gakumas-tools/blob/master/gakumas-tools/simulator/CHANGELOG.md"
             target="_blank"
           >
-            {t("lastUpdated")}: 2025-09-17
+            {t("lastUpdated")}: 2025-10-08
           </a>
         </div>
-        {enableUseStats && useStatsData && (
-          <SimulatorUseStats
-            useStats={useStatsData}
-            idolId={config.idol.idolId || idolId}
-          />
-        )}
         {!simulatorData && (
           <div className={styles.ad}>
             <KofiAd />

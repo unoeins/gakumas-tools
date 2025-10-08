@@ -1,7 +1,9 @@
 
 export default class SimulatorConfig {
-  constructor({ enableUseStats }) {
+  constructor({ enableSkillCardOrder, enableUseStats, enablePriorityStats }) {
+    this.enableSkillCardOrder = enableSkillCardOrder;
     this.enableUseStats = enableUseStats;
+    this.enablePriorityStats = enablePriorityStats;
   }
 
 }

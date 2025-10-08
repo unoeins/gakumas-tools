@@ -275,8 +275,10 @@ export function mergeListenerDatas(listenerDatas) {
     if (datas.length == 0) continue;
     switch (key) {
       case "UseStats":
-        const mergedData = mergeUseStatsResults(datas);
-        mergedListenerData[key] = mergedData;
+        mergedListenerData[key] = mergeUseStatsResults(datas);
+        break;
+      case "PriorityStats":
+        mergedListenerData[key] = mergePriorityStatsResults(datas);
         break;
       default:
         console.warn("No merge function for listener key", key);
@@ -288,21 +290,49 @@ export function mergeListenerDatas(listenerDatas) {
 }
 
 function mergeUseStatsResults(statsArray) {
-  const merged = { "data": [] };
+  const merged = { "data": [], numRuns: 0 };
   for (const stats of statsArray) {
-    for (const [turn, cardsUsed] of stats.data.entries()) {
-      merged.data[turn] = (merged.data[turn] || []);
-      for (const { id, c, count } of cardsUsed) {
-        const index = merged.data[turn].findIndex(
-          (data) => data.id === id &&
-                    (c ? deepEqual(c, data.c) : !data.c));
-        if (index >= 0) {
-          merged.data[turn][index].count += count;
+    merged.numRuns += stats.numRuns;
+    for (const [turn, turnData] of stats.data.entries()) {
+      merged.data[turn] = (merged.data[turn] || new Map());
+      turnData.forEach(({id, c, draw, use}, key) => {
+        if (merged.data[turn].has(key)) {
+          const mergedCardData = merged.data[turn].get(key);
+          mergedCardData.draw += draw;
+          mergedCardData.use += use;
         } else {
-          merged.data[turn].push({ id, c, count });
+          merged.data[turn].set(key, { id, c, draw, use });
         }
-      }
+      });
     }
+  }
+  return merged;
+}
+
+function mergePriorityStatsResults(statsArray) {
+  const merged = { data: new Map() };
+  for (const stats of statsArray) {
+    stats.data.forEach((selectedData, key) => {
+      let mergedSelectedData = merged.data.get(key);
+      if (!mergedSelectedData) {
+        mergedSelectedData = { id: selectedData.id, c: selectedData.c, others: new Map() };
+        merged.data.set(key, mergedSelectedData);
+      }
+      selectedData.others.forEach((otherData, otherKey) => {
+        let mergedOtherData = mergedSelectedData.others.get(otherKey);
+        if (!mergedOtherData) {
+          mergedOtherData = { id: otherData.id, c: otherData.c, count: [] };
+          mergedSelectedData.others.set(otherKey, mergedOtherData);
+        }
+        otherData.count.forEach((count, turn) => {
+          if (mergedOtherData.count[turn] != null) {
+            mergedOtherData.count[turn] += count;
+          } else {
+            mergedOtherData.count[turn] = count;
+          }
+        });
+      });
+    });
   }
   return merged;
 }
