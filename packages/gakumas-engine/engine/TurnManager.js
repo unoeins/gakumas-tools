@@ -34,7 +34,8 @@ export default class TurnManager extends EngineComponent {
     const { turnCounts, firstTurns, criteria } = this.config.stage;
     const { turnTypeOrder } = this.config.idol;
 
-    if(turnTypeOrder && turnTypeOrder.some((turnType) => turnType != "none")) {
+    if (this.config.simulator.enableSkillCardOrder && turnTypeOrder &&
+        turnTypeOrder.some((turnType) => turnType != "none")) {
       return this.generateOrderedTurnTypes();
     }
 

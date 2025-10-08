@@ -107,25 +107,26 @@ export default class CardManager extends EngineComponent {
   }
 
   applyCardOrder(state) {
+    if (!this.config.simulator.enableSkillCardOrder) return;
     const skipRemovedCard = this.config.idol.removedCardOrder == "skip";
     const cardOrderGroup = state[S.cardOrderGroups][state[S.shuffleCount]];
     state[S.shuffleCount]++;
-    if(cardOrderGroup) {
+    if (cardOrderGroup) {
       const deckSize = state[S.deckCards].length;
       const remainingCardOrder = skipRemovedCard ? 
         cardOrderGroup.filter((id) => state[S.deckCards].includes(id) || id < 0) :
         cardOrderGroup.map((id) => state[S.deckCards].includes(id) ? id : -1);
       let restDeckCards = state[S.deckCards].toReversed().filter((id) => !cardOrderGroup.includes(id));
       let updatedDeckCards = [];
-      for(let i = 0; i < deckSize; i++) {
+      for (let i = 0; i < deckSize; i++) {
         const cardOrder = remainingCardOrder[i];
-        if(cardOrder >= 0) {
+        if (cardOrder >= 0) {
           updatedDeckCards.push(cardOrder);
-        } else if(restDeckCards.length > 0) {
+        } else if (restDeckCards.length > 0) {
           updatedDeckCards.push(restDeckCards.shift());
         }
       }
-      if(remainingCardOrder.length > deckSize) {
+      if (remainingCardOrder.length > deckSize) {
         updatedDeckCards = updatedDeckCards.concat(
           remainingCardOrder.filter((id, i) => i >= deckSize && id > -1)
         );

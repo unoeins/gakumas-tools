@@ -194,7 +194,10 @@
     "custom": "カスタム",
     "simulate": "実行",
     "provideData": "データを提供する",
-    "lastUpdated": "最終更新"
+    "lastUpdated": "最終更新",
+    "enableSkillCardOrder": "スキルカード順、ターン順を指定する",
+    "enableUseStats": "スキルカード使用回数を集計する",
+    "enablePriorityStats": "スキルカード優先使用回数を集計する"
   },
   "StageSelect": {
     "placeholder": "ステージ選択"
@@ -349,5 +352,14 @@
   },
   "TurnTypeOrder": {
     "turn_type_order": "ターン順"
+  },
+  "SimulatorUseStats": {
+    "useStats": "スキルカード使用回数",
+    "turn": "{turn}ターン目",
+    "sortByRatio": "スキルカードを引いた時の使用率でソート"
+  },
+  "SimulatorPriorityStats": {
+    "priorityStats": "スキルカード優先使用回数",
+    "turn": "{turn}ターン目"
   }
 }

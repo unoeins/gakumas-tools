@@ -395,4 +395,7 @@ export const EVENTS = {
   STAGE_ENDED: "stageEnded",
 };
 
-export const LISTENER_KEYS = ["UseStats"];
+export const LISTENER_KEYS = [
+  "UseStats",
+  "PriorityStats"
+];

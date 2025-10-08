@@ -1,20 +1,37 @@
-import { memo } from "react";
+import { memo, useState } from "react";
 import { useTranslations } from "next-intl";
 import EntityIcon from "@/components/EntityIcon";
 import { EntityTypes } from "@/utils/entities";
 import styles from "./SimulatorUseStats.module.scss";
 
 function SimulatorUseStats({ useStats, idolId }) {
-  // const t = useTranslations("SimulatorUseStats");
-  const sortedData = useStats.data.map((turnData) => turnData.sort((a, b) => b.count - a.count));
+  const [sortByRatio, setSortByRatio] = useState(true);
+  const t = useTranslations("SimulatorUseStats");
+  const sortedData = useStats.data.map((turnData) => 
+    [...turnData].sort((a, b) => sortByRatio ?
+      ((b[1].use / (b[1].id !== 0 ? b[1].draw : useStats.numRuns)) -
+       (a[1].use / (a[1].id !== 0 ? a[1].draw : useStats.numRuns))) :
+        b[1].use - a[1].use)
+      .map((entry) => (entry[1])));
 
   return (
     <div id="simulator_usestats" className={styles.useStats}>
-      <h2>Use Stats</h2>
+      <div className={styles.useStatsHeader}>
+        <label>{t("useStats")}</label>
+        <div>
+          <input
+            type="checkbox"
+            id="sortByRatio"
+            checked={sortByRatio}
+            onChange={(e) => setSortByRatio(e.target.checked)}
+          />
+          <label htmlFor="sortByRatio">{t("sortByRatio")}</label>
+        </div>
+      </div>
       {sortedData.map((turnData, turn) => (
         <div className={styles.useStatsTurnData} key={turn}>
           <div className={styles.useStatsTurn}>
-            <span>Turn {turn + 1}</span>
+            <span>{t("turn", { turn: turn + 1 })}</span>
           </div>
           <div className={styles.useStatsData}>
             {turnData.map((data) => (
@@ -25,10 +42,11 @@ function SimulatorUseStats({ useStats, idolId }) {
                   id={data.id}
                   customizations={data.c}
                   idolId={idolId}
-                  label={"skip"}
+                  label={"SKIP"}
                   size="fill"
                 />
-                <span>{data.count}</span>
+                <div>{data.use}</div>
+                <div>{((data.use / (data.id !== 0 ? data.draw : useStats.numRuns) * 100).toFixed(1))}%</div>
               </div>
             ))}
           </div>
