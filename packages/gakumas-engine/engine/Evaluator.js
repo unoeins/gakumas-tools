@@ -8,7 +8,7 @@ import {
   STANCES,
   S,
   SOURCE_TYPES,
-  RARITY_TYPES,
+  RARITIES,
   FUNCTION_CALL_REGEX,
 } from "../constants";
 import EngineComponent from "./EngineComponent";
@@ -69,8 +69,8 @@ export default class Evaluator extends EngineComponent {
           return tokens[0];
         }
 
-        // Rarity types
-        if (RARITY_TYPES.includes(tokens[0])) {
+        // Rarities
+        if (RARITIES.includes(tokens[0])) {
           return tokens[0];
         }
 
