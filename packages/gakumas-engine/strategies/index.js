@@ -1,6 +1,7 @@
 import HeuristicStrategy from "./HeuristicStrategy";
 import HeuristicCustomGoodConditionStrategy from "./HeuristicCustomGoodConditionStrategy";
 import HeuristicEvaluateEffectStrategy from "./HeuristicEvaluateEffectStrategy";
+import HeuristicEffectScoreStrategy from "./HeuristicEffectScoreStrategy";
 import BasicCardStrategy from "./BasicCardStrategy";
 import BasicCardSimulationStrategy from "./BasicCardSimulationStrategy";
 import BasicCardUseStrategy from "./BasicCardUseStrategy";
@@ -10,6 +11,7 @@ const STRATEGIES = {
   HeuristicStrategy, 
   HeuristicCustomGoodConditionStrategy, 
   HeuristicEvaluateEffectStrategy, 
+  HeuristicEffectScoreStrategy,
   BasicCardStrategy,
   BasicCardSimulationStrategy,
   BasicCardUseStrategy,
