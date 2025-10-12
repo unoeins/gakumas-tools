@@ -64,7 +64,7 @@ export default function Simulator() {
   const [simulatorData, setSimulatorData] = useState(null);
   const [running, setRunning] = useState(false);
   const [numRuns, setNumRuns] = useState(DEFAULT_NUM_RUNS);
-  const [enableSkillCardOrder, setEnableSkillCardOrder] = useState(true);
+  const [enableSkillCardOrder, setEnableSkillCardOrder] = useState(false);
   const [enableUseStats, setEnableUseStats] = useState(true);
   const [useStatsData, setUseStatsData] = useState(null);
   const [enablePriorityStats, setEnablePriorityStats] = useState(false);
