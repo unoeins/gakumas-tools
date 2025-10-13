@@ -194,7 +194,11 @@
     "custom": "Custom",
     "simulate": "Simulate",
     "provideData": "Provide data",
-    "lastUpdated": "Last updated"
+    "lastUpdated": "Last updated",
+    "enableSkillCardOrder": "Specify skill card order and turn order",
+    "enableUseStats": "Count skill card usage",
+    "enableConditionalUseStats": "Count skill card usage when a specific skill card is drawn",
+    "enablePriorityStats": "Count skill card priority usage"
   },
   "StageSelect": {
     "placeholder": "Select stage"
@@ -236,8 +240,6 @@
   "SimulatorButtons": {
     "confirm": "Are you sure you want to clear the loadout?",
     "clear": "Clear",
-    "confirmClearOrders": "Are you sure you want to clear the card and turn order?",
-    "clearOrders": "Clear card and turn order",
     "manageLoadouts": "Save/Load β",
     "readLoadoutFromUrl": "Read URL",
     "invalidUrl": "Invalid URL.",
@@ -254,7 +256,10 @@
     "average": "Average",
     "median": "Median",
     "max": "Max",
-    "logs": "Logs"
+    "logs": "Logs",
+    "useStats": "Usage count",
+    "conditionalUseStats": "Conditional usage count",
+    "priorityStats": "Priority comparison"
   },
   "SimulatorResultGraphs": {
     "score": "Score"
@@ -345,9 +350,25 @@
     "Nth_order": "{n}th Card Order",
     "removed_card_order_header": "If the specified card was removed:",
     "removed_card_random": "Insert another random card",
-    "removed_card_skip": "Skip card insertion"
+    "removed_card_skip": "Skip card insertion",
+    "clearOrders": "Clear card and turn order",
+    "confirmClearOrders": "Are you sure you want to clear the card and turn order?"
   },
   "TurnTypeOrder": {
     "turn_type_order": "Turn Type Order"
+  },
+  "SimulatorUseStats": {
+    "useStats": "Skill Card Usage Count",
+    "turn": "Turn {turn}",
+    "sortByRatio": "Sort by usage ratio when skill card is drawn"
+  },
+  "SimulatorConditionalUseStats": {
+    "conditionalUseStats": "Skill Card Usage Count When Specific Card Is Drawn",
+    "turn": "Turn {turn}",
+    "sortByRatio": "Sort by usage ratio when skill card is drawn"
+  },
+  "SimulatorPriorityStats": {
+    "priorityStats": "Skill Card Priority Usage Count",
+    "turn": "Turn {turn}"
   }
 }

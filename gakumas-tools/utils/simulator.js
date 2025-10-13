@@ -277,6 +277,9 @@ export function mergeListenerDatas(listenerDatas) {
       case "UseStats":
         mergedListenerData[key] = mergeUseStatsResults(datas);
         break;
+      case "ConditionalUseStats":
+        mergedListenerData[key] = mergeConditionalUseStatsResults(datas);
+        break;
       case "PriorityStats":
         mergedListenerData[key] = mergePriorityStatsResults(datas);
         break;
@@ -305,6 +308,36 @@ function mergeUseStatsResults(statsArray) {
         }
       });
     }
+  }
+  return merged;
+}
+
+function mergeConditionalUseStatsResults(statsArray) {
+  const merged = { data: new Map() };
+  for (const stats of statsArray) {
+    stats.data.forEach((selectedData, key) => {
+      let mergedSelectedData = merged.data.get(key);
+      if (!mergedSelectedData) {
+        mergedSelectedData = { id: selectedData.id, c: selectedData.c, turns: [] };
+        merged.data.set(key, mergedSelectedData);
+      }
+      selectedData.turns.forEach((turnData, index) => {
+        let mergedTurnData = mergedSelectedData.turns[index];
+        if (!mergedTurnData) {
+          mergedTurnData = new Map();
+          mergedSelectedData.turns[index] = mergedTurnData;
+        }
+        turnData.forEach(({id, c, draw, use}, key2) => {
+          if (mergedTurnData.has(key2)) {
+            const mergedCardData = mergedTurnData.get(key2);
+            mergedCardData.draw += draw;
+            mergedCardData.use += use;
+          } else {
+            mergedTurnData.set(key2, { id, c, draw, use });
+          }
+        });
+      });
+    });
   }
   return merged;
 }

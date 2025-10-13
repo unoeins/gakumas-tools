@@ -13,7 +13,7 @@ import styles from "./Simulator.module.scss";
 function SimulatorButtons() {
   const t = useTranslations("SimulatorButtons");
 
-  const { clear, clearOrders, simulatorUrl, setLoadout } = useContext(LoadoutContext);
+  const { clear, simulatorUrl, setLoadout } = useContext(LoadoutContext);
   const { setModal } = useContext(ModalContext);
   const [linkCopied, setLinkCopied] = useState(false);
 
@@ -42,19 +42,17 @@ function SimulatorButtons() {
       <Button
         style="red-secondary"
         onClick={() =>
-          setModal(<ConfirmModal message={t("confirmClearOrders")} onConfirm={clearOrders} />)
-        }
-      >
-        {t("clearOrders")}
-      </Button>
-
-      <Button
-        style="red-secondary"
-        onClick={() =>
           setModal(<ConfirmModal message={t("confirm")} onConfirm={clear} />)
         }
       >
         {t("clear")}
+      </Button>
+
+      <Button
+        style="blue-secondary"
+        onClick={() => setModal(<LoadoutManagerModal />)}
+      >
+        {t("manageLoadouts")}
       </Button>
 
       <Button

@@ -39,11 +39,8 @@ import {
 import { formatStageShortName } from "@/utils/stages";
 import SimulatorButtons from "./SimulatorButtons";
 import SimulatorSubTools from "./SimulatorSubTools";
+import SkillCardAndTurnTypeOrder from "@/components/SkillCardOrderGroups/SkillCardAndTurnTypeOrder";
 import styles from "./Simulator.module.scss";
-import SkillCardOrderGroups from "@/components/SkillCardOrderGroups";
-import TurnTypeOrder from "@/components/TurnTypeOrder";
-import SimulatorUseStats from "@/components/SimulatorUseStats";
-import SimulatorPriorityStats from "@/components/SimulatorPriorityStats";
 
 export default function Simulator() {
   const t = useTranslations("Simulator");
@@ -56,7 +53,6 @@ export default function Simulator() {
     setParams,
     replacePItemId,
     swapPItemIds,
-    setRemovedCardOrder,
     pushLoadoutHistory,
   } = useContext(LoadoutContext);
   const { plan, idolId } = useContext(WorkspaceContext);
@@ -65,18 +61,20 @@ export default function Simulator() {
   const [running, setRunning] = useState(false);
   const [numRuns, setNumRuns] = useState(DEFAULT_NUM_RUNS);
   const [enableSkillCardOrder, setEnableSkillCardOrder] = useState(false);
-  const [enableUseStats, setEnableUseStats] = useState(true);
-  const [useStatsData, setUseStatsData] = useState(null);
-  const [enablePriorityStats, setEnablePriorityStats] = useState(false);
-  const [priorityStatsData, setPriorityStatsData] = useState(null);
+  const [listenerConfig, setListenerConfig] = useState({
+    enableUseStats: true,
+    enableConditionalUseStats: true,
+    enablePriorityStats: false,
+  });
+  const [listenerData, setListenerData] = useState(null);
   const workersRef = useRef();
 
   const config = useMemo(() => {
     const idolConfig = new IdolConfig(loadout);
     const stageConfig = new StageConfig(stage);
-    const simulatorConfig = new SimulatorConfig({enableSkillCardOrder, enableUseStats, enablePriorityStats});
+    const simulatorConfig = new SimulatorConfig({enableSkillCardOrder, ...listenerConfig});
     return new IdolStageConfig(idolConfig, stageConfig, simulatorConfig);
-  }, [loadout, stage, enableSkillCardOrder, enableUseStats, enablePriorityStats]);
+  }, [loadout, stage, enableSkillCardOrder, listenerConfig]);
 
   const { pItemIndications, skillCardIndicationGroups } = getIndications(
     config,
@@ -109,8 +107,7 @@ export default function Simulator() {
       console.timeEnd("simulation");
 
       setSimulatorData({ bucketedScores, medianScore, bucketSize, ...result });
-      setUseStatsData(result.listenerData["UseStats"]);
-      setPriorityStatsData(result.listenerData["PriorityStats"]);
+      setListenerData(result.listenerData);
       setRunning(false);
     },
     [setSimulatorData, setRunning]
@@ -254,50 +251,38 @@ export default function Simulator() {
           <label htmlFor="enableSkillCardOrder">{t("enableSkillCardOrder")}</label>
         </div>
         {enableSkillCardOrder && (
-          <>
-            <SkillCardOrderGroups
-              skillCardIdOrderGroups={loadout.skillCardIdOrderGroups}
-              customizationOrderGroups={loadout.customizationOrderGroups}
-              idolId={config.idol.idolId || idolId}
-              defaultCardIds={config.defaultCardIds}
-              removedCardOrder={loadout.removedCardOrder}
-              setRemovedCardOrder={setRemovedCardOrder}
-            />
-            <TurnTypeOrder
-              turnTypeOrder={loadout.turnTypeOrder}
-            />
-          </>
+          <SkillCardAndTurnTypeOrder
+            idolId={config.idol.idolId || idolId}
+            defaultCardIds={config.defaultCardIds}
+          />
         )}
         <div className={styles.useStatsToggle}>
           <input
             type="checkbox"
             id="enableUseStats"
-            checked={enableUseStats}
-            onChange={(e) => setEnableUseStats(e.target.checked)}
+            checked={listenerConfig.enableUseStats}
+            onChange={(e) => setListenerConfig({ ...listenerConfig, enableUseStats: e.target.checked })}
           />
           <label htmlFor="enableUseStats">{t("enableUseStats")}</label>
+        </div>
+        <div className={styles.conditionalUseStatsToggle}>
+          <input
+            type="checkbox"
+            id="enableConditionalUseStats"
+            checked={listenerConfig.enableConditionalUseStats}
+            onChange={(e) => setListenerConfig({ ...listenerConfig, enableConditionalUseStats: e.target.checked })}
+          />
+          <label htmlFor="enableConditionalUseStats">{t("enableConditionalUseStats")}</label>
         </div>
         {/* <div className={styles.priorityStatsToggle}>
           <input
             type="checkbox"
             id="enablePriorityStats"
-            checked={enablePriorityStats}
-            onChange={(e) => setEnablePriorityStats(e.target.checked)}
+            checked={listenerConfig.enablePriorityStats}
+            onChange={(e) => setListenerConfig({ ...listenerConfig, enablePriorityStats: e.target.checked })}
           />
           <label htmlFor="enablePriorityStats">{t("enablePriorityStats")}</label>
         </div> */}
-        {enableUseStats && useStatsData && (
-          <SimulatorUseStats
-            useStats={useStatsData}
-            idolId={config.idol.idolId || idolId}
-          />
-        )}
-        {enablePriorityStats && priorityStatsData && (
-          <SimulatorPriorityStats
-            priorityStats={priorityStatsData}
-            idolId={config.idol.idolId || idolId}
-          />
-        )}
         <div className={styles.subLinks}>
           <a
             href={`https://docs.google.com/forms/d/e/1FAIpQLScNquedw8Lp2yVfZjoBFMjQxIFlX6-rkzDWIJTjWPdQVCJbiQ/viewform?usp=pp_url&entry.1787906485=${encodeURIComponent(
@@ -324,6 +309,7 @@ export default function Simulator() {
       {simulatorData && (
         <SimulatorResult
           data={simulatorData}
+          listenerData={listenerData}
           idolId={config.idol.idolId || idolId}
           plan={config.idol.plan || plan}
         />

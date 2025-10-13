@@ -18,6 +18,18 @@
   overflow-y: scroll;
 }
 
+.buttons {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+
+  button,
+  a {
+    min-width: 60px;
+    padding: 8px;
+  }
+}
+
 .sub {
   display: flex;
   align-items: center;

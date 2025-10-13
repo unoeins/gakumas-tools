@@ -397,5 +397,6 @@ export const EVENTS = {
 
 export const LISTENER_KEYS = [
   "UseStats",
+  "ConditionalUseStats",
   "PriorityStats"
 ];
