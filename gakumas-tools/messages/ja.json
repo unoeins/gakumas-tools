@@ -197,6 +197,7 @@
     "lastUpdated": "最終更新",
     "enableSkillCardOrder": "スキルカード順、ターン順を指定する",
     "enableUseStats": "スキルカード使用回数を集計する",
+    "enableConditionalUseStats": "特定のスキルカードを引いた時の条件付き使用回数を集計する",
     "enablePriorityStats": "スキルカード優先使用回数を集計する"
   },
   "StageSelect": {
@@ -239,8 +240,6 @@
   "SimulatorButtons": {
     "confirm": "編成をクリアしますか？",
     "clear": "クリア",
-    "confirmClearOrders": "カード順、ターン順をクリアしますか？",
-    "clearOrders": "カード順、ターン順をクリア",
     "manageLoadouts": "保存・読み込みβ",
     "readLoadoutFromUrl": "URL読み込み",
     "invalidUrl": "有効なURLではありません。",
@@ -257,7 +256,10 @@
     "average": "平均値",
     "median": "中央値",
     "max": "最大値",
-    "logs": "ログ"
+    "logs": "ログ",
+    "useStats": "使用回数",
+    "conditionalUseStats": "条件付き使用回数",
+    "priorityStats": "優先度比較"
   },
   "SimulatorResultGraphs": {
     "score": "スコア"
@@ -348,13 +350,20 @@
     "Nth_order": "{n}週目のカード順",
     "removed_card_order_header": "指定したカードが除外されていた場合:",
     "removed_card_random": "他のランダムなカードを挿入する",
-    "removed_card_skip": "カードの挿入をスキップする"
+    "removed_card_skip": "カードの挿入をスキップする",
+    "clearOrders": "カード順、ターン順をクリア",
+    "confirmClearOrders": "カード順、ターン順をクリアしますか？"
   },
   "TurnTypeOrder": {
     "turn_type_order": "ターン順"
   },
   "SimulatorUseStats": {
     "useStats": "スキルカード使用回数",
+    "turn": "{turn}ターン目",
+    "sortByRatio": "スキルカードを引いた時の使用率でソート"
+  },
+  "SimulatorConditionalUseStats": {
+    "conditionalUseStats": "特定のスキルカードを引いた時の条件付き使用回数",
     "turn": "{turn}ターン目",
     "sortByRatio": "スキルカードを引いた時の使用率でソート"
   },

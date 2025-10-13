@@ -1,5 +1,5 @@
 import EngineComponent from "./EngineComponent";
-import { UseStats, PriorityStats } from '../listener'
+import { UseStats, ConditionalUseStats, PriorityStats } from '../listener'
 import { EVENTS } from '../constants';
 
 export default class ListenerManager extends EngineComponent {
@@ -15,6 +15,11 @@ export default class ListenerManager extends EngineComponent {
       const useStats = new UseStats();
       this.addListener(EVENTS.STAGE_ENDED, useStats.stageEnded.bind(useStats));
       listenerData["UseStats"] = useStats;
+    }
+    if(this.config.simulator.enableConditionalUseStats) {
+      const conditionalUseStats = new ConditionalUseStats();
+      this.addListener(EVENTS.STAGE_ENDED, conditionalUseStats.stageEnded.bind(conditionalUseStats));
+      listenerData["ConditionalUseStats"] = conditionalUseStats;
     }
     if(this.config.simulator.enablePriorityStats) {
       const priorityStats = new PriorityStats();
