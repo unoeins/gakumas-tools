@@ -120,7 +120,7 @@ export default class HeuristicEffectScoreStrategy extends BaseStrategy {
       );
       const scoreDelta =
         this.getStateScore(postEffectState) - this.getStateScore(previewState);
-      score += 3 * scoreDelta * Math.min(limit, 6);
+      score += 3 * scoreDelta * Math.min(limit, 2);
     }
 
     if (this.engine.config.idol.plan != "anomaly") {
