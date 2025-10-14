@@ -18,8 +18,10 @@ export default class HeuristicEffectScoreStrategy extends BaseStrategy {
     );
 
     this.goodConditionTurnsMultiplier =
+      // config.idol.recommendedEffect == "goodConditionTurns" ? 1 : 1;
       config.idol.recommendedEffect == "goodConditionTurns" ? 1.75 : 1;
     this.concentrationMultiplier =
+      // config.idol.recommendedEffect == "concentration" ? 1 : 1;
       config.idol.recommendedEffect == "concentration" ? 3 : 1;
     this.goodImpressionTurnsMultiplier =
       config.idol.recommendedEffect == "goodImpressionTurns" ? 3.5 : 1;
@@ -159,14 +161,16 @@ export default class HeuristicEffectScoreStrategy extends BaseStrategy {
     // Good condition turns
     score +=
       Math.min(state[S.goodConditionTurns], state[S.turnsRemaining]) *
-      (9 + state[S.concentration]) * 0.5 *
+      4.5 *
+      // (9 + state[S.concentration]) * 0.5 *
       this.goodConditionTurnsMultiplier;
 
     // Perfect condition turns
     score +=
       Math.min(state[S.perfectConditionTurns], state[S.turnsRemaining]) *
       state[S.goodConditionTurns] *
-      (9 + state[S.concentration]) * 0.1 *
+      0.9 *
+      // (9 + state[S.concentration]) * 0.1 *
       this.goodConditionTurnsMultiplier;
 
     // Concentration
@@ -279,15 +283,13 @@ export default class HeuristicEffectScoreStrategy extends BaseStrategy {
     // Turn cards upgraded
     score += state[S.turnCardsUpgraded] * 20;
 
-    // Scale score
-    score = this.scaleScore(score);
-
+    // Effect score
     const effectState = deepCopy(state);
-    
-    // Effects -- TODO: make this not suck
     const effects = effectState[S.effects].filter(
       (e) => e.actions && e.actions.some(a => a[0] == "score"));
-    const limits = effects.map(effect => {
+    let preEffectScore = effectState[S.score];
+    for (let i = 0; i < effects.length; i++) {
+      const effect = effects[i];
       let limit = Math.min(effectState[S.turnsRemaining], 6);
       if (
         effect.limit != null &&
@@ -295,33 +297,26 @@ export default class HeuristicEffectScoreStrategy extends BaseStrategy {
       ) {
         limit = effect.limit;
       }
-      return limit;
-    });
-    for (let i = 0; i < 6; i++) {
-      for (let j = 0; j < effects.length; j++) {
-        const effect = effects[j];
-        const limit = limits[j];
-        if (limit < i) continue;
-        this.engine.effectManager.triggerEffects(
-          effectState,
-          [
-            {
-              ...effect,
-              phase: null,
-              delay: effect.delay - effectState[S.turnsRemaining],
-            },
-          ],
-          null,
-          null,
-          true
-        );
-      }
-      effectState[S.turnsElapsed]++;
-      effectState[S.turnsRemaining]--;
-      if (effectState[S.turnsRemaining] <= 0) break;
+      this.engine.effectManager.triggerEffects(
+        effectState,
+        [
+          {
+            ...effect,
+            phase: null,
+            delay: effect.delay - effectState[S.turnsRemaining],
+          },
+        ],
+        null,
+        null,
+        true
+      );
+      const effectScore = (effectState[S.score] - preEffectScore) * limit;
+      score += effectScore / this.engine.turnManager.getTurnMultiplier(effectState);
+      preEffectScore = effectState[S.score];
     }
-    // Effect score
-    score += effectState[S.score] - state[S.score];
+
+    // Scale score
+    score = this.scaleScore(score);
 
     const { recommendedEffect } = this.engine.config.idol;
     if (recommendedEffect == "goodConditionTurns") {
