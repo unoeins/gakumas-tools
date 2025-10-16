@@ -18,13 +18,13 @@ export default class BasicCardStrategy extends BaseStrategy {
     );
 
     this.goodConditionTurnsMultiplier =
-      config.idol.recommendedEffect == "goodConditionTurns" ? 1 : 1;
+      config.idol.recommendedEffect == "goodConditionTurns" ? 1.75 : 1;
     this.concentrationMultiplier =
-      config.idol.recommendedEffect == "concentration" ? 1 : 1;
+      config.idol.recommendedEffect == "concentration" ? 3 : 1;
     this.goodImpressionTurnsMultiplier =
-      config.idol.recommendedEffect == "goodImpressionTurns" ? 1 : 1;
+      config.idol.recommendedEffect == "goodImpressionTurns" ? 3.5 : 1;
     this.motivationMultiplier =
-      config.idol.recommendedEffect == "motivation" ? 1 : 1;
+      config.idol.recommendedEffect == "motivation" ? 5.5 : 1;
     this.fullPowerMultiplier =
       config.idol.recommendedEffect == "fullPower" ? 5 : 1;
 
@@ -89,37 +89,37 @@ export default class BasicCardStrategy extends BaseStrategy {
 
     let score = 0;
 
-    // // Effects -- TODO: make this not suck
-    // const effectsDiff = previewState[S.effects].length - this.rootEffectCount;
-    // for (let i = 0; i < effectsDiff; i++) {
-    //   const effect =
-    //     previewState[S.effects][previewState[S.effects].length - i - 1];
-    //   let limit = previewState[S.turnsRemaining];
-    //   if (
-    //     effect.limit != null &&
-    //     effect.limit < previewState[S.turnsRemaining]
-    //   ) {
-    //     limit = effect.limit + 1;
-    //   }
-    //   if (limit == 0) continue;
-    //   const postEffectState = deepCopy(previewState);
-    //   this.engine.effectManager.triggerEffects(
-    //     postEffectState,
-    //     [
-    //       {
-    //         ...effect,
-    //         phase: null,
-    //         delay: effect.delay - previewState[S.turnsRemaining],
-    //       },
-    //     ],
-    //     null,
-    //     null,
-    //     true
-    //   );
-    //   const scoreDelta =
-    //     this.getStateScore(postEffectState) - this.getStateScore(previewState);
-    //   score += 3 * scoreDelta * Math.min(limit, 6);
-    // }
+    // Effects -- TODO: make this not suck
+    const effectsDiff = previewState[S.effects].length - this.rootEffectCount;
+    for (let i = 0; i < effectsDiff; i++) {
+      const effect =
+        previewState[S.effects][previewState[S.effects].length - i - 1];
+      let limit = previewState[S.turnsRemaining];
+      if (
+        effect.limit != null &&
+        effect.limit < previewState[S.turnsRemaining]
+      ) {
+        limit = effect.limit + 1;
+      }
+      if (limit == 0) continue;
+      const postEffectState = deepCopy(previewState);
+      this.engine.effectManager.triggerEffects(
+        postEffectState,
+        [
+          {
+            ...effect,
+            phase: null,
+            delay: effect.delay - previewState[S.turnsRemaining],
+          },
+        ],
+        null,
+        null,
+        true
+      );
+      const scoreDelta =
+        this.getStateScore(postEffectState) - this.getStateScore(previewState);
+      score += 3 * scoreDelta * Math.min(limit, 6);
+    }
 
     if (this.engine.config.idol.plan != "anomaly") {
       // Cards removed
@@ -141,56 +141,16 @@ export default class BasicCardStrategy extends BaseStrategy {
   }
 
   getStateScore(state) {
-    state = deepCopy(state);
-    const baseScore = state[S.score];
-    
-    // Effects -- TODO: make this not suck
-    const effects = state[S.effects];
-    const limits = effects.map(effect => {
-      let limit = Math.min(state[S.turnsRemaining], 6);
-      if (
-        effect.limit != null &&
-        effect.limit < limit
-      ) {
-        limit = effect.limit;
-      }
-      return limit;
-    });
-    for(let i=0; i < 6; i++) {
-      for (let j = 0; j < effects.length; j++) {
-        const effect = effects[j];
-        const limit = limits[j];
-        if (limit < i) continue;
-        this.engine.effectManager.triggerEffects(
-          state,
-          [
-            {
-              ...effect,
-              phase: null,
-              delay: effect.delay - state[S.turnsRemaining],
-            },
-          ],
-          null,
-          null,
-          true
-        );
-      }
-    }
-
-    const { recommendedEffect } = this.engine.config.idol;
     let score = 0;
-
-    // Effect score
-    score += state[S.score] - baseScore;
 
     // Cards in hand
     score += state[S.handCards].length * 3;
 
     // Stamina
-    score += state[S.stamina] * state[S.turnsRemaining] * 0.01;
+    score += state[S.stamina] * state[S.turnsRemaining] * 0.05;
 
     // Genki
-    score += state[S.genki] * state[S.turnsRemaining] * 0.01;
+    score += state[S.genki] * state[S.turnsRemaining] * 0.05;
 
     // TODO consider double cost turns, half cost turns and cost reduction
     const appealTime = Math.floor((state[S.stamina] + state[S.genki]) / 4);
@@ -345,7 +305,7 @@ export default class BasicCardStrategy extends BaseStrategy {
             state[S.turnsRemaining]),
         0
       ) / state[S.turnsRemaining];
-      score *= totalScoreBuffs + 1;
+      score *= 1 + totalScoreBuffs;
 
       // Score debuffs
       const totalScoreDebuffs = state[S.scoreDebuffs].reduce(
@@ -362,26 +322,25 @@ export default class BasicCardStrategy extends BaseStrategy {
     // Scale score
     score = this.scaleScore(score);
 
+    const { recommendedEffect } = this.engine.config.idol;
     if (recommendedEffect == "goodConditionTurns") {
-      baseScore *= 0.4;
+      score += state[S.score] * 0.4;
     } else if (recommendedEffect == "concentration") {
-      baseScore *= 0.6;
+      score += state[S.score] * 0.6;
     } else if (recommendedEffect == "goodImpressionTurns") {
-      baseScore *= 1.1;
+      score += state[S.score] * 1.1;
     } else if (recommendedEffect == "motivation") {
-      const turnCount = this.engine.config.stage.turnCount;
-      baseScore *= (Math.tanh(state[S.turnsElapsed] / turnCount * 4 - 4) / 2 + 0.5);
+      score += state[S.score] * 0.6;
     } else if (recommendedEffect == "strength") {
-      baseScore *= 0.65;
+      score += state[S.score] * 0.65;
     } else if (recommendedEffect == "preservation") {
-      baseScore *= 0.65;
+      score += state[S.score] * 0.65;
     } else if (recommendedEffect == "fullPower") {
-      baseScore *= 0.8;
+      score += state[S.score] * 0.8;
     } else {
-      baseScore *= 1;
+      score += state[S.score];
     }
 
-    score += baseScore;
     return Math.round(score);
   }
 

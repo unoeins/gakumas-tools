@@ -1,21 +1,23 @@
 import HeuristicStrategy from "./HeuristicStrategy";
+import HeuristicCustomStrategy from "./HeuristicCustomStrategy";
 import HeuristicCustomGoodConditionStrategy from "./HeuristicCustomGoodConditionStrategy";
-import HeuristicEvaluateEffectStrategy from "./HeuristicEvaluateEffectStrategy";
+import HeuristicCustomBuffDebuffStrategy from "./HeuristicCustomBuffDebuffStrategy";
 import HeuristicEffectScoreStrategy from "./HeuristicEffectScoreStrategy";
+import HeuristicFutureSightStrategy from "./HeuristicFutureSightStrategy";
 import BasicCardStrategy from "./BasicCardStrategy";
 import BasicCardSimulationStrategy from "./BasicCardSimulationStrategy";
 import BasicCardUseStrategy from "./BasicCardUseStrategy";
-import UnoEinsStrategy from "./UnoEinsStrategy";
 
 const STRATEGIES = {
   HeuristicStrategy, 
+  HeuristicCustomStrategy,
   HeuristicCustomGoodConditionStrategy, 
-  HeuristicEvaluateEffectStrategy, 
+  HeuristicCustomBuffDebuffStrategy, 
   HeuristicEffectScoreStrategy,
+  HeuristicFutureSightStrategy,
   BasicCardStrategy,
   BasicCardSimulationStrategy,
   BasicCardUseStrategy,
-  UnoEinsStrategy,
 };
 
 export default STRATEGIES;

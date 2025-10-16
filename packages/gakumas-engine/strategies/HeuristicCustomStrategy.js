@@ -4,7 +4,7 @@ import BaseStrategy from "./BaseStrategy";
 
 const MAX_DEPTH = 3;
 
-export default class HeuristicEvaluateEffectStrategy extends BaseStrategy {
+export default class HeuristicCustomStrategy extends BaseStrategy {
   constructor(engine) {
     super(engine);
 
@@ -18,8 +18,10 @@ export default class HeuristicEvaluateEffectStrategy extends BaseStrategy {
     );
 
     this.goodConditionTurnsMultiplier =
+      // config.idol.recommendedEffect == "goodConditionTurns" ? 1 : 1;
       config.idol.recommendedEffect == "goodConditionTurns" ? 1.75 : 1;
     this.concentrationMultiplier =
+      // config.idol.recommendedEffect == "concentration" ? 1 : 1;
       config.idol.recommendedEffect == "concentration" ? 3 : 1;
     this.goodImpressionTurnsMultiplier =
       config.idol.recommendedEffect == "goodImpressionTurns" ? 3.5 : 1;
@@ -89,37 +91,37 @@ export default class HeuristicEvaluateEffectStrategy extends BaseStrategy {
 
     let score = 0;
 
-    // // Effects -- TODO: make this not suck
-    // const effectsDiff = previewState[S.effects].length - this.rootEffectCount;
-    // for (let i = 0; i < effectsDiff; i++) {
-    //   const effect =
-    //     previewState[S.effects][previewState[S.effects].length - i - 1];
-    //   let limit = previewState[S.turnsRemaining];
-    //   if (
-    //     effect.limit != null &&
-    //     effect.limit < previewState[S.turnsRemaining]
-    //   ) {
-    //     limit = effect.limit + 1;
-    //   }
-    //   if (limit == 0) continue;
-    //   const postEffectState = deepCopy(previewState);
-    //   this.engine.effectManager.triggerEffects(
-    //     postEffectState,
-    //     [
-    //       {
-    //         ...effect,
-    //         phase: null,
-    //         delay: effect.delay - previewState[S.turnsRemaining],
-    //       },
-    //     ],
-    //     null,
-    //     null,
-    //     true
-    //   );
-    //   const scoreDelta =
-    //     this.getStateScore(postEffectState) - this.getStateScore(previewState);
-    //   score += 3 * scoreDelta * Math.min(limit, 6);
-    // }
+    // Effects -- TODO: make this not suck
+    const effectsDiff = previewState[S.effects].length - this.rootEffectCount;
+    for (let i = 0; i < effectsDiff; i++) {
+      const effect =
+        previewState[S.effects][previewState[S.effects].length - i - 1];
+      let limit = previewState[S.turnsRemaining];
+      if (
+        effect.limit != null &&
+        effect.limit < previewState[S.turnsRemaining]
+      ) {
+        limit = effect.limit + 1;
+      }
+      if (limit == 0) continue;
+      const postEffectState = deepCopy(previewState);
+      this.engine.effectManager.triggerEffects(
+        postEffectState,
+        [
+          {
+            ...effect,
+            phase: null,
+            delay: effect.delay - previewState[S.turnsRemaining],
+          },
+        ],
+        null,
+        null,
+        true
+      );
+      const scoreDelta =
+        this.getStateScore(postEffectState) - this.getStateScore(previewState);
+      score += scoreDelta * Math.min(limit, 2);
+    }
 
     if (this.engine.config.idol.plan != "anomaly") {
       // Cards removed
@@ -141,46 +143,7 @@ export default class HeuristicEvaluateEffectStrategy extends BaseStrategy {
   }
 
   getStateScore(state) {
-    state = deepCopy(state);
-    const baseScore = state[S.score];
-    
-    // Effects -- TODO: make this not suck
-    const effects = state[S.effects];
-    const limits = effects.map(effect => {
-      let limit = Math.min(state[S.turnsRemaining], 3);
-      if (
-        effect.limit != null &&
-        effect.limit < limit
-      ) {
-        limit = effect.limit;
-      }
-      return limit;
-    });
-    for(let i=0; i < 6; i++) {
-      for (let j = 0; j < effects.length; j++) {
-        const effect = effects[j];
-        const limit = limits[j];
-        if (limit < i) continue;
-        this.engine.effectManager.triggerEffects(
-          state,
-          [
-            {
-              ...effect,
-              phase: null,
-              delay: effect.delay - state[S.turnsRemaining],
-            },
-          ],
-          null,
-          null,
-          true
-        );
-      }
-    }
-
     let score = 0;
-
-    // Effect score
-    score += state[S.score] - baseScore;
 
     // Cards in hand
     score += state[S.handCards].length * 3;
@@ -198,14 +161,16 @@ export default class HeuristicEvaluateEffectStrategy extends BaseStrategy {
     // Good condition turns
     score +=
       Math.min(state[S.goodConditionTurns], state[S.turnsRemaining]) *
-      (9 + state[S.concentration]) * 0.5 *
+      4.5 *
+      // (9 + state[S.concentration]) * 0.5 *
       this.goodConditionTurnsMultiplier;
 
     // Perfect condition turns
     score +=
       Math.min(state[S.perfectConditionTurns], state[S.turnsRemaining]) *
       state[S.goodConditionTurns] *
-      (9 + state[S.concentration]) * 0.1 *
+      0.9 *
+      // (9 + state[S.concentration]) * 0.1 *
       this.goodConditionTurnsMultiplier;
 
     // Concentration
@@ -257,6 +222,13 @@ export default class HeuristicEvaluateEffectStrategy extends BaseStrategy {
         (acc, cur) => acc + cur.amount * (cur.turns || state[S.turnsRemaining]),
         0
       ) * 8;
+
+    // Score debuffs
+    score +=
+      state[S.scoreDebuffs].reduce(
+        (acc, cur) => acc + cur.amount * (cur.turns || state[S.turnsRemaining]),
+        0
+      ) * -8;
 
     // Half cost turns
     score += Math.min(state[S.halfCostTurns], state[S.turnsRemaining]) * 6;
@@ -318,26 +290,78 @@ export default class HeuristicEvaluateEffectStrategy extends BaseStrategy {
     // Turn cards upgraded
     score += state[S.turnCardsUpgraded] * 20;
 
+    // Current turn score buffs/debuffs
+    if(state[S.turnsRemaining] > 0) {
+      // Score buffs
+      const totalScoreBuffs = state[S.scoreBuffs].reduce(
+        (acc, cur) => 
+          acc + cur.amount,
+        0
+      );
+      score *= 1 + totalScoreBuffs;
+
+      // Score debuffs
+      const totalScoreDebuffs = state[S.scoreDebuffs].reduce(
+        (acc, cur) => 
+          acc + cur.amount,
+        0
+      );
+      score *= totalScoreDebuffs < 1 ? 1 - totalScoreDebuffs : 0;
+    }
+
+    // Effect score
+    const effectState = deepCopy(state);
+    const effects = effectState[S.effects].filter(
+      (e) => e.actions && e.actions.some(a => a[0] == "score"));
+    let preEffectScore = effectState[S.score];
+    for (let i = 0; i < effects.length; i++) {
+      const effect = effects[i];
+      let limit = effectState[S.turnsRemaining];
+      if (
+        effect.limit != null &&
+        effect.limit < limit
+      ) {
+        limit = effect.limit;
+      }
+      if (limit <= 0) continue;
+      this.engine.effectManager.triggerEffects(
+        effectState,
+        [
+          {
+            ...effect,
+            phase: null,
+            delay: effect.delay - effectState[S.turnsRemaining],
+          },
+        ],
+        null,
+        null,
+        true
+      );
+      const effectScore = (effectState[S.score] - preEffectScore) * limit;
+      score += effectScore / this.engine.turnManager.getTurnMultiplier(effectState);
+      preEffectScore = effectState[S.score];
+    }
+
     // Scale score
     score = this.scaleScore(score);
 
     const { recommendedEffect } = this.engine.config.idol;
     if (recommendedEffect == "goodConditionTurns") {
-      score += baseScore * 0.4;
+      score += state[S.score] * 0.4;
     } else if (recommendedEffect == "concentration") {
-      score += baseScore * 0.6;
+      score += state[S.score] * 0.6;
     } else if (recommendedEffect == "goodImpressionTurns") {
-      score += baseScore * 1.1;
+      score += state[S.score] * 1.1;
     } else if (recommendedEffect == "motivation") {
-      score += baseScore * 0.6;
+      score += state[S.score] * 0.6;
     } else if (recommendedEffect == "strength") {
-      score += baseScore * 0.65;
+      score += state[S.score] * 0.65;
     } else if (recommendedEffect == "preservation") {
-      score += baseScore * 0.65;
+      score += state[S.score] * 0.65;
     } else if (recommendedEffect == "fullPower") {
-      score += baseScore * 0.8;
+      score += state[S.score] * 0.8;
     } else {
-      score += baseScore;
+      score += state[S.score];
     }
 
     return Math.round(score);

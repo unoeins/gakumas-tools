@@ -4,7 +4,7 @@ import BaseStrategy from "./BaseStrategy";
 
 const MAX_DEPTH = 3;
 
-export default class UnoEinsStrategy extends BaseStrategy {
+export default class HeuristicCustomBuffDebuffStrategy extends BaseStrategy {
   constructor(engine) {
     super(engine);
 
@@ -18,9 +18,9 @@ export default class UnoEinsStrategy extends BaseStrategy {
     );
 
     this.goodConditionTurnsMultiplier =
-      config.idol.recommendedEffect == "goodConditionTurns" ? 1.1 : 1;
+      config.idol.recommendedEffect == "goodConditionTurns" ? 1.75 : 1;
     this.concentrationMultiplier =
-      config.idol.recommendedEffect == "concentration" ? 1.1 : 1;
+      config.idol.recommendedEffect == "concentration" ? 3 : 1;
     this.goodImpressionTurnsMultiplier =
       config.idol.recommendedEffect == "goodImpressionTurns" ? 3.5 : 1;
     this.motivationMultiplier =
@@ -118,7 +118,7 @@ export default class UnoEinsStrategy extends BaseStrategy {
       );
       const scoreDelta =
         this.getStateScore(postEffectState) - this.getStateScore(previewState);
-      score += 3 * scoreDelta * Math.min(limit, 3);
+      score += scoreDelta * Math.min(limit, 6);
     }
 
     if (this.engine.config.idol.plan != "anomaly") {
@@ -159,15 +159,15 @@ export default class UnoEinsStrategy extends BaseStrategy {
     // Good condition turns
     score +=
       Math.min(state[S.goodConditionTurns], state[S.turnsRemaining]) *
-      (9 + state[S.concentration]) * 0.5 *
+      1.6 *
       this.goodConditionTurnsMultiplier;
 
     // Perfect condition turns
     score +=
       Math.min(state[S.perfectConditionTurns], state[S.turnsRemaining]) *
       state[S.goodConditionTurns] *
-      (9 + state[S.concentration]) * 0.1 *
-      this.goodConditionTurnsMultiplier;
+      this.goodConditionTurnsMultiplier *
+      1.5;
 
     // Concentration
     score +=
@@ -224,7 +224,7 @@ export default class UnoEinsStrategy extends BaseStrategy {
       state[S.scoreDebuffs].reduce(
         (acc, cur) => acc + cur.amount * (cur.turns || state[S.turnsRemaining]),
         0
-      ) * -80;
+      ) * -8;
 
     // Half cost turns
     score += Math.min(state[S.halfCostTurns], state[S.turnsRemaining]) * 6;
@@ -236,10 +236,10 @@ export default class UnoEinsStrategy extends BaseStrategy {
     score += state[S.costReduction] * state[S.turnsRemaining] * 0.5;
 
     // Double card effect cards
-    score += state[S.doubleCardEffectCards] * 100;
+    score += state[S.doubleCardEffectCards] * 50;
 
     // Card uses remaining
-    score += state[S.cardUsesRemaining] * 100;
+    score += state[S.cardUsesRemaining] * 50;
 
     // Good impression turns buffs
     score +=
@@ -286,36 +286,47 @@ export default class UnoEinsStrategy extends BaseStrategy {
     // Turn cards upgraded
     score += state[S.turnCardsUpgraded] * 20;
 
+    // Current turn score buffs/debuffs
+    if(state[S.turnsRemaining] > 0) {
+      // Score buffs
+      const totalScoreBuffs = state[S.scoreBuffs].reduce(
+        (acc, cur) => 
+          acc + cur.amount,
+        0
+      );
+      score *= 1 + totalScoreBuffs;
+
+      // Score debuffs
+      const totalScoreDebuffs = state[S.scoreDebuffs].reduce(
+        (acc, cur) => 
+          acc + cur.amount,
+        0
+      );
+      score *= totalScoreDebuffs < 1 ? 1 - totalScoreDebuffs : 0;
+    }
+
     // Scale score
     score = this.scaleScore(score);
 
-    let baseScore = state[S.score];
     const { recommendedEffect } = this.engine.config.idol;
     if (recommendedEffect == "goodConditionTurns") {
-      baseScore *= 0.4;
+      score += state[S.score] * 0.4;
     } else if (recommendedEffect == "concentration") {
-      baseScore *= 0.6;
+      score += state[S.score] * 0.6;
     } else if (recommendedEffect == "goodImpressionTurns") {
-      baseScore *= 1.1;
+      score += state[S.score] * 1.1;
     } else if (recommendedEffect == "motivation") {
-      baseScore *= 0.6;
+      score += state[S.score] * 0.6;
     } else if (recommendedEffect == "strength") {
-      baseScore *= 0.65;
+      score += state[S.score] * 0.65;
     } else if (recommendedEffect == "preservation") {
-      baseScore *= 0.65;
+      score += state[S.score] * 0.65;
     } else if (recommendedEffect == "fullPower") {
-      baseScore *= 0.8;
+      score += state[S.score] * 0.8;
     } else {
-      baseScore *= 1;
+      score += state[S.score];
     }
 
-    if(state[S.turnsElapsed] < 2) {
-      score += baseScore * 0.1;
-    } else if(state[S.turnsRemaining] < 2) {
-      score += baseScore * 10;
-    } else {
-      score += baseScore;
-    }
     return Math.round(score);
   }
 

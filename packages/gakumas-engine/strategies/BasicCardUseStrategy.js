@@ -20,13 +20,13 @@ export default class BasicCardUseStrategy extends BaseStrategy {
     );
 
     this.goodConditionTurnsMultiplier =
-      config.idol.recommendedEffect == "goodConditionTurns" ? 1 : 1;
+      config.idol.recommendedEffect == "goodConditionTurns" ? 1.75 : 1;
     this.concentrationMultiplier =
-      config.idol.recommendedEffect == "concentration" ? 1 : 1;
+      config.idol.recommendedEffect == "concentration" ? 3 : 1;
     this.goodImpressionTurnsMultiplier =
-      config.idol.recommendedEffect == "goodImpressionTurns" ? 1 : 1;
+      config.idol.recommendedEffect == "goodImpressionTurns" ? 3.5 : 1;
     this.motivationMultiplier =
-      config.idol.recommendedEffect == "motivation" ? 1 : 1;
+      config.idol.recommendedEffect == "motivation" ? 5.5 : 1;
     this.fullPowerMultiplier =
       config.idol.recommendedEffect == "fullPower" ? 5 : 1;
 
@@ -149,6 +149,7 @@ export default class BasicCardUseStrategy extends BaseStrategy {
     const { recommendedEffect } = this.engine.config.idol;
     let score = 0;
 
+    // TODO: Too heavy. Need loop limit
     // Turn simulation based on using only basic card
     while(simulatedState[S.turnsRemaining] > 0) {
       if(recommendedEffect == "goodConditionTurns" || recommendedEffect == "concentration") {
@@ -178,10 +179,10 @@ export default class BasicCardUseStrategy extends BaseStrategy {
     score += state[S.handCards].length * 3;
 
     // Stamina
-    score += state[S.stamina] * state[S.turnsRemaining] * 0.01;
+    score += state[S.stamina] * state[S.turnsRemaining] * 0.05;
 
     // Genki
-    score += state[S.genki] * state[S.turnsRemaining] * 0.01;
+    score += state[S.genki] * state[S.turnsRemaining] * 0.05;
 
     // Stance
     if (
@@ -294,26 +295,23 @@ export default class BasicCardUseStrategy extends BaseStrategy {
     score = this.scaleScore(score);
 
     if (recommendedEffect == "goodConditionTurns") {
-      baseScore *= 0.4;
+      score += baseScore * 0.4;
     } else if (recommendedEffect == "concentration") {
-      baseScore *= 0.6;
+      score += baseScore * 0.6;
     } else if (recommendedEffect == "goodImpressionTurns") {
-      baseScore *= 1.1;
+      score += baseScore * 1.1;
     } else if (recommendedEffect == "motivation") {
-      baseScore *= 0.6;
-      // const turnCount = this.engine.config.stage.turnCount;
-      // baseScore *= (Math.tanh(state[S.turnsElapsed] / turnCount * 4 - 4) / 2 + 0.5);
+      score += baseScore * 0.6;
     } else if (recommendedEffect == "strength") {
-      baseScore *= 0.65;
+      score += baseScore * 0.65;
     } else if (recommendedEffect == "preservation") {
-      baseScore *= 0.65;
+      score += baseScore * 0.65;
     } else if (recommendedEffect == "fullPower") {
-      baseScore *= 0.8;
+      score += baseScore * 0.8;
     } else {
-      baseScore *= 1;
+      score += baseScore;
     }
 
-    score += baseScore;
     return Math.round(score);
   }
 

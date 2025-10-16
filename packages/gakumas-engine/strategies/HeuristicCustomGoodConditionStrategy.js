@@ -159,14 +159,16 @@ export default class HeuristicCustomGoodConditionStrategy extends BaseStrategy {
     // Good condition turns
     score +=
       Math.min(state[S.goodConditionTurns], state[S.turnsRemaining]) *
-      (9 + state[S.concentration]) * 0.5 *
+      4.5 *
+      // (9 + state[S.concentration]) * 0.5 *
       this.goodConditionTurnsMultiplier;
 
     // Perfect condition turns
     score +=
       Math.min(state[S.perfectConditionTurns], state[S.turnsRemaining]) *
       state[S.goodConditionTurns] *
-      (9 + state[S.concentration]) * 0.1 *
+      0.9 *
+      // (9 + state[S.concentration]) * 0.1 *
       this.goodConditionTurnsMultiplier;
 
     // Concentration

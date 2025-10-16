@@ -1,12 +1,10 @@
-import { SkillCards } from "gakumas-data";
 import { S } from "../constants";
-import { deepCopy, getBaseId } from "../utils";
+import { deepCopy } from "../utils";
 import BaseStrategy from "./BaseStrategy";
 
 const MAX_DEPTH = 3;
-const MAX_TURNS = 6;
 
-export default class TurnSimulationStrategy extends BaseStrategy {
+export default class HeuristicFutureSightStrategy extends BaseStrategy {
   constructor(engine) {
     super(engine);
 
@@ -20,13 +18,13 @@ export default class TurnSimulationStrategy extends BaseStrategy {
     );
 
     this.goodConditionTurnsMultiplier =
-      config.idol.recommendedEffect == "goodConditionTurns" ? 1 : 1;
+      config.idol.recommendedEffect == "goodConditionTurns" ? 1.75 : 1;
     this.concentrationMultiplier =
-      config.idol.recommendedEffect == "concentration" ? 1 : 1;
+      config.idol.recommendedEffect == "concentration" ? 3 : 1;
     this.goodImpressionTurnsMultiplier =
-      config.idol.recommendedEffect == "goodImpressionTurns" ? 1 : 1;
+      config.idol.recommendedEffect == "goodImpressionTurns" ? 3.5 : 1;
     this.motivationMultiplier =
-      config.idol.recommendedEffect == "motivation" ? 1 : 1;
+      config.idol.recommendedEffect == "motivation" ? 5.5 : 1;
     this.fullPowerMultiplier =
       config.idol.recommendedEffect == "fullPower" ? 5 : 1;
 
@@ -81,7 +79,7 @@ export default class TurnSimulationStrategy extends BaseStrategy {
 
     // Additional actions
     if (
-      previewState[S.turnsRemaining] >= state[S.turnsRemaining] &&
+      previewState[S.turnsRemaining] > 0 &&
       this.depth < MAX_DEPTH
     ) {
       const future = this.evaluate(previewState);
@@ -90,6 +88,38 @@ export default class TurnSimulationStrategy extends BaseStrategy {
     }
 
     let score = 0;
+
+    // Effects -- TODO: make this not suck
+    const effectsDiff = previewState[S.effects].length - this.rootEffectCount;
+    for (let i = 0; i < effectsDiff; i++) {
+      const effect =
+        previewState[S.effects][previewState[S.effects].length - i - 1];
+      let limit = previewState[S.turnsRemaining];
+      if (
+        effect.limit != null &&
+        effect.limit < previewState[S.turnsRemaining]
+      ) {
+        limit = effect.limit + 1;
+      }
+      if (limit == 0) continue;
+      const postEffectState = deepCopy(previewState);
+      this.engine.effectManager.triggerEffects(
+        postEffectState,
+        [
+          {
+            ...effect,
+            phase: null,
+            delay: effect.delay - previewState[S.turnsRemaining],
+          },
+        ],
+        null,
+        null,
+        true
+      );
+      const scoreDelta =
+        this.getStateScore(postEffectState) - this.getStateScore(previewState);
+      score += 3 * scoreDelta * Math.min(limit, 6);
+    }
 
     if (this.engine.config.idol.plan != "anomaly") {
       // Cards removed
@@ -110,104 +140,40 @@ export default class TurnSimulationStrategy extends BaseStrategy {
     return Math.ceil(score * this.averageTypeMultiplier);
   }
 
-  simulateUseCard(state, id) {
-    const skillCard = SkillCards.getById(id);
-    const cardMapData = {
-      id,
-      baseId: getBaseId(skillCard),
-    };
-    state[S.cardMap].push(cardMapData);
-    const card = state[S.cardMap].length - 1;
-
-    if(this.engine.isCardUsable(state, card)) {
-      this.engine.effectManager.triggerEffectsForPhase("cardUsed", state);
-      if(skillCard.type == "active") {
-        this.engine.effectManager.triggerEffectsForPhase("activeCardUsed", state);
-      }
-      if(skillCard.type == "mental") {
-        this.engine.effectManager.triggerEffectsForPhase("mentalCardUsed", state);
-      }
-
-      this.engine.executor.executeActions(state, skillCard.actions, card);
-
-      this.engine.effectManager.triggerEffectsForPhase("afterCardUsed", state);
-      if(skillCard.type == "active") {
-        this.engine.effectManager.triggerEffectsForPhase("afterActiveCardUsed", state);
-      }
-      if(skillCard.type == "mental") {
-        this.engine.effectManager.triggerEffectsForPhase("afterMentalCardUsed", state);
-      }
-
-    } else {
-
-    }
-
-
-    state[S.handCards].unshift(card);
-    if (this.engine.isCardUsable(state, card)) {
-      state = this.engine.useCard(state, card);
-    } else {
-      state = this.engine.endTurn(state);
-    }
-    state[S.cardMap].pop();
-    state[S.handCards] = state[S.handCards].filter((id) => id !== card);
-    state[S.discardedCards] = state[S.discardedCards].filter((id) => id !== card);
-    state[S.removedCards] = state[S.removedCards].filter((id) => id !== card);
-    return state;
-  }
-
   getStateScore(state) {
-    const simulatedState = deepCopy(state);
-    const baseScore = state[S.score];
-    
-    const effects = simulatedState[S.effects];
-    const limits = effects.map(effect => {
-      let limit = Math.min(simulatedState[S.turnsRemaining], MAX_TURNS);
-      if (
-        effect.limit != null &&
-        effect.limit < limit
-      ) {
-        limit = effect.limit;
-      }
-      return limit;
-    });
-
-    const { recommendedEffect } = this.engine.config.idol;
     let score = 0;
-
-    // Turn simulation based on using only basic card
-    while(simulatedState[S.turnsRemaining] > 0) {
-      if(recommendedEffect == "goodConditionTurns" || recommendedEffect == "concentration") {
-        if(simulatedState[S.turnsRemaining] > 2) {
-          simulatedState = this.simulateUseCard(simulatedState, 1); // アピールの基本
-        } else if(simulatedState[S.turnsRemaining] > 0) {
-          simulatedState = this.simulateUseCard(simulatedState, 1);
-        }
-      } else if (recommendedEffect == "goodImpressionTurns") {
-        if(simulatedState[S.turnsRemaining] > 1 || simulatedState[S.cardUsesRemaining] > 0) {
-          simulatedState = this.simulateUseCard(simulatedState, 19); // 目線の基本
-        } else if(simulatedState[S.turnsRemaining] > 0) {
-          simulatedState = this.simulateUseCard(simulatedState, 9); // 可愛い仕草
-        }
-      } else if (recommendedEffect == "motivation") {
-        if(simulatedState[S.turnsRemaining] > 1 || simulatedState[S.cardUsesRemaining] > 0) {
-          simulatedState = this.simulateUseCard(simulatedState, 21); // 意識の基本
-        } else if(simulatedState[S.turnsRemaining] > 0) {
-          simulatedState = this.simulateUseCard(simulatedState, 11); // 気分転換
-        }
-      }
-    }
-    // Simulation score
-    score += simulatedState[S.score] - baseScore;
 
     // Cards in hand
     score += state[S.handCards].length * 3;
 
     // Stamina
-    score += state[S.stamina] * state[S.turnsRemaining] * 0.01;
+    score += state[S.stamina] * state[S.turnsRemaining] * 0.05;
 
     // Genki
-    score += state[S.genki] * state[S.turnsRemaining] * 0.01;
+    score +=
+      state[S.genki] *
+      Math.tanh(state[S.turnsRemaining] / 3) *
+      0.7 *
+      this.motivationMultiplier;
+
+    // Good condition turns
+    score +=
+      Math.min(state[S.goodConditionTurns], state[S.turnsRemaining]) *
+      1.6 *
+      this.goodConditionTurnsMultiplier;
+
+    // Perfect condition turns
+    score +=
+      Math.min(state[S.perfectConditionTurns], state[S.turnsRemaining]) *
+      state[S.goodConditionTurns] *
+      this.goodConditionTurnsMultiplier *
+      1.5;
+
+    // Concentration
+    score +=
+      state[S.concentration] *
+      state[S.turnsRemaining] *
+      this.concentrationMultiplier;
 
     // Stance
     if (
@@ -234,13 +200,24 @@ export default class TurnSimulationStrategy extends BaseStrategy {
     }
 
     // Good impression turns
+    score +=
+      state[S.goodImpressionTurns] *
+      state[S.turnsRemaining] *
+      this.goodImpressionTurnsMultiplier;
 
     // Motivation
     score +=
-      simulatedState[S.motivation] *
-      simulatedState[S.turnsRemaining] *
+      state[S.motivation] *
+      state[S.turnsRemaining] *
       0.45 *
       this.motivationMultiplier;
+
+    // Score buffs
+    score +=
+      state[S.scoreBuffs].reduce(
+        (acc, cur) => acc + cur.amount * (cur.turns || state[S.turnsRemaining]),
+        0
+      ) * 8;
 
     // Half cost turns
     score += Math.min(state[S.halfCostTurns], state[S.turnsRemaining]) * 6;
@@ -302,44 +279,28 @@ export default class TurnSimulationStrategy extends BaseStrategy {
     // Turn cards upgraded
     score += state[S.turnCardsUpgraded] * 20;
 
-    // Score buffs
-    score +=
-      state[S.scoreBuffs].reduce(
-        (acc, cur) => acc + cur.amount * (cur.turns || state[S.turnsRemaining]),
-        0
-      ) * 8;
-
-    // Score debuffs
-    score +=
-      state[S.scoreDebuffs].reduce(
-        (acc, cur) => acc + cur.amount * (cur.turns || state[S.turnsRemaining]),
-        0
-      ) * -8;
-
     // Scale score
     score = this.scaleScore(score);
 
+    const { recommendedEffect } = this.engine.config.idol;
     if (recommendedEffect == "goodConditionTurns") {
-      baseScore *= 0.4;
+      score += state[S.score] * 0.4;
     } else if (recommendedEffect == "concentration") {
-      baseScore *= 0.6;
+      score += state[S.score] * 0.6;
     } else if (recommendedEffect == "goodImpressionTurns") {
-      baseScore *= 1.1;
+      score += state[S.score] * 1.1;
     } else if (recommendedEffect == "motivation") {
-      baseScore *= 0.6;
-      // const turnCount = this.engine.config.stage.turnCount;
-      // baseScore *= (Math.tanh(state[S.turnsElapsed] / turnCount * 4 - 4) / 2 + 0.5);
+      score += state[S.score] * 0.6;
     } else if (recommendedEffect == "strength") {
-      baseScore *= 0.65;
+      score += state[S.score] * 0.65;
     } else if (recommendedEffect == "preservation") {
-      baseScore *= 0.65;
+      score += state[S.score] * 0.65;
     } else if (recommendedEffect == "fullPower") {
-      baseScore *= 0.8;
+      score += state[S.score] * 0.8;
     } else {
-      baseScore *= 1;
+      score += state[S.score];
     }
 
-    score += baseScore;
     return Math.round(score);
   }
 

@@ -18,10 +18,8 @@ export default class HeuristicEffectScoreStrategy extends BaseStrategy {
     );
 
     this.goodConditionTurnsMultiplier =
-      // config.idol.recommendedEffect == "goodConditionTurns" ? 1 : 1;
       config.idol.recommendedEffect == "goodConditionTurns" ? 1.75 : 1;
     this.concentrationMultiplier =
-      // config.idol.recommendedEffect == "concentration" ? 1 : 1;
       config.idol.recommendedEffect == "concentration" ? 3 : 1;
     this.goodImpressionTurnsMultiplier =
       config.idol.recommendedEffect == "goodImpressionTurns" ? 3.5 : 1;
@@ -120,7 +118,7 @@ export default class HeuristicEffectScoreStrategy extends BaseStrategy {
       );
       const scoreDelta =
         this.getStateScore(postEffectState) - this.getStateScore(previewState);
-      score += 3 * scoreDelta * Math.min(limit, 2);
+      score += 3 * scoreDelta * Math.min(limit, 6);
     }
 
     if (this.engine.config.idol.plan != "anomaly") {
@@ -161,17 +159,15 @@ export default class HeuristicEffectScoreStrategy extends BaseStrategy {
     // Good condition turns
     score +=
       Math.min(state[S.goodConditionTurns], state[S.turnsRemaining]) *
-      4.5 *
-      // (9 + state[S.concentration]) * 0.5 *
+      1.6 *
       this.goodConditionTurnsMultiplier;
 
     // Perfect condition turns
     score +=
       Math.min(state[S.perfectConditionTurns], state[S.turnsRemaining]) *
       state[S.goodConditionTurns] *
-      0.9 *
-      // (9 + state[S.concentration]) * 0.1 *
-      this.goodConditionTurnsMultiplier;
+      this.goodConditionTurnsMultiplier *
+      1.5;
 
     // Concentration
     score +=
@@ -290,13 +286,14 @@ export default class HeuristicEffectScoreStrategy extends BaseStrategy {
     let preEffectScore = effectState[S.score];
     for (let i = 0; i < effects.length; i++) {
       const effect = effects[i];
-      let limit = Math.min(effectState[S.turnsRemaining], 6);
+      let limit = effectState[S.turnsRemaining];
       if (
         effect.limit != null &&
         effect.limit < limit
       ) {
         limit = effect.limit;
       }
+      if (limit <= 0) continue;
       this.engine.effectManager.triggerEffects(
         effectState,
         [
