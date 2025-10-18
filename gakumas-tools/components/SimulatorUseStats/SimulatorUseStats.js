@@ -34,10 +34,9 @@ function SimulatorUseStats({ useStats, idolId }) {
             <span>{t("turn", { turn: turn + 1 })}</span>
           </div>
           <div className={styles.useStatsData}>
-            {turnData.map((data) => (
-              <div className={styles.useStatsCard} key={data.id}>
+            {turnData.map((data, i) => (
+              <div className={styles.useStatsCard} key={`${i}_${data.id}_${data.c}`}>
                 <EntityIcon
-                  key={`${turn}_${data.id}`}
                   type={EntityTypes.SKILL_CARD}
                   id={data.id}
                   customizations={data.c}
