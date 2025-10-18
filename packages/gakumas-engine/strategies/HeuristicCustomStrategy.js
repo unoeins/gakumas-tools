@@ -48,14 +48,18 @@ export default class HeuristicCustomStrategy extends BaseStrategy {
     let nextState;
 
     const scores = futures.map((f) => (f ? f.score : -Infinity));
+    const scoreBreakdowns = futures.map((f) => (f ? f.scoreBreakdown : {}));
+    // console.log("scoreBreakdowns:", scoreBreakdowns);
     let maxScore = Math.max(...scores);
     let selectedIndex = null;
+    let scoreBreakdown = {};
     if (maxScore > 0) {
       selectedIndex = scores.indexOf(maxScore);
       nextState = futures[selectedIndex].state;
+      scoreBreakdown = futures[selectedIndex].scoreBreakdown;
     } else {
       nextState = this.engine.endTurn(state);
-      maxScore = this.getStateScore(nextState);
+      maxScore = this.getStateScore(nextState).score;
     }
 
     this.engine.logger.logs[logIndex].data = {
@@ -64,11 +68,12 @@ export default class HeuristicCustomStrategy extends BaseStrategy {
         c: state[S.cardMap][card].c11n,
       })),
       scores,
+      scoreBreakdowns,
       selectedIndex,
       state: this.engine.logger.getHandStateForLogging(state),
     };
 
-    return { score: maxScore, state: nextState };
+    return { score: maxScore, state: nextState, scoreBreakdown: scoreBreakdown };
   }
 
   getFuture(state, card) {
@@ -86,13 +91,14 @@ export default class HeuristicCustomStrategy extends BaseStrategy {
     ) {
       const future = this.evaluate(previewState);
       this.depth--;
-      return { score: future.score, state: future.state };
+      return { score: future.score, state: future.state, scoreBreakdown: future.scoreBreakdown };
     }
 
     let score = 0;
 
     // Effects -- TODO: make this not suck
     const effectsDiff = previewState[S.effects].length - this.rootEffectCount;
+    let effectScore = 0;
     for (let i = 0; i < effectsDiff; i++) {
       const effect =
         previewState[S.effects][previewState[S.effects].length - i - 1];
@@ -119,9 +125,10 @@ export default class HeuristicCustomStrategy extends BaseStrategy {
         true
       );
       const scoreDelta =
-        this.getStateScore(postEffectState) - this.getStateScore(previewState);
-      score += scoreDelta * Math.min(limit, 2);
+        this.getStateScore(postEffectState).score - this.getStateScore(previewState).score;
+      effectScore += scoreDelta * Math.min(limit, 2);
     }
+    score += effectScore;
 
     if (this.engine.config.idol.plan != "anomaly") {
       // Cards removed
@@ -132,10 +139,18 @@ export default class HeuristicCustomStrategy extends BaseStrategy {
         Math.floor(previewState[S.turnsRemaining] / 13);
     }
 
-    score += this.getStateScore(previewState);
+    const stateScore = this.getStateScore(previewState);
+    score += stateScore.score;
 
     this.depth--;
-    return { score: Math.round(score), state: previewState };
+    return { 
+      score: Math.round(score),
+      state: previewState,
+      scoreBreakdown: {
+        ...stateScore.breakdown,
+        effect: Math.round(effectScore),
+      }
+    };
   }
 
   scaleScore(score) {
@@ -309,11 +324,16 @@ export default class HeuristicCustomStrategy extends BaseStrategy {
       score *= totalScoreDebuffs < 1 ? 1 - totalScoreDebuffs : 0;
     }
 
+    // Scale score
+    score = this.scaleScore(score);
+    const buffScore = score;
+
     // Effect score
     const effectState = deepCopy(state);
     const effects = effectState[S.effects].filter(
       (e) => e.actions && e.actions.some(a => a[0] == "score"));
     let preEffectScore = effectState[S.score];
+    let scoreEffectScore = 0;
     for (let i = 0; i < effects.length; i++) {
       const effect = effects[i];
       let limit = effectState[S.turnsRemaining];
@@ -338,33 +358,42 @@ export default class HeuristicCustomStrategy extends BaseStrategy {
         true
       );
       const effectScore = (effectState[S.score] - preEffectScore) * limit;
-      score += effectScore / this.engine.turnManager.getTurnMultiplier(effectState);
+      scoreEffectScore += effectScore / this.engine.turnManager.getTurnMultiplier(effectState);
       preEffectScore = effectState[S.score];
     }
-
     // Scale score
-    score = this.scaleScore(score);
+    scoreEffectScore = this.scaleScore(scoreEffectScore);
+    score += scoreEffectScore;
 
+    let actualScore;
     const { recommendedEffect } = this.engine.config.idol;
     if (recommendedEffect == "goodConditionTurns") {
-      score += state[S.score] * 0.4;
+      actualScore = state[S.score] * 0.4;
     } else if (recommendedEffect == "concentration") {
-      score += state[S.score] * 0.6;
+      actualScore = state[S.score] * 0.6;
     } else if (recommendedEffect == "goodImpressionTurns") {
-      score += state[S.score] * 1.1;
+      actualScore = state[S.score] * 1.1;
     } else if (recommendedEffect == "motivation") {
-      score += state[S.score] * 0.6;
+      actualScore = state[S.score] * 0.6;
     } else if (recommendedEffect == "strength") {
-      score += state[S.score] * 0.65;
+      actualScore = state[S.score] * 0.65;
     } else if (recommendedEffect == "preservation") {
-      score += state[S.score] * 0.65;
+      actualScore = state[S.score] * 0.65;
     } else if (recommendedEffect == "fullPower") {
-      score += state[S.score] * 0.8;
+      actualScore = state[S.score] * 0.8;
     } else {
-      score += state[S.score];
+      actualScore = state[S.score];
     }
+    score += actualScore;
 
-    return Math.round(score);
+    return {
+      score: Math.round(score),
+      breakdown: {
+        buff: Math.round(buffScore),
+        actual: Math.round(actualScore),
+        scoreEffect: Math.round(scoreEffectScore),
+      },
+    };
   }
 
   getGrowthScore(state) {

@@ -102,7 +102,7 @@ function HandState({ state }) {
   );
 }
 
-function Hand({ handCards, scores, selectedIndex, state, idolId }) {
+function Hand({ handCards, scores, scoreBreakdowns, selectedIndex, state, idolId }) {
   const t = useTranslations("stage");
 
   const [expanded, setExpanded] = useState(false);
@@ -139,6 +139,15 @@ function Hand({ handCards, scores, selectedIndex, state, idolId }) {
             <span className={styles.cardScore}>
               {scores[i] == -Infinity ? t("unplayable") : scores[i]}
             </span>
+            {scoreBreakdowns && scores[i] != -Infinity && (
+              <>
+                {Object.entries(scoreBreakdowns[i]).map(([k, v]) => (
+                  <span key={k} className={styles.cardScore}>
+                    {k}: {v}
+                  </span>
+                ))}
+              </>
+            )}
           </div>
         ))}
       </div>
