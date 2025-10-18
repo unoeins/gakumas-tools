@@ -41,7 +41,6 @@ function SimulatorConditionalUseStats({ conditionalUseStats, idolId }) {
       </div>
       <div className={styles.skillCardSelect}>
         <EntityIcon
-          key={`select`}
           type={EntityTypes.SKILL_CARD}
           id={selectedCard ? selectedCard.id : 0}
           customizations={selectedCard?.c}
@@ -66,10 +65,9 @@ function SimulatorConditionalUseStats({ conditionalUseStats, idolId }) {
             <span>{t("turn", { turn: turn + 1 })}</span>
           </div>
           <div className={styles.useStatsData}>
-            {turnData.map((data) => (
-              <div className={styles.useStatsCard} key={data.id}>
+            {turnData.map((data, i) => (
+              <div className={styles.useStatsCard} key={`${i}_${data.id}_${data.c}`}>
                 <EntityIcon
-                  key={`${turn}_${data.id}`}
                   type={EntityTypes.SKILL_CARD}
                   id={data.id}
                   customizations={data.c}

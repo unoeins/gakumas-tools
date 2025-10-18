@@ -33,7 +33,6 @@ function SimulatorPriorityStats({ priorityStats, idolId }) {
       <label>{t("priorityStats")}</label>
       <div className={styles.skillCardSelect}>
         <EntityIcon
-          key={`select_A`}
           type={EntityTypes.SKILL_CARD}
           id={selectedCardA ? selectedCardA.id : 0}
           customizations={selectedCardA?.c}
@@ -52,7 +51,6 @@ function SimulatorPriorityStats({ priorityStats, idolId }) {
           size={`large`}
         />
         <EntityIcon
-          key={`select_B`}
           type={EntityTypes.SKILL_CARD}
           id={selectedCardB ? selectedCardB.id : 0}
           customizations={selectedCardB?.c}
@@ -81,7 +79,6 @@ function SimulatorPriorityStats({ priorityStats, idolId }) {
             <div className={styles.priorityStatsData}>
               <div className={styles.priorityStatsCard}>
                 <EntityIcon
-                  key={`${turn}_${selectedCardA.id}`}
                   type={EntityTypes.SKILL_CARD}
                   id={selectedCardA.id}
                   customizations={selectedCardA.c}
@@ -93,7 +90,6 @@ function SimulatorPriorityStats({ priorityStats, idolId }) {
               </div>
               <div className={styles.priorityStatsCard}>
                 <EntityIcon
-                  key={`${turn}_${selectedCardB.id}`}
                   type={EntityTypes.SKILL_CARD}
                   id={selectedCardB.id}
                   customizations={selectedCardB.c}
