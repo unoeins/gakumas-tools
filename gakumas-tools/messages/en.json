@@ -284,6 +284,7 @@
     "strength2": "Strength 2",
     "fullPower": "Full power",
     "fullPowerCharge": "Full power charge",
+    "cumulativeFullPowerCharge": "Cumulative full power charge",
     "lockStanceTurns": "Lock stance turns",
     "enthusiasm": "Enthusiasm",
     "enthusiasmBonus": "Enthusiasm bonus",
