@@ -69,6 +69,14 @@ function AreaPlot({ data, plan }) {
             },
           }
         : {}),
+      ...(plan == "anomaly"
+        ? {
+            cumulativeFullPowerCharge: {
+              label: t("cumulativeFullPowerCharge"),
+              color: "rgba(255, 171, 74, 0.25)",
+            },
+          }
+        : {}),
     }),
     [t]
   );

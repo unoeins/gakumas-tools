@@ -284,6 +284,7 @@
     "strength2": "強気 2",
     "fullPower": "全力",
     "fullPowerCharge": "全力値",
+    "cumulativeFullPowerCharge": "累積全力値",
     "lockStanceTurns": "指針固定",
     "enthusiasm": "熱意",
     "enthusiasmBonus": "熱意追加",

@@ -370,6 +370,7 @@ export const GRAPHED_FIELDS = [
   S.concentration,
   S.goodImpressionTurns,
   S.motivation,
+  S.cumulativeFullPowerCharge,
 ];
 
 export const FIELDS_TO_DIFF = [
