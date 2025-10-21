@@ -281,6 +281,7 @@ export default class HeuristicEffectScoreStrategy extends BaseStrategy {
 
     // Effect score
     const effectState = deepCopy(state);
+    effectState[S.stance] = "none";
     const effects = effectState[S.effects].filter(
       (e) => e.actions && e.actions.some(a => a[0] == "score"));
     let preEffectScore = effectState[S.score];

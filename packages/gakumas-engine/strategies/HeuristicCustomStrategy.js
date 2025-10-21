@@ -126,7 +126,7 @@ export default class HeuristicCustomStrategy extends BaseStrategy {
       );
       const scoreDelta =
         this.getStateScore(postEffectState).score - this.getStateScore(previewState).score;
-      effectScore += scoreDelta * Math.min(limit, 2);
+      effectScore += scoreDelta * Math.min(limit, 6);
     }
     score += effectScore;
 
@@ -167,9 +167,10 @@ export default class HeuristicCustomStrategy extends BaseStrategy {
     score += state[S.stamina] * state[S.turnsRemaining] * 0.05;
 
     // Genki
+    const genkiCoef = Math.tanh(Math.min(state[S.turnsRemaining], state[S.turnsElapsed]) / 3);
     score +=
       state[S.genki] *
-      Math.tanh(state[S.turnsRemaining] / 3) *
+      genkiCoef *
       0.7 *
       this.motivationMultiplier;
 
@@ -246,13 +247,22 @@ export default class HeuristicCustomStrategy extends BaseStrategy {
       ) * -8;
 
     // Half cost turns
-    score += Math.min(state[S.halfCostTurns], state[S.turnsRemaining]) * 6;
+    score += 
+      Math.min(state[S.halfCostTurns], state[S.turnsRemaining]) * 
+      genkiCoef *
+      6;
 
     // Double cost turns
-    score += Math.min(state[S.doubleCostTurns], state[S.turnsRemaining]) * -6;
+    score += 
+      Math.min(state[S.doubleCostTurns], state[S.turnsRemaining]) * 
+      genkiCoef *
+      -6;
 
     // Cost reduction
-    score += state[S.costReduction] * state[S.turnsRemaining] * 0.5;
+    score += 
+      state[S.costReduction] * state[S.turnsRemaining] * 
+      genkiCoef * 
+      0.5;
 
     // Double card effect cards
     score += state[S.doubleCardEffectCards] * 50;
@@ -330,6 +340,7 @@ export default class HeuristicCustomStrategy extends BaseStrategy {
 
     // Effect score
     const effectState = deepCopy(state);
+    effectState[S.stance] = "none";
     const effects = effectState[S.effects].filter(
       (e) => e.actions && e.actions.some(a => a[0] == "score"));
     let preEffectScore = effectState[S.score];
@@ -391,7 +402,7 @@ export default class HeuristicCustomStrategy extends BaseStrategy {
       breakdown: {
         buff: Math.round(buffScore),
         actual: Math.round(actualScore),
-        scoreEffect: Math.round(scoreEffectScore),
+        scoreFX: Math.round(scoreEffectScore),
       },
     };
   }
