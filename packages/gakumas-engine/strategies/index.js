@@ -1,5 +1,6 @@
 import HeuristicStrategy from "./HeuristicStrategy";
 import HeuristicCustomStrategy from "./HeuristicCustomStrategy";
+import HeuristicSoraChinaStrategy from "./HeuristicSoraChinaStrategy";
 import HeuristicCustomGoodConditionStrategy from "./HeuristicCustomGoodConditionStrategy";
 import HeuristicCustomBuffDebuffStrategy from "./HeuristicCustomBuffDebuffStrategy";
 import HeuristicEffectScoreStrategy from "./HeuristicEffectScoreStrategy";
@@ -11,6 +12,7 @@ import BasicCardUseStrategy from "./BasicCardUseStrategy";
 const STRATEGIES = {
   HeuristicStrategy, 
   HeuristicCustomStrategy,
+  HeuristicSoraChinaStrategy,
   HeuristicCustomGoodConditionStrategy, 
   HeuristicCustomBuffDebuffStrategy, 
   HeuristicEffectScoreStrategy,
