@@ -19,7 +19,11 @@ export default class HeuristicCustomStrategy extends BaseStrategy {
 
     this.goodConditionTurnsMultiplier =
       // config.idol.recommendedEffect == "goodConditionTurns" ? 1 : 1;
-      config.idol.recommendedEffect == "goodConditionTurns" ? 1.75 : 1;
+      // config.idol.recommendedEffect == "goodConditionTurns" ? 1.75 : 1;
+      config.idol.recommendedEffect == "goodConditionTurns" ? 3 : 1;
+    // if (config.idol.pIdolId == 114) {
+    //   this.goodConditionTurnsMultiplier = 8;
+    // }
     this.concentrationMultiplier =
       // config.idol.recommendedEffect == "concentration" ? 1 : 1;
       config.idol.recommendedEffect == "concentration" ? 3 : 1;
@@ -175,11 +179,12 @@ export default class HeuristicCustomStrategy extends BaseStrategy {
       this.motivationMultiplier;
 
     // Good condition turns
-    score +=
-      Math.min(state[S.goodConditionTurns], state[S.turnsRemaining]) *
-      4.5 *
-      // (9 + state[S.concentration]) * 0.5 *
-      this.goodConditionTurnsMultiplier;
+    if (state[S.turnsRemaining] > 0) {
+      score +=
+        state[S.goodConditionTurns] *
+        4.5 *
+        this.goodConditionTurnsMultiplier;
+    }
 
     // Perfect condition turns
     score +=

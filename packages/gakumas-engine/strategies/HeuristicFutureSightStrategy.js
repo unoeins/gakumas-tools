@@ -3,6 +3,7 @@ import { deepCopy } from "../utils";
 import BaseStrategy from "./BaseStrategy";
 
 const MAX_DEPTH = 3;
+const NEXT_DEPTH = 2;
 
 export default class HeuristicFutureSightStrategy extends BaseStrategy {
   constructor(engine) {
@@ -19,6 +20,9 @@ export default class HeuristicFutureSightStrategy extends BaseStrategy {
 
     this.goodConditionTurnsMultiplier =
       config.idol.recommendedEffect == "goodConditionTurns" ? 1.75 : 1;
+    if (config.idol.pIdolId == 114) {
+      this.goodConditionTurnsMultiplier = 8;
+    }
     this.concentrationMultiplier =
       config.idol.recommendedEffect == "concentration" ? 3 : 1;
     this.goodImpressionTurnsMultiplier =
@@ -33,6 +37,11 @@ export default class HeuristicFutureSightStrategy extends BaseStrategy {
   }
 
   evaluate(state) {
+    const result = this.evaluateInternal(state, state);
+    return { score: result.score, state: result.nextState };
+  }
+
+  evaluateInternal(state, nextState) {
     if (this.depth == 0) {
       this.rootEffectCount = state[S.effects].length;
     }
@@ -40,17 +49,17 @@ export default class HeuristicFutureSightStrategy extends BaseStrategy {
     const logIndex = this.engine.logger.log(state, "hand", null);
 
     const futures = state[S.handCards].map((card) =>
-      this.getFuture(state, card)
+      this.getFuture(state, nextState, card)
     );
-
-    let nextState;
 
     const scores = futures.map((f) => (f ? f.score : -Infinity));
     let maxScore = Math.max(...scores);
     let selectedIndex = null;
     if (maxScore > 0) {
       selectedIndex = scores.indexOf(maxScore);
-      nextState = futures[selectedIndex].state;
+      if (this.depth < NEXT_DEPTH) {
+        nextState = futures[selectedIndex].nextState;
+      }
     } else {
       nextState = this.engine.endTurn(state);
       maxScore = this.getStateScore(nextState);
@@ -66,15 +75,18 @@ export default class HeuristicFutureSightStrategy extends BaseStrategy {
       state: this.engine.logger.getHandStateForLogging(state),
     };
 
-    return { score: maxScore, state: nextState };
+    return { score: maxScore, state: nextState, nextState: nextState };
   }
 
-  getFuture(state, card) {
+  getFuture(state, nextState, card) {
     if (!this.engine.isCardUsable(state, card)) {
       return null;
     }
 
     const previewState = this.engine.useCard(state, card);
+    if (this.depth < NEXT_DEPTH) {
+      nextState = previewState;
+    }
     this.depth++;
 
     // Additional actions
@@ -82,9 +94,9 @@ export default class HeuristicFutureSightStrategy extends BaseStrategy {
       previewState[S.turnsRemaining] > 0 &&
       this.depth < MAX_DEPTH
     ) {
-      const future = this.evaluate(previewState);
+      const future = this.evaluateInternal(previewState, nextState);
       this.depth--;
-      return { score: future.score, state: future.state };
+      return { score: future.score, state: future.state, nextState: future.nextState };
     }
 
     let score = 0;
@@ -132,8 +144,11 @@ export default class HeuristicFutureSightStrategy extends BaseStrategy {
 
     score += this.getStateScore(previewState);
 
+    // Turn bonus
+    score *= 1 + previewState[S.turnsRemaining];
+
     this.depth--;
-    return { score: Math.round(score), state: previewState };
+    return { score: Math.round(score), state: previewState, nextState: nextState };
   }
 
   scaleScore(score) {
@@ -157,10 +172,17 @@ export default class HeuristicFutureSightStrategy extends BaseStrategy {
       this.motivationMultiplier;
 
     // Good condition turns
-    score +=
-      Math.min(state[S.goodConditionTurns], state[S.turnsRemaining]) *
-      1.6 *
-      this.goodConditionTurnsMultiplier;
+    if (this.engine.config.idol.pIdolId == 114) {
+      if (state[S.turnsRemaining] > 0) {
+        score +=
+          state[S.goodConditionTurns] * 3 * this.goodConditionTurnsMultiplier;
+      }
+    } else {
+      score +=
+        Math.min(state[S.goodConditionTurns], state[S.turnsRemaining]) *
+        1.6 *
+        this.goodConditionTurnsMultiplier;
+    }
 
     // Perfect condition turns
     score +=
