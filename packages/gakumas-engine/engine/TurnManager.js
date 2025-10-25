@@ -148,6 +148,7 @@ export default class TurnManager extends EngineComponent {
       state,
       "beforeStartOfTurn"
     );
+    this.engine.effectManager.triggerEffectsForPhase(state, "startOfTurn");
 
     // Draw cards
     for (let i = 0; i < 3; i++) {
@@ -164,7 +165,8 @@ export default class TurnManager extends EngineComponent {
       }
     }
 
-    this.engine.effectManager.triggerEffectsForPhase(state, "startOfTurn");
+    this.engine.effectManager.triggerEffectsForPhase(state, "afterStartOfTurn");
+    this.engine.effectManager.triggerEffectsForPhase(state, "turn");
     this.engine.effectManager.triggerEffectsForPhase(state, "everyTurn");
   }
 
