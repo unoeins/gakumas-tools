@@ -18,4 +18,12 @@ export default class BaseStrategy {
   pickCardsToHold(state, cards, num = 1) {
     throw new Error("pickCardsToHold is not implemented!");
   }
+
+  getVariables() {
+    return [];
+  }
+
+  setVariableValues(variableValues) {
+    // Do nothing by default
+  }
 }
