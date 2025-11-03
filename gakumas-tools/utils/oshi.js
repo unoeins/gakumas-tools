@@ -16,16 +16,4 @@ const IdolIcon = ({ idolId }) => {
   );
 };
 
-export const OSHI_PROPS = {
-  text: (
-    <div>
-      <IdolIcon idolId={6} />
-      伊藤舞音さんが出演された「ぷちうるふ1stみーてぃん2025」限定配信中！
-      <br />
-      ゴールドメンバーになると昼夜両部観れます！カラオケパートもあるよ！🎶
-    </div>
-  ),
-  initiallyExpanded: false,
-  hasBadge: true,
-  url: "https://nicochannel.jp/okazuradio/video/smVVkucXkDVDepfujx96xgCf",
-};
+export const OSHI_PROPS = null;
