@@ -123,7 +123,8 @@ export default class HeuristicConstBuffStrategy extends BaseStrategy {
       );
       const scoreDelta =
         this.getStateScore(postEffectState).score - this.getStateScore(previewState).score;
-      effectScore += scoreDelta * Math.min(limit, 6);
+      const maxTriggers = (previewState[S.turnsElapsed] + previewState[S.turnsRemaining]) / 2;
+      effectScore += scoreDelta * Math.min(limit, maxTriggers);
     }
     score += effectScore;
 
@@ -161,8 +162,10 @@ export default class HeuristicConstBuffStrategy extends BaseStrategy {
       // const genkiCoef = Math.tanh(Math.min(state[S.turnsRemaining], state[S.turnsElapsed]) / 3);
       score +=
         state[S.genki] *
+        turnCount *
         // genkiCoef *
-        0.7 *
+        // 0.7 *
+        0.15 *
         this.motivationMultiplier;
 
       // Good condition turns
@@ -189,20 +192,27 @@ export default class HeuristicConstBuffStrategy extends BaseStrategy {
         this.engine.config.idol.plan == "anomaly" &&
         (state[S.turnsRemaining] || state[S.cardUsesRemaining])
       ) {
-        score += state[S.strengthTimes] * 40;
-        score += state[S.preservationTimes] * 80;
-        score += state[S.leisureTimes] * 80;
-        score += state[S.fullPowerTimes] * 80 * this.fullPowerMultiplier;
+        score += state[S.strengthTimes] * 40 * turnCount / 2;
+        score += state[S.preservationTimes] * 80 * turnCount / 2;
+        score += state[S.leisureTimes] * 80 * turnCount / 2;
+        score += state[S.fullPowerTimes] * 80 * turnCount / 2 * this.fullPowerMultiplier;
 
         //Enthusiasm
-        score += state[S.enthusiasm] * 5;
+        score += state[S.enthusiasm] * 5 * turnCount;
         if (state[S.turnsRemaining]) {
-          score += state[S.enthusiasmBonus] * 5 * state[S.enthusiasmMultiplier];
+          score += 
+            state[S.enthusiasmBonus] *
+            turnCount *
+            5 *
+            state[S.enthusiasmMultiplier];
         }
 
         // Full power charge
         score +=
-          state[S.cumulativeFullPowerCharge] * 3 * this.fullPowerMultiplier;
+          state[S.cumulativeFullPowerCharge] *
+          turnCount *
+          3 *
+          this.fullPowerMultiplier;
 
         // Growth
         score += this.getGrowthScore(state) * 0.2 * turnCount;
@@ -251,10 +261,10 @@ export default class HeuristicConstBuffStrategy extends BaseStrategy {
       score += state[S.costReduction] * turnCount * 0.5;
 
       // Double card effect cards
-      score += state[S.doubleCardEffectCards] * turnCount * 50;
+      score += state[S.doubleCardEffectCards] * turnCount * 10;
 
       // Card uses remaining
-      score += state[S.cardUsesRemaining] * turnCount * 50;
+      score += state[S.cardUsesRemaining] * turnCount * 10;
 
       // Good impression turns buffs
       score +=
@@ -340,7 +350,7 @@ export default class HeuristicConstBuffStrategy extends BaseStrategy {
       let preEffectScore = effectState[S.score];
       for (let i = 0; i < effects.length; i++) {
         const effect = effects[i];
-        let limit = turnCount;
+        let limit = turnCount / 2;
         if (
           effect.limit != null &&
           effect.limit < limit
