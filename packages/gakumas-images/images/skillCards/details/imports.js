@@ -583,7 +583,12 @@ import image_622 from "./622.png";
 import image_623 from "./623.png";
 import image_624 from "./624.png";
 import image_625 from "./625.png";
+import image_626 from "./626.png";
+import image_627 from "./627.png";
 import image_63 from "./63.png";
+import image_631 from "./631.png";
+import image_632 from "./632.png";
+import image_633 from "./633.png";
 import image_64 from "./64.png";
 import image_65 from "./65.png";
 import image_66 from "./66.png";
@@ -1210,7 +1215,12 @@ const IMAGES = {
   '623': image_623,
   '624': image_624,
   '625': image_625,
+  '626': image_626,
+  '627': image_627,
   '63': image_63,
+  '631': image_631,
+  '632': image_632,
+  '633': image_633,
   '64': image_64,
   '65': image_65,
   '66': image_66,
