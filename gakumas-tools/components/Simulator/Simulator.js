@@ -219,7 +219,10 @@ export default function Simulator() {
                 ) : (
                   <div
                     className={styles.loadoutSummary}
-                    onClick={() => setCurrentLoadoutIndex(index)}
+                    onClick={() => {
+                      setLoadout(loadouts[index]);
+                      setCurrentLoadoutIndex(index);
+                    }}
                   >
                     <LoadoutSummary loadout={loadout} showStage={false} />
                   </div>
