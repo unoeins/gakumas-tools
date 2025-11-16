@@ -69,8 +69,8 @@ export default class TurnManager extends EngineComponent {
   }
 
   generateOrderedTurnTypes() {
-    const { turnCounts, firstTurns, criteria } = this.config.stage;
-    const { turnTypeOrder } = this.config.idol;
+    const { turnCounts, firstTurns, criteria } = this.engine.config.stage;
+    const { turnTypeOrder } = this.engine.config.idol;
 
     // Initialize remaining counts for each turn type
     const remainingTurns = { ...turnCounts };

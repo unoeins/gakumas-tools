@@ -75,6 +75,7 @@ export default class CardManager extends EngineComponent {
     });
 
     state[S.cardMap] = cardMap;
+    state[S.cardOrderGroups] = cardOrderGroups;
 
     this.changeIdol(state);
 
@@ -110,7 +111,6 @@ export default class CardManager extends EngineComponent {
       if (this.isForceInitialHand(state, b)) return -1;
       return 0;
     });
-    state[S.cardOrderGroups] = cardOrderGroups;
     state[S.shuffleCount] = 0;
     this.applyCardOrder(state);
     state[S.handCards] = [];
@@ -139,8 +139,8 @@ export default class CardManager extends EngineComponent {
   }
 
   applyCardOrder(state) {
-    if (!this.config.simulator.enableSkillCardOrder) return;
-    const skipRemovedCard = this.config.idol.removedCardOrder == "skip";
+    if (!this.engine.config.simulator.enableSkillCardOrder) return;
+    const skipRemovedCard = this.engine.config.idol.removedCardOrder == "skip";
     const cardOrderGroup = state[S.cardOrderGroups][state[S.shuffleCount]];
     state[S.shuffleCount]++;
     if (cardOrderGroup) {
