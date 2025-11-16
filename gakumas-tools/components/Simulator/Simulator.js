@@ -69,16 +69,17 @@ export default function Simulator() {
     const stageConfig = new StageConfig(stage);
     const simulatorConfig = new SimulatorConfig({enableSkillCardOrder, ...listenerConfig});
     return new IdolStageConfig(idolConfig, stageConfig, simulatorConfig);
-  }, [loadout, stage, loadouts, enableSkillCardOrder, listenerConfig]);
+  }, [loadout, stage, enableSkillCardOrder, listenerConfig]);
 
   const linkConfigs = useMemo(() => {
     if (stage.type !== "linkContest") return null;
     return loadouts.map((ld) => {
       const idolConfig = new IdolConfig(ld);
       const stageConfig = new StageConfig(stage);
-      return new IdolStageConfig(idolConfig, stageConfig);
+      const simulatorConfig = new SimulatorConfig({enableSkillCardOrder, ...listenerConfig});
+      return new IdolStageConfig(idolConfig, stageConfig, simulatorConfig);
     });
-  }, [loadouts, stage]);
+  }, [loadouts, stage, enableSkillCardOrder, listenerConfig]);
 
   // Set up web workers on mount
   useEffect(() => {
@@ -117,9 +118,8 @@ export default function Simulator() {
 
     console.time("simulation");
 
-    if (SYNC || !workersRef.current || numRuns < 100) {
+    if (SYNC || !workersRef.current || numRuns < 10) {
       const result = simulate(config, linkConfigs, strategy, numRuns);
-      console.log("Simulation result:", result);
       setResult(result);
     } else {
       const numWorkers = workersRef.current.length;

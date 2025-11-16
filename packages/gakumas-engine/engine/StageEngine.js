@@ -30,6 +30,13 @@ export default class StageEngine {
     return this.config;
   }
 
+  getConfig(state) {
+    if (this.config.stage.type === "linkContest") {
+      return this.linkConfigs[state[S.linkPhase] || 0];
+    }
+    return this.config;
+  }
+
   getInitialState(skipEffects = false) {
     const state = {};
 
