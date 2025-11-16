@@ -20,27 +20,20 @@ import Button from "@/components/Button";
 import Input from "@/components/Input";
 import KofiAd from "@/components/KofiAd";
 import Loader from "@/components/Loader";
-import LoadoutSkillCardGroup from "@/components/LoadoutSkillCardGroup";
-import ParametersInput from "@/components/ParametersInput";
 import SimulatorResult from "@/components/SimulatorResult";
-import StagePItems from "@/components/StagePItems";
 import StageSelect from "@/components/StageSelect";
 import LoadoutContext from "@/contexts/LoadoutContext";
 import WorkspaceContext from "@/contexts/WorkspaceContext";
 import { simulate } from "@/simulator";
 import { MAX_WORKERS, DEFAULT_NUM_RUNS, SYNC } from "@/simulator/constants";
 import { logEvent } from "@/utils/logging";
-import {
-  bucketScores,
-  getMedianScore,
-  mergeResults,
-  getIndications,
-} from "@/utils/simulator";
-import { formatStageShortName } from "@/utils/stages";
+import { bucketScores, getMedianScore, mergeResults } from "@/utils/simulator";
 import SimulatorButtons from "./SimulatorButtons";
 import SimulatorSubTools from "./SimulatorSubTools";
 import SkillCardAndTurnTypeOrder from "@/components/SkillCardOrderGroups/SkillCardAndTurnTypeOrder";
 import styles from "./Simulator.module.scss";
+import LoadoutSummary from "@/components/LoadoutHistory/LoadoutSummary";
+import LoadoutEditor from "@/components/LoadoutEditor";
 
 export default function Simulator() {
   const t = useTranslations("Simulator");
@@ -50,10 +43,12 @@ export default function Simulator() {
     loadout,
     simulatorUrl,
     setSupportBonus,
-    setParams,
-    replacePItemId,
-    swapPItemIds,
     pushLoadoutHistory,
+    pushLoadoutsHistory,
+    loadouts,
+    setLoadout,
+    currentLoadoutIndex,
+    setCurrentLoadoutIndex,
   } = useContext(LoadoutContext);
   const { plan, idolId } = useContext(WorkspaceContext);
   const [strategy, setStrategy] = useState("HeuristicStrategy");
@@ -74,12 +69,16 @@ export default function Simulator() {
     const stageConfig = new StageConfig(stage);
     const simulatorConfig = new SimulatorConfig({enableSkillCardOrder, ...listenerConfig});
     return new IdolStageConfig(idolConfig, stageConfig, simulatorConfig);
-  }, [loadout, stage, enableSkillCardOrder, listenerConfig]);
+  }, [loadout, stage, loadouts, enableSkillCardOrder, listenerConfig]);
 
-  const { pItemIndications, skillCardIndicationGroups } = getIndications(
-    config,
-    loadout
-  );
+  const linkConfigs = useMemo(() => {
+    if (stage.type !== "linkContest") return null;
+    return loadouts.map((ld) => {
+      const idolConfig = new IdolConfig(ld);
+      const stageConfig = new StageConfig(stage);
+      return new IdolStageConfig(idolConfig, stageConfig);
+    });
+  }, [loadouts, stage]);
 
   // Set up web workers on mount
   useEffect(() => {
@@ -119,7 +118,7 @@ export default function Simulator() {
     console.time("simulation");
 
     if (SYNC || !workersRef.current || numRuns < 100) {
-      const result = simulate(config, strategy, numRuns);
+      const result = simulate(config, linkConfigs, strategy, numRuns);
       console.log("Simulation result:", result);
       setResult(result);
     } else {
@@ -134,6 +133,7 @@ export default function Simulator() {
             workersRef.current[i].onmessage = (e) => resolve(e.data);
             workersRef.current[i].postMessage({
               idolStageConfig: config,
+              linkConfigs: linkConfigs,
               strategyName: strategy,
               numRuns: i == 0 ? runsPerWorker + extraRuns : runsPerWorker
             });
@@ -145,6 +145,9 @@ export default function Simulator() {
         const mergedResults = mergeResults(results);
         setResult(mergedResults);
         pushLoadoutHistory();
+        if (stage.type === "linkContest") {
+          pushLoadoutsHistory();
+        }
 
         logEvent("simulator.simulate", {
           stageId: stage.id,
@@ -164,7 +167,7 @@ export default function Simulator() {
         <div>{t("multiplierNote")}</div>
         {stage.preview && <div>{t("previewNote")}</div>}
         <StageSelect />
-        {stage.type == "event" ? (
+        {stage.type !== "contest" ? (
           t("enterPercents")
         ) : (
           <div className={styles.supportBonusInput}>
@@ -178,44 +181,59 @@ export default function Simulator() {
             />
           </div>
         )}
-        <div className={styles.params}>
-          <ParametersInput
-            parameters={loadout.params}
-            onChange={setParams}
-            withStamina
-            max={10000}
-          />
-          <div className={styles.typeMultipliers}>
-            {Object.keys(config.typeMultipliers).map((param) => (
-              <div key={param}>
-                {Math.round(config.typeMultipliers[param] * 100)}%
+        {stage.type == "linkContest" && <div>{t("linkContestNote")}</div>}
+        {stage.type == "linkContest" ? (
+          <div className={styles.loadoutTabs}>
+            {loadouts.map((loadout, index) => (
+              <div key={index} className={styles.loadoutTab}>
+                {/* <div className={styles.loadoutTabButtons}> */}
+                <button
+                  className={styles.selectButton}
+                  onClick={() => {
+                    setLoadout(loadouts[index]);
+                    setCurrentLoadoutIndex(index);
+                  }}
+                >
+                  {index + 1}
+                </button>
+                {/* <button
+                  className={styles.deleteButton}
+                  onClick={() => {
+                    const newLoadouts = loadouts.filter((_, i) => i !== index);
+                    setCurrentLoadoutIndex(
+                      currentLoadoutIndex >= newLoadouts.length
+                        ? newLoadouts.length - 1
+                        : currentLoadoutIndex
+                    );
+                    setLoadouts(newLoadouts);
+                  }}
+                >
+                  <FaXmark />
+                </button> */}
+                {/* </div> */}
+                {index === currentLoadoutIndex ? (
+                  <LoadoutEditor
+                    config={config}
+                    idolId={config.idol.idolId || idolId}
+                  />
+                ) : (
+                  <div
+                    className={styles.loadoutSummary}
+                    onClick={() => setCurrentLoadoutIndex(index)}
+                  >
+                    <LoadoutSummary loadout={loadout} showStage={false} />
+                  </div>
+                )}
               </div>
             ))}
-            <div />
           </div>
-        </div>
-        <div className={styles.pItemsRow}>
-          <div className={styles.pItems}>
-            <StagePItems
-              pItemIds={loadout.pItemIds}
-              replacePItemId={replacePItemId}
-              swapPItemIds={swapPItemIds}
-              indications={pItemIndications}
-              size="medium"
-            />
-          </div>
-          <span>{formatStageShortName(stage, t)}</span>
-        </div>
-        {loadout.skillCardIdGroups.map((skillCardIdGroup, i) => (
-          <LoadoutSkillCardGroup
-            key={i}
-            skillCardIds={skillCardIdGroup}
-            customizations={loadout.customizationGroups[i]}
-            indications={skillCardIndicationGroups[i]}
-            groupIndex={i}
+        ) : (
+          <LoadoutEditor
+            config={config}
             idolId={config.idol.idolId || idolId}
           />
-        ))}
+        )}
+
         <SimulatorSubTools defaultCardIds={config.defaultCardIds} />
         <select
           className={styles.strategySelect}
@@ -296,7 +314,7 @@ export default function Simulator() {
             href="https://github.com/surisuririsu/gakumas-tools/blob/master/gakumas-tools/simulator/CHANGELOG.md"
             target="_blank"
           >
-            {t("lastUpdated")}: 2025-10-31
+            {t("lastUpdated")}: 2025-11-16
           </a>
         </div>
         {!simulatorData && (
