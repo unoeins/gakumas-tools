@@ -11,17 +11,17 @@ export default class ListenerManager extends EngineComponent {
 
   registerListeners() {
     const listenerData = {};
-    if(this.config.simulator.enableUseStats) {
+    if(this.engine.config.simulator.enableUseStats) {
       const useStats = new UseStats();
       this.addListener(EVENTS.STAGE_ENDED, useStats.stageEnded.bind(useStats));
       listenerData["UseStats"] = useStats;
     }
-    if(this.config.simulator.enableConditionalUseStats) {
+    if(this.engine.config.simulator.enableConditionalUseStats) {
       const conditionalUseStats = new ConditionalUseStats();
       this.addListener(EVENTS.STAGE_ENDED, conditionalUseStats.stageEnded.bind(conditionalUseStats));
       listenerData["ConditionalUseStats"] = conditionalUseStats;
     }
-    if(this.config.simulator.enablePriorityStats) {
+    if(this.engine.config.simulator.enablePriorityStats) {
       const priorityStats = new PriorityStats();
       this.addListener(EVENTS.STAGE_ENDED, priorityStats.stageEnded.bind(priorityStats));
       listenerData["PriorityStats"] = priorityStats;

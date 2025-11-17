@@ -10,8 +10,9 @@ import ListenerManager from "./ListenerManager";
 import { deepCopy } from "../utils";
 
 export default class StageEngine {
-  constructor(config) {
+  constructor(config, linkConfigs) {
     this.config = config;
+    this.linkConfigs = linkConfigs;
     this.logger = new StageLogger();
     this.cardManager = new CardManager(this);
     this.effectManager = new EffectManager(this);
@@ -22,6 +23,13 @@ export default class StageEngine {
     this.listenerManager = new ListenerManager(this);
   }
 
+  getConfig(state) {
+    if (this.config.stage.type === "linkContest") {
+      return this.linkConfigs[state[S.linkPhase] || 0];
+    }
+    return this.config;
+  }
+
   getInitialState(skipEffects = false) {
     const state = {};
 
@@ -30,7 +38,7 @@ export default class StageEngine {
 
     // General
     state[S.cardUsesRemaining] = 0;
-    state[S.stamina] = this.config.idol.params.stamina;
+    state[S.stamina] = this.getConfig(state).idol.params.stamina;
     state[S.consumedStamina] = 0;
     state[S.genki] = 0;
     state[S.score] = 0;
@@ -52,6 +60,13 @@ export default class StageEngine {
     }
 
     return state;
+  }
+
+  changeIdol(state) {
+    state[S.linkPhase] += 1;
+    state[S.stamina] = this.getConfig(state).idol.params.stamina;
+    this.cardManager.changeIdol(state);
+    this.logger.log(state, "linkPhaseChange", { phase: state[S.linkPhase] });
   }
 
   startStage(state) {
