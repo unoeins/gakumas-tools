@@ -2,6 +2,7 @@
 import { memo, useContext, useState } from "react";
 import { useTranslations } from "next-intl";
 import { FaCheck, FaRegCopy, FaRegPaste } from "react-icons/fa6";
+import { Stages } from "gakumas-data";
 import Button from "@/components/Button";
 import ConfirmModal from "@/components/ConfirmModal";
 import LoadoutManagerModal from "@/components/LoadoutManagerModal";
@@ -13,7 +14,7 @@ import styles from "./Simulator.module.scss";
 function SimulatorButtons() {
   const t = useTranslations("SimulatorButtons");
 
-  const { clear, simulatorUrl, stage, setLoadout } = useContext(LoadoutContext);
+  const { clear, simulatorUrl, stage, setLoadout, setLoadouts, currentLoadoutIndex } = useContext(LoadoutContext);
   const { setModal } = useContext(ModalContext);
   const [linkCopied, setLinkCopied] = useState(false);
 
@@ -27,7 +28,14 @@ function SimulatorButtons() {
       const url = new URL(text);
       const loadout = loadoutFromSearchParams(url.searchParams);
       if (loadout.hasDataFromParams) {
-        setModal(<ConfirmModal message={t("confirmSetLoadout")} onConfirm={() => setLoadout(loadout)} />);
+        setModal(<ConfirmModal message={t("confirmSetLoadout")} onConfirm={() => {
+          if (loadout.stageId !== "custom" && Stages.getById(loadout.stageId)?.type === "linkContest") {
+            setLoadout(loadout.loadouts[currentLoadoutIndex]);
+            setLoadouts(loadout.loadouts);
+          } else {
+            setLoadout(loadout);
+          }
+        }} />);
       } else {
         setModal(<ConfirmModal message={t("invalidLoadout")} showCancel={false} />);
       }
@@ -56,34 +64,34 @@ function SimulatorButtons() {
           >
             {t("manageLoadouts")}
           </Button>
-
-          <Button
-            style="blue-secondary"
-            onClick={() => {
-              navigator.clipboard.writeText(simulatorUrl);
-              setLinkCopied(true);
-              setTimeout(() => setLinkCopied(false), 3000);
-            }}
-          >
-            {linkCopied ? (
-              <FaCheck />
-            ) : (
-              <>
-                <FaRegCopy />
-                URL
-              </>
-            )}
-          </Button>
-
-          <Button
-            style="blue-secondary"
-            onClick={() => readLoadoutFromUrl()}
-          >
-            <FaRegPaste />
-            {t("readLoadoutFromUrl")}
-          </Button>
         </>
       )}
+
+      <Button
+        style="blue-secondary"
+        onClick={() => {
+          navigator.clipboard.writeText(simulatorUrl);
+          setLinkCopied(true);
+          setTimeout(() => setLinkCopied(false), 3000);
+        }}
+      >
+        {linkCopied ? (
+          <FaCheck />
+        ) : (
+          <>
+            <FaRegCopy />
+            URL
+          </>
+        )}
+      </Button>
+
+      <Button
+        style="blue-secondary"
+        onClick={() => readLoadoutFromUrl()}
+      >
+        <FaRegPaste />
+        {t("readLoadoutFromUrl")}
+      </Button>
 
     </div>
   );

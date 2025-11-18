@@ -25,8 +25,8 @@ const DEFAULTS = {
 
 const SIMULATOR_BASE_URL = "https://gktools.ris.moe/simulator";
 
-export function getSimulatorUrl(loadout) {
-  const searchParams = loadoutToSearchParams(loadout);
+export function getSimulatorUrl(loadout, loadouts) {
+  const searchParams = loadoutToSearchParams(loadout, loadouts);
   try {
     const protocol = window.location.protocol;
     const host = window.location.host;
@@ -40,14 +40,25 @@ export function getSimulatorUrl(loadout) {
 }
 
 export function loadoutFromSearchParams(searchParams) {
+  const loadout = _loadoutFromSearchParams(searchParams);
+  if (loadout.stageId !== "custom" && Stages.getById(loadout.stageId)?.type === "linkContest") {
+    let loadouts = [loadout];
+    loadouts.push(_loadoutFromSearchParams(searchParams, "2"));
+    loadouts.push(_loadoutFromSearchParams(searchParams, "3"));
+    loadout.loadouts = loadouts;
+  }
+  return loadout;
+}
+
+function _loadoutFromSearchParams(searchParams, suffix = "") {
   let stageId = searchParams.get("stage");
   let supportBonus = searchParams.get("support_bonus");
-  let params = searchParams.get("params");
-  let pItemIds = searchParams.get("items");
-  let skillCardIdGroups = searchParams.get("cards");
-  let customizationGroups = searchParams.get("customizations");
-  let skillCardIdOrderGroups = searchParams.get("order_cards");
-  let customizationOrderGroups = searchParams.get("order_customs");
+  let params = searchParams.get("params" + suffix);
+  let pItemIds = searchParams.get("items" + suffix);
+  let skillCardIdGroups = searchParams.get("cards" + suffix);
+  let customizationGroups = searchParams.get("customizations" + suffix);
+  let skillCardIdOrderGroups = searchParams.get("order_cards" + suffix);
+  let customizationOrderGroups = searchParams.get("order_customs" + suffix);
   let removedCardOrder = searchParams.get("order_removed");
   let turnTypeOrder = searchParams.get("order_turns");
   const hasDataFromParams =
@@ -118,7 +129,7 @@ export function loadoutFromSearchParams(searchParams) {
   };
 }
 
-export function loadoutToSearchParams(loadout) {
+export function loadoutToSearchParams(loadout, loadouts) {
   const {
     stageId,
     supportBonus,
@@ -132,25 +143,52 @@ export function loadoutToSearchParams(loadout) {
     turnTypeOrder,
   } = loadout;
   const searchParams = new URLSearchParams();
-  searchParams.set("stage", stageId);
-  searchParams.set("support_bonus", supportBonus);
-  searchParams.set("params", serializeIds(params));
-  searchParams.set("items", serializeIds(pItemIds));
-  searchParams.set("cards", skillCardIdGroups.map(serializeIds).join("_"));
-  searchParams.set(
-    "customizations",
-    customizationGroups.map(serializeCustomizations).join("_")
-  );
-  searchParams.set("order_cards", skillCardIdOrderGroups.map(serializeIds).join("_"));
-  searchParams.set(
-    "order_customs",
-    customizationOrderGroups.map(serializeCustomizations).join("_")
-  );
-  searchParams.set("order_removed", removedCardOrder == "random" ? "0" : "1");
-  searchParams.set(
-    "order_turns",
-    turnTypeOrder.map((t) => ["none", "vocal", "dance", "visual"].indexOf(t)).join("-")
-  );
+  if (stageId !== "custom" && Stages.getById(stageId)?.type === "linkContest") {
+    searchParams.set("stage", stageId);
+    searchParams.set("support_bonus", supportBonus);
+    for (let i = 0; i < loadouts.length; i++) {
+      const suffix = i === 0 ? "" : (i + 1).toString();
+      searchParams.set("params" + suffix, serializeIds(loadouts[i].params));
+      searchParams.set("items" + suffix, serializeIds(loadouts[i].pItemIds));
+      searchParams.set("cards" + suffix, loadouts[i].skillCardIdGroups.map(serializeIds).join("_"));
+      searchParams.set(
+        "customizations" + suffix,
+        loadouts[i].customizationGroups.map(serializeCustomizations).join("_")
+      );
+      // searchParams.set(
+      //   "order_cards" + suffix,
+      //   loadouts[i].skillCardIdOrderGroups.map(serializeIds).join("_"));
+      // searchParams.set(
+      //   "order_customs" + suffix,
+      //   loadouts[i].customizationOrderGroups.map(serializeCustomizations).join("_")
+      // );
+    }
+    // searchParams.set("order_removed", removedCardOrder == "random" ? "0" : "1");
+    // searchParams.set(
+    //   "order_turns",
+    //   turnTypeOrder.map((t) => ["none", "vocal", "dance", "visual"].indexOf(t)).join("-")
+    // );
+  } else {
+    searchParams.set("stage", stageId);
+    searchParams.set("support_bonus", supportBonus);
+    searchParams.set("params", serializeIds(params));
+    searchParams.set("items", serializeIds(pItemIds));
+    searchParams.set("cards", skillCardIdGroups.map(serializeIds).join("_"));
+    searchParams.set(
+      "customizations",
+      customizationGroups.map(serializeCustomizations).join("_")
+    );
+    searchParams.set("order_cards", skillCardIdOrderGroups.map(serializeIds).join("_"));
+    searchParams.set(
+      "order_customs",
+      customizationOrderGroups.map(serializeCustomizations).join("_")
+    );
+    searchParams.set("order_removed", removedCardOrder == "random" ? "0" : "1");
+    searchParams.set(
+      "order_turns",
+      turnTypeOrder.map((t) => ["none", "vocal", "dance", "visual"].indexOf(t)).join("-")
+    );
+  }
   return searchParams;
 }
 
