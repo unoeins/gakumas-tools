@@ -9,29 +9,6 @@ export default class HeuristicFutureSightStrategy extends BaseStrategy {
   constructor(engine) {
     super(engine);
 
-    const { config } = engine;
-    this.averageTypeMultiplier = Object.keys(config.typeMultipliers).reduce(
-      (acc, cur) =>
-        acc +
-        (config.typeMultipliers[cur] * config.stage.turnCounts[cur]) /
-          config.stage.turnCount,
-      0
-    );
-
-    this.goodConditionTurnsMultiplier =
-      config.idol.recommendedEffect == "goodConditionTurns" ? 1.75 : 1;
-    if (config.idol.pIdolId == 114) {
-      this.goodConditionTurnsMultiplier = 8;
-    }
-    this.concentrationMultiplier =
-      config.idol.recommendedEffect == "concentration" ? 3 : 1;
-    this.goodImpressionTurnsMultiplier =
-      config.idol.recommendedEffect == "goodImpressionTurns" ? 3.5 : 1;
-    this.motivationMultiplier =
-      config.idol.recommendedEffect == "motivation" ? 5.5 : 1;
-    this.fullPowerMultiplier =
-      config.idol.recommendedEffect == "fullPower" ? 5 : 1;
-
     this.depth = 0;
     this.rootEffectCount = 0;
   }
@@ -46,7 +23,10 @@ export default class HeuristicFutureSightStrategy extends BaseStrategy {
       this.rootEffectCount = state[S.effects].length;
     }
 
-    const logIndex = this.engine.logger.log(state, "hand", null);
+    let logIndex = null;
+    if (this.depth < NEXT_DEPTH) {
+      logIndex = this.engine.logger.log(state, "hand", null);
+    }
 
     const futures = state[S.handCards].map((card) =>
       this.getFuture(state, nextState, card)
@@ -61,19 +41,24 @@ export default class HeuristicFutureSightStrategy extends BaseStrategy {
         nextState = futures[selectedIndex].nextState;
       }
     } else {
-      nextState = this.engine.endTurn(state);
-      maxScore = this.getStateScore(nextState);
+      const endTurnState = this.engine.endTurn(state);
+      if (this.depth < NEXT_DEPTH) {
+        nextState = endTurnState;
+      }
+      maxScore = this.getStateScore(endTurnState);
     }
 
-    this.engine.logger.logs[logIndex].data = {
-      handCards: state[S.handCards].map((card) => ({
-        id: state[S.cardMap][card].id,
-        c: state[S.cardMap][card].c11n,
-      })),
-      scores,
-      selectedIndex,
-      state: this.engine.logger.getHandStateForLogging(state),
-    };
+    if (logIndex !== null) {
+      this.engine.logger.logs[logIndex].data = {
+        handCards: state[S.handCards].map((card) => ({
+          id: state[S.cardMap][card].id,
+          c: state[S.cardMap][card].c11n,
+        })),
+        scores,
+        selectedIndex,
+        state: this.engine.logger.getHandStateForLogging(state),
+      };
+    }
 
     return { score: maxScore, state: nextState, nextState: nextState };
   }
@@ -91,7 +76,8 @@ export default class HeuristicFutureSightStrategy extends BaseStrategy {
 
     // Additional actions
     if (
-      previewState[S.turnsRemaining] > 0 &&
+      previewState[S.turnsRemaining] >= state[S.turnsRemaining] &&
+      // previewState[S.turnsRemaining] > 0 &&
       this.depth < MAX_DEPTH
     ) {
       const future = this.evaluateInternal(previewState, nextState);
@@ -133,29 +119,58 @@ export default class HeuristicFutureSightStrategy extends BaseStrategy {
       score += 3 * scoreDelta * Math.min(limit, 6);
     }
 
-    if (this.engine.config.idol.plan != "anomaly") {
+    if (this.engine.getConfig(state).idol.plan != "anomaly") {
       // Cards removed
       score +=
         (((state[S.removedCards].length - previewState[S.removedCards].length) *
           (previewState[S.score] - state[S.score])) /
-          this.averageTypeMultiplier) *
+          this.getAverageTypeMultiplier(state)) *
         Math.floor(previewState[S.turnsRemaining] / 13);
     }
 
     score += this.getStateScore(previewState);
 
     // Turn bonus
-    score *= 1 + previewState[S.turnsRemaining];
+    // score *= 1 + previewState[S.turnsRemaining];
 
     this.depth--;
     return { score: Math.round(score), state: previewState, nextState: nextState };
   }
 
-  scaleScore(score) {
-    return Math.ceil(score * this.averageTypeMultiplier);
+  getAverageTypeMultiplier(state) {
+    const config = this.engine.getConfig(state);
+    return Object.keys(config.typeMultipliers).reduce(
+      (acc, cur) =>
+        acc +
+        (config.typeMultipliers[cur] * config.stage.turnCounts[cur]) /
+          config.stage.turnCount,
+      0
+    );
+  }
+
+  scaleScore(score, state) {
+    return Math.ceil(score * this.getAverageTypeMultiplier(state));
   }
 
   getStateScore(state) {
+        // Initialize multipliers
+    const config = this.engine.getConfig(state);
+    this.goodConditionTurnsMultiplier =
+      config.idol.recommendedEffect == "goodConditionTurns" ? 1.75 : 1;
+    if (config.idol.pIdolId == 114) {
+      this.goodConditionTurnsMultiplier = 8;
+    }
+    this.concentrationMultiplier =
+      config.idol.recommendedEffect == "concentration" ? 3 : 1;
+    this.goodImpressionTurnsMultiplier =
+      config.idol.recommendedEffect == "goodImpressionTurns" ? 3.5 : 1;
+    this.motivationMultiplier =
+      config.idol.recommendedEffect == "motivation" ? 5.5 : 1;
+    this.fullPowerMultiplier =
+      config.idol.recommendedEffect == "fullPower" ? 5 : 1;
+
+    // Calc score
+
     let score = 0;
 
     // Cards in hand
@@ -172,7 +187,7 @@ export default class HeuristicFutureSightStrategy extends BaseStrategy {
       this.motivationMultiplier;
 
     // Good condition turns
-    if (this.engine.config.idol.pIdolId == 114) {
+    if (config.idol.pIdolId == 114) {
       if (state[S.turnsRemaining] > 0) {
         score +=
           state[S.goodConditionTurns] * 3 * this.goodConditionTurnsMultiplier;
@@ -199,7 +214,7 @@ export default class HeuristicFutureSightStrategy extends BaseStrategy {
 
     // Stance
     if (
-      this.engine.config.idol.plan == "anomaly" &&
+      config.idol.plan == "anomaly" &&
       (state[S.turnsRemaining] || state[S.cardUsesRemaining])
     ) {
       score += state[S.strengthTimes] * 40;
@@ -233,6 +248,9 @@ export default class HeuristicFutureSightStrategy extends BaseStrategy {
       state[S.turnsRemaining] *
       0.45 *
       this.motivationMultiplier;
+
+    // Pride turns
+    score += state[S.prideTurns] * state[S.turnsRemaining] * 0.2;
 
     // Score buffs
     score +=
@@ -302,9 +320,9 @@ export default class HeuristicFutureSightStrategy extends BaseStrategy {
     score += state[S.turnCardsUpgraded] * 20;
 
     // Scale score
-    score = this.scaleScore(score);
+    score = this.scaleScore(score, state);
 
-    const { recommendedEffect } = this.engine.config.idol;
+    const { recommendedEffect } = config.idol;
     if (recommendedEffect == "goodConditionTurns") {
       score += state[S.score] * 0.4;
     } else if (recommendedEffect == "concentration") {
