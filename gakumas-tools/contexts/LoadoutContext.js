@@ -82,9 +82,9 @@ export function LoadoutContextProvider({ children }) {
   );
 
   const [currentLoadoutIndex, setCurrentLoadoutIndex] = useState(0);
-  const [loadouts, setLoadouts] = useState([loadout]);
+  const [loadouts, setLoadouts] = useState(initial.loadouts || [loadout]);
 
-  const simulatorUrl = getSimulatorUrl(loadout);
+  const simulatorUrl = getSimulatorUrl(loadout, loadouts);
 
   const setLoadout = (loadout) => {
     setStageId(loadout.stageId);
@@ -200,16 +200,9 @@ export function LoadoutContextProvider({ children }) {
   useEffect(() => {
     if (!loaded || pathname !== "/simulator") return;
     const url = new URL(window.location);
-    if (stage.type === "linkContest") {
-      if (url.searchParams.size) {
-        window.history.replaceState(null, "", url.pathname);
-        return;
-      }
-    } else {
-      url.search = loadoutToSearchParams(loadout).toString();
-      window.history.replaceState(null, "", url);
-    }
-  }, [loadout]);
+    url.search = loadoutToSearchParams(loadout, loadouts).toString();
+    window.history.replaceState(null, "", url);
+  }, [loadout, loadouts]);
 
   // Update link loadouts when loadout changes
   useEffect(() => {
