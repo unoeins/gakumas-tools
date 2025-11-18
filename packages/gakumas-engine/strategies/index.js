@@ -14,14 +14,14 @@ const STRATEGIES = {
   HeuristicStrategy, 
   HeuristicCustomStrategy,
   HeuristicConstBuffStrategy,
-  HeuristicSoraChinaStrategy,
-  HeuristicCustomGoodConditionStrategy, 
-  HeuristicCustomBuffDebuffStrategy, 
-  HeuristicEffectScoreStrategy,
+  // HeuristicSoraChinaStrategy,
+  // HeuristicCustomGoodConditionStrategy, 
+  // HeuristicCustomBuffDebuffStrategy, 
+  // HeuristicEffectScoreStrategy,
   HeuristicFutureSightStrategy,
-  BasicCardStrategy,
-  BasicCardSimulationStrategy,
-  BasicCardUseStrategy,
+  // BasicCardStrategy,
+  // BasicCardSimulationStrategy,
+  // BasicCardUseStrategy,
 };
 
 export default STRATEGIES;
