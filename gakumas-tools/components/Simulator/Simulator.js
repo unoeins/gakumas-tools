@@ -20,6 +20,8 @@ import Button from "@/components/Button";
 import Input from "@/components/Input";
 import KofiAd from "@/components/KofiAd";
 import Loader from "@/components/Loader";
+import LoadoutEditor from "@/components/LoadoutEditor";
+import LoadoutSummary from "@/components/LoadoutHistory/LoadoutSummary";
 import SimulatorResult from "@/components/SimulatorResult";
 import StageSelect from "@/components/StageSelect";
 import LoadoutContext from "@/contexts/LoadoutContext";
@@ -32,8 +34,6 @@ import SimulatorButtons from "./SimulatorButtons";
 import SimulatorSubTools from "./SimulatorSubTools";
 import SkillCardAndTurnTypeOrder from "@/components/SkillCardOrderGroups/SkillCardAndTurnTypeOrder";
 import styles from "./Simulator.module.scss";
-import LoadoutSummary from "@/components/LoadoutHistory/LoadoutSummary";
-import LoadoutEditor from "@/components/LoadoutEditor";
 
 export default function Simulator() {
   const t = useTranslations("Simulator");
@@ -317,7 +317,7 @@ export default function Simulator() {
             href="https://github.com/surisuririsu/gakumas-tools/blob/master/gakumas-tools/simulator/CHANGELOG.md"
             target="_blank"
           >
-            {t("lastUpdated")}: 2025-11-16
+            {t("lastUpdated")}: 2025-11-17
           </a>
         </div>
         {!simulatorData && (

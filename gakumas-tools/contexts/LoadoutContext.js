@@ -153,9 +153,11 @@ export function LoadoutContextProvider({ children }) {
     );
     if (loadoutsHistoryString) {
       const data = JSON.parse(loadoutsHistoryString);
-      setLoadouts(data[0]);
-      if (data[0][0]) {
-        setLoadout(data[0][0]);
+      if (!initial.hasDataFromParams) {
+        setLoadouts(data[0]);
+        if (data[0][0]) {
+          setLoadout(data[0][0]);
+        }
       }
     }
 
@@ -197,10 +199,16 @@ export function LoadoutContextProvider({ children }) {
   // Update browser URL when the loadout changes
   useEffect(() => {
     if (!loaded || pathname !== "/simulator") return;
-    if (stage.type === "linkContest") return;
     const url = new URL(window.location);
-    url.search = loadoutToSearchParams(loadout).toString();
-    window.history.replaceState(null, "", url);
+    if (stage.type === "linkContest") {
+      if (url.searchParams.size) {
+        window.history.replaceState(null, "", url.pathname);
+        return;
+      }
+    } else {
+      url.search = loadoutToSearchParams(loadout).toString();
+      window.history.replaceState(null, "", url);
+    }
   }, [loadout]);
 
   // Update link loadouts when loadout changes
@@ -211,6 +219,7 @@ export function LoadoutContextProvider({ children }) {
         next[currentLoadoutIndex] = loadout;
         for (let i = 0; i < next.length; i++) {
           next[i].stageId = loadout.stageId;
+          next[i].params = [...loadout.params.slice(0, 3), next[i].params[3]];
         }
         return next;
       });
