@@ -4,6 +4,7 @@ import {
   FaCalculator,
   FaChartSimple,
   FaFilm,
+  FaGamepad,
   FaPercent,
   FaTrophy,
 } from "react-icons/fa6";
@@ -32,6 +33,11 @@ export const TOOLS = {
   simulator: {
     icon: <FaTrophy />,
     path: "/simulator",
+    pinnable: true,
+  },
+  contestPlayer: {
+    icon: <FaGamepad />,
+    path: "/contest-player",
     pinnable: true,
   },
   rehearsal: {
