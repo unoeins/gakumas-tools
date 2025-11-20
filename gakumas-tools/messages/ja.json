@@ -39,6 +39,10 @@
     "rehearsal": {
       "title": "リハーサル読み取り",
       "description": "リハーサル画面のスクショからスコアを読み取る"
+    },
+    "contestPlayer": {
+      "title": "コンテストプレイヤー",
+      "description": "コンテスト編成を作成、実際にコンテストをプレイし、動作を確認する"
     }
   },
   "NavbarMenu": {
@@ -364,16 +368,77 @@
   },
   "SimulatorUseStats": {
     "useStats": "スキルカード使用回数",
-    "turn": "{turn}ターン目",
+    "turn": "{turn}ターン",
     "sortByRatio": "スキルカードを引いた時の使用率でソート"
   },
   "SimulatorConditionalUseStats": {
     "conditionalUseStats": "特定のスキルカードを引いた時の条件付き使用回数",
-    "turn": "{turn}ターン目",
+    "turn": "{turn}ターン",
     "sortByRatio": "スキルカードを引いた時の使用率でソート"
   },
   "SimulatorPriorityStats": {
     "priorityStats": "スキルカード優先使用回数",
-    "turn": "{turn}ターン目"
+    "turn": "{turn}ターン"
+  },
+  "ContestPlayer": {
+    "startStage": "開始",
+    "restartStage": "最初からやり直す",
+    "skip": "SKIP",
+    "logs": "ログ",
+    "turnsRemaining": "残りターン数",
+    "cardUsesRemaining": "スキルカード使用回数",
+    "stamina": "体力",
+    "genki": "元気",
+    "score": "スコア",
+    "goodConditionTurns": "好調",
+    "perfectConditionTurns": "絶好調",
+    "concentration": "集中",
+    "goodImpressionTurns": "好印象",
+    "motivation": "やる気",
+    "prideTurns": "プライド",
+    "stance": "指針",
+    "none": "無し",
+    "preservation": "温存 1",
+    "preservation2": "温存 2",
+    "leisure": "のんびり",
+    "strength": "強気 1",
+    "strength2": "強気 2",
+    "fullPower": "全力",
+    "fullPowerCharge": "全力値",
+    "cumulativeFullPowerCharge": "累積全力値",
+    "lockStanceTurns": "指針固定",
+    "enthusiasm": "熱意",
+    "enthusiasmBonus": "熱意追加",
+    "enthusiasmMultiplier": "熱意増加倍率",
+    "halfCostTurns": "消費体力減少",
+    "doubleCostTurns": "消費体力増加",
+    "costReduction": "消費体力削減",
+    "costIncrease": "消費体力追加",
+    "doubleCardEffectCards": "スキルカード追加発動",
+    "nullifyGenkiTurns": "元気増加無効",
+    "nullifyDebuff": "低下状態無効",
+    "poorConditionTurns": "不調",
+    "nullifyCostCards": "体力消費無効",
+    "noActiveTurns": "アクティブスキルカード使用不可",
+    "noMentalTurns": "メンタルスキルカード使用不可",
+    "uneaseTurns": "不安",
+    "scoreBuff": "スコア上昇量増加",
+    "scoreDebuff": "スコア上昇量減少",
+    "goodImpressionTurnsBuff": "好印象増加量増加",
+    "goodImpressionTurnsEffectBuff": "好印象強化",
+    "motivationBuff": "やる気増加量増加",
+    "goodConditionTurnsBuff": "好調増加量増加",
+    "concentrationBuff": "集中増加量増加",
+    "fullPowerChargeBuff": "全力値増加量増加",
+    "turn": "ターン",
+    "numTurns": "{num}ターン",
+    "hand": "手札",
+    "turnN": "{n}ターン目",
+    "unplayable": "使用不可",
+    "handCards": "手札",
+    "deckCards": "山札",
+    "discardedCards": "捨札",
+    "removedCards": "除外",
+    "heldCards": "保留"
   }
 }

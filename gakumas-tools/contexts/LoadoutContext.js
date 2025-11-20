@@ -198,7 +198,7 @@ export function LoadoutContextProvider({ children }) {
 
   // Update browser URL when the loadout changes
   useEffect(() => {
-    if (!loaded || pathname !== "/simulator") return;
+    if (!loaded || (pathname !== "/simulator" && pathname !== "/contest-player")) return;
     const url = new URL(window.location);
     url.search = loadoutToSearchParams(loadout, loadouts).toString();
     window.history.replaceState(null, "", url);
