@@ -75,8 +75,10 @@ function EntityIcon({
   );
 
   if (onClick) {
-    const onClickHandler = argumentType === "entity" ? 
-      () => onClick(entity || {}) : () => onClick(id, customizations);
+    const onClickHandler = 
+      argumentType === "index" ? () => onClick(index) : 
+      argumentType === "card_customization" ? () => onClick(id, customizations) : 
+      () => onClick(entity || {});
     return (
         <button ref={dragRef} className={className} onClick={onClickHandler}>
           <div ref={dropRef} className={styles.dropArea}>

@@ -117,7 +117,7 @@ function Hand({ handCards, scores, scoreBreakdowns, selectedIndex, state, idolId
       </div>
       {expanded && <HandState state={state} />}
       <div className={styles.handCards}>
-        {handCards.map((card, i) => (
+        {handCards && handCards.map((card, i) => (
           <div
             key={i}
             className={c(

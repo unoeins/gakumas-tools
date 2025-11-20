@@ -25,6 +25,7 @@
   position: relative;
   display: flex;
   justify-content: center;
+  align-items: center;
   box-shadow: inset 0 0 0 2px colors.$gray-light;
   border-radius: 8%;
   background-color: colors.$gray-extra-light;
@@ -63,6 +64,11 @@ button.turnTypeIcon:hover {
 
 .visual {
   background-color: colors.$visual;
+  color: colors.$white;
+}
+
+.elapsed {
+  background-color: colors.$gray-light;
   color: colors.$white;
 }
 

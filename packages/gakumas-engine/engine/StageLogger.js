@@ -29,6 +29,11 @@ export default class StageLogger {
     return logs;
   }
 
+  peekLogs(state) {
+    const logs = state.logs.map((logIndex) => this.logs[logIndex]);
+    return [].concat(...logs);
+  }
+
   log(state, logType, data) {
     if (this.disabled) return;
     this.logs.push({ logType, data });
