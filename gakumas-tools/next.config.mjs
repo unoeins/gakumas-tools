@@ -18,6 +18,7 @@ const nextConfig = {
         port: "",
       },
     ],
+    unoptimized: true,
   },
   webpack: (config, { dev, isServer }) => {
     config.module.rules = config.module.rules.filter(
