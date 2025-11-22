@@ -1,38 +1,29 @@
 "use client";
-import { createContext, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { Stages } from "gakumas-data";
 import { usePathname } from "@/i18n/routing";
-import {
-  loadoutFromSearchParams,
-  getSimulatorUrl,
-  loadoutToSearchParams,
-} from "@/utils/simulator";
+import LoadoutUrlContext from "@/contexts/LoadoutUrlContext";
+import { getSimulatorUrl } from "@/utils/simulator";
 import { FALLBACK_STAGE } from "@/simulator/constants";
 import { fixCustomizations } from "@/utils/customizations";
-
-const LOADOUT_HISTORY_STORAGE_KEY = "gakumas-tools.loadout-history";
-const LOADOUTS_HISTORY_STORAGE_KEY = "gakumas-tools.loadouts-history";
 
 const LoadoutContext = createContext();
 
 export function LoadoutContextProvider({ children }) {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const initial = useMemo(() => loadoutFromSearchParams(searchParams), []);
+  const { loadoutFromUrl, updateUrl } = useContext(LoadoutUrlContext);
 
-  const [loaded, setLoaded] = useState(false);
   const [memoryParams, setMemoryParams] = useState([null, null]);
-  const [stageId, setStageId] = useState(initial.stageId);
+  const [stageId, setStageId] = useState(loadoutFromUrl.stageId);
   const [customStage, setCustomStage] = useState(null);
-  const [supportBonus, setSupportBonus] = useState(initial.supportBonus);
-  const [params, setParams] = useState(initial.params);
-  const [pItemIds, setPItemIds] = useState(initial.pItemIds);
+  const [supportBonus, setSupportBonus] = useState(loadoutFromUrl.supportBonus);
+  const [params, setParams] = useState(loadoutFromUrl.params);
+  const [pItemIds, setPItemIds] = useState(loadoutFromUrl.pItemIds);
   const [skillCardIdGroups, setSkillCardIdGroups] = useState(
-    initial.skillCardIdGroups
+    loadoutFromUrl.skillCardIdGroups
   );
   const [customizationGroups, setCustomizationGroups] = useState(
-    initial.customizationGroups
+    loadoutFromUrl.customizationGroups
   );
   const [skillCardIdOrderGroups, setSkillCardIdOrderGroups] = useState(
     initial.skillCardIdOrderGroups
@@ -42,8 +33,6 @@ export function LoadoutContextProvider({ children }) {
   );
   const [removedCardOrder, setRemovedCardOrder] = useState(initial.removedCardOrder);
   const [turnTypeOrder, setTurnTypeOrder] = useState(initial.turnTypeOrder);
-  const [loadoutHistory, setLoadoutHistory] = useState([]);
-  const [loadoutsHistory, setLoadoutsHistory] = useState([]);
 
   let stage = FALLBACK_STAGE;
   if (stageId == "custom") {
@@ -137,72 +126,24 @@ export function LoadoutContextProvider({ children }) {
     }
   };
 
-  // Load history and latest loadout from local storage on mount
   useEffect(() => {
-    const loadoutHistoryString = localStorage.getItem(
-      LOADOUT_HISTORY_STORAGE_KEY
-    );
-    if (loadoutHistoryString) {
-      const data = JSON.parse(loadoutHistoryString);
-      setLoadoutHistory(data);
-      if (!initial.hasDataFromParams) setLoadout(data[0]);
-    }
+    if (stage.type !== "linkContest") return;
+    if (loadouts.length == stage.linkTurnCounts.length) return;
 
-    const loadoutsHistoryString = localStorage.getItem(
-      LOADOUTS_HISTORY_STORAGE_KEY
-    );
-    if (loadoutsHistoryString) {
-      const data = JSON.parse(loadoutsHistoryString);
-      if (!initial.hasDataFromParams) {
-        setLoadouts(data[0]);
-        if (data[0][0]) {
-          setLoadout(data[0][0]);
-        }
+    setLoadouts((cur) => {
+      const next = [...cur];
+      while (next.length < stage.linkTurnCounts.length) {
+        next.push(loadout);
       }
-    }
-
-    setLoaded(true);
-  }, []);
-
-  useEffect(() => {
-    if (stage.type === "linkContest") {
-      if (loadouts.length <= stage.linkTurnCounts.length) {
-        setLoadouts((cur) => {
-          const next = [...cur];
-          while (next.length < stage.linkTurnCounts.length) {
-            next.push(loadout);
-          }
-          return next;
-        });
-      }
-    }
+      return next;
+    });
   }, [stage]);
-
-  // Update local storage when history changed
-  useEffect(() => {
-    if (!loaded) return;
-    localStorage.setItem(
-      LOADOUT_HISTORY_STORAGE_KEY,
-      JSON.stringify(loadoutHistory)
-    );
-  }, [loadoutHistory]);
-
-  // Update local storage when history changed
-  useEffect(() => {
-    if (!loaded) return;
-    localStorage.setItem(
-      LOADOUTS_HISTORY_STORAGE_KEY,
-      JSON.stringify(loadoutsHistory)
-    );
-  }, [loadoutsHistory]);
 
   // Update browser URL when the loadout changes
   useEffect(() => {
-    if (!loaded || (pathname !== "/simulator" && pathname !== "/contest-player")) return;
-    const url = new URL(window.location);
-    url.search = loadoutToSearchParams(loadout, loadouts).toString();
-    window.history.replaceState(null, "", url);
-  }, [loadout, loadouts]);
+    if (pathname !== "/simulator" || pathname !== "/contest-player") return;
+    updateUrl(loadout);
+  }, [loadout]);
 
   // Update link loadouts when loadout changes
   useEffect(() => {
@@ -506,39 +447,6 @@ export function LoadoutContextProvider({ children }) {
     });
   }
 
-  const pushLoadoutHistory = () => {
-    if (JSON.stringify(loadout) == JSON.stringify(loadoutHistory[0])) return;
-    setLoadoutHistory((cur) => [loadout, ...cur].slice(0, 10));
-  };
-
-  const pushLoadoutsHistory = () => {
-    if (JSON.stringify(loadouts) == JSON.stringify(loadoutsHistory[0])) return;
-    setLoadoutsHistory((cur) => [loadouts, ...cur].slice(0, 10));
-  };
-
-  async function saveLoadout(name) {
-    const response = await fetch("/api/loadout", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...loadout, name }),
-    });
-    const data = await response.json();
-    return data.id;
-  }
-
-  async function fetchLoadouts() {
-    const response = await fetch("/api/loadout");
-    return response.json();
-  }
-
-  async function deleteLoadouts(ids) {
-    await fetch("/api/loadout", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ids }),
-    });
-  }
-
   return (
     <LoadoutContext.Provider
       value={{
@@ -567,12 +475,6 @@ export function LoadoutContextProvider({ children }) {
         replaceTurnTypeOrder,
         stage,
         simulatorUrl,
-        loadoutHistory,
-        pushLoadoutHistory,
-        pushLoadoutsHistory,
-        saveLoadout,
-        fetchLoadouts,
-        deleteLoadouts,
         loadouts,
         setLoadouts,
         currentLoadoutIndex,

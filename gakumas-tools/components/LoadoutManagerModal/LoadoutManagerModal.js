@@ -3,13 +3,13 @@ import { useContext, useEffect, useState } from "react";
 import { useSession, signIn } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { FaCircleXmark, FaRegTrashCan } from "react-icons/fa6";
-import { FixedSizeList as List } from "react-window";
-import AutoSizer from "react-virtualized-auto-sizer";
+import { List } from "react-window";
 import Button from "@/components/Button";
 import IconButton from "@/components/IconButton";
 import Input from "@/components/Input";
 import LoadoutSummary from "@/components/LoadoutHistory/LoadoutSummary";
 import Modal from "@/components/Modal";
+import LoadoutApiContext from "@/contexts/LoadoutApiContext";
 import LoadoutContext from "@/contexts/LoadoutContext";
 import ModalContext from "@/contexts/ModalContext";
 import styles from "./LoadoutManagerModal.module.scss";
@@ -17,8 +17,9 @@ import styles from "./LoadoutManagerModal.module.scss";
 export default function LoadoutManagerModal() {
   const t = useTranslations("MemorySave");
   const { status } = useSession();
-  const { fetchLoadouts, saveLoadout, deleteLoadouts, loadout, setLoadout } =
-    useContext(LoadoutContext);
+  const { fetchLoadouts, saveLoadout, deleteLoadouts } =
+    useContext(LoadoutApiContext);
+  const { loadout, setLoadout } = useContext(LoadoutContext);
   const { closeModal } = useContext(ModalContext);
   const [loadouts, setLoadouts] = useState([]);
   const [name, setName] = useState("");
@@ -118,18 +119,12 @@ export default function LoadoutManagerModal() {
           </div>
 
           <div className={styles.loadoutList}>
-            <AutoSizer>
-              {({ width, height }) => (
-                <List
-                  height={height}
-                  itemCount={loadouts.length}
-                  itemSize={172}
-                  width={width}
-                >
-                  {Row}
-                </List>
-              )}
-            </AutoSizer>
+            <List
+              rowComponent={Row}
+              rowCount={loadouts.length}
+              rowHeight={172}
+              rowProps={{ loadouts }}
+            />
           </div>
         </>
       )}
