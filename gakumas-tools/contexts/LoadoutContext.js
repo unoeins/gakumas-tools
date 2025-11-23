@@ -26,13 +26,13 @@ export function LoadoutContextProvider({ children }) {
     loadoutFromUrl.customizationGroups
   );
   const [skillCardIdOrderGroups, setSkillCardIdOrderGroups] = useState(
-    initial.skillCardIdOrderGroups
+    loadoutFromUrl.skillCardIdOrderGroups
   );
   const [customizationOrderGroups, setCustomizationOrderGroups] = useState(
-    initial.customizationOrderGroups
+    loadoutFromUrl.customizationOrderGroups
   );
-  const [removedCardOrder, setRemovedCardOrder] = useState(initial.removedCardOrder);
-  const [turnTypeOrder, setTurnTypeOrder] = useState(initial.turnTypeOrder);
+  const [removedCardOrder, setRemovedCardOrder] = useState(loadoutFromUrl.removedCardOrder);
+  const [turnTypeOrder, setTurnTypeOrder] = useState(loadoutFromUrl.turnTypeOrder);
 
   let stage = FALLBACK_STAGE;
   if (stageId == "custom") {
@@ -71,7 +71,7 @@ export function LoadoutContextProvider({ children }) {
   );
 
   const [currentLoadoutIndex, setCurrentLoadoutIndex] = useState(0);
-  const [loadouts, setLoadouts] = useState(initial.loadouts || [loadout]);
+  const [loadouts, setLoadouts] = useState(loadoutFromUrl.loadouts || [loadout]);
 
   const simulatorUrl = getSimulatorUrl(loadout, loadouts);
 

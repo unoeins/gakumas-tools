@@ -26,6 +26,7 @@ import LoadoutSummary from "@/components/LoadoutHistory/LoadoutSummary";
 import SimulatorLogs from "@/components/SimulatorLogs";
 import StageSelect from "@/components/StageSelect";
 import LoadoutContext from "@/contexts/LoadoutContext";
+import LoadoutHistoryContext from "@/contexts/LoadoutHistoryContext";
 import WorkspaceContext from "@/contexts/WorkspaceContext";
 import ModalContext from "@/contexts/ModalContext";
 import SimulatorButtons from "@/components/Simulator/SimulatorButtons";
@@ -44,13 +45,14 @@ export default function ContestPlayer() {
     loadout,
     simulatorUrl,
     setSupportBonus,
-    pushLoadoutHistory,
-    pushLoadoutsHistory,
     loadouts,
     setLoadout,
     currentLoadoutIndex,
     setCurrentLoadoutIndex,
   } = useContext(LoadoutContext);
+  const { pushLoadoutHistory, pushLoadoutsHistory } = useContext(
+    LoadoutHistoryContext
+  );
   const { plan, idolId } = useContext(WorkspaceContext);
   const [running, setRunning] = useState(false);
   const [state, setState] = useState(null);
