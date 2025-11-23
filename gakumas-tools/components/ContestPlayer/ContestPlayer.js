@@ -31,6 +31,9 @@ import WorkspaceContext from "@/contexts/WorkspaceContext";
 import ModalContext from "@/contexts/ModalContext";
 import SimulatorButtons from "@/components/Simulator/SimulatorButtons";
 import SimulatorSubTools from "@/components/Simulator/SimulatorSubTools";
+import EntityIcon from "@/components/EntityIcon";
+import { EntityTypes } from "@/utils/entities";
+import TurnTypeViewer from "./TurnTypeViewer";
 import StateViewer from "./StateViewer";
 import CardPileViewer from "./CardPileViewer";
 import HoldCardPickerModal from "./HoldCardPickerModal";
@@ -55,7 +58,7 @@ export default function ContestPlayer() {
   );
   const { plan, idolId } = useContext(WorkspaceContext);
   const [running, setRunning] = useState(false);
-  const [state, setState] = useState(null);
+  const [stateHistory, setStateHistory] = useState([]);
   const [engine, setEngine] = useState(null);
   const [enableSkillCardOrder, setEnableSkillCardOrder] = useState(false);
 
@@ -78,9 +81,30 @@ export default function ContestPlayer() {
 
   const { setModal } = useContext(ModalContext);
 
-  const logs = engine?.logger.peekLogs(state);
+  const logs = engine?.logger.peekLogs(getState());
   if (logs) {
     console.log("logs:", logs);
+  }
+
+  function getState() {
+    return stateHistory.length > 0 ? stateHistory[stateHistory.length - 1] : null;
+  }
+
+  function pushState(newState) {
+    setStateHistory((cur) => {
+      const newHistory = cur ? [...cur, newState] : [newState];
+      return newHistory;
+    });
+  }
+
+  function popState() {
+    const state = getState();
+    setStateHistory((cur) => {
+      if (!cur || cur.length === 0) return cur;
+      const newHistory = cur.slice(0, cur.length - 1);
+      return newHistory;
+    });
+    return state;
   }
 
   async function pickCardsToHold(state, cards, num = 1) {
@@ -115,7 +139,7 @@ export default function ContestPlayer() {
     state = engine.startStage(state);
 
     setEngine(engine);
-    setState(state);
+    setStateHistory([state]);
     
     pushLoadoutHistory();
     if (stage.type === "linkContest") {
@@ -125,6 +149,7 @@ export default function ContestPlayer() {
 
   async function playCard(selectedIndex) {
     if (!running) return;
+    const state = deepCopy(getState());
     const card = state[S.handCards][selectedIndex];
     if (!engine.isCardUsable(state, card)) {
       return;
@@ -155,7 +180,7 @@ export default function ContestPlayer() {
       state: engine.logger.getHandStateForLogging(state),
     };
 
-    setState(nextState);
+    pushState(nextState);
     if (nextState[S.turnsRemaining] <= 0) {
       setRunning(false);
     }
@@ -163,15 +188,25 @@ export default function ContestPlayer() {
 
   function endTurn() {
     if (!running) return;
-    const nextState = engine.endTurn(state);
-    setState(nextState);
+    const nextState = engine.endTurn(getState());
+    pushState(nextState);
     if (nextState[S.turnsRemaining] <= 0) {
       setRunning(false);
     }
   }
 
+  function undo() {
+    if (stateHistory.length <= 1) return;
+    const previousState = stateHistory[stateHistory.length - 2];
+    popState();
+    if (previousState[S.turnsRemaining] > 0) {
+      setRunning(true);
+    }
+  }
+
   function getHandCardScores() {
     if (!running) return [];
+    const state = getState();
     return state[S.handCards].map((card) => {
       if (!engine.isCardUsable(state, card)) {
         return -Infinity;
@@ -306,15 +341,30 @@ export default function ContestPlayer() {
             defaultCardIds={config.defaultCardIds}
           />
         )} */}
-        {state && (
+        {getState() && (
           <div className={styles.playArea}>
-            <StateViewer
-              state={state}
-              idolId={config.idol.idolId || idolId}
-              plan={config.idol.plan || plan}
-            />
+            <TurnTypeViewer state={getState()} />
+            <div className={styles.infoArea}>
+              <StateViewer
+                state={getState()}
+                idolId={config.idol.idolId || idolId}
+                plan={config.idol.plan || plan}
+              />
+              <div className={styles.controls}>
+                <div className={styles.cardPileCard}>
+                  <EntityIcon
+                    type={EntityTypes.SKILL_CARD}
+                    id={0}
+                    label={"UNDO"}
+                    onClick={() => undo()}
+                    idolId={idolId}
+                    size={"fill"}
+                  />
+                </div>
+              </div>
+            </div>
             <CardPileViewer
-              state={state}
+              state={getState()}
               type="handCards"
               scores={getHandCardScores()}
               onClick={(selectedIndex) => playCard(selectedIndex)}
@@ -325,7 +375,7 @@ export default function ContestPlayer() {
             />
             {plan === "anomaly" && (
               <CardPileViewer
-                state={state}
+                state={getState()}
                 type="heldCards"
                 idolId={config.idol.idolId || idolId}
                 plan={config.idol.plan || plan}
@@ -333,21 +383,21 @@ export default function ContestPlayer() {
               />
             )}
             <CardPileViewer
-              state={state}
+              state={getState()}
               type="deckCards"
               idolId={config.idol.idolId || idolId}
               plan={config.idol.plan || plan}
               size="small"
             />
             <CardPileViewer
-              state={state}
+              state={getState()}
               type="discardedCards"
               idolId={config.idol.idolId || idolId}
               plan={config.idol.plan || plan}
               size="small"
             />
             <CardPileViewer
-              state={state}
+              state={getState()}
               type="removedCards"
               idolId={config.idol.idolId || idolId}
               plan={config.idol.plan || plan}

@@ -27,14 +27,6 @@ function CardPileViewer({
       <div className={styles.cardPileHeader}>
         <label>{t(type)}</label>
       </div>
-      {/* {onSkip && (
-        <button
-          className={styles.skipButton}
-          onClick={onSkip}
-        >
-          {t("skip")}
-        </button>
-      )} */}
       <div className={className}>
         {state[S[type]].map((card, i) => (
           <div className={styles.cardPileCard} key={i}>

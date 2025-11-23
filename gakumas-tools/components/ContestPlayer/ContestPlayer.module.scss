@@ -179,6 +179,22 @@
   color: colors.$gk-red-orange-dark;
 }
 
+.infoArea {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  padding: 8px 16px;
+  overflow: auto;
+}
+
+.controls {
+  display: grid;
+  grid-auto-flow: column;
+  margin-left: auto;
+  gap: 8px;
+  width: 84px;
+}
+
 .stateViewer {
   display: flex;
   flex-direction: column;
