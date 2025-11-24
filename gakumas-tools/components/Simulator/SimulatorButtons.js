@@ -8,7 +8,7 @@ import ConfirmModal from "@/components/ConfirmModal";
 import LoadoutManagerModal from "@/components/LoadoutManagerModal";
 import LoadoutContext from "@/contexts/LoadoutContext";
 import ModalContext from "@/contexts/ModalContext";
-import { loadoutFromSearchParams } from "@/utils/simulator";
+import { loadoutFromSearchParams, loadoutsFromSearchParams } from "@/utils/simulator";
 import styles from "./Simulator.module.scss";
 
 function SimulatorButtons() {
@@ -26,12 +26,13 @@ function SimulatorButtons() {
         return;
       }
       const url = new URL(text);
-      const loadout = loadoutFromSearchParams(url.searchParams);
+      const loadouts = loadoutsFromSearchParams(url.searchParams);
+      const loadout = loadouts[0] || loadoutFromSearchParams(url.searchParams);
       if (loadout.hasDataFromParams) {
         setModal(<ConfirmModal message={t("confirmSetLoadout")} onConfirm={() => {
           if (loadout.stageId !== "custom" && Stages.getById(loadout.stageId)?.type === "linkContest") {
-            setLoadout(loadout.loadouts[currentLoadoutIndex]);
-            setLoadouts(loadout.loadouts);
+            setLoadout(loadouts[currentLoadoutIndex]);
+            setLoadouts(loadouts);
           } else {
             setLoadout(loadout);
           }
@@ -57,33 +58,33 @@ function SimulatorButtons() {
       </Button>
 
       {stage.type !== "linkContest" && (
-        <>
-          <Button
-            style="blue-secondary"
-            onClick={() => setModal(<LoadoutManagerModal />)}
-          >
-            {t("manageLoadouts")}
-          </Button>
-        </>
+        <Button
+          style="blue-secondary"
+          onClick={() => setModal(<LoadoutManagerModal />)}
+        >
+          {t("manageLoadouts")}
+        </Button>
       )}
 
-      <Button
-        style="blue-secondary"
-        onClick={() => {
-          navigator.clipboard.writeText(simulatorUrl);
-          setLinkCopied(true);
-          setTimeout(() => setLinkCopied(false), 3000);
-        }}
-      >
-        {linkCopied ? (
-          <FaCheck />
-        ) : (
-          <>
-            <FaRegCopy />
-            URL
-          </>
-        )}
-      </Button>
+      {!!simulatorUrl && (
+        <Button
+          style="blue-secondary"
+          onClick={() => {
+            navigator.clipboard.writeText(simulatorUrl);
+            setLinkCopied(true);
+            setTimeout(() => setLinkCopied(false), 3000);
+          }}
+        >
+          {linkCopied ? (
+            <FaCheck />
+          ) : (
+            <>
+              <FaRegCopy />
+              URL
+            </>
+          )}
+        </Button>
+      )}
 
       <Button
         style="blue-secondary"

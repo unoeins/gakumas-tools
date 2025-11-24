@@ -11,28 +11,31 @@ const LoadoutContext = createContext();
 
 export function LoadoutContextProvider({ children }) {
   const pathname = usePathname();
-  const { loadoutFromUrl, updateUrl } = useContext(LoadoutUrlContext);
+  const { loadoutFromUrl, loadoutsFromUrl, updateUrl } =
+    useContext(LoadoutUrlContext);
+
+  const initialLoadout = loadoutsFromUrl[0] || loadoutFromUrl;
 
   const [memoryParams, setMemoryParams] = useState([null, null]);
-  const [stageId, setStageId] = useState(loadoutFromUrl.stageId);
+  const [stageId, setStageId] = useState(initialLoadout.stageId);
   const [customStage, setCustomStage] = useState(null);
-  const [supportBonus, setSupportBonus] = useState(loadoutFromUrl.supportBonus);
-  const [params, setParams] = useState(loadoutFromUrl.params);
-  const [pItemIds, setPItemIds] = useState(loadoutFromUrl.pItemIds);
+  const [supportBonus, setSupportBonus] = useState(initialLoadout.supportBonus);
+  const [params, setParams] = useState(initialLoadout.params);
+  const [pItemIds, setPItemIds] = useState(initialLoadout.pItemIds);
   const [skillCardIdGroups, setSkillCardIdGroups] = useState(
-    loadoutFromUrl.skillCardIdGroups
+    initialLoadout.skillCardIdGroups
   );
   const [customizationGroups, setCustomizationGroups] = useState(
-    loadoutFromUrl.customizationGroups
+    initialLoadout.customizationGroups
   );
   const [skillCardIdOrderGroups, setSkillCardIdOrderGroups] = useState(
-    loadoutFromUrl.skillCardIdOrderGroups
+    initialLoadout.skillCardIdOrderGroups
   );
   const [customizationOrderGroups, setCustomizationOrderGroups] = useState(
-    loadoutFromUrl.customizationOrderGroups
+    initialLoadout.customizationOrderGroups
   );
-  const [removedCardOrder, setRemovedCardOrder] = useState(loadoutFromUrl.removedCardOrder);
-  const [turnTypeOrder, setTurnTypeOrder] = useState(loadoutFromUrl.turnTypeOrder);
+  const [removedCardOrder, setRemovedCardOrder] = useState(initialLoadout.removedCardOrder);
+  const [turnTypeOrder, setTurnTypeOrder] = useState(initialLoadout.turnTypeOrder);
 
   let stage = FALLBACK_STAGE;
   if (stageId == "custom") {
@@ -71,7 +74,9 @@ export function LoadoutContextProvider({ children }) {
   );
 
   const [currentLoadoutIndex, setCurrentLoadoutIndex] = useState(0);
-  const [loadouts, setLoadouts] = useState(loadoutFromUrl.loadouts || [loadout]);
+  const [loadouts, setLoadouts] = useState(
+    loadoutsFromUrl.length ? loadoutsFromUrl : [loadout]
+  );
 
   const simulatorUrl = getSimulatorUrl(loadout, loadouts);
 
@@ -141,8 +146,8 @@ export function LoadoutContextProvider({ children }) {
 
   // Update browser URL when the loadout changes
   useEffect(() => {
-    if (pathname !== "/simulator" || pathname !== "/contest-player") return;
-    updateUrl(loadout);
+    if (pathname !== "/simulator" && pathname !== "/contest-player") return;
+    updateUrl(loadout, loadouts);
   }, [loadout]);
 
   // Update link loadouts when loadout changes

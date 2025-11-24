@@ -200,10 +200,16 @@
     "simulate": "実行",
     "provideData": "データを提供する",
     "lastUpdated": "最終更新",
+    "start": "開始",
+    "restart": "再開",
     "enableSkillCardOrder": "スキルカード順、ターン順を指定する",
     "enableUseStats": "スキルカード使用回数を集計する",
     "enableConditionalUseStats": "特定のスキルカードを引いた時の条件付き使用回数を集計する",
     "enablePriorityStats": "スキルカード優先使用回数を集計する"
+  },
+  "StrategyPicker": {
+    "auto": "自動",
+    "manual": "手動"
   },
   "StageSelect": {
     "placeholder": "ステージ選択"
@@ -339,7 +345,10 @@
     "turnN": "{n}ターン目",
     "average": "平均値",
     "unplayable": "使用不可",
-    "linkPhaseChange": "アイドル交代"
+    "linkPhaseChange": "アイドル交代",
+    "skip": "スキップ",
+    "selectCardsToHold": "{num}枚のカードを選択",
+    "confirm": "確認"
   },
   "BoxPlot": {
     "max": "最大",

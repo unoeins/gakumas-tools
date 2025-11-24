@@ -15,6 +15,9 @@ import {
   SimulatorConfig,
   IdolStageConfig,
   STRATEGIES,
+  StageEngine,
+  StagePlayer,
+  S,
 } from "gakumas-engine";
 import Button from "@/components/Button";
 import Input from "@/components/Input";
@@ -24,6 +27,7 @@ import LoadoutEditor from "@/components/LoadoutEditor";
 import LoadoutSummary from "@/components/LoadoutHistory/LoadoutSummary";
 import SimulatorResult from "@/components/SimulatorResult";
 import StageSelect from "@/components/StageSelect";
+import StrategyPicker from "@/components/StrategyPicker";
 import LoadoutContext from "@/contexts/LoadoutContext";
 import LoadoutHistoryContext from "@/contexts/LoadoutHistoryContext";
 import WorkspaceContext from "@/contexts/WorkspaceContext";
@@ -31,6 +35,7 @@ import { simulate } from "@/simulator";
 import { MAX_WORKERS, DEFAULT_NUM_RUNS, SYNC } from "@/simulator/constants";
 import { logEvent } from "@/utils/logging";
 import { bucketScores, getMedianScore, mergeResults } from "@/utils/simulator";
+import ManualPlay from "./ManualPlay";
 import SimulatorButtons from "./SimulatorButtons";
 import SimulatorSubTools from "./SimulatorSubTools";
 import SkillCardAndTurnTypeOrder from "@/components/SkillCardOrderGroups/SkillCardAndTurnTypeOrder";
@@ -66,12 +71,30 @@ export default function Simulator() {
   const [listenerData, setListenerData] = useState(null);
   const workersRef = useRef();
 
+  const [pendingDecision, setPendingDecision] = useState(null);
+  const resolveDecisionRef = useRef(null);
+
   const config = useMemo(() => {
     const idolConfig = new IdolConfig(loadout);
     const stageConfig = new StageConfig(stage);
     const simulatorConfig = new SimulatorConfig({enableSkillCardOrder, ...listenerConfig});
     return new IdolStageConfig(idolConfig, stageConfig, simulatorConfig);
   }, [loadout, stage, enableSkillCardOrder, listenerConfig]);
+
+  const manualInputCallback = useCallback((decision) => {
+    return new Promise((resolve) => {
+      setPendingDecision(decision);
+      resolveDecisionRef.current = resolve;
+    });
+  }, []);
+
+  const handleDecision = useCallback((value) => {
+    if (resolveDecisionRef.current) {
+      resolveDecisionRef.current(value);
+      resolveDecisionRef.current = null;
+      setPendingDecision(null);
+    }
+  }, []);
 
   const linkConfigs = useMemo(() => {
     if (stage.type !== "linkContest") return null;
@@ -115,13 +138,47 @@ export default function Simulator() {
     [setSimulatorData, setRunning]
   );
 
-  function runSimulation() {
+  async function startManualPlay() {
+    setRunning(true);
+    setSimulatorData(null);
+    setPendingDecision(null);
+
+    const engine = new StageEngine(config, linkConfigs);
+
+    const wrappedInputCallback = async (decision) => {
+      const currentLogs = decision.state.logs.map(
+        (logIndex) => engine.logger.logs[logIndex]
+      );
+      currentLogs[currentLogs.length - 1] = {
+        ...currentLogs[currentLogs.length - 1],
+        isPending: true,
+      };
+      setSimulatorData({ logs: currentLogs });
+      return await manualInputCallback(decision);
+    };
+
+    const ManualStrategy = STRATEGIES["ManualStrategy"];
+    const strategy = new ManualStrategy(engine, wrappedInputCallback);
+    engine.strategy = strategy;
+
+    const player = new StagePlayer(engine, strategy);
+    const result = await player.play();
+    setSimulatorData({ logs: result.logs });
+    setRunning(false);
+
+    pushLoadoutHistory();
+    if (stage.type === "linkContest") {
+      pushLoadoutsHistory();
+    }
+  }
+
+  async function runSimulation() {
     setRunning(true);
 
     console.time("simulation");
 
-    if (SYNC || !workersRef.current || numRuns < 10) {
-      const result = simulate(config, linkConfigs, strategy, numRuns);
+    if (SYNC || !workersRef.current) {
+      const result = await simulate(config, linkConfigs, strategy, numRuns);
       setResult(result);
     } else {
       const numWorkers = workersRef.current.length;
@@ -150,15 +207,6 @@ export default function Simulator() {
         if (stage.type === "linkContest") {
           pushLoadoutsHistory();
         }
-
-        logEvent("simulator.simulate", {
-          stageId: stage.id,
-          idolId: config.idol.idolId,
-          page_location: simulatorUrl,
-          minScore: mergedResults.minRun.score,
-          averageScore: mergedResults.averageScore,
-          maxScore: mergedResults.maxRun.score,
-        });
       });
     }
   }
@@ -188,7 +236,6 @@ export default function Simulator() {
           <div className={styles.loadoutTabs}>
             {loadouts.map((loadout, index) => (
               <div key={index} className={styles.loadoutTab}>
-                {/* <div className={styles.loadoutTabButtons}> */}
                 <button
                   className={styles.selectButton}
                   onClick={() => {
@@ -198,21 +245,6 @@ export default function Simulator() {
                 >
                   {index + 1}
                 </button>
-                {/* <button
-                  className={styles.deleteButton}
-                  onClick={() => {
-                    const newLoadouts = loadouts.filter((_, i) => i !== index);
-                    setCurrentLoadoutIndex(
-                      currentLoadoutIndex >= newLoadouts.length
-                        ? newLoadouts.length - 1
-                        : currentLoadoutIndex
-                    );
-                    setLoadouts(newLoadouts);
-                  }}
-                >
-                  <FaXmark />
-                </button> */}
-                {/* </div> */}
                 {index === currentLoadoutIndex ? (
                   <LoadoutEditor
                     config={config}
@@ -240,30 +272,39 @@ export default function Simulator() {
         )}
 
         <SimulatorSubTools defaultCardIds={config.defaultCardIds} />
-        <select
-          className={styles.strategySelect}
-          value={strategy}
-          onChange={(e) => setStrategy(e.target.value)}
-        >
-          {Object.keys(STRATEGIES).map((strategy) => (
-            <option key={strategy} value={strategy}>
-              {strategy}
-            </option>
-          ))}
-        </select>
-        <input
-          type="range"
-          value={numRuns}
-          onChange={(e) => setNumRuns(parseInt(e.target.value, 10))}
-          min={1}
-          max={4000}
-          step={1}
+
+        <StrategyPicker
+          strategy={strategy}
+          setStrategy={(value) => {
+            setSimulatorData(null);
+            setPendingDecision(null);
+            setStrategy(value);
+            setRunning(false);
+          }}
         />
-        <Button style="blue" onClick={runSimulation} disabled={running}>
-          {running ? <Loader /> : `${t("simulate")} (n=${numRuns})`}
-        </Button>
+
+        {strategy === "HeuristicStrategy" && (
+          <>
+            <input
+              type="range"
+              value={numRuns}
+              onChange={(e) => setNumRuns(parseInt(e.target.value, 10))}
+              min={100}
+              max={4000}
+              step={100}
+            />
+            <Button style="blue" onClick={runSimulation} disabled={running}>
+              {running ? <Loader /> : `${t("simulate")} (n=${numRuns})`}
+            </Button>
+          </>
+        )}
+
+        {strategy === "ManualStrategy" && (
+          <Button style="blue" onClick={startManualPlay}>
+            {running ? t("restart") : t("start")}
+          </Button>
+        )}
         <SimulatorButtons />
-        {/* <div className={styles.url}>{simulatorUrl}</div> */}
         <div className={styles.skillCardOrderToggle}>
           <input
             type="checkbox"
@@ -307,14 +348,6 @@ export default function Simulator() {
           <label htmlFor="enablePriorityStats">{t("enablePriorityStats")}</label>
         </div> */}
         <div className={styles.subLinks}>
-          {/* <a
-            href={`https://docs.google.com/forms/d/e/1FAIpQLScNquedw8Lp2yVfZjoBFMjQxIFlX6-rkzDWIJTjWPdQVCJbiQ/viewform?usp=pp_url&entry.1787906485=${encodeURIComponent(
-              simulatorUrl
-            )}`}
-            target="_blank"
-          >
-            {t("provideData")}
-          </a> */}
           <a
             href="https://github.com/surisuririsu/gakumas-tools/blob/master/gakumas-tools/simulator/CHANGELOG.md"
             target="_blank"
@@ -329,7 +362,16 @@ export default function Simulator() {
         )}
       </div>
 
-      {simulatorData && (
+      {strategy === "ManualStrategy" && simulatorData && (
+        <ManualPlay
+          logs={simulatorData.logs}
+          pendingDecision={pendingDecision}
+          onDecision={handleDecision}
+          idolId={config.idol.idolId || idolId}
+        />
+      )}
+
+      {strategy === "HeuristicStrategy" && simulatorData && (
         <SimulatorResult
           data={simulatorData}
           listenerData={listenerData}

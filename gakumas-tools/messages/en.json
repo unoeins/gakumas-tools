@@ -200,10 +200,16 @@
     "simulate": "Simulate",
     "provideData": "Provide data",
     "lastUpdated": "Last updated",
+    "start": "Start",
+    "restart": "Restart",
     "enableSkillCardOrder": "Specify skill card order and turn order",
     "enableUseStats": "Count skill card usage",
     "enableConditionalUseStats": "Count skill card usage when a specific skill card is drawn",
     "enablePriorityStats": "Count skill card priority usage"
+  },
+  "StrategyPicker": {
+    "auto": "Auto",
+    "manual": "Manual"
   },
   "StageSelect": {
     "placeholder": "Select stage"
@@ -339,7 +345,10 @@
     "turnN": "Turn {n}",
     "average": "Average",
     "unplayable": "Unplayable",
-    "linkPhaseChange": "Idol changed"
+    "linkPhaseChange": "Idol changed",
+    "skip": "Skip",
+    "selectCardsToHold": "Select {num} {num, plural, =1 {card} other {cards}} to hold",
+    "confirm": "Confirm"
   },
   "BoxPlot": {
     "max": "Max",
