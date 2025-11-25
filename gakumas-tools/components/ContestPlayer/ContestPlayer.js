@@ -37,6 +37,7 @@ import TurnTypeViewer from "./TurnTypeViewer";
 import StateViewer from "./StateViewer";
 import CardPileViewer from "./CardPileViewer";
 import HoldCardPickerModal from "./HoldCardPickerModal";
+import SkillCardAndTurnTypeOrder from "@/components/SkillCardOrderGroups/SkillCardAndTurnTypeOrder";
 import styles from "./ContestPlayer.module.scss";
 
 export default function ContestPlayer() {
@@ -52,6 +53,7 @@ export default function ContestPlayer() {
     setLoadout,
     currentLoadoutIndex,
     setCurrentLoadoutIndex,
+    setEnableSkillCardOrder,
   } = useContext(LoadoutContext);
   const { pushLoadoutHistory, pushLoadoutsHistory } = useContext(
     LoadoutHistoryContext
@@ -60,24 +62,23 @@ export default function ContestPlayer() {
   const [running, setRunning] = useState(false);
   const [stateHistory, setStateHistory] = useState([]);
   const [engine, setEngine] = useState(null);
-  const [enableSkillCardOrder, setEnableSkillCardOrder] = useState(false);
 
   const config = useMemo(() => {
     const idolConfig = new IdolConfig(loadout);
     const stageConfig = new StageConfig(stage);
-    const simulatorConfig = new SimulatorConfig({enableSkillCardOrder});
+    const simulatorConfig = new SimulatorConfig({enableSkillCardOrder: loadout.enableSkillCardOrder});
     return new IdolStageConfig(idolConfig, stageConfig, simulatorConfig);
-  }, [loadout, stage, enableSkillCardOrder]);
+  }, [loadout, stage, loadout.enableSkillCardOrder]);
 
   const linkConfigs = useMemo(() => {
     if (stage.type !== "linkContest") return null;
     return loadouts.map((ld) => {
       const idolConfig = new IdolConfig(ld);
       const stageConfig = new StageConfig(stage);
-      const simulatorConfig = new SimulatorConfig({enableSkillCardOrder});
+      const simulatorConfig = new SimulatorConfig({enableSkillCardOrder: loadout.enableSkillCardOrder});
       return new IdolStageConfig(idolConfig, stageConfig, simulatorConfig);
     });
-  }, [loadouts, stage, enableSkillCardOrder]);
+  }, [loadouts, stage, loadout.enableSkillCardOrder]);
 
   const { setModal } = useContext(ModalContext);
 
@@ -326,21 +327,27 @@ export default function ContestPlayer() {
         </Button>
         <SimulatorButtons />
         {/* <div className={styles.url}>{simulatorUrl}</div> */}
-        {/* <div className={styles.skillCardOrderToggle}>
+        <div className={styles.skillCardOrderToggle}>
           <input
             type="checkbox"
             id="enableSkillCardOrder"
-            checked={enableSkillCardOrder}
+            checked={loadout.enableSkillCardOrder}
             onChange={(e) => setEnableSkillCardOrder(e.target.checked)}
           />
           <label htmlFor="enableSkillCardOrder">{t("enableSkillCardOrder")}</label>
         </div>
-        {enableSkillCardOrder && (
-          <SkillCardAndTurnTypeOrder
-            idolId={config.idol.idolId || idolId}
-            defaultCardIds={config.defaultCardIds}
-          />
-        )} */}
+        {loadout.enableSkillCardOrder && (
+          <>
+            <SkillCardAndTurnTypeOrder
+              config={config}
+              idolId={config.idol.idolId || idolId}
+              defaultCardIds={config.defaultCardIds}
+            />
+            <Button style="blue" onClick={startStage}>
+              {!running ? t2("startStage") : t2("restartStage")}
+            </Button>
+          </>
+        )}
         {getState() && (
           <div className={styles.playArea}>
             <TurnTypeViewer state={getState()} />
@@ -385,6 +392,7 @@ export default function ContestPlayer() {
             <CardPileViewer
               state={getState()}
               type="deckCards"
+              reverse={true}
               idolId={config.idol.idolId || idolId}
               plan={config.idol.plan || plan}
               size="small"

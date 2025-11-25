@@ -53,6 +53,7 @@ export default function Simulator() {
     setLoadout,
     currentLoadoutIndex,
     setCurrentLoadoutIndex,
+    setEnableSkillCardOrder,
   } = useContext(LoadoutContext);
   const { pushLoadoutHistory, pushLoadoutsHistory } = useContext(
     LoadoutHistoryContext
@@ -62,7 +63,6 @@ export default function Simulator() {
   const [simulatorData, setSimulatorData] = useState(null);
   const [running, setRunning] = useState(false);
   const [numRuns, setNumRuns] = useState(DEFAULT_NUM_RUNS);
-  const [enableSkillCardOrder, setEnableSkillCardOrder] = useState(false);
   const [listenerConfig, setListenerConfig] = useState({
     enableUseStats: true,
     enableConditionalUseStats: true,
@@ -77,9 +77,12 @@ export default function Simulator() {
   const config = useMemo(() => {
     const idolConfig = new IdolConfig(loadout);
     const stageConfig = new StageConfig(stage);
-    const simulatorConfig = new SimulatorConfig({enableSkillCardOrder, ...listenerConfig});
+    const simulatorConfig = new SimulatorConfig({
+      enableSkillCardOrder: loadout.enableSkillCardOrder,
+      ...listenerConfig
+    });
     return new IdolStageConfig(idolConfig, stageConfig, simulatorConfig);
-  }, [loadout, stage, enableSkillCardOrder, listenerConfig]);
+  }, [loadout, stage, listenerConfig]);
 
   const manualInputCallback = useCallback((decision) => {
     return new Promise((resolve) => {
@@ -101,10 +104,13 @@ export default function Simulator() {
     return loadouts.map((ld) => {
       const idolConfig = new IdolConfig(ld);
       const stageConfig = new StageConfig(stage);
-      const simulatorConfig = new SimulatorConfig({enableSkillCardOrder, ...listenerConfig});
+      const simulatorConfig = new SimulatorConfig({
+        enableSkillCardOrder: ld.enableSkillCardOrder,
+        ...listenerConfig
+      });
       return new IdolStageConfig(idolConfig, stageConfig, simulatorConfig);
     });
-  }, [loadouts, stage, enableSkillCardOrder, listenerConfig]);
+  }, [loadouts, stage, listenerConfig]);
 
   // Set up web workers on mount
   useEffect(() => {
@@ -309,13 +315,14 @@ export default function Simulator() {
           <input
             type="checkbox"
             id="enableSkillCardOrder"
-            checked={enableSkillCardOrder}
+            checked={loadout.enableSkillCardOrder}
             onChange={(e) => setEnableSkillCardOrder(e.target.checked)}
           />
           <label htmlFor="enableSkillCardOrder">{t("enableSkillCardOrder")}</label>
         </div>
-        {enableSkillCardOrder && (
+        {loadout.enableSkillCardOrder && (
           <SkillCardAndTurnTypeOrder
+            config={config}
             idolId={config.idol.idolId || idolId}
             defaultCardIds={config.defaultCardIds}
           />

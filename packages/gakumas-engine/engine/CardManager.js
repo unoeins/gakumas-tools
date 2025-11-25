@@ -40,6 +40,8 @@ export default class CardManager extends EngineComponent {
     }
 
     const cardMaps = [];
+    let totalCards = 0;
+    const cardOrderGroupsArray = [];
     for (let c = 0; c < configs.length; c++) {
       const cards = configs[c].idol.cards.concat(
         configs[c].defaultCardIds.map((id) => ({ id }))
@@ -54,28 +56,30 @@ export default class CardManager extends EngineComponent {
         }
         return card;
       });
-      cardMaps.push(cardMap);
-    }
-    // mapping cardOrder to cardMap index
-    const cardMap = cardMaps.flat();
-    const cardOrderGroups = this.engine.config.idol.cardOrderGroups.map((cardOrderGroup) => {
-      let restCards = cardMap.map((card, i) => ({ id: card.id, c11n: card.c11n, index: i }));
-      return cardOrderGroup.map((cardOrder) => {
-        const index = restCards.findIndex((card) => card.id === cardOrder.id &&
-          (card.c11n ? deepEqual(card.c11n, cardOrder.customizations) :
-                       !cardOrder.customizations || Object.keys(cardOrder.customizations).length === 0));
-        if(index >= 0) {
-          const foundCard = restCards[index];
-          restCards.splice(index, 1);
-          return foundCard.index;
-        } else {
-          return -1;
-        }
+      // mapping cardOrder to cardMap index
+      const cardOrderGroups = configs[c].idol.cardOrderGroups.map((cardOrderGroup) => {
+        let restCards = cardMap.map((card, i) => ({ id: card.id, c11n: card.c11n, index: i }));
+        return cardOrderGroup.map((cardOrder) => {
+          const index = restCards.findIndex((card) => card.id === cardOrder.id &&
+            (card.c11n ? deepEqual(card.c11n, cardOrder.customizations) :
+                        !cardOrder.customizations || Object.keys(cardOrder.customizations).length === 0));
+          if(index >= 0) {
+            const foundCard = restCards[index];
+            restCards.splice(index, 1);
+            return foundCard.index + totalCards;
+          } else {
+            return -1;
+          }
+        });
       });
-    });
 
+      cardMaps.push(cardMap);
+      totalCards += cardMap.length;
+      cardOrderGroupsArray.push(cardOrderGroups);
+    }
+    const cardMap = cardMaps.flat();
     state[S.cardMap] = cardMap;
-    state[S.cardOrderGroups] = cardOrderGroups;
+    state[S.cardOrderGroups] = cardOrderGroupsArray;
 
     this.changeIdol(state);
 
@@ -139,9 +143,10 @@ export default class CardManager extends EngineComponent {
   }
 
   applyCardOrder(state) {
-    if (!this.engine.config.simulator.enableSkillCardOrder) return;
-    const skipRemovedCard = this.engine.config.idol.removedCardOrder == "skip";
-    const cardOrderGroup = state[S.cardOrderGroups][state[S.shuffleCount]];
+    const config = this.getConfig(state);
+    if (!config.simulator.enableSkillCardOrder) return;
+    const skipRemovedCard = config.idol.removedCardOrder == "skip";
+    const cardOrderGroup = state[S.cardOrderGroups][state[S.linkPhase]][state[S.shuffleCount]];
     state[S.shuffleCount]++;
     if (cardOrderGroup) {
       const deckSize = state[S.deckCards].length;

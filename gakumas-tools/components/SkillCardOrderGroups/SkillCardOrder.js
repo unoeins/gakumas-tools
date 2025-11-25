@@ -9,22 +9,25 @@ function SkillCardOrder({
   skillCardIdOrderGroup,
   customizationOrderGroup,
   replaceSkillCardOrder,
+  swapSkillCardOrder,
   idolId,
   groupIndex = 0,
   defaultCardIds,
 }) {
   const { setModal } = useContext(ModalContext);
   return (
-    <div className={styles.skillCardOrderGroup}>
+    <div className={styles.skillCardOrder}>
       {skillCardIdOrderGroup.map((cardId, i) => {
         const customizations = customizationOrderGroup[i] || {};
+        const index = groupIndex * skillCardIdOrderGroup.length + i;
         return (
           <EntityIcon
             key={`${i}_${cardId}`}
             type={EntityTypes.SKILL_CARD}
             id={cardId}
-            label={i + 1}
             customizations={customizations}
+            label={i + 1}
+            index={index}
             onClick={() =>
               setModal(
                 <StageSkillCardPickerModal
@@ -36,6 +39,8 @@ function SkillCardOrder({
                 />
               )
             }
+            onSwap={swapSkillCardOrder}
+            dndType="SKILL_CARD_ORDER"
             idolId={idolId}
             size="fill"
           />

@@ -9,7 +9,7 @@ import c from "@/utils/classNames";
 import styles from "./SkillCardOrderGroups.module.scss";
 import SkillCardOrder from "./SkillCardOrder";
 
-function LoadoutSkillCardOrderGroup({
+function SkillCardOrderGroup({
   skillCardIdOrderGroup,
   customizationOrderGroup,
   groupIndex,
@@ -20,17 +20,19 @@ function LoadoutSkillCardOrderGroup({
   const {
     loadout,
     replaceSkillCardOrder,
+    swapSkillCardOrder,
     insertSkillCardOrderGroup,
     deleteSkillCardOrderGroup,
   } = useContext(LoadoutContext);
   const [expanded, setExpanded] = useState(true);
 
   return (
-    <div>
+    <div className={styles.skillCardOrderGroup}>
       <SkillCardOrder
         skillCardIdOrderGroup={skillCardIdOrderGroup}
         customizationOrderGroup={customizationOrderGroup}
         replaceSkillCardOrder={replaceSkillCardOrder}
+        swapSkillCardOrder={swapSkillCardOrder}
         idolId={idolId}
         groupIndex={groupIndex}
         defaultCardIds={defaultCardIds}
@@ -65,4 +67,4 @@ function LoadoutSkillCardOrderGroup({
   );
 }
 
-export default memo(LoadoutSkillCardOrderGroup);
+export default memo(SkillCardOrderGroup);

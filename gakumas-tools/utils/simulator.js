@@ -61,6 +61,8 @@ export function loadoutFromSearchParams(searchParams, suffix = "") {
   const hasDataFromParams =
     stageId || params || pItemIds || skillCardIdGroups || customizationGroups || 
     skillCardIdOrderGroups || customizationOrderGroups || turnTypeOrder;
+  const enableSkillCardOrder = 
+    skillCardIdOrderGroups || customizationOrderGroups || removedCardOrder || turnTypeOrder;
 
   stageId = stageId || DEFAULTS.stageId;
   supportBonus = supportBonus || DEFAULTS.supportBonus;
@@ -68,8 +70,8 @@ export function loadoutFromSearchParams(searchParams, suffix = "") {
   pItemIds = pItemIds || DEFAULTS.pItemIds;
   skillCardIdGroups = skillCardIdGroups || DEFAULTS.skillCardIdGroups;
   customizationGroups = customizationGroups || DEFAULTS.customizationGroups;
-  skillCardIdOrderGroups = skillCardIdOrderGroups || DEFAULTS.skillCardIdOrderGroups;
-  customizationOrderGroups = customizationOrderGroups || DEFAULTS.customizationOrderGroups;
+  // skillCardIdOrderGroups = skillCardIdOrderGroups || DEFAULTS.skillCardIdOrderGroups;
+  // customizationOrderGroups = customizationOrderGroups || DEFAULTS.customizationOrderGroups;
   removedCardOrder = removedCardOrder || DEFAULTS.removedCardOrder;
 
   stageId = parseInt(stageId, 10) || null;
@@ -80,13 +82,30 @@ export function loadoutFromSearchParams(searchParams, suffix = "") {
   customizationGroups = customizationGroups
     .split("_")
     .map(deserializeCustomizations);
-  skillCardIdOrderGroups = skillCardIdOrderGroups
-    .split("_")
-    .map(deserializeIds);
-  customizationOrderGroups = customizationOrderGroups
-    .split("_")
-    .map(deserializeCustomizations);
   removedCardOrder = removedCardOrder == "1" ? "skip" : "random";
+
+  if (skillCardIdOrderGroups) {
+    skillCardIdOrderGroups = skillCardIdOrderGroups
+      .split("_")
+      .map(deserializeIds);
+  } else {
+    if (stageId === "custom" || Stages.getById(stageId).type !== "linkContest") {
+      skillCardIdOrderGroups = [new Array(20).fill(0)];
+    } else {
+      skillCardIdOrderGroups = [new Array(12).fill(0)];
+    }
+  }
+  if (customizationOrderGroups) {
+    customizationOrderGroups = customizationOrderGroups
+      .split("_")
+      .map(deserializeCustomizations);
+  } else {
+    if (stageId === "custom" || Stages.getById(stageId).type !== "linkContest") {
+      customizationOrderGroups = [new Array(20).fill({})];
+    } else {
+      customizationOrderGroups = [new Array(12).fill({})];
+    }
+  }
   if (turnTypeOrder) {
     turnTypeOrder = turnTypeOrder.split("-")
       .map((x) => parseInt(x, 10) || 0)
@@ -119,6 +138,7 @@ export function loadoutFromSearchParams(searchParams, suffix = "") {
     skillCardIdGroups,
     customizationGroups,
     hasDataFromParams,
+    enableSkillCardOrder,
     skillCardIdOrderGroups,
     customizationOrderGroups,
     removedCardOrder,
@@ -142,6 +162,7 @@ export function loadoutToSearchParams(loadout) {
     pItemIds,
     skillCardIdGroups,
     customizationGroups,
+    enableSkillCardOrder,
     skillCardIdOrderGroups,
     customizationOrderGroups,
     removedCardOrder,
@@ -159,17 +180,21 @@ export function loadoutToSearchParams(loadout) {
     "customizations",
     customizationGroups.map(serializeCustomizations).join("_")
   );
-  if (stageId !== "custom" && Stages.getById(stageId)?.type !== "linkContest") {
+  if (enableSkillCardOrder) {
     searchParams.set("order_cards", skillCardIdOrderGroups.map(serializeIds).join("_"));
     searchParams.set(
       "order_customs",
       customizationOrderGroups.map(serializeCustomizations).join("_")
     );
-    searchParams.set("order_removed", removedCardOrder == "random" ? "0" : "1");
-    searchParams.set(
-      "order_turns",
-      turnTypeOrder.map((t) => ["none", "vocal", "dance", "visual"].indexOf(t)).join("-")
-    );
+    if (removedCardOrder) {
+      searchParams.set("order_removed", removedCardOrder == "random" ? "0" : "1");
+    }
+    if (turnTypeOrder) {
+      searchParams.set(
+        "order_turns",
+        turnTypeOrder.map((t) => ["none", "vocal", "dance", "visual"].indexOf(t)).join("-")
+      );
+    }
   }
   return searchParams;
 }
@@ -179,22 +204,32 @@ export function loadoutsFromSearchParams(searchParams) {
     return loadoutsFromSearchParamsLegacy(searchParams);
   }
   let loadouts = [];
+  let firstLoadout = null;
   const loadoutParams = searchParams.getAll("loadout");
   for (let param of loadoutParams) {
     const paramString = decodeURIComponent(param);
     const paramSearchParams = new URLSearchParams(paramString);
     const loadout = loadoutFromSearchParams(paramSearchParams);
     loadouts.push(loadout);
+    if (!firstLoadout) {
+      firstLoadout = loadout;
+    } else {
+      loadout.removedCardOrder = firstLoadout.removedCardOrder;
+      loadout.turnTypeOrder = firstLoadout.turnTypeOrder;
+    }
   }
   return loadouts;
 }
 
 export function loadoutsToSearchParams(loadouts) {
   const searchParams = new URLSearchParams();
+  let firstLoadout = true;
   for (let loadout of loadouts) {
     const loadoutSearchParams = loadoutToSearchParams({
       ...loadout,
       supportBonus: null,
+      removedCardOrder: firstLoadout ? loadout.removedCardOrder : null,
+      turnTypeOrder: firstLoadout ? loadout.turnTypeOrder : null,
     });
     searchParams.append(
       "loadout",
