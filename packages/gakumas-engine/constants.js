@@ -12,6 +12,7 @@ export const STANCES = [
   "leisure",
   "fullPower",
 ];
+export const SKILL_CARD_TYPES = ["active", "mental", "trouble"];
 export const SOURCE_TYPES = ["default", "produce", "pIdol", "support"];
 export const RARITIES = ["N", "R", "SR", "SSR"];
 
@@ -179,7 +180,6 @@ export const ALL_FIELDS = [
   "cumulativeFullPowerCharge",
   "enthusiasm",
   "enthusiasmBonus",
-  "enthusiasmMultiplier",
   "enthusiasmBuffs",
   "strengthTimes",
   "preservationTimes",
@@ -200,6 +200,7 @@ export const ALL_FIELDS = [
   "turnCardsUpgraded",
   "thisCardHeld",
   "usedCard",
+  "lastUsedCard",
 
   // Effects
   "effects",
@@ -338,6 +339,17 @@ export const WHOLE_FIELDS = [
   S.enthusiasm,
 ];
 
+export const NON_NEGATIVE_FIELDS = [
+  S.stamina,
+  S.genki,
+  S.goodConditionTurns,
+  S.perfectConditionTurns,
+  S.concentration,
+  S.goodImpressionTurns,
+  S.motivation,
+  S.fullPowerCharge,
+];
+
 export const LOGGED_FIELDS = [
   S.stamina,
   S.genki,
@@ -351,7 +363,6 @@ export const LOGGED_FIELDS = [
   S.prideTurns,
   S.enthusiasm,
   S.enthusiasmBonus,
-  S.enthusiasmMultiplier,
   S.fullPowerCharge,
   S.lockStanceTurns,
   S.halfCostTurns,
