@@ -9,6 +9,8 @@ import SkillCardOrderEditor from "./SkillCardOrderEditor";
 import SkillCardOrderSummary from "./SkillCardOrderSummary";
 import styles from "./SkillCardOrderGroups.module.scss";
 
+const LINK_PHASES = ["OP", "MID", "ED"];
+
 function SkillCardAndTurnTypeOrder({
   config,
   idolId,
@@ -39,7 +41,7 @@ function SkillCardAndTurnTypeOrder({
                   setCurrentLoadoutIndex(index);
                 }}
               >
-                {index + 1}
+                {LINK_PHASES[index]}
               </button>
               {index === currentLoadoutIndex ? (
                 <SkillCardOrderEditor

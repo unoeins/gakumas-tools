@@ -40,6 +40,8 @@ import HoldCardPickerModal from "./HoldCardPickerModal";
 import SkillCardAndTurnTypeOrder from "@/components/SkillCardOrderGroups/SkillCardAndTurnTypeOrder";
 import styles from "./ContestPlayer.module.scss";
 
+const LINK_PHASES = ["OP", "MID", "ED"];
+
 export default function ContestPlayer() {
   const t = useTranslations("Simulator");
   const t2 = useTranslations("ContestPlayer");
@@ -269,7 +271,6 @@ export default function ContestPlayer() {
           <div className={styles.loadoutTabs}>
             {loadouts.map((loadout, index) => (
               <div key={index} className={styles.loadoutTab}>
-                {/* <div className={styles.loadoutTabButtons}> */}
                 <button
                   className={styles.selectButton}
                   onClick={() => {
@@ -277,23 +278,8 @@ export default function ContestPlayer() {
                     setCurrentLoadoutIndex(index);
                   }}
                 >
-                  {index + 1}
+                  {LINK_PHASES[index]}
                 </button>
-                {/* <button
-                  className={styles.deleteButton}
-                  onClick={() => {
-                    const newLoadouts = loadouts.filter((_, i) => i !== index);
-                    setCurrentLoadoutIndex(
-                      currentLoadoutIndex >= newLoadouts.length
-                        ? newLoadouts.length - 1
-                        : currentLoadoutIndex
-                    );
-                    setLoadouts(newLoadouts);
-                  }}
-                >
-                  <FaXmark />
-                </button> */}
-                {/* </div> */}
                 {index === currentLoadoutIndex ? (
                   <LoadoutEditor
                     config={config}
@@ -326,7 +312,6 @@ export default function ContestPlayer() {
           {!running ? t2("startStage") : t2("restartStage")}
         </Button>
         <SimulatorButtons />
-        {/* <div className={styles.url}>{simulatorUrl}</div> */}
         <div className={styles.skillCardOrderToggle}>
           <input
             type="checkbox"
@@ -414,14 +399,6 @@ export default function ContestPlayer() {
           </div>
         )}
         <div className={styles.subLinks}>
-          {/* <a
-            href={`https://docs.google.com/forms/d/e/1FAIpQLScNquedw8Lp2yVfZjoBFMjQxIFlX6-rkzDWIJTjWPdQVCJbiQ/viewform?usp=pp_url&entry.1787906485=${encodeURIComponent(
-              simulatorUrl
-            )}`}
-            target="_blank"
-          >
-            {t("provideData")}
-          </a> */}
           {/* <a
             href="https://github.com/surisuririsu/gakumas-tools/blob/master/gakumas-tools/simulator/CHANGELOG.md"
             target="_blank"
