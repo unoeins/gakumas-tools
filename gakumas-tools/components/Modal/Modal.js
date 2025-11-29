@@ -3,17 +3,23 @@ import { FaXmark } from "react-icons/fa6";
 import ModalContext from "@/contexts/ModalContext";
 import styles from "./Modal.module.scss";
 
-function Modal({ children, closable = true }) {
+function Modal({ children, dismissable = true }) {
   const { closeModal } = useContext(ModalContext);
 
+  const handleOverlayClick = () => {
+    if (dismissable) {
+      closeModal();
+    }
+  };
+
   return (
-    <div className={styles.overlay} onClick={closable ? closeModal : undefined}>
+    <div className={styles.overlay} onClick={handleOverlayClick}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-        {closable && 
+        {dismissable && (
           <button className={styles.close} onClick={closeModal}>
             <FaXmark />
           </button>
-        }
+        )}
         {children}
       </div>
     </div>

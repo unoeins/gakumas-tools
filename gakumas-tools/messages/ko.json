@@ -39,6 +39,10 @@
     "rehearsal": {
       "title": "리허설 스코어 불러오기",
       "description": "리허설 스크린샷으로부터 스코어 불러오기"
+    },
+    "contestPlayer": {
+      "title": "콘테스트 플레이어",
+      "description": "콘테스트 편성 생성, 실제 콘테스트 플레이 및 동작 확인"
     }
   },
   "NavbarMenu": {
@@ -195,7 +199,13 @@
     "custom": "커스텀",
     "simulate": "실행",
     "provideData": "데이터 제공하기",
-    "lastUpdated": "최종 업데이트"
+    "lastUpdated": "최종 업데이트",
+    "start": "시작",
+    "restart": "재시작"
+  },
+  "StrategyPicker": {
+    "auto": "자동",
+    "manual": "수동"
   },
   "StageSelect": {
     "placeholder": "스테이지 선택"
@@ -278,7 +288,6 @@
     "lockStanceTurns": "지침 고정",
     "enthusiasm": "열의",
     "enthusiasmBonus": "열의 추가",
-    "enthusiasmMultiplier": "Enthusiasm multiplier",
     "halfCostTurns": "소비 체력 경감",
     "doubleCostTurns": "소비 체력 증가",
     "costReduction": "소비 체력 감소",
@@ -298,6 +307,7 @@
     "motivationBuff": "의욕 증가량 증가",
     "goodConditionTurnsBuff": "호조 증가량 증가",
     "concentrationBuff": "집중 증가량 증가",
+    "enthusiasmBuff": "熱意増加",
     "fullPowerChargeBuff": "전력치 증가량 증가",
     "turn": "턴",
     "cardDrawn": "드로우한 카드",
@@ -322,7 +332,10 @@
     "turnN": "{n} 턴",
     "average": "평균치",
     "unplayable": "사용 불가",
-    "linkPhaseChange": "Idol changed"
+    "linkPhaseChange": "Idol changed",
+    "skip": "스킵",
+    "selectCardsToHold": "{num}장의 카드를 선택",
+    "confirm": "확인"
   },
   "BoxPlot": {
     "max": "최대",
@@ -337,5 +350,66 @@
     "accuracyNotGuaranteed": "정확도는 보장되지 않습니다. 스크린샷과 비교하여 결과를 확인하는 것을 권장합니다.",
     "stage": "스테이지 {n}",
     "score": "스코어"
+  },
+  "ContestPlayer": {
+    "startStage": "시작",
+    "restartStage": "처음부터 다시 시작",
+    "skip": "건너뛰기",
+    "logs": "로그",
+    "turnsRemaining": "남은 턴 수",
+    "cardUsesRemaining": "스킬 카드 사용 횟수",
+    "stamina": "체력",
+    "genki": "원기",
+    "score": "스코어",
+    "goodConditionTurns": "호조",
+    "perfectConditionTurns": "절호조",
+    "concentration": "집중",
+    "goodImpressionTurns": "호인상",
+    "motivation": "의욕",
+    "prideTurns": "프라이드",
+    "stance": "지침",
+    "none": "없음",
+    "preservation": "온존 1",
+    "preservation2": "온존 2",
+    "leisure": "여유",
+    "strength": "강기 1",
+    "strength2": "강기 2",
+    "fullPower": "전력",
+    "fullPowerCharge": "전력치",
+    "cumulativeFullPowerCharge": "누적 전력치",
+    "lockStanceTurns": "지침 고정",
+    "enthusiasm": "열의",
+    "enthusiasmBonus": "열의 추가",
+    "enthusiasmMultiplier": "열의 증가 배율",
+    "halfCostTurns": "소비 체력 경감",
+    "doubleCostTurns": "소비 체력 증가",
+    "costReduction": "소비 체력 감소",
+    "costIncrease": "소비 체력 추가",
+    "doubleCardEffectCards": "스킬 카드 추가 발동",
+    "nullifyGenkiTurns": "원기 증가 무효",
+    "nullifyDebuff": "저하 상태 비활성화",
+    "poorConditionTurns": "부조화",
+    "nullifyCostCards": "체력 소비 무효",
+    "noActiveTurns": "액티브 스킬 카드 사용 불가",
+    "noMentalTurns": "멘탈 스킬 카드 사용 불가",
+    "uneaseTurns": "불안",
+    "scoreBuff": "스코어 상승량 증가",
+    "scoreDebuff": "스코어 상승량 감소",
+    "goodImpressionTurnsBuff": "호인상 증가량 증가",
+    "goodImpressionTurnsEffectBuff": "호인상 강화",
+    "motivationBuff": "의욕 증가량 증가",
+    "goodConditionTurnsBuff": "호조 증가량 증가",
+    "concentrationBuff": "집중 증가량 증가",
+    "fullPowerChargeBuff": "전력치 증가량 증가",
+    "turn": "턴",
+    "numTurns": "{num} 턴",
+    "hand": "손패",
+    "turnN": "{n} 턴",
+    "unplayable": "사용 불가",
+    "handCards": "손패",
+    "deckCards": "덱",
+    "discardedCards": "버림패",
+    "removedCards": "제외",
+    "heldCards": "보류"
   }
 }

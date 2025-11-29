@@ -1,49 +1,47 @@
 "use client";
-import { createContext, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { Stages } from "gakumas-data";
 import { usePathname } from "@/i18n/routing";
-import {
-  loadoutFromSearchParams,
-  getSimulatorUrl,
-  loadoutToSearchParams,
-} from "@/utils/simulator";
+import LoadoutUrlContext from "@/contexts/LoadoutUrlContext";
+import { getSimulatorUrl } from "@/utils/simulator";
 import { FALLBACK_STAGE } from "@/simulator/constants";
 import { fixCustomizations } from "@/utils/customizations";
-
-const LOADOUT_HISTORY_STORAGE_KEY = "gakumas-tools.loadout-history";
-const LOADOUTS_HISTORY_STORAGE_KEY = "gakumas-tools.loadouts-history";
 
 const LoadoutContext = createContext();
 
 export function LoadoutContextProvider({ children }) {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const initial = useMemo(() => loadoutFromSearchParams(searchParams), []);
+  const { loadoutFromUrl, loadoutsFromUrl, updateUrl } =
+    useContext(LoadoutUrlContext);
 
-  const [loaded, setLoaded] = useState(false);
+  const initialLoadout = loadoutsFromUrl[0] || loadoutFromUrl;
+
   const [memoryParams, setMemoryParams] = useState([null, null]);
-  const [stageId, setStageId] = useState(initial.stageId);
+  const [stageId, setStageId] = useState(initialLoadout.stageId);
   const [customStage, setCustomStage] = useState(null);
-  const [supportBonus, setSupportBonus] = useState(initial.supportBonus);
-  const [params, setParams] = useState(initial.params);
-  const [pItemIds, setPItemIds] = useState(initial.pItemIds);
+  const [supportBonus, setSupportBonus] = useState(initialLoadout.supportBonus);
+  const [params, setParams] = useState(initialLoadout.params);
+  const [pItemIds, setPItemIds] = useState(initialLoadout.pItemIds);
   const [skillCardIdGroups, setSkillCardIdGroups] = useState(
-    initial.skillCardIdGroups
+    initialLoadout.skillCardIdGroups
   );
   const [customizationGroups, setCustomizationGroups] = useState(
-    initial.customizationGroups
+    initialLoadout.customizationGroups
+  );
+  const [enableSkillCardOrder, setEnableSkillCardOrder] = useState(
+    initialLoadout.enableSkillCardOrder
   );
   const [skillCardIdOrderGroups, setSkillCardIdOrderGroups] = useState(
-    initial.skillCardIdOrderGroups
+    initialLoadout.skillCardIdOrderGroups
   );
   const [customizationOrderGroups, setCustomizationOrderGroups] = useState(
-    initial.customizationOrderGroups
+    initialLoadout.customizationOrderGroups
   );
-  const [removedCardOrder, setRemovedCardOrder] = useState(initial.removedCardOrder);
-  const [turnTypeOrder, setTurnTypeOrder] = useState(initial.turnTypeOrder);
-  const [loadoutHistory, setLoadoutHistory] = useState([]);
-  const [loadoutsHistory, setLoadoutsHistory] = useState([]);
+  const [removedCardOrder, setRemovedCardOrder] = useState(initialLoadout.removedCardOrder);
+  const [turnTypeOrder, setTurnTypeOrder] = useState(initialLoadout.turnTypeOrder);
+
+  console.log("skillCardIdOrderGroups", skillCardIdOrderGroups);
+  console.log("customizationOrderGroups", customizationOrderGroups);
 
   let stage = FALLBACK_STAGE;
   if (stageId == "custom") {
@@ -61,6 +59,7 @@ export function LoadoutContextProvider({ children }) {
       pItemIds,
       skillCardIdGroups,
       customizationGroups,
+      enableSkillCardOrder,
       skillCardIdOrderGroups,
       customizationOrderGroups,
       removedCardOrder,
@@ -74,6 +73,7 @@ export function LoadoutContextProvider({ children }) {
       pItemIds,
       skillCardIdGroups,
       customizationGroups,
+      enableSkillCardOrder,
       skillCardIdOrderGroups,
       customizationOrderGroups,
       removedCardOrder,
@@ -82,7 +82,9 @@ export function LoadoutContextProvider({ children }) {
   );
 
   const [currentLoadoutIndex, setCurrentLoadoutIndex] = useState(0);
-  const [loadouts, setLoadouts] = useState(initial.loadouts || [loadout]);
+  const [loadouts, setLoadouts] = useState(
+    loadoutsFromUrl.length ? loadoutsFromUrl : [loadout]
+  );
 
   const simulatorUrl = getSimulatorUrl(loadout, loadouts);
 
@@ -112,10 +114,15 @@ export function LoadoutContextProvider({ children }) {
         console.error(e);
       }
     }
+    setEnableSkillCardOrder(!!loadout.enableSkillCardOrder);
     if (loadout.skillCardIdOrderGroups) {
       setSkillCardIdOrderGroups(loadout.skillCardIdOrderGroups);
     } else {
-      setSkillCardIdOrderGroups([new Array(loadout.skillCardIdGroups.length * 6 + 8).fill(0)]);
+      if (loadout.stageId === "custom" || Stages.getById(loadout.stageId)?.type !== "linkContest") {
+        setSkillCardIdOrderGroups([new Array(loadout.skillCardIdGroups.length * 6 + 8).fill(0)]);
+      } else {
+        setSkillCardIdOrderGroups([new Array(loadout.skillCardIdGroups.length * 6).fill(0)]);
+      }
     }
     if (loadout.customizationOrderGroups) {
       try {
@@ -126,83 +133,40 @@ export function LoadoutContextProvider({ children }) {
         console.error(e);
       }
     } else {
-      setCustomizationOrderGroups([new Array(loadout.customizationGroups.length * 6 + 8).fill({})]);
+      if (loadout.stageId === "custom" || Stages.getById(loadout.stageId)?.type !== "linkContest") {
+        setCustomizationOrderGroups([new Array(loadout.customizationGroups.length * 6 + 8).fill({})]);
+      } else {
+        setCustomizationOrderGroups([new Array(loadout.customizationGroups.length * 6).fill({})]);
+      }
     }
     setRemovedCardOrder(loadout.removedCardOrder || "random");
     if (loadout.turnTypeOrder) {
       setTurnTypeOrder(loadout.turnTypeOrder);
     } else {
-      const turnCounts = loadout.stageId == "custom" ? loadout.customStage.turnCounts : Stages.getById(loadout.stageId).turnCounts; 
+      const turnCounts = loadout.stageId === "custom" ? loadout.customStage.turnCounts :
+        Stages.getById(loadout.stageId).turnCounts; 
       setTurnTypeOrder(new Array(turnCounts.vocal + turnCounts.dance + turnCounts.visual).fill("none"));
     }
   };
 
-  // Load history and latest loadout from local storage on mount
   useEffect(() => {
-    const loadoutHistoryString = localStorage.getItem(
-      LOADOUT_HISTORY_STORAGE_KEY
-    );
-    if (loadoutHistoryString) {
-      const data = JSON.parse(loadoutHistoryString);
-      setLoadoutHistory(data);
-      if (!initial.hasDataFromParams) setLoadout(data[0]);
-    }
+    if (stage.type !== "linkContest") return;
+    if (loadouts.length == stage.linkTurnCounts.length) return;
 
-    const loadoutsHistoryString = localStorage.getItem(
-      LOADOUTS_HISTORY_STORAGE_KEY
-    );
-    if (loadoutsHistoryString) {
-      const data = JSON.parse(loadoutsHistoryString);
-      if (!initial.hasDataFromParams) {
-        setLoadouts(data[0]);
-        if (data[0][0]) {
-          setLoadout(data[0][0]);
-        }
+    setLoadouts((cur) => {
+      const next = [...cur];
+      while (next.length < stage.linkTurnCounts.length) {
+        next.push(loadout);
       }
-    }
-
-    setLoaded(true);
-  }, []);
-
-  useEffect(() => {
-    if (stage.type === "linkContest") {
-      if (loadouts.length <= stage.linkTurnCounts.length) {
-        setLoadouts((cur) => {
-          const next = [...cur];
-          while (next.length < stage.linkTurnCounts.length) {
-            next.push(loadout);
-          }
-          return next;
-        });
-      }
-    }
+      return next;
+    });
   }, [stage]);
-
-  // Update local storage when history changed
-  useEffect(() => {
-    if (!loaded) return;
-    localStorage.setItem(
-      LOADOUT_HISTORY_STORAGE_KEY,
-      JSON.stringify(loadoutHistory)
-    );
-  }, [loadoutHistory]);
-
-  // Update local storage when history changed
-  useEffect(() => {
-    if (!loaded) return;
-    localStorage.setItem(
-      LOADOUTS_HISTORY_STORAGE_KEY,
-      JSON.stringify(loadoutsHistory)
-    );
-  }, [loadoutsHistory]);
 
   // Update browser URL when the loadout changes
   useEffect(() => {
-    if (!loaded || (pathname !== "/simulator" && pathname !== "/contest-player")) return;
-    const url = new URL(window.location);
-    url.search = loadoutToSearchParams(loadout, loadouts).toString();
-    window.history.replaceState(null, "", url);
-  }, [loadout, loadouts]);
+    if (pathname !== "/simulator" && pathname !== "/contest-player") return;
+    updateUrl(loadout, loadouts);
+  }, [loadout]);
 
   // Update link loadouts when loadout changes
   useEffect(() => {
@@ -213,6 +177,31 @@ export function LoadoutContextProvider({ children }) {
         for (let i = 0; i < next.length; i++) {
           next[i].stageId = loadout.stageId;
           next[i].params = [...loadout.params.slice(0, 3), next[i].params[3]];
+          next[i].enableSkillCardOrder = loadout.enableSkillCardOrder;
+          next[i].removedCardOrder = loadout.removedCardOrder;
+          next[i].turnTypeOrder = loadout.turnTypeOrder;
+          if (next[i].skillCardIdOrderGroups[0].length !== loadout.skillCardIdOrderGroups[0].length) {
+            next[i].skillCardIdOrderGroups = next[i].skillCardIdOrderGroups.map((group) => {
+              const size = loadout.skillCardIdOrderGroups[0].length;
+              if (group.length < size) {
+                return [...group, ...new Array(size - group.length).fill(0)];
+              } else if (group.length > size) {
+                return group.slice(0, size);
+              }
+              return group;
+            });
+          }
+          if (next[i].customizationOrderGroups[0].length !== loadout.customizationOrderGroups[0].length) {
+            next[i].customizationOrderGroups = next[i].customizationOrderGroups.map((group) => {
+              const size = loadout.customizationOrderGroups[0].length;
+              if (group.length < size) {
+                return [...group, ...new Array(size - group.length).fill({})];
+              } else if (group.length > size) {
+                return group.slice(0, size);
+              }
+              return group;
+            });
+          }
         }
         return next;
       });
@@ -226,6 +215,26 @@ export function LoadoutContextProvider({ children }) {
     }
   }, [pItemIds]);
 
+  // useEffect(() => {
+  //   // Ensure loadouts have skillCardOrderGroups and customizationOrderGroups
+  //   if (loadouts.some((loadout) => 
+  //     !loadout.skillCardIdOrderGroups || !loadout.customizationOrderGroups)) {
+  //     setLoadouts((cur) => {
+  //       return cur.map((loadout) => {
+  //         const size = loadout.skillCardIdGroups.length * 6 + 
+  //           (stage.type !== "linkContest" ? 8 : 0);
+  //         if (!loadout.skillCardIdOrderGroups) {
+  //           loadout.skillCardIdOrderGroups = [new Array(size).fill(0)];
+  //         }
+  //         if (!loadout.customizationOrderGroups) {
+  //           loadout.customizationOrderGroups = [new Array(size).fill({})];
+  //         }
+  //         return loadout;
+  //       });
+  //     });
+  //   }
+  // }, [loadouts]);
+
   function clear() {
     setMemoryParams([null, null]);
     setParams([null, null, null, null]);
@@ -238,14 +247,15 @@ export function LoadoutContextProvider({ children }) {
       [{}, {}, {}, {}, {}, {}],
       [{}, {}, {}, {}, {}, {}],
     ]);
-    setSkillCardIdOrderGroups([new Array(20).fill(0)]);
-    setCustomizationOrderGroups([new Array(20).fill({})]);
+    const size = stage.type !== "linkContest" ? 20 : 12;
+    setSkillCardIdOrderGroups([new Array(size).fill(0)]);
+    setCustomizationOrderGroups([new Array(size).fill({})]);
     setRemovedCardOrder("random");
     setTurnTypeOrder(new Array(turnTypeOrder.length).fill("none"));
   }
 
   function clearOrders() {
-    const size = skillCardIdGroups.length * 6 + 8;
+    const size = skillCardIdGroups.length * 6 + (stage.type !== "linkContest" ? 8 : 0);
     setSkillCardIdOrderGroups([new Array(size).fill(0)]);
     setCustomizationOrderGroups([new Array(size).fill({})]);
     setRemovedCardOrder("random");
@@ -340,6 +350,27 @@ export function LoadoutContextProvider({ children }) {
     });
   }
 
+  function swapSkillCardOrder(indexA, indexB) {
+    const groupIndexA = Math.floor(indexA / skillCardIdOrderGroups[0].length);
+    const groupIndexB = Math.floor(indexB / skillCardIdOrderGroups[0].length);
+    const arrayIndexA = indexA % skillCardIdOrderGroups[0].length;
+    const arrayIndexB = indexB % skillCardIdOrderGroups[0].length;
+    setSkillCardIdOrderGroups((cur) => {
+      const updated = [...cur];
+      const temp = updated[groupIndexA][arrayIndexA];
+      updated[groupIndexA][arrayIndexA] = updated[groupIndexB][arrayIndexB];
+      updated[groupIndexB][arrayIndexB] = temp;
+      return updated;
+    });
+    setCustomizationOrderGroups((cur) => {
+      const updated = [...cur];
+      const temp = updated[groupIndexA][arrayIndexA];
+      updated[groupIndexA][arrayIndexA] = updated[groupIndexB][arrayIndexB];
+      updated[groupIndexB][arrayIndexB] = temp;
+      return updated;
+    });
+  }
+
   const insertSkillCardIdGroup = (groupIndex) => {
     setSkillCardIdGroups((cur) => {
       const updatedSkillCardIds = [...cur];
@@ -352,14 +383,14 @@ export function LoadoutContextProvider({ children }) {
       return updatedCustomizations;
     });
     setSkillCardIdOrderGroups((cur) => {
-      const updatedSkillCardIdOrderGroups = [...cur];
+      let updatedSkillCardIdOrderGroups = [...cur];
       updatedSkillCardIdOrderGroups = updatedSkillCardIdOrderGroups.map((skillCardIdOrderGroup) => {
          return [...skillCardIdOrderGroup, 0, 0, 0, 0, 0, 0];
       });
       return updatedSkillCardIdOrderGroups;
     });
     setCustomizationOrderGroups((cur) => {
-      const updatedCustomizationOrderGroups = [...cur];
+      let updatedCustomizationOrderGroups = [...cur];
       updatedCustomizationOrderGroups = updatedCustomizationOrderGroups.map((customizationOrderGroup) => {
          return [...customizationOrderGroup, {}, {}, {}, {}, {}, {}];
       });
@@ -379,7 +410,7 @@ export function LoadoutContextProvider({ children }) {
       return updatedCustomizations;
     });
     setSkillCardIdOrderGroups((cur) => {
-      const updatedSkillCardIdOrderGroups = [...cur];
+      let updatedSkillCardIdOrderGroups = [...cur];
       updatedSkillCardIdOrderGroups = updatedSkillCardIdOrderGroups.map((skillCardIdOrderGroup) => {
         skillCardIdOrderGroup.splice(skillCardIdOrderGroup.length-6, 6);
         return skillCardIdOrderGroup;
@@ -387,7 +418,7 @@ export function LoadoutContextProvider({ children }) {
       return updatedSkillCardIdOrderGroups;
     });
     setCustomizationOrderGroups((cur) => {
-      const updatedCustomizationOrderGroups = [...cur];
+      let updatedCustomizationOrderGroups = [...cur];
       updatedCustomizationOrderGroups = updatedCustomizationOrderGroups.map((customizationOrderGroup) => {
         customizationOrderGroup.splice(customizationOrderGroup.length-6, 6);
         return customizationOrderGroup;
@@ -415,13 +446,13 @@ export function LoadoutContextProvider({ children }) {
 
   const insertSkillCardOrderGroup = (groupIndex) => {
     setSkillCardIdOrderGroups((cur) => {
-      const size = skillCardIdGroups.length * 6 + 8;//cur[0].length;
+      const size = cur[0].length; //skillCardIdGroups.length * 6 + 8;
       const updatedSkillCardIdOrderGroups = [...cur];
       updatedSkillCardIdOrderGroups.splice(groupIndex, 0, new Array(size).fill(0));
       return updatedSkillCardIdOrderGroups;
     });
     setCustomizationOrderGroups((cur) => {
-      const size = skillCardIdGroups.length * 6 + 8;//cur[0].length;
+      const size = cur[0].length; //skillCardIdGroups.length * 6 + 8;
       const updatedCustomizationOrderGroups = [...cur];
       updatedCustomizationOrderGroups.splice(groupIndex, 0, new Array(size).fill({}));
       return updatedCustomizationOrderGroups;
@@ -445,6 +476,34 @@ export function LoadoutContextProvider({ children }) {
     setStageId(stageId);
     setCustomStage(customStage);
     
+    setSkillCardIdOrderGroups((cur) => {
+      const size = skillCardIdGroups.length * 6 + 
+        (stageId === "custom" || Stages.getById(stageId)?.type !== "linkContest" ? 8 : 0);
+      let updatedSkillCardIdOrderGroups = [...cur];
+      updatedSkillCardIdOrderGroups = updatedSkillCardIdOrderGroups.map((group) => {
+        if (group.length < size) {
+          return [...group, ...new Array(size - group.length).fill(0)];
+        } else if (group.length > size) {
+          return group.slice(0, size);
+        }
+        return group;
+      });
+      return updatedSkillCardIdOrderGroups;
+    });
+    setCustomizationOrderGroups((cur) => {
+      const size = skillCardIdGroups.length * 6 + 
+        (stageId === "custom" || Stages.getById(stageId)?.type !== "linkContest" ? 8 : 0);
+      let updatedCustomizationOrderGroups = [...cur];
+      updatedCustomizationOrderGroups = updatedCustomizationOrderGroups.map((group) => {
+         if (group.length < size) {
+           return [...group, ...new Array(size - group.length).fill({})];
+         } else if (group.length > size) {
+           return group.slice(0, size);
+         }
+         return group;
+      });
+      return updatedCustomizationOrderGroups;
+    });
     setTurnTypeOrder((cur) => {
       const updatedTurnTypeOrder = [...cur];
       const turnCounts = stageId == "custom" ? customStage.turnCounts : Stages.getById(stageId).turnCounts; 
@@ -462,6 +521,16 @@ export function LoadoutContextProvider({ children }) {
     setTurnTypeOrder((cur) => {
       const updatedTurnTypeOrder = [...cur];
       updatedTurnTypeOrder[index] = turnType;
+      return updatedTurnTypeOrder;
+    });
+  };
+
+  const swapTurnTypeOrder = (indexA, indexB) => {
+    setTurnTypeOrder((cur) => {
+      const updatedTurnTypeOrder = [...cur];
+      const temp = updatedTurnTypeOrder[indexA];
+      updatedTurnTypeOrder[indexA] = updatedTurnTypeOrder[indexB];
+      updatedTurnTypeOrder[indexB] = temp;
       return updatedTurnTypeOrder;
     });
   };
@@ -506,39 +575,6 @@ export function LoadoutContextProvider({ children }) {
     });
   }
 
-  const pushLoadoutHistory = () => {
-    if (JSON.stringify(loadout) == JSON.stringify(loadoutHistory[0])) return;
-    setLoadoutHistory((cur) => [loadout, ...cur].slice(0, 10));
-  };
-
-  const pushLoadoutsHistory = () => {
-    if (JSON.stringify(loadouts) == JSON.stringify(loadoutsHistory[0])) return;
-    setLoadoutsHistory((cur) => [loadouts, ...cur].slice(0, 10));
-  };
-
-  async function saveLoadout(name) {
-    const response = await fetch("/api/loadout", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...loadout, name }),
-    });
-    const data = await response.json();
-    return data.id;
-  }
-
-  async function fetchLoadouts() {
-    const response = await fetch("/api/loadout");
-    return response.json();
-  }
-
-  async function deleteLoadouts(ids) {
-    await fetch("/api/loadout", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ids }),
-    });
-  }
-
   return (
     <LoadoutContext.Provider
       value={{
@@ -555,9 +591,10 @@ export function LoadoutContextProvider({ children }) {
         replaceSkillCardId,
         swapSkillCardIds,
         replaceCustomizations,
-        replaceSkillCardOrder,
         clear,
-        clearOrders,
+        setEnableSkillCardOrder,
+        replaceSkillCardOrder,
+        swapSkillCardOrder,
         insertSkillCardIdGroup,
         deleteSkillCardIdGroup,
         swapSkillCardIdGroups,
@@ -565,14 +602,10 @@ export function LoadoutContextProvider({ children }) {
         deleteSkillCardOrderGroup,
         setRemovedCardOrder,
         replaceTurnTypeOrder,
+        swapTurnTypeOrder,
+        clearOrders,
         stage,
         simulatorUrl,
-        loadoutHistory,
-        pushLoadoutHistory,
-        pushLoadoutsHistory,
-        saveLoadout,
-        fetchLoadouts,
-        deleteLoadouts,
         loadouts,
         setLoadouts,
         currentLoadoutIndex,

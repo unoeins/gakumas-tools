@@ -21,18 +21,19 @@ function EntityIcon({
   onSwap,
   showTier,
   label,
+  dndType="ENTITY_ICON",
   argumentType = "entity",
 }) {
   const entity = ENTITY_DATA_BY_TYPE[type].getById(id);
   const { icon } = gkImg(entity, idolId);
 
   const [{ isDragging }, dragRef] = useDrag({
-    type: "ENTITY_ICON",
+    type: dndType,
     item: { type, id, index },
   });
 
   const [, dropRef] = useDrop({
-    accept: "ENTITY_ICON",
+    accept: dndType,
     drop: (item) => {
       if (item.type != type) {
         return;

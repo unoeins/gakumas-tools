@@ -20,14 +20,52 @@ export default class CardManager extends EngineComponent {
         this.getCardSourceType(state, state[S.usedCard]),
       cardRarity: (state) => this.getCardRarity(state, state[S.usedCard]),
       usedCardId: (state) =>
-        state[S.usedCard] && state[S.cardMap][state[S.usedCard]].id,
+        state[S.usedCard] != null && state[S.cardMap][state[S.usedCard]].id,
       usedCardBaseId: (state) =>
-        state[S.usedCard] && state[S.cardMap][state[S.usedCard]].baseId,
+        state[S.usedCard] != null && state[S.cardMap][state[S.usedCard]].baseId,
+      lastUsedCardType: (state) =>
+        state[S.lastUsedCard] != null &&
+        SkillCards.getById(state[S.cardMap][state[S.lastUsedCard]].id).type,
       numHeldCards: (state) => state[S.heldCards].length,
       numRemovedCards: (state) => state[S.removedCards].length,
       countCards: (state, targetRule) =>
         this.getTargetRuleCards(state, targetRule.replaceAll("\\", "*"), null)
           .size,
+    };
+
+    this.specialActions = {
+      drawCard: (state) => this.drawCard(state),
+      upgradeHand: (state) => this.upgradeHand(state),
+      exchangeHand: (state) => this.exchangeHand(state),
+      upgradeRandomCardInHand: (state) => this.upgradeRandomCardInHand(state),
+      addRandomUpgradedCardToHand: (state) =>
+        this.addRandomUpgradedCardToHand(state),
+      addCardToTopOfDeck: (state, cardId) =>
+        this.addCardToTopOfDeck(state, cardId),
+      addCardToHand: (state, cardId) => this.addCardToHand(state, cardId),
+      moveCardToHand: (state, cardId, exact) =>
+        this.moveCardToHand(state, cardId, parseInt(exact, 10)),
+      moveCardToHandFromRemoved: (state, cardBaseId) =>
+        this.moveCardToHandFromRemoved(state, cardBaseId),
+      moveSSRToTopOfDeck: (state, num) => this.moveSSRToTopOfDeck(state, num),
+      moveSSRToHand: (state, num) => this.moveSSRToHand(state, num),
+      movePreservationCardToHand: (state) =>
+        this.movePreservationCardToHand(state),
+      movePIdolCardToHand: (state) => this.movePIdolCardToHand(state),
+      holdCard: (state, cardBaseId) =>
+        this.holdCard(state, parseInt(cardBaseId, 10)),
+      holdThisCard: (state) => this.holdThisCard(state),
+      holdSelectedFromHand: (state, num = 1) =>
+        this.holdSelectedFrom(state, ["hand"], num),
+      holdSelectedFromDeck: (state, num = 1) =>
+        this.holdSelectedFrom(state, ["deck"], num),
+      holdSelectedFromDeckOrDiscards: (state, num = 1) =>
+        this.holdSelectedFrom(state, ["deck", "discards"], num),
+      addHeldCardsToHand: (state) => this.addHeldCardsToHand(state),
+      removeTroubleFromDeckOrDiscards: (state) =>
+        this.removeTroubleFromDeckOrDiscards(state),
+      moveActiveCardsToDeckFromRemoved: (state) =>
+        this.moveActiveCardsToDeckFromRemoved(state),
     };
   }
 
@@ -40,6 +78,8 @@ export default class CardManager extends EngineComponent {
     }
 
     const cardMaps = [];
+    let totalCards = 0;
+    const cardOrderGroupsArray = [];
     for (let c = 0; c < configs.length; c++) {
       const cards = configs[c].idol.cards.concat(
         configs[c].defaultCardIds.map((id) => ({ id }))
@@ -54,34 +94,38 @@ export default class CardManager extends EngineComponent {
         }
         return card;
       });
-      cardMaps.push(cardMap);
-    }
-    // mapping cardOrder to cardMap index
-    const cardMap = cardMaps.flat();
-    const cardOrderGroups = this.engine.config.idol.cardOrderGroups.map((cardOrderGroup) => {
-      let restCards = cardMap.map((card, i) => ({ id: card.id, c11n: card.c11n, index: i }));
-      return cardOrderGroup.map((cardOrder) => {
-        const index = restCards.findIndex((card) => card.id === cardOrder.id &&
-          (card.c11n ? deepEqual(card.c11n, cardOrder.customizations) :
-                       !cardOrder.customizations || Object.keys(cardOrder.customizations).length === 0));
-        if(index >= 0) {
-          const foundCard = restCards[index];
-          restCards.splice(index, 1);
-          return foundCard.index;
-        } else {
-          return -1;
-        }
+      // mapping cardOrder to cardMap index
+      const cardOrderGroups = configs[c].idol.cardOrderGroups.map((cardOrderGroup) => {
+        let restCards = cardMap.map((card, i) => ({ id: card.id, c11n: card.c11n, index: i }));
+        return cardOrderGroup.map((cardOrder) => {
+          const index = restCards.findIndex((card) => card.id === cardOrder.id &&
+            (card.c11n ? deepEqual(card.c11n, cardOrder.customizations) :
+                        !cardOrder.customizations || Object.keys(cardOrder.customizations).length === 0));
+          if(index >= 0) {
+            const foundCard = restCards[index];
+            restCards.splice(index, 1);
+            return foundCard.index + totalCards;
+          } else {
+            return -1;
+          }
+        });
       });
-    });
 
+      cardMaps.push(cardMap);
+      totalCards += cardMap.length;
+      cardOrderGroupsArray.push(cardOrderGroups);
+    }
+    const cardMap = cardMaps.flat();
     state[S.cardMap] = cardMap;
-    state[S.cardOrderGroups] = cardOrderGroups;
+    state[S.cardOrderGroups] = cardOrderGroupsArray;
 
     this.changeIdol(state);
 
     state[S.heldCards] = [];
     state[S.cardsUsed] = 0;
     state[S.activeCardsUsed] = 0;
+    state[S.usedCard] = null;
+    state[S.lastUsedCard] = null;
 
     state[S.pcchiCardsUsed] = 0;
     state[S.natsuyaCardsUsed] = 0;
@@ -139,9 +183,10 @@ export default class CardManager extends EngineComponent {
   }
 
   applyCardOrder(state) {
-    if (!this.engine.config.simulator.enableSkillCardOrder) return;
-    const skipRemovedCard = this.engine.config.idol.removedCardOrder == "skip";
-    const cardOrderGroup = state[S.cardOrderGroups][state[S.shuffleCount]];
+    const config = this.getConfig(state);
+    if (!config.simulator.enableSkillCardOrder) return;
+    const skipRemovedCard = config.idol.removedCardOrder == "skip";
+    const cardOrderGroup = state[S.cardOrderGroups][state[S.linkPhase]][state[S.shuffleCount]];
     state[S.shuffleCount]++;
     if (cardOrderGroup) {
       const deckSize = state[S.deckCards].length;
@@ -392,8 +437,8 @@ export default class CardManager extends EngineComponent {
       );
     }
 
-    // Reset used card
-    delete state[S.usedCard];
+    state[S.lastUsedCard] = state[S.usedCard];
+    state[S.usedCard] = null;
 
     this.logger.log(state, "entityEnd", {
       type: "skillCard",
@@ -527,41 +572,29 @@ export default class CardManager extends EngineComponent {
 
   // From deck/discards
   moveCardToHand(state, cardId, exact) {
-    let cards = state[S.cardMap]
-      .map((c, i) => {
-        if (state[S.handCards].includes(i)) return -1;
-        if (exact && c.id == cardId) return i;
-        if (!exact && c.baseId == cardId) return i;
-        return -1;
-      })
-      .filter((i) => i != -1);
-
-    if (!cards.length) return;
-
-    const card = cards[Math.floor(getRand() * cards.length)];
-
-    let index = state[S.deckCards].indexOf(card);
-    if (index != -1) {
-      state[S.deckCards].splice(index, 1);
-      state[S.handCards].push(card);
-
-      this.logger.log(state, "moveCardToHand", {
-        type: "skillCard",
-        id: state[S.cardMap][card].id,
-      });
-      return;
+    let matchingCards = [];
+    for (let pile of [S.deckCards, S.discardedCards]) {
+      for (let i = 0; i < state[pile].length; i++) {
+        const cardIdx = state[pile][i];
+        const card = state[S.cardMap][cardIdx];
+        if (exact && card.id == cardId) {
+          matchingCards.push({ pile, index: i, cardIdx });
+        } else if (!exact && card.baseId == cardId) {
+          matchingCards.push({ pile, index: i, cardIdx });
+        }
+      }
     }
-    index = state[S.discardedCards].indexOf(card);
-    if (index != -1) {
-      state[S.discardedCards].splice(index, 1);
-      state[S.handCards].push(card);
 
-      this.logger.log(state, "moveCardToHand", {
-        type: "skillCard",
-        id: state[S.cardMap][card].id,
-      });
-      return;
-    }
+    if (!matchingCards.length) return;
+
+    const pick = matchingCards[Math.floor(getRand() * matchingCards.length)];
+    state[pick.pile].splice(pick.index, 1);
+    state[S.handCards].push(pick.cardIdx);
+
+    this.logger.log(state, "moveCardToHand", {
+      type: "skillCard",
+      id: state[S.cardMap][pick.cardIdx].id,
+    });
   }
 
   moveCardToHandFromRemoved(state, cardBaseId) {
@@ -667,6 +700,51 @@ export default class CardManager extends EngineComponent {
     }
   }
 
+  movePreservationCardToHand(state) {
+    let preservationCards = [];
+    for (let pile of [S.deckCards, S.discardedCards]) {
+      for (let i = 0; i < state[pile].length; i++) {
+        const cardIdx = state[pile][i];
+        if (this.getCardEffects(state, cardIdx).has("preservation")) {
+          preservationCards.push({ pile, index: i, cardIdx });
+        }
+      }
+    }
+    if (!preservationCards.length) return;
+
+    const pick =
+      preservationCards[Math.floor(getRand() * preservationCards.length)];
+    state[pick.pile].splice(pick.index, 1);
+    state[S.handCards].push(pick.cardIdx);
+
+    this.logger.log(state, "moveCardToHand", {
+      type: "skillCard",
+      id: state[S.cardMap][pick.cardIdx].id,
+    });
+  }
+
+  movePIdolCardToHand(state) {
+    let pIdolCards = [];
+    for (let pile of [S.deckCards, S.discardedCards]) {
+      for (let i = 0; i < state[pile].length; i++) {
+        const cardIdx = state[pile][i];
+        if (this.getCardSourceType(state, cardIdx) === "pIdol") {
+          pIdolCards.push({ pile, index: i, cardIdx });
+        }
+      }
+    }
+    if (!pIdolCards.length) return;
+
+    const pick = pIdolCards[Math.floor(getRand() * pIdolCards.length)];
+    state[pick.pile].splice(pick.index, 1);
+    state[S.handCards].push(pick.cardIdx);
+
+    this.logger.log(state, "moveCardToHand", {
+      type: "skillCard",
+      id: state[S.cardMap][pick.cardIdx].id,
+    });
+  }
+
   moveActiveCardsToDeckFromRemoved(state) {
     let cards = state[S.cardMap]
       .map((c, i) =>
@@ -726,10 +804,14 @@ export default class CardManager extends EngineComponent {
     const cards = [].concat(...sourceCards);
     if (!cards.length) return;
 
-    // Pick card to hold based on strategy
-    let indicesToHold = this.engine.strategy
-      .pickCardsToHold(state, cards, num)
-      .sort((a, b) => b - a);
+    // Pick card to hold based on strategy (may throw exception if async)
+    const indicesToHold = this.engine.strategy.pickCardsToHold(
+      state,
+      cards,
+      num
+    );
+
+    indicesToHold.sort((a, b) => b - a);
     if (indicesToHold.length === 0) return;
 
     // Find cards and move to hold
@@ -860,10 +942,17 @@ export default class CardManager extends EngineComponent {
           targetCards.add(k);
         }
       }
+    } else if (/^sourceType\(.+\)$/.test(target)) {
+      const sourceType = target.match(/^sourceType\((.+)\)/)[1];
+      for (let k = 0; k < state[S.cardMap].length; k++) {
+        if (this.getCardSourceType(state, k) == sourceType) {
+          targetCards.add(k);
+        }
+      }
     } else if (/^effect\(.+\)$/.test(target)) {
       const effect = target.match(/^effect\((.+)\)/)[1];
       for (let k = 0; k < state[S.cardMap].length; k++) {
-        if (this.engine.cardManager.getCardEffects(state, k).has(effect)) {
+        if (this.getCardEffects(state, k).has(effect)) {
           targetCards.add(k);
         }
       }

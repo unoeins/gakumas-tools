@@ -1,4 +1,5 @@
 import HeuristicStrategy from "./HeuristicStrategy";
+import ManualStrategy from "./ManualStrategy";
 import HeuristicCustomStrategy from "./HeuristicCustomStrategy";
 import HeuristicConstBuffStrategy from "./HeuristicConstBuffStrategy";
 import HeuristicSoraChinaStrategy from "./HeuristicSoraChinaStrategy";
@@ -12,6 +13,7 @@ import BasicCardUseStrategy from "./BasicCardUseStrategy";
 
 const STRATEGIES = {
   HeuristicStrategy, 
+  ManualStrategy,
   HeuristicCustomStrategy,
   HeuristicConstBuffStrategy,
   // HeuristicSoraChinaStrategy,
@@ -24,4 +26,5 @@ const STRATEGIES = {
   // BasicCardUseStrategy,
 };
 
+export { ManualStrategy };
 export default STRATEGIES;

@@ -14,7 +14,8 @@ function CardPileViewer({
     onSkip,
     idolId,
     plan,
-    size="large"}) {
+    reverse = false,
+    size = "large"}) {
   const t = useTranslations("ContestPlayer");
   const className = c(
     styles.cardPileData,
@@ -22,21 +23,18 @@ function CardPileViewer({
     styles[type]
   );
 
+  let cards = state[S[type]];
+  if (reverse) {
+    cards = [...cards].reverse();
+  }
+
   return (
     <div id={"cardPileViewer_" + type} className={styles.cardPileViewer}>
       <div className={styles.cardPileHeader}>
         <label>{t(type)}</label>
       </div>
-      {/* {onSkip && (
-        <button
-          className={styles.skipButton}
-          onClick={onSkip}
-        >
-          {t("skip")}
-        </button>
-      )} */}
       <div className={className}>
-        {state[S[type]].map((card, i) => (
+        {cards.map((card, i) => (
           <div className={styles.cardPileCard} key={i}>
             <EntityIcon
               type={EntityTypes.SKILL_CARD}

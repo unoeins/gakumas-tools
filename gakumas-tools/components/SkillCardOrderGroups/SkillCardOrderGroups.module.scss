@@ -1,10 +1,63 @@
 @use "../../styles/colors";
+@use "../../styles/mixins";
+@use "sass:color";
+
+.skillCardOrderTabs {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.skillCardOrderTab {
+  display: flex;
+  gap: 4px;
+}
+
+.selectButton {
+  padding: 8px 2px;
+  border-radius: 100px;
+  color: colors.$gray;
+  border: 1px solid colors.$gray;
+  writing-mode: vertical-lr;
+  font-weight: 600;
+  transition: all 0.2s;
+
+  &:hover {
+    box-shadow: 0 0 8px color.adjust(colors.$black, $alpha: -0.5);
+  }
+}
+
+.skillCardOrderSummary {
+  flex: 1;
+  padding: 0 4px;
+}
+
+.skillCardOrderEditor {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 4px;
+  overflow: auto;
+  width: 100%;
+}
 
 .skillCardOrderGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.skillCardOrder {
   display: grid;
   grid-template-columns: repeat(auto-fill, 52px);
   grid-auto-rows: 52px;
   gap: 4px;
+  margin: 4px 0 0 0;
+}
+
+.summary {
+  display: flex;
+  gap: 0 8px;
+  flex-wrap: wrap;
 }
 
 .entities {

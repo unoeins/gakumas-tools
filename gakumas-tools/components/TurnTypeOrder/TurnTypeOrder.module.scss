@@ -30,6 +30,16 @@
   border-radius: 8%;
   background-color: colors.$gray-extra-light;
   color: colors.$gray-dark;
+  
+  .dropArea {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
 }
 
 button.turnTypeIcon:hover {

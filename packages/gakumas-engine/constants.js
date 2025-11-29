@@ -12,6 +12,7 @@ export const STANCES = [
   "leisure",
   "fullPower",
 ];
+export const SKILL_CARD_TYPES = ["active", "mental", "trouble"];
 export const SOURCE_TYPES = ["default", "produce", "pIdol", "support"];
 export const RARITIES = ["N", "R", "SR", "SSR"];
 
@@ -60,19 +61,12 @@ export const GOOD_IMPRESSION_EFFECTS = [
 export const STANCE_CHANGED_EFFECTS = [
   {
     conditions: ["prevStance==preservation", "stance!=leisure"],
-    actions: [
-      "enthusiasm+=5*enthusiasmMultiplier+enthusiasmBonus*enthusiasmMultiplier",
-      "cardUsesRemaining+=1",
-    ],
+    actions: ["enthusiasm+=5", "cardUsesRemaining+=1"],
     source: { type: "default", id: "温存" },
   },
   {
     conditions: ["prevStance==preservation2", "stance!=leisure"],
-    actions: [
-      "enthusiasm+=8*enthusiasmMultiplier+enthusiasmBonus*enthusiasmMultiplier",
-      "fixedGenki+=5",
-      "cardUsesRemaining+=1",
-    ],
+    actions: ["enthusiasm+=8", "fixedGenki+=5", "cardUsesRemaining+=1"],
     source: { type: "default", id: "温存2" },
   },
   {
@@ -88,7 +82,7 @@ export const STANCE_CHANGED_EFFECTS = [
   },
   {
     conditions: ["prevStance==leisure", "stance!=fullPower"],
-    actions: ["enthusiasm+=10+enthusiasmBonus"],
+    actions: ["enthusiasm+=10"],
     source: { type: "default", id: "のんびり" },
   },
   {
@@ -186,7 +180,7 @@ export const ALL_FIELDS = [
   "cumulativeFullPowerCharge",
   "enthusiasm",
   "enthusiasmBonus",
-  "enthusiasmMultiplier",
+  "enthusiasmBuffs",
   "strengthTimes",
   "preservationTimes",
   "leisureTimes",
@@ -206,6 +200,7 @@ export const ALL_FIELDS = [
   "turnCardsUpgraded",
   "thisCardHeld",
   "usedCard",
+  "lastUsedCard",
 
   // Effects
   "effects",
@@ -344,6 +339,17 @@ export const WHOLE_FIELDS = [
   S.enthusiasm,
 ];
 
+export const NON_NEGATIVE_FIELDS = [
+  S.stamina,
+  S.genki,
+  S.goodConditionTurns,
+  S.perfectConditionTurns,
+  S.concentration,
+  S.goodImpressionTurns,
+  S.motivation,
+  S.fullPowerCharge,
+];
+
 export const LOGGED_FIELDS = [
   S.stamina,
   S.genki,
@@ -357,7 +363,6 @@ export const LOGGED_FIELDS = [
   S.prideTurns,
   S.enthusiasm,
   S.enthusiasmBonus,
-  S.enthusiasmMultiplier,
   S.fullPowerCharge,
   S.lockStanceTurns,
   S.halfCostTurns,

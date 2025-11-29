@@ -26,12 +26,20 @@ const DEFAULTS = {
 const SIMULATOR_BASE_URL = "https://gktools.ris.moe/simulator";
 
 export function getSimulatorUrl(loadout, loadouts) {
-  const searchParams = loadoutToSearchParams(loadout, loadouts);
+  if (loadout.stageId === "custom") return null;
+  const stage = Stages.getById(loadout.stageId);
+  let searchParams;
+  if (stage.type === "linkContest") {
+    searchParams = loadoutsToSearchParams(loadouts);
+  } else {
+    searchParams = loadoutToSearchParams(loadout);
+  }
   try {
     const protocol = window.location.protocol;
     const host = window.location.host;
-    if(protocol && host) {
-      return `${protocol}//${host}/simulator?${searchParams.toString()}`;
+    const pathname = window.location.pathname;
+    if(protocol && host && pathname) {
+      return `${protocol}//${host}${pathname}?${searchParams.toString()}`;
     }
   } catch(e) {
     // ignore
@@ -39,18 +47,7 @@ export function getSimulatorUrl(loadout, loadouts) {
   return `${SIMULATOR_BASE_URL}/?${searchParams.toString()}`;
 }
 
-export function loadoutFromSearchParams(searchParams) {
-  const loadout = _loadoutFromSearchParams(searchParams);
-  if (loadout.stageId !== "custom" && Stages.getById(loadout.stageId)?.type === "linkContest") {
-    let loadouts = [loadout];
-    loadouts.push(_loadoutFromSearchParams(searchParams, "2"));
-    loadouts.push(_loadoutFromSearchParams(searchParams, "3"));
-    loadout.loadouts = loadouts;
-  }
-  return loadout;
-}
-
-function _loadoutFromSearchParams(searchParams, suffix = "") {
+export function loadoutFromSearchParams(searchParams, suffix = "") {
   let stageId = searchParams.get("stage");
   let supportBonus = searchParams.get("support_bonus");
   let params = searchParams.get("params" + suffix);
@@ -64,6 +61,8 @@ function _loadoutFromSearchParams(searchParams, suffix = "") {
   const hasDataFromParams =
     stageId || params || pItemIds || skillCardIdGroups || customizationGroups || 
     skillCardIdOrderGroups || customizationOrderGroups || turnTypeOrder;
+  const enableSkillCardOrder = 
+    skillCardIdOrderGroups || customizationOrderGroups || removedCardOrder || turnTypeOrder;
 
   stageId = stageId || DEFAULTS.stageId;
   supportBonus = supportBonus || DEFAULTS.supportBonus;
@@ -71,8 +70,8 @@ function _loadoutFromSearchParams(searchParams, suffix = "") {
   pItemIds = pItemIds || DEFAULTS.pItemIds;
   skillCardIdGroups = skillCardIdGroups || DEFAULTS.skillCardIdGroups;
   customizationGroups = customizationGroups || DEFAULTS.customizationGroups;
-  skillCardIdOrderGroups = skillCardIdOrderGroups || DEFAULTS.skillCardIdOrderGroups;
-  customizationOrderGroups = customizationOrderGroups || DEFAULTS.customizationOrderGroups;
+  // skillCardIdOrderGroups = skillCardIdOrderGroups || DEFAULTS.skillCardIdOrderGroups;
+  // customizationOrderGroups = customizationOrderGroups || DEFAULTS.customizationOrderGroups;
   removedCardOrder = removedCardOrder || DEFAULTS.removedCardOrder;
 
   stageId = parseInt(stageId, 10) || null;
@@ -83,13 +82,30 @@ function _loadoutFromSearchParams(searchParams, suffix = "") {
   customizationGroups = customizationGroups
     .split("_")
     .map(deserializeCustomizations);
-  skillCardIdOrderGroups = skillCardIdOrderGroups
-    .split("_")
-    .map(deserializeIds);
-  customizationOrderGroups = customizationOrderGroups
-    .split("_")
-    .map(deserializeCustomizations);
   removedCardOrder = removedCardOrder == "1" ? "skip" : "random";
+
+  if (skillCardIdOrderGroups) {
+    skillCardIdOrderGroups = skillCardIdOrderGroups
+      .split("_")
+      .map(deserializeIds);
+  } else {
+    if (stageId === "custom" || Stages.getById(stageId).type !== "linkContest") {
+      skillCardIdOrderGroups = [new Array(20).fill(0)];
+    } else {
+      skillCardIdOrderGroups = [new Array(12).fill(0)];
+    }
+  }
+  if (customizationOrderGroups) {
+    customizationOrderGroups = customizationOrderGroups
+      .split("_")
+      .map(deserializeCustomizations);
+  } else {
+    if (stageId === "custom" || Stages.getById(stageId).type !== "linkContest") {
+      customizationOrderGroups = [new Array(20).fill({})];
+    } else {
+      customizationOrderGroups = [new Array(12).fill({})];
+    }
+  }
   if (turnTypeOrder) {
     turnTypeOrder = turnTypeOrder.split("-")
       .map((x) => parseInt(x, 10) || 0)
@@ -122,6 +138,7 @@ function _loadoutFromSearchParams(searchParams, suffix = "") {
     skillCardIdGroups,
     customizationGroups,
     hasDataFromParams,
+    enableSkillCardOrder,
     skillCardIdOrderGroups,
     customizationOrderGroups,
     removedCardOrder,
@@ -129,7 +146,15 @@ function _loadoutFromSearchParams(searchParams, suffix = "") {
   };
 }
 
-export function loadoutToSearchParams(loadout, loadouts) {
+export function loadoutsFromSearchParamsLegacy(searchParams) {
+  let loadouts = [];
+  loadouts.push(loadoutFromSearchParams(searchParams));
+  loadouts.push(loadoutFromSearchParams(searchParams, "2"));
+  loadouts.push(loadoutFromSearchParams(searchParams, "3"));
+  return loadouts;
+}
+
+export function loadoutToSearchParams(loadout) {
   const {
     stageId,
     supportBonus,
@@ -137,56 +162,78 @@ export function loadoutToSearchParams(loadout, loadouts) {
     pItemIds,
     skillCardIdGroups,
     customizationGroups,
+    enableSkillCardOrder,
     skillCardIdOrderGroups,
     customizationOrderGroups,
     removedCardOrder,
     turnTypeOrder,
   } = loadout;
   const searchParams = new URLSearchParams();
-  if (stageId !== "custom" && Stages.getById(stageId)?.type === "linkContest") {
-    searchParams.set("stage", stageId);
+  searchParams.set("stage", stageId);
+  if (supportBonus) {
     searchParams.set("support_bonus", supportBonus);
-    for (let i = 0; i < loadouts.length; i++) {
-      const suffix = i === 0 ? "" : (i + 1).toString();
-      searchParams.set("params" + suffix, serializeIds(loadouts[i].params));
-      searchParams.set("items" + suffix, serializeIds(loadouts[i].pItemIds));
-      searchParams.set("cards" + suffix, loadouts[i].skillCardIdGroups.map(serializeIds).join("_"));
-      searchParams.set(
-        "customizations" + suffix,
-        loadouts[i].customizationGroups.map(serializeCustomizations).join("_")
-      );
-      // searchParams.set(
-      //   "order_cards" + suffix,
-      //   loadouts[i].skillCardIdOrderGroups.map(serializeIds).join("_"));
-      // searchParams.set(
-      //   "order_customs" + suffix,
-      //   loadouts[i].customizationOrderGroups.map(serializeCustomizations).join("_")
-      // );
-    }
-    // searchParams.set("order_removed", removedCardOrder == "random" ? "0" : "1");
-    // searchParams.set(
-    //   "order_turns",
-    //   turnTypeOrder.map((t) => ["none", "vocal", "dance", "visual"].indexOf(t)).join("-")
-    // );
-  } else {
-    searchParams.set("stage", stageId);
-    searchParams.set("support_bonus", supportBonus);
-    searchParams.set("params", serializeIds(params));
-    searchParams.set("items", serializeIds(pItemIds));
-    searchParams.set("cards", skillCardIdGroups.map(serializeIds).join("_"));
-    searchParams.set(
-      "customizations",
-      customizationGroups.map(serializeCustomizations).join("_")
-    );
+  }
+  searchParams.set("params", serializeIds(params));
+  searchParams.set("items", serializeIds(pItemIds));
+  searchParams.set("cards", skillCardIdGroups.map(serializeIds).join("_"));
+  searchParams.set(
+    "customizations",
+    customizationGroups.map(serializeCustomizations).join("_")
+  );
+  if (enableSkillCardOrder) {
     searchParams.set("order_cards", skillCardIdOrderGroups.map(serializeIds).join("_"));
     searchParams.set(
       "order_customs",
       customizationOrderGroups.map(serializeCustomizations).join("_")
     );
-    searchParams.set("order_removed", removedCardOrder == "random" ? "0" : "1");
-    searchParams.set(
-      "order_turns",
-      turnTypeOrder.map((t) => ["none", "vocal", "dance", "visual"].indexOf(t)).join("-")
+    if (removedCardOrder) {
+      searchParams.set("order_removed", removedCardOrder == "random" ? "0" : "1");
+    }
+    if (turnTypeOrder) {
+      searchParams.set(
+        "order_turns",
+        turnTypeOrder.map((t) => ["none", "vocal", "dance", "visual"].indexOf(t)).join("-")
+      );
+    }
+  }
+  return searchParams;
+}
+
+export function loadoutsFromSearchParams(searchParams) {
+  if (searchParams.get("params2")) {
+    return loadoutsFromSearchParamsLegacy(searchParams);
+  }
+  let loadouts = [];
+  let firstLoadout = null;
+  const loadoutParams = searchParams.getAll("loadout");
+  for (let param of loadoutParams) {
+    const paramString = decodeURIComponent(param);
+    const paramSearchParams = new URLSearchParams(paramString);
+    const loadout = loadoutFromSearchParams(paramSearchParams);
+    loadouts.push(loadout);
+    if (!firstLoadout) {
+      firstLoadout = loadout;
+    } else {
+      loadout.removedCardOrder = firstLoadout.removedCardOrder;
+      loadout.turnTypeOrder = firstLoadout.turnTypeOrder;
+    }
+  }
+  return loadouts;
+}
+
+export function loadoutsToSearchParams(loadouts) {
+  const searchParams = new URLSearchParams();
+  let firstLoadout = true;
+  for (let loadout of loadouts) {
+    const loadoutSearchParams = loadoutToSearchParams({
+      ...loadout,
+      supportBonus: null,
+      removedCardOrder: firstLoadout ? loadout.removedCardOrder : null,
+      turnTypeOrder: firstLoadout ? loadout.turnTypeOrder : null,
+    });
+    searchParams.append(
+      "loadout",
+      encodeURIComponent(loadoutSearchParams.toString())
     );
   }
   return searchParams;
@@ -482,4 +529,41 @@ export function getIndications(config, loadout) {
     pItemIndications,
     skillCardIndicationGroups,
   };
+}
+
+export function structureLogs(logs) {
+  if (!logs) return null;
+
+  let i = 0;
+  let inTurn = false;
+
+  function getLogGroup() {
+    let group = [];
+    while (i < logs.length) {
+      const log = logs[i];
+      if (log.logType === "entityStart") {
+        i++;
+        const childLogs = getLogGroup();
+        group.push({ logType: "group", entity: log.data, childLogs });
+        i++;
+      } else if (log.logType === "entityEnd") {
+        return group;
+      } else if (log.logType === "startTurn") {
+        if (inTurn) {
+          inTurn = false;
+          return group;
+        }
+        inTurn = true;
+        i++;
+        const childLogs = getLogGroup();
+        group.push({ logType: "turn", data: log.data, childLogs });
+      } else {
+        group.push(log);
+        i++;
+      }
+    }
+    return group;
+  }
+
+  return getLogGroup();
 }

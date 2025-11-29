@@ -20,7 +20,7 @@ function HoldCardPickerModal({
     filter(({index}) => !disabledIndices.includes(index));
 
   return (
-    <Modal closable={false}>
+    <Modal dismissable={false}>
       <div className={styles.entities}>
       {filteredCards.map(({card, index}) => (
         <EntityIcon

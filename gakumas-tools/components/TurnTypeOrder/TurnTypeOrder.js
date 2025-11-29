@@ -12,6 +12,7 @@ function TurnTypeOrder({
   const t = useTranslations("TurnTypeOrder");
   const {
     replaceTurnTypeOrder,
+    swapTurnTypeOrder,
   } = useContext(LoadoutContext);
   const { setModal } = useContext(ModalContext);
   return (
@@ -21,6 +22,7 @@ function TurnTypeOrder({
             key={i}
             turnType={turnType}
             label={i + 1}
+            index={i}
             onClick={() =>
               setModal(
                 <TurnTypePickerModal
@@ -30,6 +32,7 @@ function TurnTypeOrder({
                 />
               )
             }
+            onSwap={swapTurnTypeOrder}
             size="fill"
           />
         ))}

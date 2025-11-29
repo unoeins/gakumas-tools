@@ -1,3 +1,4 @@
+@use "sass:color";
 @use "../../styles/colors";
 
 .simulatorLogs {
@@ -140,10 +141,26 @@
     padding: 16px;
   }
 
+  .stateContent {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .turnIndicatorWrapper {
+    flex-shrink: 0;
+  }
+
+  .stateLines {
+    flex: 1;
+    min-width: 0;
+  }
+
   .handCards {
     display: flex;
     align-items: stretch;
     padding: 16px 8px 8px;
+    text-align: center;
   }
 
   .handCard {
@@ -153,6 +170,22 @@
     justify-content: space-between;
     align-items: center;
     gap: 4px;
+  }
+
+  .interactive {
+    border: 2px solid transparent;
+    border-radius: 4px;
+    padding: 8px 0;
+    transition: all 0.2s;
+
+    &:hover:not(:disabled) {
+      border-color: colors.$blue;
+      background-color: colors.$gray-extra-light;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+    }
   }
 
   .imgWrapper {
@@ -176,6 +209,20 @@
 
   .cardScore {
     font-size: 12px;
+  }
+
+  .skip {
+    padding: 16px;
+  }
+
+  .skipButton {
+    background-color: transparent;
+    padding: 8px;
+
+    &:hover,
+    &:focus {
+      color: colors.$stamina;
+    }
   }
 }
 

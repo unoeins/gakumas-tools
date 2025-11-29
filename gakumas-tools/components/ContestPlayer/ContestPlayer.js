@@ -26,14 +26,21 @@ import LoadoutSummary from "@/components/LoadoutHistory/LoadoutSummary";
 import SimulatorLogs from "@/components/SimulatorLogs";
 import StageSelect from "@/components/StageSelect";
 import LoadoutContext from "@/contexts/LoadoutContext";
+import LoadoutHistoryContext from "@/contexts/LoadoutHistoryContext";
 import WorkspaceContext from "@/contexts/WorkspaceContext";
 import ModalContext from "@/contexts/ModalContext";
 import SimulatorButtons from "@/components/Simulator/SimulatorButtons";
 import SimulatorSubTools from "@/components/Simulator/SimulatorSubTools";
+import EntityIcon from "@/components/EntityIcon";
+import { EntityTypes } from "@/utils/entities";
+import TurnTypeViewer from "./TurnTypeViewer";
 import StateViewer from "./StateViewer";
 import CardPileViewer from "./CardPileViewer";
 import HoldCardPickerModal from "./HoldCardPickerModal";
+import SkillCardAndTurnTypeOrder from "@/components/SkillCardOrderGroups/SkillCardAndTurnTypeOrder";
 import styles from "./ContestPlayer.module.scss";
+
+const LINK_PHASES = ["OP", "MID", "ED"];
 
 export default function ContestPlayer() {
   const t = useTranslations("Simulator");
@@ -44,41 +51,63 @@ export default function ContestPlayer() {
     loadout,
     simulatorUrl,
     setSupportBonus,
-    pushLoadoutHistory,
-    pushLoadoutsHistory,
     loadouts,
     setLoadout,
     currentLoadoutIndex,
     setCurrentLoadoutIndex,
+    setEnableSkillCardOrder,
   } = useContext(LoadoutContext);
+  const { pushLoadoutHistory, pushLoadoutsHistory } = useContext(
+    LoadoutHistoryContext
+  );
   const { plan, idolId } = useContext(WorkspaceContext);
   const [running, setRunning] = useState(false);
-  const [state, setState] = useState(null);
+  const [stateHistory, setStateHistory] = useState([]);
   const [engine, setEngine] = useState(null);
-  const [enableSkillCardOrder, setEnableSkillCardOrder] = useState(false);
 
   const config = useMemo(() => {
     const idolConfig = new IdolConfig(loadout);
     const stageConfig = new StageConfig(stage);
-    const simulatorConfig = new SimulatorConfig({enableSkillCardOrder});
+    const simulatorConfig = new SimulatorConfig({enableSkillCardOrder: loadout.enableSkillCardOrder});
     return new IdolStageConfig(idolConfig, stageConfig, simulatorConfig);
-  }, [loadout, stage, enableSkillCardOrder]);
+  }, [loadout, stage, loadout.enableSkillCardOrder]);
 
   const linkConfigs = useMemo(() => {
     if (stage.type !== "linkContest") return null;
     return loadouts.map((ld) => {
       const idolConfig = new IdolConfig(ld);
       const stageConfig = new StageConfig(stage);
-      const simulatorConfig = new SimulatorConfig({enableSkillCardOrder});
+      const simulatorConfig = new SimulatorConfig({enableSkillCardOrder: loadout.enableSkillCardOrder});
       return new IdolStageConfig(idolConfig, stageConfig, simulatorConfig);
     });
-  }, [loadouts, stage, enableSkillCardOrder]);
+  }, [loadouts, stage, loadout.enableSkillCardOrder]);
 
   const { setModal } = useContext(ModalContext);
 
-  const logs = engine?.logger.peekLogs(state);
+  const logs = engine?.logger.peekLogs(getState());
   if (logs) {
     console.log("logs:", logs);
+  }
+
+  function getState() {
+    return stateHistory.length > 0 ? stateHistory[stateHistory.length - 1] : null;
+  }
+
+  function pushState(newState) {
+    setStateHistory((cur) => {
+      const newHistory = cur ? [...cur, newState] : [newState];
+      return newHistory;
+    });
+  }
+
+  function popState() {
+    const state = getState();
+    setStateHistory((cur) => {
+      if (!cur || cur.length === 0) return cur;
+      const newHistory = cur.slice(0, cur.length - 1);
+      return newHistory;
+    });
+    return state;
   }
 
   async function pickCardsToHold(state, cards, num = 1) {
@@ -113,7 +142,7 @@ export default function ContestPlayer() {
     state = engine.startStage(state);
 
     setEngine(engine);
-    setState(state);
+    setStateHistory([state]);
     
     pushLoadoutHistory();
     if (stage.type === "linkContest") {
@@ -123,6 +152,7 @@ export default function ContestPlayer() {
 
   async function playCard(selectedIndex) {
     if (!running) return;
+    const state = deepCopy(getState());
     const card = state[S.handCards][selectedIndex];
     if (!engine.isCardUsable(state, card)) {
       return;
@@ -153,7 +183,7 @@ export default function ContestPlayer() {
       state: engine.logger.getHandStateForLogging(state),
     };
 
-    setState(nextState);
+    pushState(nextState);
     if (nextState[S.turnsRemaining] <= 0) {
       setRunning(false);
     }
@@ -161,15 +191,25 @@ export default function ContestPlayer() {
 
   function endTurn() {
     if (!running) return;
-    const nextState = engine.endTurn(state);
-    setState(nextState);
+    const nextState = engine.endTurn(getState());
+    pushState(nextState);
     if (nextState[S.turnsRemaining] <= 0) {
       setRunning(false);
     }
   }
 
+  function undo() {
+    if (stateHistory.length <= 1) return;
+    const previousState = stateHistory[stateHistory.length - 2];
+    popState();
+    if (previousState[S.turnsRemaining] > 0) {
+      setRunning(true);
+    }
+  }
+
   function getHandCardScores() {
     if (!running) return [];
+    const state = getState();
     return state[S.handCards].map((card) => {
       if (!engine.isCardUsable(state, card)) {
         return -Infinity;
@@ -231,7 +271,6 @@ export default function ContestPlayer() {
           <div className={styles.loadoutTabs}>
             {loadouts.map((loadout, index) => (
               <div key={index} className={styles.loadoutTab}>
-                {/* <div className={styles.loadoutTabButtons}> */}
                 <button
                   className={styles.selectButton}
                   onClick={() => {
@@ -239,23 +278,8 @@ export default function ContestPlayer() {
                     setCurrentLoadoutIndex(index);
                   }}
                 >
-                  {index + 1}
+                  {LINK_PHASES[index]}
                 </button>
-                {/* <button
-                  className={styles.deleteButton}
-                  onClick={() => {
-                    const newLoadouts = loadouts.filter((_, i) => i !== index);
-                    setCurrentLoadoutIndex(
-                      currentLoadoutIndex >= newLoadouts.length
-                        ? newLoadouts.length - 1
-                        : currentLoadoutIndex
-                    );
-                    setLoadouts(newLoadouts);
-                  }}
-                >
-                  <FaXmark />
-                </button> */}
-                {/* </div> */}
                 {index === currentLoadoutIndex ? (
                   <LoadoutEditor
                     config={config}
@@ -288,31 +312,51 @@ export default function ContestPlayer() {
           {!running ? t2("startStage") : t2("restartStage")}
         </Button>
         <SimulatorButtons />
-        {/* <div className={styles.url}>{simulatorUrl}</div> */}
-        {/* <div className={styles.skillCardOrderToggle}>
+        <div className={styles.skillCardOrderToggle}>
           <input
             type="checkbox"
             id="enableSkillCardOrder"
-            checked={enableSkillCardOrder}
+            checked={loadout.enableSkillCardOrder}
             onChange={(e) => setEnableSkillCardOrder(e.target.checked)}
           />
           <label htmlFor="enableSkillCardOrder">{t("enableSkillCardOrder")}</label>
         </div>
-        {enableSkillCardOrder && (
-          <SkillCardAndTurnTypeOrder
-            idolId={config.idol.idolId || idolId}
-            defaultCardIds={config.defaultCardIds}
-          />
-        )} */}
-        {state && (
-          <div className={styles.playArea}>
-            <StateViewer
-              state={state}
+        {loadout.enableSkillCardOrder && (
+          <>
+            <SkillCardAndTurnTypeOrder
+              config={config}
               idolId={config.idol.idolId || idolId}
-              plan={config.idol.plan || plan}
+              defaultCardIds={config.defaultCardIds}
             />
+            <Button style="blue" onClick={startStage}>
+              {!running ? t2("startStage") : t2("restartStage")}
+            </Button>
+          </>
+        )}
+        {getState() && (
+          <div className={styles.playArea}>
+            <TurnTypeViewer state={getState()} />
+            <div className={styles.infoArea}>
+              <StateViewer
+                state={getState()}
+                idolId={config.idol.idolId || idolId}
+                plan={config.idol.plan || plan}
+              />
+              <div className={styles.controls}>
+                <div className={styles.cardPileCard}>
+                  <EntityIcon
+                    type={EntityTypes.SKILL_CARD}
+                    id={0}
+                    label={"UNDO"}
+                    onClick={() => undo()}
+                    idolId={idolId}
+                    size={"fill"}
+                  />
+                </div>
+              </div>
+            </div>
             <CardPileViewer
-              state={state}
+              state={getState()}
               type="handCards"
               scores={getHandCardScores()}
               onClick={(selectedIndex) => playCard(selectedIndex)}
@@ -323,7 +367,7 @@ export default function ContestPlayer() {
             />
             {plan === "anomaly" && (
               <CardPileViewer
-                state={state}
+                state={getState()}
                 type="heldCards"
                 idolId={config.idol.idolId || idolId}
                 plan={config.idol.plan || plan}
@@ -331,21 +375,22 @@ export default function ContestPlayer() {
               />
             )}
             <CardPileViewer
-              state={state}
+              state={getState()}
               type="deckCards"
+              reverse={true}
               idolId={config.idol.idolId || idolId}
               plan={config.idol.plan || plan}
               size="small"
             />
             <CardPileViewer
-              state={state}
+              state={getState()}
               type="discardedCards"
               idolId={config.idol.idolId || idolId}
               plan={config.idol.plan || plan}
               size="small"
             />
             <CardPileViewer
-              state={state}
+              state={getState()}
               type="removedCards"
               idolId={config.idol.idolId || idolId}
               plan={config.idol.plan || plan}
@@ -354,14 +399,6 @@ export default function ContestPlayer() {
           </div>
         )}
         <div className={styles.subLinks}>
-          {/* <a
-            href={`https://docs.google.com/forms/d/e/1FAIpQLScNquedw8Lp2yVfZjoBFMjQxIFlX6-rkzDWIJTjWPdQVCJbiQ/viewform?usp=pp_url&entry.1787906485=${encodeURIComponent(
-              simulatorUrl
-            )}`}
-            target="_blank"
-          >
-            {t("provideData")}
-          </a> */}
           {/* <a
             href="https://github.com/surisuririsu/gakumas-tools/blob/master/gakumas-tools/simulator/CHANGELOG.md"
             target="_blank"
