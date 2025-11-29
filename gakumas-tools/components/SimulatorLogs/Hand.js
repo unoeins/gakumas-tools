@@ -8,7 +8,7 @@ import { EntityTypes } from "@/utils/entities";
 import HandState from "./HandState";
 import styles from "./SimulatorLogs.module.scss";
 
-function Hand({ handCards, scores, selectedIndex, state, idolId, hideScores }) {
+function Hand({ handCards, scores, scoreBreakdowns, selectedIndex, state, idolId, hideScores }) {
   const t = useTranslations("stage");
 
   const [expanded, setExpanded] = useState(false);

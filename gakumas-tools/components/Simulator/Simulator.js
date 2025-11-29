@@ -281,7 +281,7 @@ export default function Simulator() {
 
         <SimulatorSubTools defaultCardIds={config.defaultCardIds} />
 
-        <StrategyPicker
+        {/* <StrategyPicker
           strategy={strategy}
           setStrategy={(value) => {
             setSimulatorData(null);
@@ -289,7 +289,7 @@ export default function Simulator() {
             setStrategy(value);
             setRunning(false);
           }}
-        />
+        /> */}
         {strategy !== "ManualStrategy" && (
           <>
             <select
@@ -390,7 +390,7 @@ export default function Simulator() {
         />
       )}
 
-      {strategy === "HeuristicStrategy" && simulatorData && (
+      {strategy !== "ManualStrategy" && simulatorData && (
         <SimulatorResult
           data={simulatorData}
           listenerData={listenerData}
