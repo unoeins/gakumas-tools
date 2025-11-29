@@ -41,6 +41,8 @@ import SimulatorSubTools from "./SimulatorSubTools";
 import SkillCardAndTurnTypeOrder from "@/components/SkillCardOrderGroups/SkillCardAndTurnTypeOrder";
 import styles from "./Simulator.module.scss";
 
+const LINK_PHASES = ["OP", "MID", "ED"];
+
 export default function Simulator() {
   const t = useTranslations("Simulator");
 
@@ -249,7 +251,7 @@ export default function Simulator() {
                     setCurrentLoadoutIndex(index);
                   }}
                 >
-                  {index + 1}
+                  {LINK_PHASES[index]}
                 </button>
                 {index === currentLoadoutIndex ? (
                   <LoadoutEditor
