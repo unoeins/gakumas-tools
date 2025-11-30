@@ -295,7 +295,12 @@ export default function Simulator() {
             <select
               className={styles.strategySelect}
               value={strategy}
-              onChange={(e) => setStrategy(e.target.value)}
+              onChange={(e) => {
+                setSimulatorData(null);
+                setPendingDecision(null);
+                setStrategy(e.target.value);
+                setRunning(false);
+              }}
             >
               {Object.keys(STRATEGIES).map((strategy) => (
                 <option key={strategy} value={strategy}>

@@ -358,18 +358,23 @@ export default class HeuristicConstBuffStrategy extends BaseStrategy {
           limit = effect.limit;
         }
         if (limit <= 0) continue;
+        // ignore turnsRemaining and turnsElapsed conditions
+        const conditions = effect.conditions ? effect.conditions.filter((c) => {
+          return c[0] !== "turnsRemaining" && c[0] !== "turnsElapsed";
+        }) : null;
         this.engine.effectManager.triggerEffects(
           effectState,
           [
             {
               ...effect,
               phase: null,
+              conditions: conditions,
               delay: effect.delay - effectState[S.turnsRemaining],
             },
           ],
           null,
           null,
-          true
+          false
         );
         const effectScore = (effectState[S.score] - preEffectScore) * limit;
         scoreEffectScore += effectScore / this.engine.turnManager.getTurnMultiplier(effectState);
