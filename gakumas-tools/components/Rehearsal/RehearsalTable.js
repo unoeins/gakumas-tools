@@ -34,6 +34,7 @@ export default function RehearsalTable({
               <AiOutlineBoxPlot />
             </button>
           </th>
+          <th />
           {[...Array(9)].map((_, i) => (
             <th key={i}>
               <button
@@ -47,6 +48,7 @@ export default function RehearsalTable({
         </tr>
         <tr>
           <th />
+          <th>No.</th>
           <th colSpan="3">ステージ1</th>
           <th colSpan="3">ステージ2</th>
           <th colSpan="3">ステージ3</th>
@@ -60,6 +62,7 @@ export default function RehearsalTable({
                 <FaRegCircleXmark />
               </button>
             </td>
+            <td>{i + 1}</td>
             {row.map((stage, j) => (
               <React.Fragment key={j}>
                 {stage.map((score, k) => (

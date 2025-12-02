@@ -2,7 +2,7 @@
 @use "../../styles/colors";
 
 .rehearsal {
-  max-width: 800px;
+  max-width: 860px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -50,7 +50,7 @@
 }
 
 .chartButtons {
-  background-color: colors.$white-dark;
+  background-color: colors.$gk-orange-extra-light;
 
   th {
     padding: 0;
