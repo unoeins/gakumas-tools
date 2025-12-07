@@ -378,6 +378,7 @@
   "SimulatorUseStats": {
     "useStats": "Skill Card Usage Count",
     "turn": "Turn {turn}",
+    "total": "Total",
     "sortByRatio": "Sort by usage ratio when skill card is drawn"
   },
   "SimulatorConditionalUseStats": {
