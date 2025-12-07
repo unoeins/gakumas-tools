@@ -26,8 +26,8 @@ function SimulatorUseStats({ useStats, idolId }) {
     return acc;
   }, new Map());
   const totalData = [...totalDataMap.values()].sort((a, b) => sortByRatio ?
-    ((b.use / (b.id !== 0 ? b.draw : useStats.numRuns)) -
-     (a.use / (a.id !== 0 ? a.draw : useStats.numRuns))) :
+    ((b.use / (b.id !== 0 ? b.draw : useStats.numRuns * sortedData.length)) -
+     (a.use / (a.id !== 0 ? a.draw : useStats.numRuns * sortedData.length))) :
       b.use - a.use);
 
   return (
