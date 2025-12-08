@@ -8,32 +8,6 @@ export default class HeuristicCustomStrategy extends BaseStrategy {
   constructor(engine) {
     super(engine);
 
-    const { config } = engine;
-    this.averageTypeMultiplier = Object.keys(config.typeMultipliers).reduce(
-      (acc, cur) =>
-        acc +
-        (config.typeMultipliers[cur] * config.stage.turnCounts[cur]) /
-          config.stage.turnCount,
-      0
-    );
-
-    this.goodConditionTurnsMultiplier =
-      // config.idol.recommendedEffect == "goodConditionTurns" ? 1 : 1;
-      // config.idol.recommendedEffect == "goodConditionTurns" ? 1.75 : 1;
-      config.idol.recommendedEffect == "goodConditionTurns" ? 3 : 1;
-    // if (config.idol.pIdolId == 114) {
-    //   this.goodConditionTurnsMultiplier = 8;
-    // }
-    this.concentrationMultiplier =
-      // config.idol.recommendedEffect == "concentration" ? 1 : 1;
-      config.idol.recommendedEffect == "concentration" ? 3 : 1;
-    this.goodImpressionTurnsMultiplier =
-      config.idol.recommendedEffect == "goodImpressionTurns" ? 3.5 : 1;
-    this.motivationMultiplier =
-      config.idol.recommendedEffect == "motivation" ? 5.5 : 1;
-    this.fullPowerMultiplier =
-      config.idol.recommendedEffect == "fullPower" ? 5 : 1;
-
     this.depth = 0;
     this.rootEffectCount = 0;
   }
@@ -134,12 +108,12 @@ export default class HeuristicCustomStrategy extends BaseStrategy {
     }
     score += effectScore;
 
-    if (this.engine.config.idol.plan != "anomaly") {
+    if (this.engine.getConfig(state).idol.plan != "anomaly") {
       // Cards removed
       score +=
         (((state[S.removedCards].length - previewState[S.removedCards].length) *
           (previewState[S.score] - state[S.score])) /
-          this.averageTypeMultiplier) *
+          this.getAverageTypeMultiplier(state)) *
         Math.floor(previewState[S.turnsRemaining] / 13);
     }
 
@@ -157,11 +131,43 @@ export default class HeuristicCustomStrategy extends BaseStrategy {
     };
   }
 
-  scaleScore(score) {
-    return Math.ceil(score * this.averageTypeMultiplier);
+  getAverageTypeMultiplier(state) {
+    const config = this.engine.getConfig(state);
+    return Object.keys(config.typeMultipliers).reduce(
+      (acc, cur) =>
+        acc +
+        (config.typeMultipliers[cur] * config.stage.turnCounts[cur]) /
+          config.stage.turnCount,
+      0
+    );
+  }
+
+  scaleScore(score, state) {
+    return Math.ceil(score * this.getAverageTypeMultiplier(state));
   }
 
   getStateScore(state) {
+    // Initialize multipliers
+    const config = this.engine.getConfig(state);
+    this.goodConditionTurnsMultiplier =
+      // config.idol.recommendedEffect == "goodConditionTurns" ? 1 : 1;
+      // config.idol.recommendedEffect == "goodConditionTurns" ? 1.75 : 1;
+      config.idol.recommendedEffect == "goodConditionTurns" ? 3 : 1;
+    // if (config.idol.pIdolId == 114) {
+    //   this.goodConditionTurnsMultiplier = 8;
+    // }
+    this.concentrationMultiplier =
+      // config.idol.recommendedEffect == "concentration" ? 1 : 1;
+      config.idol.recommendedEffect == "concentration" ? 3 : 1;
+    this.goodImpressionTurnsMultiplier =
+      config.idol.recommendedEffect == "goodImpressionTurns" ? 3.5 : 1;
+    this.motivationMultiplier =
+      config.idol.recommendedEffect == "motivation" ? 5.5 : 1;
+    this.fullPowerMultiplier =
+      config.idol.recommendedEffect == "fullPower" ? 5 : 1;
+
+    // Calc score
+
     let score = 0;
 
     // Cards in hand
@@ -202,7 +208,7 @@ export default class HeuristicCustomStrategy extends BaseStrategy {
 
     // Stance
     if (
-      this.engine.config.idol.plan == "anomaly" &&
+      config.idol.plan == "anomaly" &&
       (state[S.turnsRemaining] || state[S.cardUsesRemaining])
     ) {
       score += state[S.strengthTimes] * 40;
@@ -212,13 +218,26 @@ export default class HeuristicCustomStrategy extends BaseStrategy {
 
       //Enthusiasm
       score += state[S.enthusiasm] * 5;
-      if (state[S.turnsRemaining]) {
-        score += state[S.enthusiasmBonus] * 5 * state[S.enthusiasmMultiplier];
-      }
 
       // Full power charge
       score +=
         state[S.cumulativeFullPowerCharge] * 3 * this.fullPowerMultiplier;
+
+      // Enthusiasm buffs
+      score +=
+        state[S.enthusiasmBuffs].reduce(
+          (acc, cur) =>
+            acc + cur.amount * (cur.turns || state[S.turnsRemaining]),
+          0
+        ) * 5;
+
+      // Full power charge buffs
+      score +=
+        state[S.fullPowerChargeBuffs].reduce(
+          (acc, cur) =>
+            acc + cur.amount * (cur.turns || state[S.turnsRemaining]),
+          0
+        ) * this.fullPowerMultiplier;
 
       // Growth
       score += this.getGrowthScore(state) * 0.2 * state[S.turnsRemaining];
@@ -236,6 +255,9 @@ export default class HeuristicCustomStrategy extends BaseStrategy {
       state[S.turnsRemaining] *
       0.45 *
       this.motivationMultiplier;
+
+    // Pride turns
+    score += state[S.prideTurns] * state[S.turnsRemaining] * 0.2;
 
     // Score buffs
     score +=
@@ -307,13 +329,6 @@ export default class HeuristicCustomStrategy extends BaseStrategy {
         0
       ) * this.concentrationMultiplier;
 
-    // Full power charge buffs
-    score +=
-      state[S.fullPowerChargeBuffs].reduce(
-        (acc, cur) => acc + cur.amount * (cur.turns || state[S.turnsRemaining]),
-        0
-      ) * this.fullPowerMultiplier;
-
     // Nullify genki turns
     score += state[S.nullifyGenkiTurns] * -9;
 
@@ -340,7 +355,7 @@ export default class HeuristicCustomStrategy extends BaseStrategy {
     }
 
     // Scale score
-    score = this.scaleScore(score);
+    score = this.scaleScore(score, state);
     const buffScore = score;
 
     // Effect score
@@ -382,7 +397,7 @@ export default class HeuristicCustomStrategy extends BaseStrategy {
     score += scoreEffectScore;
 
     let actualScore;
-    const { recommendedEffect } = this.engine.config.idol;
+    const { recommendedEffect } = config.idol;
     if (recommendedEffect == "goodConditionTurns") {
       actualScore = state[S.score] * 0.4;
     } else if (recommendedEffect == "concentration") {

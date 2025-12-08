@@ -25,9 +25,9 @@ function SimulatorPriorityStats({ priorityStats, idolId }) {
   const turnDataA = Array.from({ length: length }, (_, i) => countA[i] || 0);
   const turnDataB = Array.from({ length: length }, (_, i) => countB[i] || 0);
 
-  console.log("priorityStats", priorityStats);
-  console.log({selectedCardA, selectedCardB});
-  console.log({keyA, keyB, otherDataA, otherDataB, turnDataA, turnDataB});
+  // console.log("priorityStats", priorityStats);
+  // console.log({selectedCardA, selectedCardB});
+  // console.log({keyA, keyB, otherDataA, otherDataB, turnDataA, turnDataB});
   return (
     <div id="simulator_prioritystats" className={styles.priorityStats}>
       <label>{t("priorityStats")}</label>

@@ -85,9 +85,9 @@ export default function ContestPlayer() {
   const { setModal } = useContext(ModalContext);
 
   const logs = engine?.logger.peekLogs(getState());
-  if (logs) {
-    console.log("logs:", logs);
-  }
+  // if (logs) {
+  //   console.log("logs:", logs);
+  // }
 
   function getState() {
     return stateHistory.length > 0 ? stateHistory[stateHistory.length - 1] : null;

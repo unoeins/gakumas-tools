@@ -15,9 +15,9 @@ function SimulatorConditionalUseStats({ conditionalUseStats, idolId }) {
   const key = selectedCard ? selectedCard.c ? JSON.stringify(selectedCard) : JSON.stringify({ id: selectedCard.id }) : null;
   const keyedData = key ? conditionalUseStats.data.get(key) : null;
   const useStats = keyedData ? Array.from({ length: keyedData.turns.length }, (_, i) => keyedData.turns[i] || new Map()) : [];
-  console.log("conditionalUseStats", conditionalUseStats);
-  console.log({selectedCard});
-  console.log({key, keyedData, useStats});
+  // console.log("conditionalUseStats", conditionalUseStats);
+  // console.log({selectedCard});
+  // console.log({key, keyedData, useStats});
 
   const sortedData = useStats.map((turnData) =>
     [...turnData].sort((a, b) => sortByRatio ?

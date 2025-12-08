@@ -8,26 +8,6 @@ export default class HeuristicConstBuffStrategy extends BaseStrategy {
   constructor(engine) {
     super(engine);
 
-    const { config } = engine;
-    this.averageTypeMultiplier = Object.keys(config.typeMultipliers).reduce(
-      (acc, cur) =>
-        acc +
-        (config.typeMultipliers[cur] * config.stage.turnCounts[cur]) /
-          config.stage.turnCount,
-      0
-    );
-
-    this.goodConditionTurnsMultiplier =
-      config.idol.recommendedEffect == "goodConditionTurns" ? 4 : 1;
-    this.concentrationMultiplier =
-      config.idol.recommendedEffect == "concentration" ? 4 : 1;
-    this.goodImpressionTurnsMultiplier =
-      config.idol.recommendedEffect == "goodImpressionTurns" ? 3.5 : 1;
-    this.motivationMultiplier =
-      config.idol.recommendedEffect == "motivation" ? 5.5 : 1;
-    this.fullPowerMultiplier =
-      config.idol.recommendedEffect == "fullPower" ? 5 : 1;
-
     this.depth = 0;
     this.rootEffectCount = 0;
   }
@@ -70,6 +50,9 @@ export default class HeuristicConstBuffStrategy extends BaseStrategy {
       state: this.engine.logger.getHandStateForLogging(state),
     };
 
+    // if (this.depth == 0) {
+    //   console.log("scores:", { score: maxScore, state: nextState, scoreBreakdown: scoreBreakdown });
+    // }
     return { score: maxScore, state: nextState, scoreBreakdown: scoreBreakdown };
   }
 
@@ -142,12 +125,38 @@ export default class HeuristicConstBuffStrategy extends BaseStrategy {
     };
   }
 
-  scaleScore(score) {
-    return Math.ceil(score * this.averageTypeMultiplier);
+  getAverageTypeMultiplier(state) {
+    const config = this.engine.getConfig(state);
+    return Object.keys(config.typeMultipliers).reduce(
+      (acc, cur) =>
+        acc +
+        (config.typeMultipliers[cur] * config.stage.turnCounts[cur]) /
+          config.stage.turnCount,
+      0
+    );
+  }
+
+  scaleScore(score, state) {
+    return Math.ceil(score * this.getAverageTypeMultiplier(state));
   }
 
   getStateScore(state) {
+    // Initialize multipliers
+    const config = this.engine.getConfig(state);
+    this.goodConditionTurnsMultiplier =
+      config.idol.recommendedEffect == "goodConditionTurns" ? 4 : 1;
+    this.concentrationMultiplier =
+      config.idol.recommendedEffect == "concentration" ? 4 : 1;
+    this.goodImpressionTurnsMultiplier =
+      config.idol.recommendedEffect == "goodImpressionTurns" ? 3.5 : 1;
+    this.motivationMultiplier =
+      config.idol.recommendedEffect == "motivation" ? 5.5 : 1;
+    this.fullPowerMultiplier =
+      config.idol.recommendedEffect == "fullPower" ? 5 : 1;
+
     const turnCount = state[S.turnsElapsed] + state[S.turnsRemaining];
+
+    // Calc score
 
     let score = 0;
 
@@ -189,7 +198,7 @@ export default class HeuristicConstBuffStrategy extends BaseStrategy {
 
       // Stance
       if (
-        this.engine.config.idol.plan == "anomaly" &&
+        config.idol.plan == "anomaly" &&
         (state[S.turnsRemaining] || state[S.cardUsesRemaining])
       ) {
         score += state[S.strengthTimes] * 40 * turnCount / 2;
@@ -199,13 +208,6 @@ export default class HeuristicConstBuffStrategy extends BaseStrategy {
 
         //Enthusiasm
         score += state[S.enthusiasm] * 5 * turnCount;
-        if (state[S.turnsRemaining]) {
-          score += 
-            state[S.enthusiasmBonus] *
-            turnCount *
-            5 *
-            state[S.enthusiasmMultiplier];
-        }
 
         // Full power charge
         score +=
@@ -213,6 +215,22 @@ export default class HeuristicConstBuffStrategy extends BaseStrategy {
           turnCount *
           3 *
           this.fullPowerMultiplier;
+
+        // Enthusiasm buffs
+        score +=
+          state[S.enthusiasmBuffs].reduce(
+            (acc, cur) =>
+              acc + cur.amount * (cur.turns || state[S.turnsRemaining]),
+            0
+          ) * 5 * turnCount;
+
+        // Full power charge buffs
+        score +=
+          state[S.fullPowerChargeBuffs].reduce(
+            (acc, cur) =>
+              acc + cur.amount * (cur.turns || state[S.turnsRemaining]),
+            0
+          ) * turnCount * this.fullPowerMultiplier;
 
         // Growth
         score += this.getGrowthScore(state) * 0.2 * turnCount;
@@ -304,15 +322,6 @@ export default class HeuristicConstBuffStrategy extends BaseStrategy {
         turnCount *
         this.concentrationMultiplier;
 
-      // Full power charge buffs
-      score +=
-        state[S.fullPowerChargeBuffs].reduce(
-          (acc, cur) => acc + cur.amount * (cur.turns || state[S.turnsRemaining]),
-          0
-        ) *
-        turnCount *
-        this.fullPowerMultiplier;
-
       // Nullify genki turns
       score += state[S.nullifyGenkiTurns] * turnCount * -9;
 
@@ -337,7 +346,7 @@ export default class HeuristicConstBuffStrategy extends BaseStrategy {
     }
 
     // Scale score
-    score = this.scaleScore(score);
+    score = this.scaleScore(score, state);
     const buffScore = score;
 
     // Effect score
@@ -382,12 +391,12 @@ export default class HeuristicConstBuffStrategy extends BaseStrategy {
       }
       // Scale score
       scoreEffectScore *= turnCount / 2;
-      scoreEffectScore = this.scaleScore(scoreEffectScore);
+      scoreEffectScore = this.scaleScore(scoreEffectScore, state);
       score += scoreEffectScore;
     }
 
     let actualScore;
-    const { recommendedEffect } = this.engine.config.idol;
+    const { recommendedEffect } = config.idol;
     if (recommendedEffect == "goodConditionTurns") {
       actualScore = state[S.score] * 0.4;
     } else if (recommendedEffect == "concentration") {

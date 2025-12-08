@@ -40,8 +40,8 @@ export function LoadoutContextProvider({ children }) {
   const [removedCardOrder, setRemovedCardOrder] = useState(initialLoadout.removedCardOrder);
   const [turnTypeOrder, setTurnTypeOrder] = useState(initialLoadout.turnTypeOrder);
 
-  console.log("skillCardIdOrderGroups", skillCardIdOrderGroups);
-  console.log("customizationOrderGroups", customizationOrderGroups);
+  // console.log("skillCardIdOrderGroups", skillCardIdOrderGroups);
+  // console.log("customizationOrderGroups", customizationOrderGroups);
 
   let stage = FALLBACK_STAGE;
   if (stageId == "custom") {
