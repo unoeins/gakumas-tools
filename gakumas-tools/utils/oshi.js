@@ -16,16 +16,4 @@ const IdolIcon = ({ idolId }) => {
   );
 };
 
-export const OSHI_PROPS = {
-  text: (
-    <div>
-      <IdolIcon idolId={6} />
-      『伊藤舞音と浅見香月のおかづラジオ』#11ゲストは天音ゆかりさん
-      <IdolIcon idolId={13} />
-      <br />
-      全編無料で視聴できます！
-    </div>
-  ),
-  initiallyExpanded: true,
-  url: "https://nicochannel.jp/okazuradio/video/smmRyqszeP2Pxm6mA4HRHHEG",
-};
+export const OSHI_PROPS = null;
