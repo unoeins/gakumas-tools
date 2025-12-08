@@ -378,6 +378,7 @@
   "SimulatorUseStats": {
     "useStats": "スキルカード使用回数",
     "turn": "{turn}ターン",
+    "total": "合計",
     "sortByRatio": "スキルカードを引いた時の使用率でソート"
   },
   "SimulatorConditionalUseStats": {

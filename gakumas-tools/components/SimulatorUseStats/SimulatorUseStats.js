@@ -13,6 +13,22 @@ function SimulatorUseStats({ useStats, idolId }) {
        (a[1].use / (a[1].id !== 0 ? a[1].draw : useStats.numRuns))) :
         b[1].use - a[1].use)
       .map((entry) => (entry[1])));
+  const totalDataMap = useStats.data.reduce((acc, cur) => {
+    cur.forEach((value, key) => {
+      const data = acc.get(key);
+      if (data) {
+        data.use += value.use;
+        data.draw += value.draw;
+      } else {
+        acc.set(key, { ...value });
+      }
+    });
+    return acc;
+  }, new Map());
+  const totalData = [...totalDataMap.values()].sort((a, b) => sortByRatio ?
+    ((b.use / (b.id !== 0 ? b.draw : useStats.numRuns * sortedData.length)) -
+     (a.use / (a.id !== 0 ? a.draw : useStats.numRuns * sortedData.length))) :
+      b.use - a.use);
 
   return (
     <div id="simulator_usestats" className={styles.useStats}>
@@ -26,6 +42,29 @@ function SimulatorUseStats({ useStats, idolId }) {
             onChange={(e) => setSortByRatio(e.target.checked)}
           />
           <label htmlFor="sortByRatio">{t("sortByRatio")}</label>
+        </div>
+      </div>
+      <div className={styles.useStatsTurnData}>
+        <div className={styles.useStatsTurn}>
+          <span>{t("total")}</span>
+        </div>
+        <div className={styles.useStatsData}>
+          {totalData.map((data, i) => (
+            <div className={styles.useStatsCard} key={`${i}_${data.id}_${data.c}`}>
+              <EntityIcon
+                type={EntityTypes.SKILL_CARD}
+                id={data.id}
+                customizations={data.c}
+                idolId={idolId}
+                label={"SKIP"}
+                size="fill"
+              />
+              <div>{data.use}</div>
+              <div>{((data.use / (data.id !== 0 ? 
+                data.draw : useStats.numRuns * sortedData.length)) 
+                * 100).toFixed(1)}%</div>
+            </div>
+          ))}
         </div>
       </div>
       {sortedData.map((turnData, turn) => (
