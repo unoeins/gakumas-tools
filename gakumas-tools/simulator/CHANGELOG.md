@@ -10,9 +10,15 @@ Dates are based on Eastern Time Zone.
 
 
 
+
+## 2025-12-09
+
+- Fix effect order
+
 ## 2025-12-08
 
 - Update Atmosphere Lilja
+- Make fullPowerCharge decrease a debuff (nullable)
 
 ## 2025-12-04
 

@@ -151,6 +151,11 @@ export default function Simulator() {
     setSimulatorData(null);
     setPendingDecision(null);
 
+    pushLoadoutHistory();
+    if (stage.type === "linkContest") {
+      pushLoadoutsHistory();
+    }
+
     const engine = new StageEngine(config, linkConfigs);
 
     const wrappedInputCallback = async (decision) => {
@@ -173,11 +178,6 @@ export default function Simulator() {
     const result = await player.play();
     setSimulatorData({ logs: result.logs });
     setRunning(false);
-
-    pushLoadoutHistory();
-    if (stage.type === "linkContest") {
-      pushLoadoutsHistory();
-    }
   }
 
   async function runSimulation() {
@@ -361,7 +361,7 @@ export default function Simulator() {
             href="https://github.com/surisuririsu/gakumas-tools/blob/master/gakumas-tools/simulator/CHANGELOG.md"
             target="_blank"
           >
-            {t("lastUpdated")}: 2025-12-08
+            {t("lastUpdated")}: 2025-12-09
           </a>
         </div>
         {!simulatorData && (
