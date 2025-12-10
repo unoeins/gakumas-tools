@@ -10,6 +10,7 @@ import HeuristicFutureSightStrategy from "./HeuristicFutureSightStrategy";
 import BasicCardStrategy from "./BasicCardStrategy";
 import BasicCardSimulationStrategy from "./BasicCardSimulationStrategy";
 import BasicCardUseStrategy from "./BasicCardUseStrategy";
+import AtmosphereStrategy from "./AtmosphereStrategy";
 
 const STRATEGIES = {
   HeuristicStrategy, 
@@ -21,6 +22,7 @@ const STRATEGIES = {
   // HeuristicCustomBuffDebuffStrategy, 
   // HeuristicEffectScoreStrategy,
   HeuristicFutureSightStrategy,
+  AtmosphereStrategy
   // BasicCardStrategy,
   // BasicCardSimulationStrategy,
   // BasicCardUseStrategy,
