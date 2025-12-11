@@ -3,6 +3,7 @@ import { deepCopy } from "../utils";
 import BaseStrategy from "./BaseStrategy";
 
 const MAX_DEPTH = 3;
+const OP = 1, MID = 2, ED = 3;
 
 export default class AtmosphereStrategy extends BaseStrategy {
   constructor(engine) {
@@ -10,12 +11,17 @@ export default class AtmosphereStrategy extends BaseStrategy {
 
     this.depth = 0;
     this.rootEffectCount = 0;
+    this.phase = OP;
   }
 
   evaluate(state) {
     if (this.depth == 0) {
       this.rootEffectCount = state[S.effects].length;
+      const turnCount = state[S.turnsElapsed] + state[S.turnsRemaining];
+      this.phase = state[S.turnsElapsed] / turnCount < 0.25 ? OP : 
+                   state[S.turnsElapsed] / turnCount < 0.75 ? MID : ED;
     }
+
 
     const logIndex = this.engine.logger.log(state, "hand", null);
 
@@ -162,11 +168,6 @@ export default class AtmosphereStrategy extends BaseStrategy {
     this.fullPowerMultiplier =
       config.idol.recommendedEffect == "fullPower" ? 5 : 1;
 
-    const turnCount = state[S.turnsElapsed] + state[S.turnsRemaining];
-    const OP = 1, MID = 2, ED = 3;
-    const phase = state[S.turnsElapsed] / turnCount < 0.25 ? OP : 
-                  state[S.turnsElapsed] / turnCount < 0.75 ? MID : ED;
-
     // Calc score
 
     let score = 0;
@@ -216,16 +217,16 @@ export default class AtmosphereStrategy extends BaseStrategy {
       (state[S.turnsRemaining] || state[S.cardUsesRemaining])
     ) {
       score += state[S.strengthTimes] * 40;
-      score += state[S.preservationTimes] * 80 * (phase == OP ? 5 : 1);
-      score += state[S.leisureTimes] * 80 * (phase == OP ? 5 : 1);
-      score += state[S.fullPowerTimes] * 80 *  (phase != ED ? 5 : 1) * this.fullPowerMultiplier;
+      score += state[S.preservationTimes] * 80 * (this.phase == OP ? 5 : 1);
+      score += state[S.leisureTimes] * 80 * (this.phase == OP ? 5 : 1);
+      score += state[S.fullPowerTimes] * 80 *  (this.phase != ED ? 5 : 1) * this.fullPowerMultiplier;
 
       //Enthusiasm
       score += state[S.enthusiasm] * 5;
 
       // Full power charge
       score +=
-        state[S.cumulativeFullPowerCharge] * 3 * (phase != ED ? 100 : 1)  * this.fullPowerMultiplier;
+        state[S.cumulativeFullPowerCharge] * 3 * (this.phase != ED ? 100 : 1)  * this.fullPowerMultiplier;
 
       // Enthusiasm buffs
       score +=
