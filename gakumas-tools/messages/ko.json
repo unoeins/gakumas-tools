@@ -259,7 +259,11 @@
     "average": "평균값",
     "median": "중앙값",
     "max": "최댓값",
-    "logs": "로그"
+    "logs": "로그",
+    "downloadScores": "스코어 다운로드",
+    "useStats": "사용 횟수",
+    "conditionalUseStats": "조건부 사용 횟수",
+    "priorityStats": "우선도 비교"
   },
   "SimulatorResultGraphs": {
     "score": "스코어"
