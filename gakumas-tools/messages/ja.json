@@ -269,6 +269,7 @@
     "median": "中央値",
     "max": "最大値",
     "logs": "ログ",
+    "downloadScores": "スコアをダウンロード",
     "useStats": "使用回数",
     "conditionalUseStats": "条件付き使用回数",
     "priorityStats": "優先度比較"

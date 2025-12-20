@@ -130,6 +130,7 @@ export default class CardManager extends EngineComponent {
     state[S.pcchiCardsUsed] = 0;
     state[S.natsuyaCardsUsed] = 0;
     state[S.holidayCardsUsed] = 0;
+    state[S.onigiriCardsUsed] = 0;
   }
 
   changeIdol(state) {
@@ -611,7 +612,7 @@ export default class CardManager extends EngineComponent {
       state[S.removedCards].splice(index, 1);
       state[S.handCards].push(card);
 
-      this.logger.log(state, "removedCard", {
+      this.logger.log(state, "moveCardToHand", {
         type: "skillCard",
         id: state[S.cardMap][card].id,
       });
