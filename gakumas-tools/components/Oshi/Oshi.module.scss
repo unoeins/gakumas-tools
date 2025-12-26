@@ -11,7 +11,7 @@
     border-radius: 0 0 16px 16px;
     background: colors.$maokoku;
     padding: 4px 8px;
-    color: colors.$black-dark;
+    color: colors.$white;
     text-align: center;
     box-shadow: 0 0 4px color.adjust(colors.$black, $alpha: -0.75);
     transition: background-color 0.2s;
@@ -52,4 +52,12 @@
   border-color: colors.$white;
   border-width: 3px 0;
   background-color: colors.$gk-orange;
+}
+
+.badge {
+  display: inline-block;
+  background-color: #ff3333;
+  border-radius: 5px;
+  width: 10px;
+  height: 10px;
 }

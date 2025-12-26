@@ -26,8 +26,11 @@ export default class CardManager extends EngineComponent {
       lastUsedCardType: (state) =>
         state[S.lastUsedCard] != null &&
         SkillCards.getById(state[S.cardMap][state[S.lastUsedCard]].id).type,
+      movedCardId: (state) =>
+        state[S.movedCard] != null && state[S.cardMap][state[S.movedCard]].id,
       numHeldCards: (state) => state[S.heldCards].length,
       numRemovedCards: (state) => state[S.removedCards].length,
+      unremovedTroubleCards: (state) => this.countUnremovedTroubleCards(state),
       countCards: (state, targetRule) =>
         this.getTargetRuleCards(state, targetRule.replaceAll("\\", "*"), null)
           .size,
@@ -42,6 +45,7 @@ export default class CardManager extends EngineComponent {
         this.addRandomUpgradedCardToHand(state),
       addCardToTopOfDeck: (state, cardId) =>
         this.addCardToTopOfDeck(state, cardId),
+      addCardToDeck: (state, cardId) => this.addCardToDeck(state, cardId),
       addCardToHand: (state, cardId) => this.addCardToHand(state, cardId),
       moveCardToHand: (state, cardId, exact) =>
         this.moveCardToHand(state, cardId, parseInt(exact, 10)),
@@ -66,6 +70,9 @@ export default class CardManager extends EngineComponent {
         this.removeTroubleFromDeckOrDiscards(state),
       moveActiveCardsToDeckFromRemoved: (state) =>
         this.moveActiveCardsToDeckFromRemoved(state),
+      useRandomCardFree: (state, targetRule) =>
+        this.useRandomCardFree(state, targetRule),
+      removeBasicCard: (state) => this.removeBasicCard(state),
     };
   }
 
@@ -126,6 +133,7 @@ export default class CardManager extends EngineComponent {
     state[S.activeCardsUsed] = 0;
     state[S.usedCard] = null;
     state[S.lastUsedCard] = null;
+    state[S.movedCard] = null;
 
     state[S.pcchiCardsUsed] = 0;
     state[S.natsuyaCardsUsed] = 0;
@@ -291,6 +299,8 @@ export default class CardManager extends EngineComponent {
     // Draw card
     const card = state[S.deckCards].pop();
     state[S.handCards].push(card);
+    state[S.movedCard] = card;
+    this.engine.effectManager.triggerEffectsForPhase(state, "cardMovedToHand");
 
     this.logger.debug(
       "Drew card",
@@ -319,6 +329,7 @@ export default class CardManager extends EngineComponent {
     const skillCard = SkillCards.getById(state[S.cardMap][card].id);
 
     // Check debuffs
+    if (state[S.noCardUseTurns]) return false;
     if (state[S.noActiveTurns] && skillCard.type == "active") return false;
     if (state[S.noMentalTurns] && skillCard.type == "mental") return false;
 
@@ -473,7 +484,11 @@ export default class CardManager extends EngineComponent {
 
   isUpgradable(state, card) {
     const skillCard = SkillCards.getById(state[S.cardMap][card].id);
-    return !skillCard.upgraded && skillCard.type != "trouble";
+    return (
+      !skillCard.upgraded &&
+      skillCard.type != "trouble" &&
+      skillCard.rarity != "L"
+    );
   }
 
   upgrade(state, card) {
@@ -555,6 +570,22 @@ export default class CardManager extends EngineComponent {
     });
   }
 
+  addCardToDeck(state, cardId) {
+    const skillCard = SkillCards.getById(cardId);
+
+    state[S.cardMap].push({
+      id: skillCard.id,
+      baseId: getBaseId(skillCard),
+    });
+    const cardIdx = state[S.cardMap].length - 1;
+    const insertPos = Math.floor(getRand() * (state[S.deckCards].length + 1));
+    state[S.deckCards].splice(insertPos, 0, cardIdx);
+    this.logger.log(state, "addCardToDeckAtRandom", {
+      type: "skillCard",
+      id: skillCard.id,
+    });
+  }
+
   addCardToHand(state, cardId) {
     const skillCard = SkillCards.getById(cardId);
 
@@ -590,6 +621,9 @@ export default class CardManager extends EngineComponent {
     state[pick.pile].splice(pick.index, 1);
     state[S.handCards].push(pick.cardIdx);
 
+    state[S.movedCard] = pick.cardIdx;
+    this.engine.effectManager.triggerEffectsForPhase(state, "cardMovedToHand");
+
     this.logger.log(state, "moveCardToHand", {
       type: "skillCard",
       id: state[S.cardMap][pick.cardIdx].id,
@@ -609,6 +643,12 @@ export default class CardManager extends EngineComponent {
     if (index != -1) {
       state[S.removedCards].splice(index, 1);
       state[S.handCards].push(card);
+
+      state[S.movedCard] = card;
+      this.engine.effectManager.triggerEffectsForPhase(
+        state,
+        "cardMovedToHand"
+      );
 
       this.logger.log(state, "moveCardToHand", {
         type: "skillCard",
@@ -692,6 +732,13 @@ export default class CardManager extends EngineComponent {
 
       state[pick.pile].splice(pick.index, 1);
       state[S.handCards].push(pick.cardIdx);
+
+      state[S.movedCard] = pick.cardIdx;
+      this.engine.effectManager.triggerEffectsForPhase(
+        state,
+        "cardMovedToHand"
+      );
+
       this.logger.log(state, "moveCardToHand", {
         type: "skillCard",
         id: state[S.cardMap][pick.cardIdx].id,
@@ -716,6 +763,9 @@ export default class CardManager extends EngineComponent {
     state[pick.pile].splice(pick.index, 1);
     state[S.handCards].push(pick.cardIdx);
 
+    state[S.movedCard] = pick.cardIdx;
+    this.engine.effectManager.triggerEffectsForPhase(state, "cardMovedToHand");
+
     this.logger.log(state, "moveCardToHand", {
       type: "skillCard",
       id: state[S.cardMap][pick.cardIdx].id,
@@ -737,6 +787,9 @@ export default class CardManager extends EngineComponent {
     const pick = pIdolCards[Math.floor(getRand() * pIdolCards.length)];
     state[pick.pile].splice(pick.index, 1);
     state[S.handCards].push(pick.cardIdx);
+
+    state[S.movedCard] = pick.cardIdx;
+    this.engine.effectManager.triggerEffectsForPhase(state, "cardMovedToHand");
 
     this.logger.log(state, "moveCardToHand", {
       type: "skillCard",
@@ -855,6 +908,12 @@ export default class CardManager extends EngineComponent {
       const card = state[S.heldCards].pop();
       state[S.handCards].push(card);
 
+      state[S.movedCard] = card;
+      this.engine.effectManager.triggerEffectsForPhase(
+        state,
+        "cardMovedToHand"
+      );
+
       this.logger.log(state, "moveCardToHand", {
         type: "skillCard",
         id: state[S.cardMap][card].id,
@@ -955,6 +1014,13 @@ export default class CardManager extends EngineComponent {
           targetCards.add(k);
         }
       }
+    } else if (["T", "N", "R", "SR", "SSR", "L"].includes(target)) {
+      const rarity = target;
+      for (let k = 0; k < state[S.cardMap].length; k++) {
+        if (this.getCardRarity(state, k) == rarity) {
+          targetCards.add(k);
+        }
+      }
     } else if (/^\d+$/.test(target)) {
       for (let k = 0; k < state[S.cardMap].length; k++) {
         if (state[S.cardMap][k].baseId == target) {
@@ -964,5 +1030,52 @@ export default class CardManager extends EngineComponent {
     }
 
     return targetCards;
+  }
+
+  countUnremovedTroubleCards(state) {
+    let count = 0;
+    for (let i = 0; i < state[S.cardMap].length; i++) {
+      const card = state[S.cardMap][i];
+      const skillCard = SkillCards.getById(card.id);
+      if (skillCard.type == "trouble" && !state[S.removedCards].includes(i)) {
+        count++;
+      }
+    }
+    return count;
+  }
+
+  useRandomCardFree(state, targetRule) {
+    const targetCards = this.getTargetRuleCards(state, targetRule);
+    const usableCards = [];
+    for (let card of targetCards.values()) {
+      if (state[S.handCards].includes(card) && this.isCardUsable(state, card)) {
+        usableCards.push(card);
+      }
+    }
+    if (!usableCards.length) return;
+    const card = usableCards[Math.floor(getRand() * usableCards.length)];
+    state[S.nullifyCostCards] += 1;
+    this.useCard(state, card);
+  }
+
+  removeBasicCard(state) {
+    let basicCards = [];
+    for (let pile of [S.deckCards, S.discardedCards, S.handCards]) {
+      for (let i = 0; i < state[pile].length; i++) {
+        const cardIdx = state[pile][i];
+        const card = state[S.cardMap][cardIdx];
+        const skillCard = SkillCards.getById(card.id);
+        if (skillCard.name.includes("基本")) {
+          basicCards.push({ pile, index: i, cardIdx });
+        }
+      }
+    }
+    if (!basicCards.length) return;
+    const pick = basicCards[Math.floor(getRand() * basicCards.length)];
+    state[pick.pile].splice(pick.index, 1);
+    this.logger.log(state, "removeCard", {
+      type: "skillCard",
+      id: state[S.cardMap][pick.cardIdx].id,
+    });
   }
 }

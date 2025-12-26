@@ -2,7 +2,7 @@ import { Idols } from "gakumas-data";
 import gkImg from "gakumas-images";
 import Image from "@/components/Image";
 
-const IdolIcon = ({ idolId }) => {
+export default function IdolIcon({ idolId }) {
   const idol = Idols.getById(idolId);
   return (
     <Image
@@ -14,15 +14,4 @@ const IdolIcon = ({ idolId }) => {
       draggable={false}
     />
   );
-};
-
-export const OSHI_PROPS = {
-  text: (
-    <div>
-      <IdolIcon idolId={6} />
-      「伊藤舞音のおいでよ まおーこくだい9かい」
-    </div>
-  ),
-  initiallyExpanded: true,
-  url: "https://www.youtube.com/watch?v=XDT1HNaCAeA",
-};
+}
