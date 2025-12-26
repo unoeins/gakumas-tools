@@ -110,7 +110,8 @@ export default function NiaCalculator() {
         paramBonuses,
         affection,
         params,
-        votes
+        votes,
+        difficulty
       )
     : null;
 
@@ -135,7 +136,7 @@ export default function NiaCalculator() {
   const totalScore = scores.reduce((acc, cur) => acc + cur, 0);
   const gainedVotes = calculateGainedVotes(voteRegimes, affection, totalScore);
   const totalVotes = votes + gainedVotes;
-  const voteRank = getVoteRank(totalVotes);
+  const voteRank = getVoteRank(totalVotes, difficulty);
 
   const paramRating = Math.floor(
     postAuditionParams.reduce((acc, cur) => acc + cur, 0) * 2.3
@@ -144,7 +145,7 @@ export default function NiaCalculator() {
   let actualRating = "?";
   let actualRank = "?";
   if (voteRank) {
-    const voteRating = calculateVoteRating(totalVotes, voteRank);
+    const voteRating = calculateVoteRating(totalVotes, voteRank, difficulty);
     actualRating = paramRating + voteRating;
     actualRank = getRank(actualRating);
   }

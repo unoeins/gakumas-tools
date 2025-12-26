@@ -275,7 +275,7 @@ export function calculateBonusParams(gainedParams, paramBonuses) {
 
 export function calculateChallengeParams(gainedParams, challengeParamBonus, paramBonuses) {
   return gainedParams.map((param, i) =>
-    Math.floor((param * challengeParamBonus * (100 + paramBonuses[i])) / 10000)
+    Math.floor(Math.floor(param * challengeParamBonus / 100) * (100 + paramBonuses[i]) / 100)
   );
 }
 
@@ -320,20 +320,20 @@ export const VOTE_REGIMES_BY_DIFF_STAGE = {
   master: {
     finale: [
       { threshold: 1200582, multiplier: 0, constant: 32668 },
-      { threshold: 640882, multiplier: 0.004126232489, constant: 30358.5 },
-      { threshold: 260417, multiplier: 0.01821637749, constant: 23427.8 },
+      { threshold: 640882, multiplier: 0.004126232489, constant: 27714 },
+      { threshold: 260417, multiplier: 0.01821637749, constant: 18683.9 },
       { threshold: 0, multiplier: 0.07592333987, constant: 3656.17 },
     ],
     quartet: [
       { threshold: 239970, multiplier: 0, constant: 25334 },
-      { threshold: 180000, multiplier: 0.02800776858, constant: 23654 },
-      { threshold: 119982, multiplier: 0.08399651702, constant: 18613 },
+      { threshold: 180000, multiplier: 0.02800776858, constant: 18612.6 },
+      { threshold: 119982, multiplier: 0.08399651702, constant: 8534.9 },
       { threshold: 0, multiplier: 0.1289162297, constant: 3145.5 },
     ],
     idolbigup: [
       { threshold: 90862, multiplier: 0, constant: 16000 },
-      { threshold: 78867, multiplier: 0.07020547945, constant: 15157.9 },
-      { threshold: 66750, multiplier: 0.2076203514, constant: 12642 },
+      { threshold: 78867, multiplier: 0.07020547945, constant: 9621 },
+      { threshold: 66750, multiplier: 0.2076203514, constant: -1216.6 },
       { threshold: 0, multiplier: 0.1274839693, constant: 4132.5 },
     ],
   },
@@ -364,16 +364,29 @@ function calculateScoreForVotes(voteRegimes, affection, votes) {
   return 0;
 }
 
-const VOTE_RANKS = [
-  { rank: "SSS", threshold: 140000 },
-  { rank: "SS+", threshold: 120000 },
-  { rank: "SS", threshold: 100000 },
-  { rank: "S+", threshold: 80000 },
-  { rank: "S", threshold: 60000 },
-  { rank: "A+", threshold: 40000 },
-];
+const VOTE_RANKS_BY_DIFF = {
+  pro: [
+    { rank: "SS", threshold: 100001 },
+    { rank: "S+", threshold: 80001 },
+    { rank: "S", threshold: 60001 },
+    { rank: "A+", threshold: 40001 },
+    { rank: "A", threshold: 20001 },
+    { rank: "B+", threshold: 0 },
+  ],
+  master: [
+    { rank: "SSS", threshold: 140001 },
+    { rank: "SS+", threshold: 120001 },
+    { rank: "SS", threshold: 100001 },
+    { rank: "S+", threshold: 80001 },
+    { rank: "S", threshold: 60001 },
+    { rank: "A+", threshold: 40001 },
+    { rank: "A", threshold: 20001 },
+    { rank: "B+", threshold: 0 },
+  ],
+};
 
-export function getVoteRank(votes) {
+export function getVoteRank(votes, difficulty) {
+  const VOTE_RANKS = VOTE_RANKS_BY_DIFF[difficulty];
   for (let i = 0; i < VOTE_RANKS.length; i++) {
     if (votes >= VOTE_RANKS[i].threshold) {
       return VOTE_RANKS[i].rank;
@@ -382,18 +395,30 @@ export function getVoteRank(votes) {
   return null;
 }
 
-const FAN_RATING_BY_VOTE_RANK = {
-  "A+": { base: 900, multiplier: 0.07 },
-  S: { base: 1200, multiplier: 0.065 },
-  "S+": { base: 1600, multiplier: 0.06 },
-  SS: { base: 2100, multiplier: 0.055 },
-  "SS+": { base: 3800, multiplier: 0.04 },
-  SSS: { base: 5200, multiplier: 0.03 },
+const FAN_RATING_BY_DIFF_VOTE_RANK = {
+  pro: {
+    "B+": { base: 0, multiplier: 0.1 },
+    A: { base: 300, multiplier: 0.085 },
+    "A+": { base: 900, multiplier: 0.07 },
+    S: { base: 1200, multiplier: 0.065 },
+    "S+": { base: 1600, multiplier: 0.06 },
+    SS: { base: 2100, multiplier: 0.055 },
+  },
+  master: {
+    "B+": { base: 0, multiplier: 0.1 },
+    A: { base: 300, multiplier: 0.085 },
+    "A+": { base: 900, multiplier: 0.07 },
+    S: { base: 1200, multiplier: 0.065 },
+    "S+": { base: 1600, multiplier: 0.06 },
+    SS: { base: 2600, multiplier: 0.05 },
+    "SS+": { base: 3800, multiplier: 0.04 },
+    SSS: { base: 5200, multiplier: 0.03 },
+  },
 };
 
-export function calculateVoteRating(votes, voteRank) {
-  const { base, multiplier } = FAN_RATING_BY_VOTE_RANK[voteRank];
-  return base + Math.ceil(votes * multiplier);
+export function calculateVoteRating(votes, voteRank, difficulty) {
+  const { base, multiplier } = FAN_RATING_BY_DIFF_VOTE_RANK[difficulty][voteRank];
+  return base + Math.floor(votes * multiplier);
 }
 
 export function calculateRecommendedScores(
@@ -405,7 +430,8 @@ export function calculateRecommendedScores(
   paramBonuses,
   affection,
   params,
-  votes
+  votes,
+  difficulty
 ) {
   let sft = 0;
   const maxScores = calculateMaxScores(
@@ -417,6 +443,7 @@ export function calculateRecommendedScores(
   );
   let recommendedScores = {};
   let currentScores = [0, 0, 0];
+  const VOTE_RANKS = VOTE_RANKS_BY_DIFF[difficulty];
 
   const produceRanks = Object.keys(TARGET_RATING_BY_RANK).slice(0, 8);
   let rankIndex = produceRanks.length - 1;
@@ -459,9 +486,9 @@ export function calculateRecommendedScores(
     );
 
     let currentVoteRating = 0;
-    const voteRank = getVoteRank(postAuditionVotes);
+    const voteRank = getVoteRank(postAuditionVotes, difficulty);
     if (voteRank) {
-      currentVoteRating = calculateVoteRating(postAuditionVotes, voteRank);
+      currentVoteRating = calculateVoteRating(postAuditionVotes, voteRank, difficulty);
     }
 
     // console.log(currentParamRating, currentVoteRating);
@@ -536,7 +563,7 @@ export function calculateRecommendedScores(
     // Remaining score
     const currentParamRegime = paramRegimes[currentParamRegimeIndex];
     const currentVoteRegime = voteRegimes[currentVoteRegimeIndex];
-    const currentVoteRank = FAN_RATING_BY_VOTE_RANK[voteRank];
+    const currentVoteRank = FAN_RATING_BY_DIFF_VOTE_RANK[difficulty][voteRank];
 
     const remainingRating =
       targetRating - currentParamRating - currentVoteRating;
