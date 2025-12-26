@@ -158,11 +158,11 @@ export default function NiaCalculator() {
         selected={difficulty}
         onChange={(diff) => {
           if (diff === "master") {
-            setStage("finale");
             setAffection(20);
           } else {
             setChallengeParamBonus(null);
           }
+          setStage("finale");
           setDifficulty(diff);
         }}
       />
