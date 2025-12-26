@@ -50,10 +50,14 @@ const STAGE_OPTIONS_BY_DIFFICULTY = {
     { value: "quartet", label: "QUARTET" },
     { value: "finale", label: "FINALE" },
   ],
-  master: [{ value: "finale", label: "FINALE" }],
+  master: [
+    { value: "idolbigup", label: "IDOL Big up!" },
+    { value: "quartet", label: "QUARTET" },
+    { value: "finale", label: "FINALE" },
+  ],
 };
 
-const FINAL_AUDITIONS = ["quartet", "finale"];
+const FINAL_AUDITIONS = ["idolbigup", "quartet", "finale"];
 
 export default function NiaCalculator() {
   const t = useTranslations("Calculator");
@@ -117,7 +121,8 @@ export default function NiaCalculator() {
   );
   const challengeParams = calculateChallengeParams(
     gainedParams,
-    challengeParamBonus
+    challengeParamBonus,
+    paramBonuses
   );
   const bonusParams = calculateBonusParams(gainedParams, paramBonuses);
   const postAuditionParams = calculatePostAuditionParams(
@@ -203,7 +208,7 @@ export default function NiaCalculator() {
                 placeholder="%"
                 onChange={setChallengeParamBonus}
                 min={0}
-                max={40}
+                max={55}
               />
             </>
           )}
