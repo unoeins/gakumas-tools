@@ -72,7 +72,8 @@
     "difficulties": {
       "regular": "레귤러",
       "pro": "프로",
-      "master": "마스터"
+      "master": "마스터",
+      "legend": "레전드"
     },
     "places": {
       "1": "1위",
@@ -88,6 +89,8 @@
     "produceRank": "프로듀스 평가",
     "targetScore": "목표 스코어",
     "score": "스코어",
+    "middleScore": "중간 시험 점수",
+    "finalScore": "최종 시험 점수",
     "niaNote": "※오디션 보너스 패러미터나 득표 수의 계산방법이 확인되는 대로, 관련 기능을 업데이트할 예정입니다.",
     "affectionAtStartOfProduce": "프로듀스 개시시 친애도",
     "stage": "스테이지",

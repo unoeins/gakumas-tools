@@ -12,6 +12,7 @@ import {
   getRank,
   MAX_PARAMS_BY_DIFFICULTY,
   PARAM_BONUS_BY_PLACE,
+  PARAM_BONUS_BY_PLACE_LEGEND,
   TARGET_RATING_BY_RANK,
 } from "@/utils/produceRank";
 import styles from "./ProduceRankCalculator.module.scss";
@@ -21,7 +22,7 @@ function HajimeCalculator() {
 
   const DIFFICULTY_OPTIONS = useMemo(
     () =>
-      ["regular", "pro", "master"].map((difficulty) => ({
+      ["regular", "pro", "master", "legend"].map((difficulty) => ({
         value: difficulty,
         label: t(`difficulties.${difficulty}`),
       })),
@@ -43,28 +44,34 @@ function HajimeCalculator() {
   const [place, setPlace] = useState(1);
   const [params, setParams] = useState([null, null, null]);
   const [actualScore, setActualScore] = useState("");
+  const [actualMiddleScore, setActualMiddleScore] = useState("");
 
   const maxParams = MAX_PARAMS_BY_DIFFICULTY[difficulty];
-  const placeParamBonus = PARAM_BONUS_BY_PLACE[place];
+  const placeParamBonus = difficulty === "legend" ? 
+    PARAM_BONUS_BY_PLACE_LEGEND[place] : 
+    PARAM_BONUS_BY_PLACE[place];
   const ratingExExamScore = calculateRatingExExamScore(
     place,
     params,
-    maxParams
+    maxParams,
+    difficulty,
+    actualMiddleScore
   );
 
   const targetScoreRows = useMemo(
     () =>
-      calculateTargetScores(ratingExExamScore).map(({ rank, score }) => [
+      calculateTargetScores(ratingExExamScore, difficulty).map(({ rank, score }) => [
         `${rank} (${TARGET_RATING_BY_RANK[rank]})`,
         score,
       ]),
-    [ratingExExamScore]
+    [ratingExExamScore, difficulty]
   );
   const actualRating = useMemo(
-    () => calculateActualRating(actualScore, ratingExExamScore),
-    [actualScore, ratingExExamScore]
+    () => calculateActualRating(actualScore, ratingExExamScore, difficulty),
+    [actualScore, ratingExExamScore, difficulty]
   );
   const actualRank = useMemo(() => getRank(actualRating), [actualRating]);
+  const showActualRank = difficulty !== "legend" ? !!actualScore : !!actualScore && !!actualMiddleScore;
 
   return (
     <>
@@ -72,7 +79,12 @@ function HajimeCalculator() {
       <ButtonGroup
         options={DIFFICULTY_OPTIONS}
         selected={difficulty}
-        onChange={setDifficulty}
+        onChange={(value) => {
+          if (value !== "legend") {
+            setActualMiddleScore("");
+          }
+          setDifficulty(value);
+        }}
       />
       <div className={styles.bonus}>
         {t("parameterLimit")}: {maxParams}
@@ -95,20 +107,34 @@ function HajimeCalculator() {
         onChange={setParams}
       />
 
+      {difficulty === "legend" && (
+        <>
+          <label>{t("middleScore")}</label>
+          <Input
+            type="number"
+            value={actualMiddleScore || ""}
+            placeholder={t("middleScore")}
+            onChange={setActualMiddleScore}
+            min={0}
+            max={10000000}
+          />
+        </>
+      )}
+
       <label>{t("targetScores")}</label>
       <Table headers={TABLE_HEADERS} rows={targetScoreRows} />
 
-      <label>{t("score")}</label>
+      <label>{t(difficulty === "legend" ? "finalScore" : "score")}</label>
       <Input
         type="number"
         value={actualScore || ""}
-        placeholder={t("score")}
+        placeholder={t(difficulty === "legend" ? "finalScore" : "score")}
         onChange={setActualScore}
         min={0}
         max={10000000}
       />
 
-      {!!actualScore && (
+      {showActualRank && (
         <>
           <label>{t("produceRank")}</label>
           <span>

@@ -72,7 +72,8 @@
     "difficulties": {
       "regular": "Regular",
       "pro": "Pro",
-      "master": "Master"
+      "master": "Master",
+      "legend": "Legend"
     },
     "places": {
       "1": "1st",
@@ -88,6 +89,8 @@
     "produceRank": "Produce rank",
     "targetScore": "Target score",
     "score": "Score",
+    "middleScore": "Middle exam score",
+    "finalScore": "Final exam score",
     "niaNote": "※Calculation will be updated as we learn more about parameter and vote counts from audition bonus.",
     "affectionAtStartOfProduce": "Affection at start of produce",
     "stage": "Stage",

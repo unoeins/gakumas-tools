@@ -72,7 +72,8 @@
     "difficulties": {
       "regular": "レギュラー",
       "pro": "プロ",
-      "master": "マスター"
+      "master": "マスター",
+      "legend": "レジェンド"
     },
     "places": {
       "1": "1位",
@@ -88,6 +89,8 @@
     "produceRank": "プロデュース評価",
     "targetScore": "目標スコア",
     "score": "スコア",
+    "middleScore": "中間試験スコア",
+    "finalScore": "最終試験スコア",
     "niaNote": "※オーディションボーナスのパラメータや投票数の計算方法が分かり次第、機能を更新していきます。",
     "affectionAtStartOfProduce": "プロデュース開始時親愛度",
     "stage": "ステージ",
