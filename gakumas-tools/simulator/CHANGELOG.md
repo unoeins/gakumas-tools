@@ -18,6 +18,8 @@ Dates are based on Eastern Time Zone.
 ## 2025-12-26
 
 - Add new cards and icons
+- Fix supernova growth
+- Fix score calculation for pride and score buffs
 
 ## 2025-12-20
 
