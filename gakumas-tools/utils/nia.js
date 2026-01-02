@@ -117,78 +117,6 @@ export const PARAM_REGIMES_BY_DIFF_STAGE_BALANCE_ORDER = {
     },
   },
   master: {
-    finale: {
-      flat: {
-        1: [
-          { threshold: 134210, multiplier: 0, constant: 172 },
-          { threshold: 66600, multiplier: 0.000756, constant: 69 },
-          { threshold: 0, multiplier: 0.0018, constant: 0 },
-        ],
-        2: [
-          { threshold: 63750, multiplier: 0, constant: 142 },
-          { threshold: 31600, multiplier: 0.00124, constant: 62 },
-          { threshold: 0, multiplier: 0.00325, constant: 0 },
-        ],
-        3: [
-          { threshold: 36900, multiplier: 0, constant: 116 },
-          { threshold: 17600, multiplier: 0.00183, constant: 48.5 },
-          { threshold: 0, multiplier: 0.00465, constant: 0 },
-        ],
-      },
-      skew: {
-        1: [
-          { threshold: 136070, multiplier: 0, constant: 215 },
-          { threshold: 43920, multiplier: 0.00092, constant: 90.5 },
-          { threshold: 0, multiplier: 0.00292, constant: 0 },
-        ],
-        2: [
-          { threshold: 63250, multiplier: 0, constant: 129 },
-          { threshold: 30600, multiplier: 0.0012, constant: 55 },
-          { threshold: 0, multiplier: 0.00292, constant: 0 },
-        ],
-        3: [
-          { threshold: 36100, multiplier: 0, constant: 86 },
-          { threshold: 18000, multiplier: 0.00133, constant: 37 },
-          { threshold: 0, multiplier: 0.0034, constant: 0 },
-        ],
-      },
-    },
-    quartet: {
-      flat: {
-        1: [
-          { threshold: 70300, multiplier: 0, constant: 145 },
-          { threshold: 34210, multiplier: 0.001194, constant: 61.08 },
-          { threshold: 0, multiplier: 0.002965, constant: 0 },
-        ],
-        2: [
-          { threshold: 32870, multiplier: 0, constant: 120 },
-          { threshold: 16050, multiplier: 0.00213, constant: 50 },
-          { threshold: 0, multiplier: 0.00512, constant: 0 },
-        ],
-        3: [
-          { threshold: 18670, multiplier: 0, constant: 98 },
-          { threshold: 9120, multiplier: 0.00308, constant: 40.5 },
-          { threshold: 0, multiplier: 0.00741, constant: 0 },
-        ],
-      },
-      skew: {
-        1: [
-          { threshold: 70750, multiplier: 0, constant: 182 },
-          { threshold: 34133, multiplier: 0.00148, constant: 77.3 },
-          { threshold: 0, multiplier: 0.00373, constant: 0 },
-        ],
-        2: [
-          { threshold: 32900, multiplier: 0, constant: 109 },
-          { threshold: 15970, multiplier: 0.0019, constant: 46.5 },
-          { threshold: 0, multiplier: 0.00475, constant: 0 },
-        ],
-        3: [
-          { threshold: 19570, multiplier: 0, constant: 73 },
-          { threshold: 9000, multiplier: 0.0023, constant: 30 },
-          { threshold: 0, multiplier: 0.0056, constant: 0 },
-        ],
-      },
-    },
     idolbigup: {
       flat: {
         1: [
@@ -225,6 +153,78 @@ export const PARAM_REGIMES_BY_DIFF_STAGE_BALANCE_ORDER = {
         ],
       },
     },
+    quartet: {
+      flat: {
+        1: [
+          { threshold: 70300, multiplier: 0, constant: 145 },
+          { threshold: 34210, multiplier: 0.001194, constant: 61.08 },
+          { threshold: 0, multiplier: 0.002965, constant: 0.5 },
+        ],
+        2: [
+          { threshold: 32870, multiplier: 0, constant: 120 },
+          { threshold: 16050, multiplier: 0.00213, constant: 50 },
+          { threshold: 0, multiplier: 0.00512, constant: 2 },
+        ],
+        3: [
+          { threshold: 18670, multiplier: 0, constant: 98 },
+          { threshold: 9120, multiplier: 0.00308, constant: 40.5 },
+          { threshold: 0, multiplier: 0.00741, constant: 1 },
+        ],
+      },
+      skew: {
+        1: [
+          { threshold: 70750, multiplier: 0, constant: 182 },
+          { threshold: 34133, multiplier: 0.00148, constant: 77.3 },
+          { threshold: 0, multiplier: 0.00373, constant: 0.5 },
+        ],
+        2: [
+          { threshold: 32900, multiplier: 0, constant: 109 },
+          { threshold: 15970, multiplier: 0.0019, constant: 46.5 },
+          { threshold: 0, multiplier: 0.00475, constant: 1 },
+        ],
+        3: [
+          { threshold: 19570, multiplier: 0, constant: 73 },
+          { threshold: 9000, multiplier: 0.0023, constant: 30 },
+          { threshold: 0, multiplier: 0.0056, constant: 0 },
+        ],
+      },
+    },
+    finale: {
+      flat: {
+        1: [
+          { threshold: 134210, multiplier: 0, constant: 172 },
+          { threshold: 66600, multiplier: 0.000756, constant: 70 },
+          { threshold: 0, multiplier: 0.0018, constant: 0.5 },
+        ],
+        2: [
+          { threshold: 63750, multiplier: 0, constant: 142 },
+          { threshold: 31350, multiplier: 0.001276, constant: 61 },
+          { threshold: 0, multiplier: 0.00325, constant: 0 },
+        ],
+        3: [
+          { threshold: 36500, multiplier: 0, constant: 116 },
+          { threshold: 17600, multiplier: 0.00182, constant: 50 },
+          { threshold: 0, multiplier: 0.00465, constant: 0 },
+        ],
+      },
+      skew: {
+        1: [
+          { threshold: 136070, multiplier: 0, constant: 215 },
+          { threshold: 65350, multiplier: 0.000915, constant: 90.5 },
+          { threshold: 0, multiplier: 0.0023, constant: 0 },
+        ],
+        2: [
+          { threshold: 63250, multiplier: 0, constant: 129 },
+          { threshold: 30900, multiplier: 0.00117, constant: 55 },
+          { threshold: 0, multiplier: 0.00295, constant: 0 },
+        ],
+        3: [
+          { threshold: 36100, multiplier: 0, constant: 86 },
+          { threshold: 17800, multiplier: 0.00136, constant: 37 },
+          { threshold: 0, multiplier: 0.003465, constant: 0 },
+        ],
+      },
+    },
   },
 };
 
@@ -234,7 +234,7 @@ export function calculateGainedParams(paramRegimesByOrder, paramOrder, scores) {
     for (let j = 0; j < regimes.length; j++) {
       const { threshold, multiplier, constant } = regimes[j];
       if (scores[i] > threshold) {
-        return Math.ceil(scores[i] * multiplier + constant);
+        return Math.floor(scores[i] * multiplier + constant);
       }
     }
     return 0;
@@ -273,9 +273,15 @@ export function calculateBonusParams(gainedParams, paramBonuses) {
   );
 }
 
-export function calculateChallengeParams(gainedParams, challengeParamBonus, paramBonuses) {
-  return gainedParams.map((param, i) =>
-    Math.floor(Math.floor(param * challengeParamBonus / 100) * (100 + paramBonuses[i]) / 100)
+export function calculateChallengeParams(
+  gainedParams,
+  bonusParams,
+  challengeParamBonus
+) {
+  return gainedParams.map(
+    (param, i) =>
+      Math.floor((param * challengeParamBonus) / 100) +
+      Math.floor((bonusParams[i] * challengeParamBonus) / 100)
   );
 }
 
@@ -318,23 +324,23 @@ export const VOTE_REGIMES_BY_DIFF_STAGE = {
     ],
   },
   master: {
-    finale: [
-      { threshold: 1200582, multiplier: 0, constant: 32668 },
-      { threshold: 640882, multiplier: 0.004126232489, constant: 27714 },
-      { threshold: 260417, multiplier: 0.01821637749, constant: 18683.9 },
-      { threshold: 0, multiplier: 0.07592333987, constant: 3656.17 },
-    ],
-    quartet: [
-      { threshold: 239970, multiplier: 0, constant: 25334 },
-      { threshold: 180000, multiplier: 0.02800776858, constant: 18612.6 },
-      { threshold: 119982, multiplier: 0.08399651702, constant: 8534.9 },
-      { threshold: 0, multiplier: 0.1289162297, constant: 3145.5 },
-    ],
     idolbigup: [
       { threshold: 90862, multiplier: 0, constant: 16000 },
       { threshold: 78867, multiplier: 0.07020547945, constant: 9621 },
       { threshold: 66750, multiplier: 0.2076203514, constant: -1216.6 },
       { threshold: 0, multiplier: 0.1274839693, constant: 4132.5 },
+    ],
+    quartet: [
+      { threshold: 239970, multiplier: 0, constant: 25334 },
+      { threshold: 180000, multiplier: 0.02800776858, constant: 18612.6 },
+      { threshold: 119982, multiplier: 0.08399651702, constant: 8534.93 },
+      { threshold: 0, multiplier: 0.1289162297, constant: 3145.5 },
+    ],
+    finale: [
+      { threshold: 1200582, multiplier: 0, constant: 32668 },
+      { threshold: 640882, multiplier: 0.004126232489, constant: 27714.07 },
+      { threshold: 260417, multiplier: 0.01821637749, constant: 18683.95 },
+      { threshold: 0, multiplier: 0.07592333987, constant: 3656.17 },
     ],
   },
 };
@@ -459,12 +465,12 @@ export function calculateRecommendedScores(
       currentScores
     );
     // console.log(gainedParams);
+    const bonusParams = calculateBonusParams(gainedParams, paramBonuses);
     const challengeParams = calculateChallengeParams(
       gainedParams,
-      challengeParamBonus,
-      paramBonuses
+      bonusParams,
+      challengeParamBonus
     );
-    const bonusParams = calculateBonusParams(gainedParams, paramBonuses);
     const postAuditionParams = calculatePostAuditionParams(
       maxParams,
       params,

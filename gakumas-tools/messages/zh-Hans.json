@@ -82,6 +82,7 @@
       "4": "其他名次"
     },
     "parameterLimit": "属性上限",
+    "midtermScore": "期中考试分数",
     "finalExamPlacement": "期末考试名次",
     "parameter": "属性加成",
     "parameters": "属性",
@@ -89,7 +90,6 @@
     "produceRank": "制作评级",
     "targetScore": "目标分数",
     "score": "最终得分",
-    "middleScore": "中期考试分数",
     "finalScore": "期末考试分数",
     "niaNote": "※ 随着我们进一步了解分数加成的参数和投票数的计算方法，本功能将持续更新。",
     "affectionAtStartOfProduce": "制作开始时好感度",
@@ -225,14 +225,15 @@
     "custom": "自定义"
   },
   "StageCustomizer": {
+    "type": "类型",
+    "contest": "竞技场",
+    "linkContest": "链接竞技场",
+    "event": "活动",
     "turnCounts": "回合数",
     "firstTurn": "首回合比例",
     "criteria": "审查基准",
     "effects": "场地效果",
     "effectFormat": "语法格式",
-    "defaultCards": "基本卡组",
-    "contest": "竞技场",
-    "event": "活动",
     "apply": "应用"
   },
   "LoadoutSkillCardGroup": {

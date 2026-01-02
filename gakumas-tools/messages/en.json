@@ -82,6 +82,7 @@
       "4": "Other"
     },
     "parameterLimit": "Parameter limit",
+    "midtermScore": "Midterm score",
     "finalExamPlacement": "Final exam placement",
     "parameter": "Parameter",
     "parameters": "Parameters",
@@ -89,7 +90,6 @@
     "produceRank": "Produce rank",
     "targetScore": "Target score",
     "score": "Score",
-    "middleScore": "Middle exam score",
     "finalScore": "Final exam score",
     "niaNote": "※Calculation will be updated as we learn more about parameter and vote counts from audition bonus.",
     "affectionAtStartOfProduce": "Affection at start of produce",
@@ -229,14 +229,15 @@
     "custom": "Custom"
   },
   "StageCustomizer": {
+    "type": "Type",
+    "contest": "Contest",
+    "linkContest": "Link Contest",
+    "event": "Event",
     "turnCounts": "Turn counts",
     "firstTurn": "First turn rate",
     "criteria": "Criteria",
     "effects": "Effects",
     "effectFormat": "Effect format",
-    "defaultCards": "Default cards",
-    "contest": "Contest",
-    "event": "Event",
     "apply": "Apply"
   },
   "LoadoutSkillCardGroup": {

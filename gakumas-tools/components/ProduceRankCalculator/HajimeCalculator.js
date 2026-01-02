@@ -40,30 +40,33 @@ function HajimeCalculator() {
 
   const TABLE_HEADERS = [t("produceRank"), t("targetScore")];
 
-  const [difficulty, setDifficulty] = useState("master");
+  const [difficulty, setDifficulty] = useState("legend");
   const [place, setPlace] = useState(1);
   const [params, setParams] = useState([null, null, null]);
+  const [midtermScore, setMidtermScore] = useState("");
   const [actualScore, setActualScore] = useState("");
-  const [actualMiddleScore, setActualMiddleScore] = useState("");
 
   const maxParams = MAX_PARAMS_BY_DIFFICULTY[difficulty];
-  const placeParamBonus = difficulty === "legend" ? 
-    PARAM_BONUS_BY_PLACE_LEGEND[place] : 
-    PARAM_BONUS_BY_PLACE[place];
+  const placeParamBonus =
+    difficulty === "legend"
+      ? PARAM_BONUS_BY_PLACE_LEGEND[place]
+      : PARAM_BONUS_BY_PLACE[place];
   const ratingExExamScore = calculateRatingExExamScore(
     place,
     params,
     maxParams,
-    difficulty,
-    actualMiddleScore
+    midtermScore,
+    difficulty
   );
 
   const targetScoreRows = useMemo(
     () =>
-      calculateTargetScores(ratingExExamScore, difficulty).map(({ rank, score }) => [
-        `${rank} (${TARGET_RATING_BY_RANK[rank]})`,
-        score,
-      ]),
+      calculateTargetScores(ratingExExamScore, difficulty).map(
+        ({ rank, score }) => [
+          `${rank} (${TARGET_RATING_BY_RANK[rank].toLocaleString()})`,
+          score.toLocaleString(),
+        ]
+      ),
     [ratingExExamScore, difficulty]
   );
   const actualRating = useMemo(
@@ -71,7 +74,7 @@ function HajimeCalculator() {
     [actualScore, ratingExExamScore, difficulty]
   );
   const actualRank = useMemo(() => getRank(actualRating), [actualRating]);
-  const showActualRank = difficulty !== "legend" ? !!actualScore : !!actualScore && !!actualMiddleScore;
+  const showActualRank = difficulty !== "legend" ? !!actualScore : !!actualScore && !!midtermScore;
 
   return (
     <>
@@ -81,7 +84,7 @@ function HajimeCalculator() {
         selected={difficulty}
         onChange={(value) => {
           if (value !== "legend") {
-            setActualMiddleScore("");
+            setMidtermScore("");
           }
           setDifficulty(value);
         }}
@@ -89,6 +92,20 @@ function HajimeCalculator() {
       <div className={styles.bonus}>
         {t("parameterLimit")}: {maxParams}
       </div>
+
+      {difficulty === "legend" && (
+        <>
+          <label>{t("midtermScore")}</label>
+          <Input
+            type="number"
+            value={midtermScore || ""}
+            placeholder={t("midtermScore")}
+            onChange={setMidtermScore}
+            min={0}
+            max={10000000}
+          />
+        </>
+      )}
 
       <label>{t("finalExamPlacement")}</label>
       <ButtonGroup
@@ -107,20 +124,6 @@ function HajimeCalculator() {
         onChange={setParams}
       />
 
-      {difficulty === "legend" && (
-        <>
-          <label>{t("middleScore")}</label>
-          <Input
-            type="number"
-            value={actualMiddleScore || ""}
-            placeholder={t("middleScore")}
-            onChange={setActualMiddleScore}
-            min={0}
-            max={10000000}
-          />
-        </>
-      )}
-
       <label>{t("targetScores")}</label>
       <Table headers={TABLE_HEADERS} rows={targetScoreRows} />
 
@@ -138,7 +141,8 @@ function HajimeCalculator() {
         <>
           <label>{t("produceRank")}</label>
           <span>
-            {actualRating} {actualRank ? `(${actualRank})` : null}
+            {actualRating.toLocaleString()}{" "}
+            {actualRank ? `(${actualRank})` : null}
           </span>
         </>
       )}

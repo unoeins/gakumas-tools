@@ -82,6 +82,7 @@
       "4": "4位以下"
     },
     "parameterLimit": "パラメータ上限",
+    "midtermScore": "中間試験スコア",
     "finalExamPlacement": "最終試験順位",
     "parameter": "パラメータ",
     "parameters": "パラメータ",
@@ -89,7 +90,6 @@
     "produceRank": "プロデュース評価",
     "targetScore": "目標スコア",
     "score": "スコア",
-    "middleScore": "中間試験スコア",
     "finalScore": "最終試験スコア",
     "niaNote": "※オーディションボーナスのパラメータや投票数の計算方法が分かり次第、機能を更新していきます。",
     "affectionAtStartOfProduce": "プロデュース開始時親愛度",
@@ -229,14 +229,15 @@
     "custom": "カスタム"
   },
   "StageCustomizer": {
+    "type": "タイプ",
+    "contest": "コンテスト",
+    "linkContest": "リンクコンテスト",
+    "event": "イベント",
     "turnCounts": "ターン数",
     "firstTurn": "初手ターン率",
     "criteria": "審査基準",
     "effects": "ステージ効果",
     "effectFormat": "効果形式",
-    "defaultCards": "基本カード",
-    "contest": "コンテスト",
-    "event": "イベント",
     "apply": "適用"
   },
   "LoadoutSkillCardGroup": {

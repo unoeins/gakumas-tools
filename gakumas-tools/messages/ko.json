@@ -82,6 +82,7 @@
       "4": "4위 이하"
     },
     "parameterLimit": "패러미터 상한",
+    "midtermScore": "중간시험 스코어",
     "finalExamPlacement": "최종시험 순위",
     "parameter": "패러미터",
     "parameters": "패러미터",
@@ -89,7 +90,6 @@
     "produceRank": "프로듀스 평가",
     "targetScore": "목표 스코어",
     "score": "스코어",
-    "middleScore": "중간 시험 점수",
     "finalScore": "최종 시험 점수",
     "niaNote": "※오디션 보너스 패러미터나 득표 수의 계산방법이 확인되는 대로, 관련 기능을 업데이트할 예정입니다.",
     "affectionAtStartOfProduce": "프로듀스 개시시 친애도",
@@ -225,14 +225,15 @@
     "custom": "커스텀"
   },
   "StageCustomizer": {
+    "type": "타입",
+    "contest": "콘테스트",
+    "linkContest": "링크 콘테스트",
+    "event": "이벤트",
     "turnCounts": "턴 수",
     "firstTurn": "첫 턴 비율",
     "criteria": "심사 기준",
     "effects": "스테이지 효과",
     "effectFormat": "효과 형식",
-    "defaultCards": "기본 카드",
-    "contest": "콘테스트",
-    "event": "이벤트",
     "apply": "적용"
   },
   "LoadoutSkillCardGroup": {
