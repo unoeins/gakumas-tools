@@ -17,6 +17,22 @@ Dates are based on Eastern Time Zone.
 
 
 
+
+
+
+## 2026-01-05
+
+- Update Superlative Misuzu and event support
+
+## 2026-01-04
+
+- Update score multiplier calculation for S37, make % entry toggleable
+- Add preview of superlative
+
+## 2026-01-02
+
+- Add preview of S37
+
 ## 2025-12-29
 
 - Fix kidoushuusei customizations, add tsubame icon variants
