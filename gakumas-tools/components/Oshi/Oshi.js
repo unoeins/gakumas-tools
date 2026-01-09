@@ -5,7 +5,16 @@ import IdolIcon from "@/components/IdolIcon";
 import YouTubeVideo from "@/components/YouTubeVideo";
 import styles from "./Oshi.module.scss";
 
-export const OSHI_PROPS = null;
+export const OSHI_PROPS = {
+  text: (
+    <div>
+      おかづラジオ×アイラハルカの「ないしょ話」第9回は伊藤舞音さん
+      <IdolIcon idolId={6} />
+    </div>
+  ),
+  initiallyExpanded: true,
+  url: "https://gs-ch.com/articles/contents/arUjfsE6u32Bd9U9jzm8KAJX",
+};
 
 export default function Oshi({
   text,

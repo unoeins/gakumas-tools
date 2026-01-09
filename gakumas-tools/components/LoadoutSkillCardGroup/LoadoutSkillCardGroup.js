@@ -9,13 +9,16 @@ import {
   FaEllipsis,
   FaImage,
   FaFilm,
+  FaPercent,
 } from "react-icons/fa6";
 import { SkillCards } from "gakumas-data";
 import MemoryImporterModal from "@/components/MemoryImporterModal";
 import MemoryPickerModal from "@/components/MemoryPickerModal";
 import StageSkillCards from "@/components/StageSkillCards";
 import LoadoutContext from "@/contexts/LoadoutContext";
+import MemoryCalculatorContext from "@/contexts/MemoryCalculatorContext";
 import ModalContext from "@/contexts/ModalContext";
+import { useRouter } from "@/i18n/routing";
 import c from "@/utils/classNames";
 import styles from "./LoadoutSkillCardGroup.module.scss";
 
@@ -28,6 +31,7 @@ function LoadoutSkillCardGroup({
 }) {
   const t = useTranslations("LoadoutSkillCardGroup");
   const { status } = useSession();
+  const router = useRouter();
   const {
     loadout,
     setMemory,
@@ -38,6 +42,9 @@ function LoadoutSkillCardGroup({
     deleteSkillCardIdGroup,
     swapSkillCardIdGroups,
   } = useContext(LoadoutContext);
+  const { setTargetSkillCardIds, setAcquiredSkillCardIds } = useContext(
+    MemoryCalculatorContext
+  );
   const { setModal, closeModal } = useContext(ModalContext);
   const [expanded, setExpanded] = useState(false);
 
@@ -76,6 +83,29 @@ function LoadoutSkillCardGroup({
           onClick={() => setExpanded(false)}
         >
           <button
+            className={styles.memoryCalculatorButton}
+            onClick={() => {
+              const nonPidolSkillCardIds = skillCardIds.filter(
+                (id) => SkillCards.getById(id).sourceType != "pIdol"
+              );
+              setTargetSkillCardIds(() => nonPidolSkillCardIds);
+              setAcquiredSkillCardIds(() => nonPidolSkillCardIds);
+              router.push("/memory-calculator");
+            }}
+          >
+            <FaPercent title={t("memoryCalculator")} />
+          </button>
+
+          {status == "authenticated" && (
+            <button
+              className={styles.pickButton}
+              onClick={() => setModal(<MemoryPickerModal index={groupIndex} />)}
+            >
+              <FaFilm title={t("memories")} />
+            </button>
+          )}
+
+          <button
             className={styles.importButton}
             onClick={() =>
               setModal(
@@ -89,23 +119,14 @@ function LoadoutSkillCardGroup({
               )
             }
           >
-            <FaImage />
+            <FaImage title={t("importMemory")} />
           </button>
-
-          {status == "authenticated" && (
-            <button
-              className={styles.pickButton}
-              onClick={() => setModal(<MemoryPickerModal index={groupIndex} />)}
-            >
-              <FaFilm />
-            </button>
-          )}
 
           <button
             className={styles.addButton}
             onClick={() => insertSkillCardIdGroup(groupIndex + 1)}
           >
-            <FaCirclePlus />
+            <FaCirclePlus title={t("addRow")} />
           </button>
 
           <button
@@ -113,7 +134,7 @@ function LoadoutSkillCardGroup({
             onClick={() => swapSkillCardIdGroups(groupIndex, groupIndex - 1)}
             disabled={groupIndex < 1}
           >
-            <FaCircleArrowUp />
+            <FaCircleArrowUp title={t("moveUp")} />
           </button>
 
           <button
@@ -121,7 +142,7 @@ function LoadoutSkillCardGroup({
             onClick={() => swapSkillCardIdGroups(groupIndex, groupIndex + 1)}
             disabled={groupIndex >= loadout.skillCardIdGroups.length - 1}
           >
-            <FaCircleArrowDown />
+            <FaCircleArrowDown title={t("moveDown")} />
           </button>
 
           <button
@@ -129,7 +150,7 @@ function LoadoutSkillCardGroup({
             onClick={() => deleteSkillCardIdGroup(groupIndex)}
             disabled={loadout.skillCardIdGroups.length < 2}
           >
-            <FaCircleXmark />
+            <FaCircleXmark title={t("removeRow")} />
           </button>
         </div>
         <button
