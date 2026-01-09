@@ -7,6 +7,8 @@ image_dirs = [
     "pItems/details",
     "skillCards/icons",
     "skillCards/details",
+    "pDrinks/icons",
+    "pDrinks/details",
 ]
 
 for dir in image_dirs:

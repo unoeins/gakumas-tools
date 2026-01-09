@@ -35,7 +35,7 @@ WORKDIR /app
 # Uncomment the following line in case you want to disable telemetry during the build.
 # ENV NEXT_TELEMETRY_DISABLED=1
 
-ENV NEXT_PUBLIC_GK_IMG_BASE_URL="https://gkimg.ris.moe"
+ENV NEXT_PUBLIC_GK_IMG_BASE_URL="https://unoeins.github.io/gk-img"
 
 # Build the application
 RUN \
