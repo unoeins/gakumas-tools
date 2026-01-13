@@ -221,6 +221,7 @@
     "contest": "コンテスト",
     "linkContest": "リンクコンテスト",
     "event": "イベント",
+    "exam": "試験",
     "custom": "カスタム"
   },
   "StageSummary": {
@@ -242,6 +243,7 @@
   },
   "LoadoutSkillCardGroup": {
     "cost": "コスト",
+    "cardCount": "カード枚数",
     "memoryCalculator": "メモリー計算機",
     "memories": "メモリー",
     "importMemory": "スクショからメモリーを読み取る",
@@ -355,6 +357,7 @@
     "stageEffect": "ステージ効果",
     "skillCard": "スキルカード",
     "pItem": "Pアイテム",
+    "pDrink": "Pドリンク",
     "numTurns": "{num}ターン",
     "hand": "手札",
     "turnN": "{n}ターン目",
@@ -464,6 +467,27 @@
     "deckCards": "山札",
     "discardedCards": "捨札",
     "removedCards": "除外",
-    "heldCards": "保留"
+    "heldCards": "保留",
+    "pDrinks": "Pドリンク"
+  },
+  "StageStartingEffects": {
+    "startingEffects": "開始時効果",
+    "goodConditionTurns": "好調",
+    "concentration": "集中",
+    "goodImpressionTurns": "好印象",
+    "motivation": "やる気",
+    "genki": "元気",
+    "costReduction": "消費体力削減",
+    "fullPowerCharge": "全力値",
+    "allScores": "パラメータ値増加(全て)",
+    "strengthScores": "パラメータ値増加(強気)",
+    "fullPowerScores": "パラメータ値増加(全力)",
+    "goodConditionTurnsBuff": "好調増加量増加%",
+    "concentrationBuff": "集中増加量増加%",
+    "goodImpressionTurnsBuff": "好印象増加量増加%",
+    "motivationBuff": "やる気増加量増加%",
+    "preservation": "温存",
+    "nullifyGenkiTurns": "元気増加無効",
+    "slumpTurns": "スランプ"
   }
 }

@@ -7,6 +7,7 @@ export default class IdolConfig {
       params,
       supportBonus,
       pItemIds,
+      pDrinkIds,
       skillCardIdGroups,
       customizationGroups,
       skillCardIdOrderGroups,
@@ -60,8 +61,9 @@ export default class IdolConfig {
     }
     this.cardOrderGroups = cardOrderGroups;
 
-    // P-items and skill cards
+    // P-items, P-drinks, and skill cards
     this.pItemIds = [...new Set(pItemIds.filter((id) => id))];
+    this.pDrinkIds = [...pDrinkIds.filter((id) => id)];
     const { dedupedCards, dupeIndices } = this.getDedupedCards(cards);
     dedupedCards.forEach((c) => {
       delete c.index;

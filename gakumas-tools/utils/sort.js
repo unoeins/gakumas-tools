@@ -43,6 +43,16 @@ export function comparePItems(a, b) {
   return 0;
 }
 
+export function comparePDrinks(a, b) {
+  if (a.rarity != b.rarity) {
+    return RARITY_VALUES[a.rarity] - RARITY_VALUES[b.rarity];
+  }
+  if (a.plan != b.plan) {
+    return PLAN_VALUES[a.plan] - PLAN_VALUES[b.plan];
+  }
+  return 0;
+}
+
 export function compareSkillCards(a, b) {
   if (a.rarity != b.rarity) {
     return RARITY_VALUES[a.rarity] - RARITY_VALUES[b.rarity];

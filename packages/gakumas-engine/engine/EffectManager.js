@@ -1,5 +1,5 @@
 import { PItems, SkillCards } from "gakumas-data";
-import { DEFAULT_EFFECTS, S } from "../constants";
+import { DEFAULT_EFFECTS, EFFECT_SOURCES, S } from "../constants";
 import EngineComponent from "./EngineComponent";
 import { shallowCopy } from "../utils";
 
@@ -117,7 +117,7 @@ export default class EffectManager extends EngineComponent {
     state[S.phase] = state[S.parentPhase];
   }
 
-  triggerEffects(state, effects, cndState, card, skipConditions) {
+  triggerEffects(state, effects, cndState, source, skipConditions, sourceType = EFFECT_SOURCES.SKILL_CARD) {
     const conditionState = cndState || shallowCopy(state);
 
     let triggeredEffects = [];
@@ -141,11 +141,21 @@ export default class EffectManager extends EngineComponent {
         this.setEffects(
           state,
           [effect],
-          card != null
+          source != null && sourceType === EFFECT_SOURCES.SKILL_CARD
             ? {
                 type: "skillCardEffect",
-                id: state[S.cardMap][card].id,
-                idx: card,
+                id: state[S.cardMap][source].id,
+                idx: source,
+              }
+            : source != null && sourceType === EFFECT_SOURCES.P_ITEM
+            ? {
+                type: "pItemEffect",
+                id: source,
+              }
+            : source != null && sourceType === EFFECT_SOURCES.P_DRINK
+            ? {
+                type: "pDrinkEffect",
+                id: source,
               }
             : null
         );
@@ -218,7 +228,11 @@ export default class EffectManager extends EngineComponent {
       } else {
         // Execute actions
         if (effect.actions) {
-          this.engine.executor.executeActions(state, effect.actions, card);
+          this.engine.executor.executeActions(
+            state,
+            effect.actions,
+            sourceType === EFFECT_SOURCES.SKILL_CARD ? source : null
+          );
         }
 
         // Delayed effects from p-items

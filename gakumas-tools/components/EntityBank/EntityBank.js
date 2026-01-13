@@ -1,18 +1,19 @@
 import { memo, useContext, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { FaCheck, FaXmark } from "react-icons/fa6";
-import { PIdols, PItems, SkillCards } from "gakumas-data";
+import { PIdols, PItems, PDrinks, SkillCards } from "gakumas-data";
 import Checkbox from "@/components/Checkbox";
 import EntityIcon from "@/components/EntityIcon";
 import PlanIdolSelects from "@/components/PlanIdolSelects";
 import WorkspaceContext from "@/contexts/WorkspaceContext";
 import c from "@/utils/classNames";
 import { EntityTypes } from "@/utils/entities";
-import { comparePItems, compareSkillCards } from "@/utils/sort";
+import { comparePItems, comparePDrinks, compareSkillCards } from "@/utils/sort";
 import styles from "./EntityBank.module.scss";
 
 const HIDDEN_ITEM_IDS = [];
 const HIDDEN_CARD_IDS = [];
+const HIDDEN_DRINK_IDS = [];
 
 function EntityBank({ type, onClick, filters = [], includeNull = true }) {
   const t = useTranslations("EntityBank");
@@ -27,9 +28,11 @@ function EntityBank({ type, onClick, filters = [], includeNull = true }) {
   );
 
   let entities = [];
-  const Entities = type == EntityTypes.SKILL_CARD ? SkillCards : PItems;
+  const Entities = type == EntityTypes.SKILL_CARD ? SkillCards : 
+    type == EntityTypes.P_ITEM ? PItems : PDrinks;
   const compareFn =
-    type == EntityTypes.SKILL_CARD ? compareSkillCards : comparePItems;
+    type == EntityTypes.SKILL_CARD ? compareSkillCards :
+    type == EntityTypes.P_ITEM ? comparePItems : comparePDrinks;
 
   if (filter) {
     const pIdolIds = PIdols.getFiltered({
@@ -40,7 +43,7 @@ function EntityBank({ type, onClick, filters = [], includeNull = true }) {
       pIdolIds,
     });
     const nonSignatureEntities = Entities.getFiltered({
-      rarities: ["N", "R", "SR", "SSR"],
+      rarities: ["N", "R", "SR", "SSR", "L"],
       plans: [plan, "free"],
       modes: ["stage"],
       sourceTypes: ["default", "produce", "support"],
@@ -55,6 +58,8 @@ function EntityBank({ type, onClick, filters = [], includeNull = true }) {
     entities = entities.filter((e) => !HIDDEN_CARD_IDS.includes(e.id));
   } else if (type == EntityTypes.P_ITEM) {
     entities = entities.filter((e) => !HIDDEN_ITEM_IDS.includes(e.id));
+  } else if (type == EntityTypes.P_DRINK) {
+    entities = entities.filter((e) => !HIDDEN_DRINK_IDS.includes(e.id));
   }
 
   for (let customFilter of filters) {

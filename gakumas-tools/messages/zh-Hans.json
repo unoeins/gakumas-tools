@@ -217,6 +217,7 @@
     "contest": "竞技场",
     "linkContest": "Link Contest",
     "event": "活动",
+    "exam": "考试",
     "custom": "自定义"
   },
   "StageSummary": {
@@ -238,6 +239,7 @@
   },
   "LoadoutSkillCardGroup": {
     "cost": "容量",
+    "cardCount": "卡片数量",
     "memoryCalculator": "记忆计算器",
     "memories": "记忆",
     "importMemory": "从截图导入记忆",
@@ -345,6 +347,7 @@
     "stageEffect": "舞台效果",
     "skillCard": "技能卡",
     "pItem": "P 道具",
+    "pDrink": "P 饮料",
     "numTurns": "第 {num} 回合",
     "hand": "持有技能卡",
     "turnN": "回合 {n}",
@@ -428,6 +431,27 @@
     "deckCards": "牌组",
     "discardedCards": "弃牌",
     "removedCards": "除外",
-    "heldCards": "保留"
+    "heldCards": "保留",
+    "pDrinks": "P 饮料"
+  },
+  "StageStartingEffects": {
+    "startingEffects": "开始时效果",
+    "goodConditionTurns": "好调",
+    "concentration": "集中",
+    "goodImpressionTurns": "好印象",
+    "motivation": "干劲",
+    "genki": "元气",
+    "costReduction": "消费体力减少",
+    "fullPowerCharge": "全力值",
+    "allScores": "所有参数增加",
+    "strengthScores": "强气参数增加",
+    "fullPowerScores": "全力参数增加",
+    "goodConditionTurnsBuff": "好调增加量增加%",
+    "concentrationBuff": "集中增加量增加%",
+    "goodImpressionTurnsBuff": "好印象增加量增加%",
+    "motivationBuff": "干劲增加量增加%",
+    "preservation": "温存",
+    "nullifyGenkiTurns": "元气增加无效",
+    "slumpTurns": "斯兰普"
   }
 }

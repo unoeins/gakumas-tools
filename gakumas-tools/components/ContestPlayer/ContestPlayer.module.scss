@@ -17,6 +17,21 @@
   overflow: auto;
 }
 
+.percentRow {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+.enterPercentsToggle {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  gap: 8px;
+  color: colors.$gk-orange;
+}
+
 .loadoutTabs {
   display: flex;
   flex-direction: column;
@@ -27,13 +42,6 @@
   display: flex;
   gap: 4px;
 }
-
-// .loadoutTabButtons {
-//   display: flex;
-//   flex-direction: column;
-//   gap: 4px;
-//   color: colors.$white;
-// }
 
 .selectButton {
   padding: 8px 2px;
@@ -48,16 +56,6 @@
     box-shadow: 0 0 8px color.adjust(colors.$black, $alpha: -0.5);
   }
 }
-
-// .deleteButton {
-//   background-color: colors.$red-light;
-//   padding: 4px;
-//   border-radius: 4px;
-
-//   &:hover {
-//     background-color: colors.$red-extra-light;
-//   }
-// }
 
 .loadoutSummary {
   flex: 1;
@@ -236,6 +234,11 @@
 
 .cardPileData.large {
   grid-template-columns: repeat(auto-fill, 84px);
+  // grid-auto-rows: 68px;
+}
+
+.cardPileData.middle {
+  grid-template-columns: repeat(auto-fill, 72px);
   // grid-auto-rows: 68px;
 }
 

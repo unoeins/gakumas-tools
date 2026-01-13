@@ -80,7 +80,7 @@ export default function Simulator() {
 
   const config = useMemo(() => {
     const idolConfig = new IdolConfig(loadout);
-    const stageConfig = new StageConfig(stage);
+    const stageConfig = new StageConfig(stage, loadout.startingEffects);
     const simulatorConfig = new SimulatorConfig({
       enableSkillCardOrder: loadout.enableSkillCardOrder,
       ...listenerConfig
@@ -107,7 +107,7 @@ export default function Simulator() {
     if (stage.type !== "linkContest") return null;
     return loadouts.map((ld) => {
       const idolConfig = new IdolConfig(ld);
-      const stageConfig = new StageConfig(stage);
+      const stageConfig = new StageConfig(stage, ld.startingEffects);
       const simulatorConfig = new SimulatorConfig({
         enableSkillCardOrder: ld.enableSkillCardOrder,
         ...listenerConfig

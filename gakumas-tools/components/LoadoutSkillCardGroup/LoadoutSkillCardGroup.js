@@ -34,6 +34,7 @@ function LoadoutSkillCardGroup({
   const router = useRouter();
   const {
     loadout,
+    stage,
     setMemory,
     replaceSkillCardId,
     swapSkillCardIds,
@@ -60,6 +61,11 @@ function LoadoutSkillCardGroup({
         ),
     [skillCardIds]
   );
+  const cardCount = useMemo(
+    () => skillCardIds.filter((id) => id !== 0).length,
+    [skillCardIds]
+  );
+  const isExam = stage.type === "exam";
 
   return (
     <div>
@@ -72,11 +78,12 @@ function LoadoutSkillCardGroup({
         indications={indications}
         idolId={idolId}
         groupIndex={groupIndex}
+        stage={stage}
       />
 
       <div className={styles.sub}>
         <div className={styles.cost}>
-          {t("cost")}: {cost}
+          {isExam ? t("cardCount") : t("cost")}: {isExam ? cardCount : cost}
         </div>
         <div
           className={c(styles.buttonGroup, expanded && styles.expanded)}
@@ -86,9 +93,11 @@ function LoadoutSkillCardGroup({
             className={styles.memoryCalculatorButton}
             onClick={() => {
               const nonPidolSkillCardIds = skillCardIds.filter(
-                (id) => SkillCards.getById(id).sourceType != "pIdol"
+                (id) => !!id && SkillCards.getById(id).sourceType != "pIdol"
               );
-              setTargetSkillCardIds(() => nonPidolSkillCardIds);
+              if (!isExam) {
+                setTargetSkillCardIds(() => nonPidolSkillCardIds);
+              }
               setAcquiredSkillCardIds(() => nonPidolSkillCardIds);
               router.push("/memory-calculator");
             }}
@@ -96,62 +105,66 @@ function LoadoutSkillCardGroup({
             <FaPercent title={t("memoryCalculator")} />
           </button>
 
-          {status == "authenticated" && (
-            <button
-              className={styles.pickButton}
-              onClick={() => setModal(<MemoryPickerModal index={groupIndex} />)}
-            >
-              <FaFilm title={t("memories")} />
-            </button>
+          {!isExam && (
+            <>
+              {status == "authenticated" && (
+                <button
+                  className={styles.pickButton}
+                  onClick={() => setModal(<MemoryPickerModal index={groupIndex} />)}
+                >
+                  <FaFilm title={t("memories")} />
+                </button>
+              )}
+
+              <button
+                className={styles.importButton}
+                onClick={() =>
+                  setModal(
+                    <MemoryImporterModal
+                      multiple={false}
+                      onSuccess={(memories) => {
+                        setMemory(memories[0], groupIndex);
+                        closeModal();
+                      }}
+                    />
+                  )
+                }
+              >
+                <FaImage title={t("importMemory")} />
+              </button>
+
+              <button
+                className={styles.addButton}
+                onClick={() => insertSkillCardIdGroup(groupIndex + 1)}
+              >
+                <FaCirclePlus title={t("addRow")} />
+              </button>
+
+              <button
+                className={styles.moveButton}
+                onClick={() => swapSkillCardIdGroups(groupIndex, groupIndex - 1)}
+                disabled={groupIndex < 1}
+              >
+                <FaCircleArrowUp title={t("moveUp")} />
+              </button>
+
+              <button
+                className={styles.moveButton}
+                onClick={() => swapSkillCardIdGroups(groupIndex, groupIndex + 1)}
+                disabled={groupIndex >= loadout.skillCardIdGroups.length - 1}
+              >
+                <FaCircleArrowDown title={t("moveDown")} />
+              </button>
+
+              <button
+                className={styles.deleteButton}
+                onClick={() => deleteSkillCardIdGroup(groupIndex)}
+                disabled={loadout.skillCardIdGroups.length < 2}
+              >
+                <FaCircleXmark title={t("removeRow")} />
+              </button>
+           </> 
           )}
-
-          <button
-            className={styles.importButton}
-            onClick={() =>
-              setModal(
-                <MemoryImporterModal
-                  multiple={false}
-                  onSuccess={(memories) => {
-                    setMemory(memories[0], groupIndex);
-                    closeModal();
-                  }}
-                />
-              )
-            }
-          >
-            <FaImage title={t("importMemory")} />
-          </button>
-
-          <button
-            className={styles.addButton}
-            onClick={() => insertSkillCardIdGroup(groupIndex + 1)}
-          >
-            <FaCirclePlus title={t("addRow")} />
-          </button>
-
-          <button
-            className={styles.moveButton}
-            onClick={() => swapSkillCardIdGroups(groupIndex, groupIndex - 1)}
-            disabled={groupIndex < 1}
-          >
-            <FaCircleArrowUp title={t("moveUp")} />
-          </button>
-
-          <button
-            className={styles.moveButton}
-            onClick={() => swapSkillCardIdGroups(groupIndex, groupIndex + 1)}
-            disabled={groupIndex >= loadout.skillCardIdGroups.length - 1}
-          >
-            <FaCircleArrowDown title={t("moveDown")} />
-          </button>
-
-          <button
-            className={styles.deleteButton}
-            onClick={() => deleteSkillCardIdGroup(groupIndex)}
-            disabled={loadout.skillCardIdGroups.length < 2}
-          >
-            <FaCircleXmark title={t("removeRow")} />
-          </button>
         </div>
         <button
           className={styles.expandButton}

@@ -117,7 +117,7 @@ export default class IdolStageConfig {
   }
 
   getDefaultCardIds(idolConfig, stageConfig) {
-    if (stageConfig.type === "linkContest") {
+    if (stageConfig.type === "linkContest" || stageConfig.type === "exam") {
       return [];
     }
     const defaultCardSet = stageConfig.defaultCardSet || stageConfig.type;

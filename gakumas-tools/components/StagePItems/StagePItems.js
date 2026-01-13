@@ -5,8 +5,13 @@ import ModalContext from "@/contexts/ModalContext";
 import { EntityTypes } from "@/utils/entities";
 import styles from "./StagePItems.module.scss";
 
-function StagePItems({ pItemIds, replacePItemId, swapPItemIds, indications, size }) {
+function StagePItems({ pItemIds, replacePItemId, swapPItemIds, indications, size, stage }) {
   const { setModal } = useContext(ModalContext);
+
+  let filters = [{ callback: (e) => e.sourceType != "produce" }];
+  if (stage && stage.type === "exam") {
+    filters = [];
+  }
 
   return (
     <div className={styles.stagePItems}>
@@ -22,7 +27,7 @@ function StagePItems({ pItemIds, replacePItemId, swapPItemIds, indications, size
               <EntityPickerModal
                 type={EntityTypes.P_ITEM}
                 onPick={(card) => replacePItemId(index, card.id)}
-                filters={[{ callback: (e) => e.sourceType != "produce" }]}
+                filters={filters}
               />
             )
           }

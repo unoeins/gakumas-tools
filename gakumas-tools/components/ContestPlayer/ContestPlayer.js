@@ -9,6 +9,7 @@ import {
 } from "react";
 import { useTranslations } from "next-intl";
 import { Tooltip } from "react-tooltip";
+import { FaCircleArrowUp, FaArrowsRotate, FaHashtag, FaPercent } from "react-icons/fa6";
 import {
   IdolConfig,
   StageEngine,
@@ -19,11 +20,13 @@ import {
 import PlayerStrategy from "gakumas-engine/strategies/PlayerStrategy";
 import { S } from "gakumas-engine/constants";
 import { deepCopy } from "gakumas-engine/utils";
+import { structureLogs } from "@/utils/simulator";
 import Button from "@/components/Button";
+import IconButton from "@/components/IconButton";
 import Input from "@/components/Input";
 import LoadoutEditor from "@/components/LoadoutEditor";
 import LoadoutSummary from "@/components/LoadoutHistory/LoadoutSummary";
-import SimulatorLogs from "@/components/SimulatorLogs";
+import Logs from "@/components/SimulatorLogs/Logs";
 import StageSelect from "@/components/StageSelect";
 import LoadoutContext from "@/contexts/LoadoutContext";
 import LoadoutHistoryContext from "@/contexts/LoadoutHistoryContext";
@@ -35,7 +38,7 @@ import EntityIcon from "@/components/EntityIcon";
 import { EntityTypes } from "@/utils/entities";
 import TurnTypeViewer from "./TurnTypeViewer";
 import StateViewer from "./StateViewer";
-import CardPileViewer from "./CardPileViewer";
+import EntitiesViewer from "./EntitiesViewer";
 import HoldCardPickerModal from "./HoldCardPickerModal";
 import SkillCardAndTurnTypeOrder from "@/components/SkillCardOrderGroups/SkillCardAndTurnTypeOrder";
 import styles from "./ContestPlayer.module.scss";
@@ -62,29 +65,35 @@ export default function ContestPlayer() {
   );
   const { plan, idolId } = useContext(WorkspaceContext);
   const [running, setRunning] = useState(false);
+  const [enterPercents, setEnterPercents] = useState(false);
   const [stateHistory, setStateHistory] = useState([]);
   const [engine, setEngine] = useState(null);
 
   const config = useMemo(() => {
     const idolConfig = new IdolConfig(loadout);
-    const stageConfig = new StageConfig(stage);
-    const simulatorConfig = new SimulatorConfig({enableSkillCardOrder: loadout.enableSkillCardOrder});
-    return new IdolStageConfig(idolConfig, stageConfig, simulatorConfig);
-  }, [loadout, stage, loadout.enableSkillCardOrder]);
+    const stageConfig = new StageConfig(stage, loadout.startingEffects);
+    const simulatorConfig = new SimulatorConfig({
+      enableSkillCardOrder: loadout.enableSkillCardOrder
+    });
+    return new IdolStageConfig(idolConfig, stageConfig, enterPercents, simulatorConfig);
+  }, [loadout, stage, enterPercents]);
 
   const linkConfigs = useMemo(() => {
     if (stage.type !== "linkContest") return null;
     return loadouts.map((ld) => {
       const idolConfig = new IdolConfig(ld);
-      const stageConfig = new StageConfig(stage);
-      const simulatorConfig = new SimulatorConfig({enableSkillCardOrder: loadout.enableSkillCardOrder});
-      return new IdolStageConfig(idolConfig, stageConfig, simulatorConfig);
+      const stageConfig = new StageConfig(stage, ld.startingEffects);
+      const simulatorConfig = new SimulatorConfig({
+        enableSkillCardOrder: ld.enableSkillCardOrder
+      });
+      return new IdolStageConfig(idolConfig, stageConfig, enterPercents, simulatorConfig);
     });
-  }, [loadouts, stage, loadout.enableSkillCardOrder]);
+  }, [loadouts, stage, enterPercents]);
 
   const { setModal } = useContext(ModalContext);
 
   const logs = engine?.logger.peekLogs(getState());
+  const structuredLogs = useMemo(() => structureLogs(logs), [logs]);
   if (logs) {
     console.log("logs:", logs);
   }
@@ -189,6 +198,27 @@ export default function ContestPlayer() {
     }
   }
 
+  async function drink(selectedIndex) {
+    if (!running) return;
+    const state = deepCopy(getState());
+    let nextState;
+    try {
+      let previewState = deepCopy(state);
+      nextState = engine.useDrink(previewState, selectedIndex);
+    } catch (e) {
+      if (e.message === "not picked") {
+        const selectedIndices = await pickCardsToHold(e.args.state, e.args.cards, e.args.num);
+        engine.strategy.pickCardsToHoldIndices = selectedIndices;
+        let previewState = deepCopy(state);
+        nextState = engine.useDrink(previewState, selectedIndex);
+      } else {
+        throw e;
+      }
+    }
+
+    pushState(nextState);
+  }
+
   function endTurn() {
     if (!running) return;
     const nextState = engine.endTurn(getState());
@@ -255,15 +285,29 @@ export default function ContestPlayer() {
         {stage.type !== "contest" ? (
           t("enterPercents")
         ) : (
-          <div className={styles.supportBonusInput}>
-            <label>{t("supportBonus")}</label>
-            <Input
-              type="number"
-              value={parseFloat(((loadout.supportBonus || 0) * 100).toFixed(2))}
-              onChange={(value) =>
-                setSupportBonus(parseFloat((value / 100).toFixed(4)))
-              }
-            />
+          <div className={styles.percentRow}>
+            <div className={styles.enterPercentsToggle}>
+              <IconButton
+                icon={FaArrowsRotate}
+                size="small"
+                onClick={() => setEnterPercents(!enterPercents)}
+              />
+              {enterPercents ? <FaPercent /> : <FaHashtag />}
+            </div>
+            {!enterPercents && (
+              <div className={styles.supportBonusInput}>
+                <label>{t("supportBonus")}</label>
+                <Input
+                  type="number"
+                  value={parseFloat(
+                    ((loadout.supportBonus || 0) * 100).toFixed(2)
+                  )}
+                  onChange={(value) =>
+                    setSupportBonus(parseFloat((value / 100).toFixed(4)))
+                  }
+                />
+              </div>
+            )}
           </div>
         )}
         {stage.type == "linkContest" && <div>{t("linkContestNote")}</div>}
@@ -355,9 +399,10 @@ export default function ContestPlayer() {
                 </div>
               </div>
             </div>
-            <CardPileViewer
+            <EntitiesViewer
               state={getState()}
-              type="handCards"
+              type={EntityTypes.SKILL_CARD}
+              name="handCards"
               scores={getHandCardScores()}
               onClick={(selectedIndex) => playCard(selectedIndex)}
               onSkip={() => endTurn()}
@@ -365,33 +410,48 @@ export default function ContestPlayer() {
               plan={config.idol.plan || plan}
               size="large"
             />
-            {plan === "anomaly" && (
-              <CardPileViewer
+            {stage.type === "exam" && (
+              <EntitiesViewer
                 state={getState()}
-                type="heldCards"
+                type={EntityTypes.P_DRINK}
+                name="pDrinks"
+                onClick={(selectedIndex) => drink(selectedIndex)}
+                idolId={config.idol.idolId || idolId}
+                plan={config.idol.plan || plan}
+                size="middle"
+              />
+            )}
+            {plan === "anomaly" && (
+              <EntitiesViewer
+                state={getState()}
+                type={EntityTypes.SKILL_CARD}
+                name="heldCards"
                 idolId={config.idol.idolId || idolId}
                 plan={config.idol.plan || plan}
                 size="small"
               />
             )}
-            <CardPileViewer
+            <EntitiesViewer
               state={getState()}
-              type="deckCards"
+              type={EntityTypes.SKILL_CARD}
+              name="deckCards"
               reverse={true}
               idolId={config.idol.idolId || idolId}
               plan={config.idol.plan || plan}
               size="small"
             />
-            <CardPileViewer
+            <EntitiesViewer
               state={getState()}
-              type="discardedCards"
+              type={EntityTypes.SKILL_CARD}
+              name="discardedCards"
               idolId={config.idol.idolId || idolId}
               plan={config.idol.plan || plan}
               size="small"
             />
-            <CardPileViewer
+            <EntitiesViewer
               state={getState()}
-              type="removedCards"
+              type={EntityTypes.SKILL_CARD}
+              name="removedCards"
               idolId={config.idol.idolId || idolId}
               plan={config.idol.plan || plan}
               size="small"
@@ -412,12 +472,15 @@ export default function ContestPlayer() {
         <div className={styles.logsSection}>
           <div className={styles.content}>
             <label>{t2("logs")}</label>
-            <SimulatorLogs
-              minRun={{logs}}
-              averageRun={{logs}}
-              maxRun={{logs}}
+            <Logs
+              logs={structuredLogs}
               idolId={idolId}
             />
+  
+            <a className={styles.toTop} href="#simulator_loadout">
+              Top
+              <FaCircleArrowUp />
+            </a>
           </div>
         </div>
       )}

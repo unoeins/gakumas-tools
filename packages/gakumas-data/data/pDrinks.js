@@ -21,11 +21,12 @@ class PDrinks {
     return P_DRINKS_BY_ID[id];
   }
 
-  static getFiltered({ rarities, plans, unlockPlvs }) {
+  static getFiltered({ rarities, plans, unlockPlvs, pIdolIds }) {
     return P_DRINKS.filter((pDrink) => {
       if (rarities && !rarities.includes(pDrink.rarity)) return false;
       if (plans && !plans.includes(pDrink.plan)) return false;
       if (unlockPlvs && !unlockPlvs.includes(pDrink.unlockPlv)) return false;
+      if (pIdolIds && !pIdolIds.includes(pDrink.pIdolId)) return false;
       return true;
     });
   }

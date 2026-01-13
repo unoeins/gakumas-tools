@@ -221,6 +221,7 @@
     "contest": "Contest",
     "linkContest": "Link Contest",
     "event": "Event",
+    "exam": "Exam",
     "custom": "Custom"
   },
   "StageSummary": {
@@ -242,6 +243,7 @@
   },
   "LoadoutSkillCardGroup": {
     "cost": "Cost",
+    "cardCount": "Card count",
     "memoryCalculator": "Memory calculator",
     "memories": "Memories",
     "importMemory": "Import memory from screenshot",
@@ -355,6 +357,7 @@
     "stageEffect": "Stage effect",
     "skillCard": "Skill card",
     "pItem": "P-item",
+    "pDrink": "P-drink",
     "numTurns": "{num} {num, plural, =1 {turn} other {turns}}",
     "hand": "Hand",
     "turnN": "Turn {n}",
@@ -464,6 +467,27 @@
     "deckCards": "Deck",
     "discardedCards": "Discarded",
     "removedCards": "Removed",
-    "heldCards": "Held"
+    "heldCards": "Held",
+    "pDrinks": "P-drinks"
+  },
+  "StageStartingEffects": {
+    "startingEffects": "Starting Effects",
+    "goodConditionTurns": "Good Condition",
+    "concentration": "Concentration",
+    "goodImpressionTurns": "Good Impression",
+    "motivation": "Motivation",
+    "genki": "Genki",
+    "costReduction": "Cost Reduction",
+    "fullPowerCharge": "Full Power Charge",
+    "allScores": "All Parameter Increase",
+    "strengthScores": "Strength Parameter Increase",
+    "fullPowerScores": "Full Power Parameter Increase",
+    "goodConditionTurnsBuff": "Good Condition Increase Amount Increase%",
+    "concentrationBuff": "Concentration Increase Amount Increase%",
+    "goodImpressionTurnsBuff": "Good Impression Increase Amount Increase%",
+    "motivationBuff": "Motivation Increase Amount Increase%",
+    "preservation": "Preservation",
+    "nullifyGenkiTurns": "Nullify Genki",
+    "slumpTurns": "Slump"
   }
 }

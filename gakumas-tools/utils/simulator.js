@@ -1,4 +1,4 @@
-import { PIdols, PItems, SkillCards, Stages } from "gakumas-data";
+import { PIdols, PItems, PDrinks, SkillCards, Stages } from "gakumas-data";
 import { GRAPHED_FIELDS } from "gakumas-engine";
 import { LISTENER_KEYS } from "gakumas-engine/constants";
 import { MIN_BUCKET_SIZE } from "@/simulator/constants";
@@ -7,7 +7,6 @@ import {
   serializeCustomizations,
 } from "./customizations";
 import { deserializeIds, serializeIds } from "./ids";
-import deepEqual from 'fast-deep-equal';
 
 const DEFAULTS = {
   stageId: Stages.getAll().findLast((s) => s.type == "contest" && !s.preview)
@@ -17,6 +16,8 @@ const DEFAULTS = {
   pItemIds: "0-0-0-0",
   skillCardIdGroups: "0-0-0-0-0-0_0-0-0-0-0-0",
   customizationGroups: "-----_-----",
+  pDrinkIds: "0-0-0",
+  startingEffects: "0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0",
   skillCardIdOrderGroups: "0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0",
   customizationOrderGroups: "-------------------",
   turnTypeOrder: "0-0-0-0-0-0-0-0-0-0-0-0",
@@ -54,12 +55,15 @@ export function loadoutFromSearchParams(searchParams, suffix = "") {
   let pItemIds = searchParams.get("items" + suffix);
   let skillCardIdGroups = searchParams.get("cards" + suffix);
   let customizationGroups = searchParams.get("customizations" + suffix);
+  let pDrinkIds = searchParams.get("drinks" + suffix);
+  let startingEffects = searchParams.get("effects" + suffix);
   let skillCardIdOrderGroups = searchParams.get("order_cards" + suffix);
   let customizationOrderGroups = searchParams.get("order_customs" + suffix);
   let removedCardOrder = searchParams.get("order_removed");
   let turnTypeOrder = searchParams.get("order_turns");
   const hasDataFromParams =
     stageId || params || pItemIds || skillCardIdGroups || customizationGroups || 
+    pDrinkIds || startingEffects || 
     skillCardIdOrderGroups || customizationOrderGroups || turnTypeOrder;
   const enableSkillCardOrder = 
     skillCardIdOrderGroups || customizationOrderGroups || removedCardOrder || turnTypeOrder;
@@ -70,6 +74,8 @@ export function loadoutFromSearchParams(searchParams, suffix = "") {
   pItemIds = pItemIds || DEFAULTS.pItemIds;
   skillCardIdGroups = skillCardIdGroups || DEFAULTS.skillCardIdGroups;
   customizationGroups = customizationGroups || DEFAULTS.customizationGroups;
+  pDrinkIds = pDrinkIds || DEFAULTS.pDrinkIds;
+  startingEffects = startingEffects || DEFAULTS.startingEffects;
   // skillCardIdOrderGroups = skillCardIdOrderGroups || DEFAULTS.skillCardIdOrderGroups;
   // customizationOrderGroups = customizationOrderGroups || DEFAULTS.customizationOrderGroups;
   removedCardOrder = removedCardOrder || DEFAULTS.removedCardOrder;
@@ -82,6 +88,8 @@ export function loadoutFromSearchParams(searchParams, suffix = "") {
   customizationGroups = customizationGroups
     .split("_")
     .map(deserializeCustomizations);
+  pDrinkIds = deserializeIds(pDrinkIds);
+  startingEffects = deserializeIds(startingEffects);
   removedCardOrder = removedCardOrder == "1" ? "skip" : "random";
 
   if (skillCardIdOrderGroups) {
@@ -89,10 +97,15 @@ export function loadoutFromSearchParams(searchParams, suffix = "") {
       .split("_")
       .map(deserializeIds);
   } else {
-    if (stageId === "custom" || Stages.getById(stageId).type !== "linkContest") {
+    const stage = Stages.getById(stageId);
+    if (stageId === "custom" || stage.type === "contest" || stage.type === "event") {
       skillCardIdOrderGroups = [new Array(20).fill(0)];
-    } else {
+    } else if (stage.type === "linkContest") {
       skillCardIdOrderGroups = [new Array(12).fill(0)];
+    } else if (stage.type === "exam") {
+      skillCardIdOrderGroups = [new Array(skillCardIdGroups[0].length).fill(0)];
+    } else {
+      skillCardIdOrderGroups = [new Array(20).fill(0)];
     }
   }
   if (customizationOrderGroups) {
@@ -100,10 +113,15 @@ export function loadoutFromSearchParams(searchParams, suffix = "") {
       .split("_")
       .map(deserializeCustomizations);
   } else {
-    if (stageId === "custom" || Stages.getById(stageId).type !== "linkContest") {
+    const stage = Stages.getById(stageId);
+    if (stageId === "custom" || stage.type === "contest" || stage.type === "event") {
       customizationOrderGroups = [new Array(20).fill({})];
-    } else {
+    } else if (stage.type === "linkContest") {
       customizationOrderGroups = [new Array(12).fill({})];
+    } else if (stage.type === "exam") {
+      customizationOrderGroups = [new Array(skillCardIdGroups[0].length).fill({})];
+    } else {
+      customizationOrderGroups = [new Array(20).fill({})];
     }
   }
   if (turnTypeOrder) {
@@ -137,6 +155,8 @@ export function loadoutFromSearchParams(searchParams, suffix = "") {
     pItemIds,
     skillCardIdGroups,
     customizationGroups,
+    pDrinkIds,
+    startingEffects,
     hasDataFromParams,
     enableSkillCardOrder,
     skillCardIdOrderGroups,
@@ -162,6 +182,8 @@ export function loadoutToSearchParams(loadout) {
     pItemIds,
     skillCardIdGroups,
     customizationGroups,
+    pDrinkIds,
+    startingEffects,
     enableSkillCardOrder,
     skillCardIdOrderGroups,
     customizationOrderGroups,
@@ -180,6 +202,10 @@ export function loadoutToSearchParams(loadout) {
     "customizations",
     customizationGroups.map(serializeCustomizations).join("_")
   );
+  if (Stages.getById(stageId).type === "exam") {
+    searchParams.set("drinks", serializeIds(pDrinkIds));
+    searchParams.set("effects", serializeIds(startingEffects));
+  }
   if (enableSkillCardOrder) {
     searchParams.set("order_cards", skillCardIdOrderGroups.map(serializeIds).join("_"));
     searchParams.set(
@@ -525,9 +551,29 @@ export function getIndications(config, loadout) {
     skillCardIndicationGroups.push(skillCardIndications);
   }
 
+  let pDrinkIndications = [];
+  for (let id of loadout.pDrinkIds) {
+    const pDrink = PDrinks.getById(id);
+
+    if (!pDrink) {
+      pDrinkIndications.push(null);
+      continue;
+    }
+
+    let indications = {};
+
+    // Plan mismatch
+    if (plan && pDrink.plan != "free" && pDrink.plan != plan) {
+      indications.planMismatch = true;
+    }
+
+    pDrinkIndications.push(indications);
+  }
+
   return {
     pItemIndications,
     skillCardIndicationGroups,
+    pDrinkIndications,
   };
 }
 

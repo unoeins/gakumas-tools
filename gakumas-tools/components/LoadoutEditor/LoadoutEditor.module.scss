@@ -17,5 +17,17 @@
 }
 
 .pItems {
+  display: block;
+  flex: 1;
+}
+
+.pDrinksRow {
+  display: flex;
+  align-items: center;
+  padding-bottom: 4px;
+  color: colors.$black;
+}
+
+.pDrinks {
   flex: 1;
 }

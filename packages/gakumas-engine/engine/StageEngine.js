@@ -98,7 +98,13 @@ export default class StageEngine {
   useCard(prevState, card) {
     const state = deepCopy(prevState);
     this.cardManager.useCard(state, card);
-    this.listenerManager.triggerEvent(EVENTS.CARD_USED, state, card);
+    // this.listenerManager.triggerEvent(EVENTS.CARD_USED, state, card);
+    return state;
+  }
+
+  useDrink(prevState, drinkIndex) {
+    const state = deepCopy(prevState);
+    this.cardManager.useDrink(state, drinkIndex);
     return state;
   }
 

@@ -99,7 +99,7 @@ export const UNFRESH_PHASES = [
   "turn",
   "everyTurn",
 ];
-export const CHANGE_TRIGGER_PHASES = ["processCard", "processCost"];
+export const CHANGE_TRIGGER_PHASES = ["processCard", "processCost", "processDrink"];
 export const PHASES = [
   "activeCardUsed",
   "afterActiveCardUsed",
@@ -113,8 +113,10 @@ export const PHASES = [
   "cardMovedToHand",
   "cardRemoved",
   "concentrationIncreased",
+  "drinkUsed",
   "endOfTurn",
   "everyTurn",
+  "fullPowerChargeIncreased",
   "genkiIncreased",
   "goodConditionTurnsIncreased",
   "goodImpressionTurnsIncreased",
@@ -123,6 +125,7 @@ export const PHASES = [
   "prestage",
   "processCard",
   "processCost",
+  "processDrink",
   "checkCost",
   "staminaDecreased",
   "stanceChanged",
@@ -211,6 +214,10 @@ export const ALL_FIELDS = [
   "movedCard",
   "noCardUseTurns",
 
+  // Drinks
+  "pDrinks",
+  "usedPDrink",
+
   // Effects
   "effects",
   "phase",
@@ -230,6 +237,9 @@ export const ALL_FIELDS = [
   "goodConditionTurnsDelta",
   "concentrationDelta",
   "staminaDelta",
+
+  // Exam
+  "examCardUsed",
 
   // Card Order
   "cardOrderGroups",
@@ -430,6 +440,33 @@ export const HOLD_SOURCES_BY_ALIAS = {
   deck: S.deckCards,
   discards: S.discardedCards,
 };
+
+export const EFFECT_SOURCES = {
+  STAGE: "stage",
+  SKILL_CARD: "skillCard",
+  P_ITEM: "pItem",
+  P_DRINK: "pDrink",
+};
+
+export const STARTING_EFFECTS = [
+  /*  0 */ { name: "goodConditionTurns", plan: "sense", type: "replace", pattern: "at:startOfTurn,do:goodConditionTurns+={0},limit:1" },
+  /*  1 */ { name: "concentration", plan: "sense", type: "replace", pattern: "at:startOfTurn,do:concentration+={0},limit:1" },
+  /*  2 */ { name: "goodImpressionTurns", plan: "logic", type: "replace", pattern: "at:startOfTurn,do:goodImpressionTurns+={0},limit:1" },
+  /*  3 */ { name: "motivation", plan: "logic", type: "replace", pattern: "at:startOfTurn,do:motivation+={0},limit:1" },
+  /*  4 */ { name: "genki", plan: "free", type: "replace", pattern: "at:startOfTurn,do:genki+={0},limit:1" },
+  /*  5 */ { name: "costReduction", plan: "free", type: "replace", pattern: "at:startOfTurn,do:costReduction+={0},limit:1" },
+  /*  6 */ { name: "fullPowerCharge", plan: "anomaly", type: "replace", pattern: "at:startOfTurn,do:fullPowerCharge+={0},limit:1" },
+  /*  7 */ { name: "allScores", plan: "anomaly", type: "replace", pattern: "at:startOfTurn,target:all,do:g.score+={0},limit:1" },
+  /*  8 */ { name: "strengthScores", plan: "anomaly", type: "replace", pattern: "at:startOfTurn,target:effect(strength),do:g.score+={0},limit:1" },
+  /*  9 */ { name: "fullPowerScores", plan: "anomaly", type: "replace", pattern: "at:startOfTurn,target:effect(fullPowerCharge),do:g.score+={0},limit:1" },
+  /* 10 */ { name: "goodConditionTurnsBuff", plan: "sense", type: "replacePercent", pattern: "at:startOfTurn,do:setGoodConditionTurnsBuff({0},3),limit:1" },
+  /* 11 */ { name: "concentrationBuff", plan: "sense", type: "replacePercent", pattern: "at:startOfTurn,do:setConcentrationBuff({0},3),limit:1" },
+  /* 12 */ { name: "goodImpressionTurnsBuff", plan: "logic", type: "replacePercent", pattern: "at:startOfTurn,do:setGoodImpressionTurnsBuff({0},3),limit:1" },
+  /* 13 */ { name: "motivationBuff", plan: "logic", type: "replacePercent", pattern: "at:startOfTurn,do:setMotivationBuff({0},3),limit:1" },
+  /* 14 */ { name: "preservation", plan: "anomaly", type: "repeat", pattern: "at:startOfTurn,do:setStance(preservation),limit:1" },
+  /* 15 */ { name: "nullifyGenkiTurns", plan: "free", type: "replace", pattern: "at:startOfTurn,do:nullifyGenkiTurns+={0},limit:1" },
+  /* 16 */ { name: "slumpTurns", plan: "free", type: "replace", pattern: "at:startOfTurn,do:setScoreDebuff(1,2),limit:1" },
+]
 
 export const EVENTS = {
   CARD_USED: "cardUsed",

@@ -217,6 +217,7 @@
     "contest": "콘테스트",
     "linkContest": "링크 콘테스트",
     "event": "이벤트",
+    "exam": "시험",
     "custom": "커스텀"
   },
   "StageSummary": {
@@ -238,6 +239,7 @@
   },
   "LoadoutSkillCardGroup": {
     "cost": "코스트",
+    "cardCount": "카드 매수",
     "memoryCalculator": "메모리 계산기",
     "memories": "메모리",
     "importMemory": "스크린샷에서 메모리 불러오기",
@@ -345,6 +347,7 @@
     "stageEffect": "스테이지 효과",
     "skillCard": "스킬 카드",
     "pItem": "P 아이템",
+    "pDrink": "P 드링크",
     "numTurns": "{num} 턴",
     "hand": "손패",
     "turnN": "{n} 턴",
@@ -428,6 +431,27 @@
     "deckCards": "덱",
     "discardedCards": "버림패",
     "removedCards": "제외",
-    "heldCards": "보류"
+    "heldCards": "보류",
+    "pDrinks": "P 음료"
+  },
+  "StageStartingEffects": {
+    "startingEffects": "시작 시 효과",
+    "goodConditionTurns": "호조",
+    "concentration": "집중",
+    "goodImpressionTurns": "호인상",
+    "motivation": "의욕",
+    "genki": "원기",
+    "costReduction": "소비 체력 감소",
+    "fullPowerCharge": "전력치",
+    "allScores": "모든 파라미터 증가",
+    "strengthScores": "강기 파라미터 증가",
+    "fullPowerScores": "전력 파라미터 증가",
+    "goodConditionTurnsBuff": "호조 증가량 증가%",
+    "concentrationBuff": "집중 증가량 증가%",
+    "goodImpressionTurnsBuff": "호인상 증가량 증가%",
+    "motivationBuff": "의욕 증가량 증가%",
+    "preservation": "온존",
+    "nullifyGenkiTurns": "원기 증가 무효",
+    "slumpTurns": "슬럼프"
   }
 }

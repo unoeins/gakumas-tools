@@ -1,4 +1,4 @@
-import { memo, useState } from "react";
+import { memo } from "react";
 import { useTranslations } from "next-intl";
 import { S } from "gakumas-engine/constants";
 import EntityIcon from "@/components/EntityIcon";
@@ -6,40 +6,45 @@ import { EntityTypes } from "@/utils/entities";
 import c from "@/utils/classNames";
 import styles from "./ContestPlayer.module.scss";
 
-function CardPileViewer({
+function EntitiesViewer({
     state,
     type,
+    name,
     scores,
     onClick,
     onSkip,
     idolId,
-    plan,
     reverse = false,
     size = "large"}) {
   const t = useTranslations("ContestPlayer");
   const className = c(
     styles.cardPileData,
     styles[size],
-    styles[type]
+    styles[name]
   );
 
-  let cards = state[S[type]];
+  let entities = state[S[name]];
   if (reverse) {
-    cards = [...cards].reverse();
+    entities = [...entities].reverse();
+  }
+  if (type == EntityTypes.SKILL_CARD) {
+    entities = entities.map(e => state[S.cardMap][e]);
+  } else {
+    entities = entities.map(e => ({ id: e }));
   }
 
   return (
-    <div id={"cardPileViewer_" + type} className={styles.cardPileViewer}>
+    <div id={"entitiesViewer_" + name} className={styles.cardPileViewer}>
       <div className={styles.cardPileHeader}>
-        <label>{t(type)}</label>
+        <label>{t(name)}</label>
       </div>
       <div className={className}>
-        {cards.map((card, i) => (
+        {entities.map((entity, i) => (
           <div className={styles.cardPileCard} key={i}>
             <EntityIcon
-              type={EntityTypes.SKILL_CARD}
-              id={state[S.cardMap][card].id}
-              customizations={state[S.cardMap][card].c11n}
+              type={type}
+              id={entity.id}
+              customizations={entity.c11n}
               onClick={onClick ? () =>  onClick(i) : undefined}
               idolId={idolId}
               size={"fill"}
@@ -52,7 +57,7 @@ function CardPileViewer({
         {onSkip && (
           <div className={styles.cardPileCard}>
             <EntityIcon
-              type={EntityTypes.SKILL_CARD}
+              type={type}
               id={0}
               label={"SKIP"}
               onClick={() =>  onSkip()}
@@ -66,4 +71,4 @@ function CardPileViewer({
   );
 }
 
-export default memo(CardPileViewer);
+export default memo(EntitiesViewer);
