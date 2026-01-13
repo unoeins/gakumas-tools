@@ -665,10 +665,11 @@ const SUPPORT_EFFECTS_HAJIME_LEGEND_FINAL = {
     "at:startOfTurn,if:turnsElapsed==6,if:goodConditionTurns>=12,do:concentration+=4,limit:1",
     "at:startOfTurn,if:turnsElapsed==8,if:goodConditionTurns>=17,do:goodConditionTurns+=6,limit:1",
   ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
-  concentration: [  // TODO
-    "at:startOfTurn,if:turnsElapsed==0,limit:1;at:goodConditionTurnsIncreased,if:goodConditionTurns>=8,do:goodConditionTurns+=2",
-    "at:startOfTurn,if:turnsElapsed==4,if:concentration>=8,do:concentration+=6,limit:1",
-    "at:startOfTurn,if:turnsElapsed==8,if:goodConditionTurns>0,do:goodConditionTurns+=4,limit:1",
+  concentration: [
+    "at:startOfTurn,if:turnsElapsed==2,if:concentration>=3,do:concentration+=3,limit:1",
+    "at:startOfTurn,if:turnsElapsed==4,if:concentration>=10,do:goodConditionTurns+=5,limit:1",
+    "at:startOfTurn,if:turnsElapsed==6,if:concentration>=15,do:goodConditionTurns+=6,limit:1",
+    "at:startOfTurn,if:turnsElapsed==8,if:concentration>=22,do:concentration+=9,limit:1",
   ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
   goodImpressionTurns: [
     "at:startOfTurn,if:turnsElapsed==1,do:goodImpressionTurns+=8,limit:1",
@@ -710,10 +711,10 @@ const SUPPORT_EFFECTS_HAJIME_LEGEND_MID = {
     "at:startOfTurn,if:turnsElapsed==4,if:goodConditionTurns>=4,do:goodConditionTurns+=2,limit:1",
     "at:startOfTurn,if:turnsElapsed==6,if:goodConditionTurns>=9,do:goodConditionTurns+=4,limit:1",
   ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
-  concentration: [  // TODO
-    "at:startOfTurn,if:turnsElapsed==0,limit:1;at:goodConditionTurnsIncreased,if:goodConditionTurns>=8,do:goodConditionTurns+=2",
-    "at:startOfTurn,if:turnsElapsed==4,if:concentration>=8,do:concentration+=6,limit:1",
-    "at:startOfTurn,if:turnsElapsed==8,if:goodConditionTurns>0,do:goodConditionTurns+=4,limit:1",
+  concentration: [
+    "at:startOfTurn,if:turnsElapsed==2,if:concentration>=3,do:concentration+=2,limit:1",
+    "at:startOfTurn,if:turnsElapsed==4,if:concentration>=6,do:concentration+=3,limit:1",
+    "at:startOfTurn,if:turnsElapsed==6,if:concentration>=11,do:concentration+=6,limit:1",
   ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
   goodImpressionTurns: [
     "at:startOfTurn,if:turnsElapsed==2,if:goodImpressionTurns>=1,do:goodImpressionTurns+=10,limit:1",
