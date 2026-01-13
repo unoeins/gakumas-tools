@@ -43,7 +43,7 @@ function EntityBank({ type, onClick, filters = [], includeNull = true }) {
       pIdolIds,
     });
     const nonSignatureEntities = Entities.getFiltered({
-      rarities: ["N", "R", "SR", "SSR", "L"],
+      rarities: ["N", "R", "SR", "SSR", "L", "T"],
       plans: [plan, "free"],
       modes: ["stage"],
       sourceTypes: ["default", "produce", "support"],
