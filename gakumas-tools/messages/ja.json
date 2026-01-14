@@ -486,6 +486,7 @@
     "concentrationBuff": "集中増加量増加%",
     "goodImpressionTurnsBuff": "好印象増加量増加%",
     "motivationBuff": "やる気増加量増加%",
+    "scoreBuff": "パラメータ上昇量増加%",
     "preservation": "温存",
     "nullifyGenkiTurns": "元気増加無効",
     "slumpTurns": "スランプ"

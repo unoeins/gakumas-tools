@@ -1,5 +1,6 @@
 "use client";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { STARTING_EFFECTS } from "gakumas-engine/constants";
 import { Stages } from "gakumas-data";
 import { usePathname } from "@/i18n/routing";
 import LoadoutUrlContext from "@/contexts/LoadoutUrlContext";
@@ -240,25 +241,12 @@ export function LoadoutContextProvider({ children }) {
     }
   }, [pItemIds]);
 
-  // useEffect(() => {
-  //   // Ensure loadouts have skillCardOrderGroups and customizationOrderGroups
-  //   if (loadouts.some((loadout) => 
-  //     !loadout.skillCardIdOrderGroups || !loadout.customizationOrderGroups)) {
-  //     setLoadouts((cur) => {
-  //       return cur.map((loadout) => {
-  //         const size = loadout.skillCardIdGroups.length * 6 + 
-  //           (stage.type !== "linkContest" ? 8 : 0);
-  //         if (!loadout.skillCardIdOrderGroups) {
-  //           loadout.skillCardIdOrderGroups = [new Array(size).fill(0)];
-  //         }
-  //         if (!loadout.customizationOrderGroups) {
-  //           loadout.customizationOrderGroups = [new Array(size).fill({})];
-  //         }
-  //         return loadout;
-  //       });
-  //     });
-  //   }
-  // }, [loadouts]);
+  useEffect(() => {
+    const size = STARTING_EFFECTS.length;
+    if (startingEffects.length < size) {
+      setStartingEffects((cur) => cur.concat(new Array(size - cur.length).fill(0)));
+    }
+  }, [startingEffects]);
 
   function clear() {
     setMemoryParams([null, null]);

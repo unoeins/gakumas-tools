@@ -486,6 +486,7 @@
     "concentrationBuff": "Concentration Increase Amount Increase%",
     "goodImpressionTurnsBuff": "Good Impression Increase Amount Increase%",
     "motivationBuff": "Motivation Increase Amount Increase%",
+    "scoreBuff": "Parameter Increase Amount Increase%",
     "preservation": "Preservation",
     "nullifyGenkiTurns": "Nullify Genki",
     "slumpTurns": "Slump"

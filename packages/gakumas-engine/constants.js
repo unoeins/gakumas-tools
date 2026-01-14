@@ -463,9 +463,10 @@ export const STARTING_EFFECTS = [
   /* 11 */ { name: "concentrationBuff", plan: "sense", type: "replacePercent", pattern: "at:startOfTurn,do:setConcentrationBuff({0},3),limit:1" },
   /* 12 */ { name: "goodImpressionTurnsBuff", plan: "logic", type: "replacePercent", pattern: "at:startOfTurn,do:setGoodImpressionTurnsBuff({0},3),limit:1" },
   /* 13 */ { name: "motivationBuff", plan: "logic", type: "replacePercent", pattern: "at:startOfTurn,do:setMotivationBuff({0},3),limit:1" },
-  /* 14 */ { name: "preservation", plan: "anomaly", type: "repeat", pattern: "at:startOfTurn,do:setStance(preservation),limit:1" },
-  /* 15 */ { name: "nullifyGenkiTurns", plan: "free", type: "replace", pattern: "at:startOfTurn,do:nullifyGenkiTurns+={0},limit:1" },
-  /* 16 */ { name: "slumpTurns", plan: "free", type: "replace", pattern: "at:startOfTurn,do:setScoreDebuff(1,2),limit:1" },
+  /* 14 */ { name: "scoreBuff", plan: "free", type: "replacePercent", pattern: "at:startOfTurn,do:setScoreBuff({0}),limit:1" },
+  /* 15 */ { name: "preservation", plan: "anomaly", type: "repeat", pattern: "at:startOfTurn,do:setStance(preservation),limit:1" },
+  /* 16 */ { name: "nullifyGenkiTurns", plan: "free", type: "replace", pattern: "at:startOfTurn,do:nullifyGenkiTurns+={0},limit:1" },
+  /* 17 */ { name: "slumpTurns", plan: "free", type: "replace", pattern: "at:startOfTurn,do:setScoreDebuff(1,2),limit:1" },
 ]
 
 export const EVENTS = {
