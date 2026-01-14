@@ -1,5 +1,4 @@
 import P_DRINKS from "../json/p_drinks.json";
-import { getPItemContestPower } from "../utils/contestPower";
 import { deserializeEffectSequence } from "../utils/effects";
 
 P_DRINKS.forEach((pDrink) => {
@@ -21,12 +20,11 @@ class PDrinks {
     return P_DRINKS_BY_ID[id];
   }
 
-  static getFiltered({ rarities, plans, unlockPlvs, pIdolIds }) {
+  static getFiltered({ rarities, plans, unlockPlvs }) {
     return P_DRINKS.filter((pDrink) => {
       if (rarities && !rarities.includes(pDrink.rarity)) return false;
       if (plans && !plans.includes(pDrink.plan)) return false;
       if (unlockPlvs && !unlockPlvs.includes(pDrink.unlockPlv)) return false;
-      if (pIdolIds && !pIdolIds.includes(pDrink.pIdolId)) return false;
       return true;
     });
   }

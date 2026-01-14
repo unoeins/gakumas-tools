@@ -1,11 +1,11 @@
 import IDOL_ICONS from "./images/idols/imports";
+import P_DRINK_ICONS from "./images/pDrinks/icons/imports";
+import P_DRINK_DETAILS from "./images/pDrinks/details/imports";
 import P_IDOL_ICONS from "./images/pIdols/imports";
 import P_ITEM_ICONS from "./images/pItems/icons/imports";
 import P_ITEM_DETAILS from "./images/pItems/details/imports";
 import SKILL_CARD_ICONS from "./images/skillCards/icons/imports";
 import SKILL_CARD_DETAILS from "./images/skillCards/details/imports";
-import P_DRINK_ICONS from "./images/pDrinks/icons/imports";
-import P_DRINK_DETAILS from "./images/pDrinks/details/imports";
 
 const GK_IMG_BASE_URL = process.env.NEXT_PUBLIC_GK_IMG_BASE_URL;
 
@@ -13,6 +13,8 @@ export default function getImages(entity, idolId = 6) {
   switch (entity?._type) {
     case "idol":
       return getIdolImages(entity.id);
+    case "pDrink":
+      return getPDrinkImages(entity.id);
     case "pIdol":
       return getPIdolImages(entity.id);
     case "pItem":
@@ -36,6 +38,19 @@ function getIdolImages(idolId) {
     icon: GK_IMG_BASE_URL
       ? `${GK_IMG_BASE_URL}/idols/${idolId}.png`
       : IDOL_ICONS[idolId],
+  };
+}
+
+function getPDrinkImages(pDrinkId) {
+  return {
+    _icon: P_DRINK_ICONS[pDrinkId],
+    icon: GK_IMG_BASE_URL
+      ? `${GK_IMG_BASE_URL}/p_drinks/icons/${pDrinkId}.webp`
+      : P_DRINK_ICONS[pDrinkId],
+    _details: P_DRINK_DETAILS[pDrinkId],
+    details: GK_IMG_BASE_URL
+      ? `${GK_IMG_BASE_URL}/p_drinks/details/${pDrinkId}.webp`
+      : P_DRINK_DETAILS[pDrinkId],
   };
 }
 
@@ -77,18 +92,5 @@ function getSkillCardImages(skillCardId, idolId) {
     details: GK_IMG_BASE_URL
       ? `${GK_IMG_BASE_URL}/skill_cards/details/${skillCardId}.webp`
       : SKILL_CARD_DETAILS[skillCardId],
-  };
-}
-
-function getPDrinkImages(pDrinkId) {
-  return {
-    _icon: P_DRINK_ICONS[pDrinkId],
-    icon: GK_IMG_BASE_URL
-      ? `${GK_IMG_BASE_URL}/p_drinks/icons/${pDrinkId}.webp`
-      : P_DRINK_ICONS[pDrinkId],
-    _details: P_DRINK_DETAILS[pDrinkId],
-    details: GK_IMG_BASE_URL
-      ? `${GK_IMG_BASE_URL}/p_drinks/details/${pDrinkId}.webp`
-      : P_DRINK_DETAILS[pDrinkId],
   };
 }

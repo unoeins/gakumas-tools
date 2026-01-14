@@ -228,7 +228,7 @@ export const ALL_FIELDS = [
   "natsuyaCardsUsed",
   "holidayCardsUsed",
   "onigiriCardsUsed",
-  "nullifyHold",
+  "nullifySelect",
 
   // Delta
   "goodImpressionTurnsDelta",
