@@ -2743,6 +2743,10 @@ import image_731 from "./731.png";
 import image_732 from "./732.png";
 import image_733 from "./733.png";
 import image_734 from "./734.png";
+import image_735 from "./735.png";
+import image_736 from "./736.png";
+import image_737 from "./737.png";
+import image_738 from "./738.png";
 import image_73_1 from "./73_1.png";
 import image_73_10 from "./73_10.png";
 import image_73_11 from "./73_11.png";
@@ -5843,6 +5847,10 @@ const IMAGES = {
   '732': image_732,
   '733': image_733,
   '734': image_734,
+  '735': image_735,
+  '736': image_736,
+  '737': image_737,
+  '738': image_738,
   '73_1': image_73_1,
   '73_10': image_73_10,
   '73_11': image_73_11,
