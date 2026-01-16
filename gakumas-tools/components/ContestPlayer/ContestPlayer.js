@@ -27,6 +27,7 @@ import Input from "@/components/Input";
 import LoadoutEditor from "@/components/LoadoutEditor";
 import LoadoutSummary from "@/components/LoadoutHistory/LoadoutSummary";
 import Logs from "@/components/SimulatorLogs/Logs";
+import TurnIndicator from "@/components/SimulatorLogs/TurnIndicator";
 import StageSelect from "@/components/StageSelect";
 import LoadoutContext from "@/contexts/LoadoutContext";
 import LoadoutHistoryContext from "@/contexts/LoadoutHistoryContext";
@@ -276,6 +277,21 @@ export default function ContestPlayer() {
     });
   }
 
+  function getTurnInfo() {
+    if (!running) return null;
+    const state = getState();
+    let types = state[S.turnTypes];
+    const totalTurns = state[S.turnsElapsed] + state[S.turnsRemaining];
+    if (totalTurns > types.length) {
+      types = [...types, ...Array(totalTurns - types.length).fill(types[types.length - 1])];
+    }
+    return {
+      types: types,
+      remaining: state[S.turnsRemaining],
+      multiplier: engine.turnManager.getTurnMultiplier(state),
+    };
+  }
+
   return (
     <div id="simulator_loadout" className={styles.loadoutEditor}>
       <div className={styles.configurator}>
@@ -379,13 +395,21 @@ export default function ContestPlayer() {
         )}
         {getState() && (
           <div className={styles.playArea}>
-            <TurnTypeViewer state={getState()} />
+            {/* <TurnTypeViewer
+              state={getState()}
+              turn={engine.logger.getHandStateForLogging(getState()).turn}
+            /> */}
             <div className={styles.infoArea}>
-              <StateViewer
-                state={getState()}
-                idolId={config.idol.idolId || idolId}
-                plan={config.idol.plan || plan}
-              />
+              <div className={styles.turnStateArea}>
+                <div className={styles.turnIndicatorWrapper}>
+                  <TurnIndicator turn={getTurnInfo()} />
+                </div>
+                <StateViewer
+                  state={getState()}
+                  idolId={config.idol.idolId || idolId}
+                  plan={config.idol.plan || plan}
+                />
+              </div>
               <div className={styles.controls}>
                 <div className={styles.cardPileCard}>
                   <EntityIcon
@@ -426,6 +450,7 @@ export default function ContestPlayer() {
                 state={getState()}
                 type={EntityTypes.SKILL_CARD}
                 name="heldCards"
+                reverse={true}
                 idolId={config.idol.idolId || idolId}
                 plan={config.idol.plan || plan}
                 size="small"
