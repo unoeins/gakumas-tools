@@ -278,7 +278,6 @@ export default function ContestPlayer() {
   }
 
   function getTurnInfo() {
-    if (!running) return null;
     const state = getState();
     let types = state[S.turnTypes];
     const totalTurns = state[S.turnsElapsed] + state[S.turnsRemaining];
