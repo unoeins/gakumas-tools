@@ -58,6 +58,7 @@ function StateViewer({ state, idolId, plan }) {
     {name: "noActiveTurns", type: "number", style: "debuff"},
     {name: "noMentalTurns", type: "number", style: "debuff"},
     {name: "uneaseTurns", type: "number", style: "debuff"},
+    {name: "slumpTurns", type: "number", style: "debuff"},
   ];
 
   const REQUIRED_FIELDS = [

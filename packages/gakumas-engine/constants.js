@@ -167,6 +167,7 @@ export const ALL_FIELDS = [
   "noMentalTurns",
   "poorConditionTurns",
   "uneaseTurns",
+  "slumpTurns",
   "scoreBuffs",
   "scoreDebuffs",
   "goodImpressionTurnsBuffs",
@@ -305,6 +306,7 @@ export const EOT_DECREMENT_FIELDS = [
   S.noActiveTurns,
   S.noMentalTurns,
   S.uneaseTurns,
+  S.slumpTurns,
   S.noCardUseTurns,
 ];
 
@@ -325,6 +327,7 @@ export const DEBUFF_FIELDS = [
   S.noActiveTurns,
   S.noMentalTurns,
   S.uneaseTurns,
+  S.slumpTurns,
   S.poorConditionTurns,
   S.lockStanceTurns,
   S.noCardUseTurns,
@@ -413,6 +416,7 @@ export const LOGGED_FIELDS = [
   S.noMentalTurns,
   S.noCardUseTurns,
   S.uneaseTurns,
+  S.slumpTurns,
 ];
 
 export const GRAPHED_FIELDS = [
@@ -468,7 +472,7 @@ export const STARTING_EFFECTS = [
   /* 14 */ { name: "scoreBuff", plan: "free", type: "replacePercent", pattern: "at:startOfTurn,do:setScoreBuff({0}),limit:1" },
   /* 15 */ { name: "preservation", plan: "anomaly", type: "repeat", pattern: "at:startOfTurn,do:setStance(preservation),limit:1" },
   /* 16 */ { name: "nullifyGenkiTurns", plan: "free", type: "replace", pattern: "at:startOfTurn,do:nullifyGenkiTurns+={0},limit:1" },
-  /* 17 */ { name: "slumpTurns", plan: "free", type: "replace", pattern: "at:startOfTurn,do:setScoreDebuff(1,2),limit:1" },
+  /* 17 */ { name: "slumpTurns", plan: "free", type: "replace", pattern: "at:startOfTurn,do:slumpTurns+={0},limit:1" },
 ]
 
 export const EVENTS = {

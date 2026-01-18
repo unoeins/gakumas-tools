@@ -111,6 +111,7 @@ export default class BuffManager extends EngineComponent {
     state[S.noCardUseTurns] = 0;
     state[S.poorConditionTurns] = 0;
     state[S.uneaseTurns] = 0;
+    state[S.slumpTurns] = 0;
 
     // Buffs
     state[S.scoreBuffs] = [];

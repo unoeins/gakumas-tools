@@ -402,6 +402,10 @@ export default class Executor extends EngineComponent {
   }
 
   resolveScore(state, score, growth, rhsTokens) {
+    // Apply slump
+    if (state[S.slumpTurns]) {
+      return 0;
+    }
     // Apply growth
     if (
       growth[G["g.scoreByGoodImpressionTurns"]] &&
