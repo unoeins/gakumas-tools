@@ -21,6 +21,17 @@ Dates are based on Eastern Time Zone.
 
 
 
+
+
+## 2026-01-19
+
+- Add preview of season 38
+
+## 2026-01-16
+
+- Add ittaiitsukara temari
+- Fix samuzora recital stamina cost
+
 ## 2026-01-14
 
 - Add preview of Ittai itsu kara
