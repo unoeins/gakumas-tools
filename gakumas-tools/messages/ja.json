@@ -43,6 +43,10 @@
     "contestPlayer": {
       "title": "コンテストプレイヤー",
       "description": "コンテスト編成を作成、実際にコンテストをプレイし、動作を確認する"
+    },
+    "estimator": {
+      "title": "最適パラメータ推定機",
+      "description": "シミュレーターの獲得スコアから最適なパラメータ配分を推定する"
     }
   },
   "NavbarMenu": {
@@ -283,13 +287,16 @@
     "median": "中央値",
     "max": "最大値",
     "logs": "ログ",
-    "downloadScores": "スコアをダウンロード",
     "useStats": "使用回数",
     "conditionalUseStats": "条件付き使用回数",
     "priorityStats": "優先度比較"
   },
   "SimulatorResultGraphs": {
     "score": "スコア"
+  },
+  "SimulatorResultTools": {
+    "downloadScores": "スコアをダウンロード",
+    "estimateParameters": "最適パラメータを推定"
   },
   "stage": {
     "turnsRemaining": "残りターン数",
@@ -496,5 +503,18 @@
     "preservation": "温存",
     "nullifyGenkiTurns": "元気増加無効",
     "slumpTurns": "スランプ"
+  },
+  "ParameterEstimator": {
+    "note": "※入力データはシミュレーション結果から取り込むことができます(推奨)",
+    "notContestWarning": "注意: 選択されたステージはコンテストではありません。コンテストステージを選択してください。",
+    "supportBonus": "サポートボーナス%",
+    "totalParams": "合計パラメータ",
+    "maxParams": "最大パラメータ",
+    "minParams": "最小パラメータ",
+    "extraTurns": "追加ターン数",
+    "scores": "各ターンの獲得スコア(スコアボーナス適用前)",
+    "estimate": "最適パラメータを推定",
+    "estimatedParams": "最適パラメータ",
+    "estimatedScore": "推定スコア"
   }
 }

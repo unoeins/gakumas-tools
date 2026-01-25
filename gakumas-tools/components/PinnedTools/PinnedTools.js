@@ -17,6 +17,7 @@ const TOOL_COMPONENTS = {
   rehearsal: dynamic(() => import("@/components/Rehearsal")),
   simulator: dynamic(() => import("@/components/Simulator/Simulator")),
   contestPlayer: dynamic(() => import("@/components/ContestPlayer/ContestPlayer")),
+  estimator: dynamic(() => import("@/components/ParameterEstimator")),
 };
 
 function PinnedTools() {

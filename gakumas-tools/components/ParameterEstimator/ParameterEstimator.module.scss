@@ -1,0 +1,159 @@
+@use "sass:color";
+@use "../../styles/mixins";
+@use "../../styles/colors";
+
+// .parameterEstimator {
+//   display: flex;
+//   flex-direction: column;
+//   flex-wrap: wrap;
+//   justify-content: center;
+// }
+
+.parameterEstimator {
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 16px;
+  margin: 0 auto;
+  overflow: auto;
+}
+
+.configurator {
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 16px;
+  overflow: auto;
+}
+
+.results {
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 16px;
+  overflow: auto;
+}
+
+.supportBonusInput {
+  display: flex;
+  gap: 4px;
+
+  input {
+    width: 80px;
+  }
+}
+
+.totalParamsInput {
+  display: flex;
+  gap: 4px;
+
+  input {
+    width: 80px;
+  }
+}
+
+.extraTurnsInput {
+  display: flex;
+  gap: 4px;
+
+  input {
+    width: 80px;
+  }
+}
+
+.scoresInput {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+
+  input {
+    width: 90px;
+  }
+}
+
+.scoreInputLabel {
+  color: colors.$gray;
+  font-size: 14px;
+  text-align: center;
+}
+
+.parameters {
+  display: flex;
+  flex-direction: row;
+  gap: 2px;
+  overflow: hidden;
+
+  div {
+    flex: 1;
+    transition: background-color 0.2s;
+
+    @include mixins.param-colors using ($param-color) {
+      border-color: $param-color;
+      background-color: color.scale($param-color, $lightness: 80%);
+      color: $param-color;
+
+      &::placeholder {
+        color: color.scale($param-color, $alpha: -40%);
+      }
+
+      &:hover {
+        background-color: color.scale($param-color, $lightness: 90%);
+      }
+    }
+  }
+}
+
+.parameter {
+  min-width: 0;
+  outline: none;
+  border: none;
+  border-bottom: 2px solid colors.$gk-orange;
+  padding: 6px;
+  background-color: transparent;
+  color: colors.$black;
+  font-weight: 600;
+  text-align: center;
+
+  &::placeholder {
+    color: color.adjust(colors.$gk-orange, $lightness: 15%);
+  }
+
+  /* Chrome, Safari, Edge, Opera */
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* Firefox */
+  &[type="number"] {
+    -moz-appearance: textfield;
+  }
+}
+
+.typeMultipliers {
+  display: flex;
+  font-size: 14px;
+
+  & > div {
+    flex: 1;
+    text-align: center;
+
+    @include mixins.param-colors using ($param-color) {
+      color: $param-color;
+    }
+  }
+}
+
+.estimatedScore {
+  display: flex;
+  gap: 10px;
+
+  & > div {
+    width: 120px;
+  }
+}
