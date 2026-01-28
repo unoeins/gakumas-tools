@@ -1,6 +1,7 @@
 "use client";
 import { memo, useContext, useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { FaTrophy } from "react-icons/fa6";
 import StageSelect from "@/components/StageSelect";
 import Input from "@/components/Input";
 import ParametersInput from "@/components/ParametersInput";
@@ -9,13 +10,16 @@ import Loader from "@/components/Loader";
 import ScoresInput from "./ScoresInput";
 import ParameterEstimatorContext from "@/contexts/ParameterEstimatorContext";
 import LoadoutContext from "@/contexts/LoadoutContext";
+import { useRouter } from "@/i18n/routing";
 import { calculateTypeMultipliers, calculateTurnTypes } from "@/utils/estimator";
 import styles from "./ParameterEstimator.module.scss";
 
 function ParameterEstimator() {
   const t = useTranslations("ParameterEstimator");
+  const router = useRouter();
   const {
     stage,
+    setParams,
   } = useContext(LoadoutContext);
   const {
     supportBonus,
@@ -158,6 +162,12 @@ function ParameterEstimator() {
     setEstimatedScore(score);
   }
 
+  function reflectParametersAndGoToSimulator() {
+    setParams((cur) => 
+      [estimatedParams[0], estimatedParams[1], estimatedParams[2], cur[3]]);
+    router.push("/simulator");
+  }
+
   return (
     <div className={styles.parameterEstimator}>
         <p>{t("note")}</p>
@@ -253,6 +263,9 @@ function ParameterEstimator() {
             <label>{t("estimatedScore")}</label>
             <div className={styles.estimatedScoreValue}>{Math.round(estimatedScore)}</div>
           </div>
+          <Button style="blue" onClick={reflectParametersAndGoToSimulator}>
+            <FaTrophy /> {t("reflectParametersAndGoToSimulator")}
+          </Button>
         </>
       )}
     </div>

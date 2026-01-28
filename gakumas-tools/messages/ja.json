@@ -515,6 +515,7 @@
     "scores": "各ターンの獲得スコア(スコアボーナス適用前)",
     "estimate": "最適パラメータを推定",
     "estimatedParams": "最適パラメータ",
-    "estimatedScore": "推定スコア"
+    "estimatedScore": "推定スコア",
+    "reflectParametersAndGoToSimulator": "パラメータを反映してシミュレーターへ移動"
   }
 }
