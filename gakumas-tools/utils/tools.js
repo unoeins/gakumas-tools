@@ -4,10 +4,10 @@ import {
   FaChartSimple,
   FaFilm,
   FaGamepad,
-  FaMountain,
   FaPercent,
   FaTrophy,
 } from "react-icons/fa6";
+import { GrOptimize } from "react-icons/gr";
 
 export const TOOLS = {
   produceRankCalculator: {
@@ -46,7 +46,7 @@ export const TOOLS = {
     pinnable: true,
   },
   estimator: {
-    icon: <FaMountain />,
+    icon: <GrOptimize />,
     path: "/estimator",
     pinnable: true,
   },
