@@ -31,6 +31,7 @@ class Stages {
   static getById(id) {
     return STAGES_BY_ID[id];
   }
+
 }
 
 export default Stages;

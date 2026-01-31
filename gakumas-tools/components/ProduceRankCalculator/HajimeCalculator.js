@@ -12,6 +12,7 @@ import {
   getRank,
   MAX_PARAMS_BY_DIFFICULTY,
   PARAM_BONUS_BY_PLACE,
+  PARAM_BONUS_BY_PLACE_LEGEND,
   TARGET_RATING_BY_RANK,
 } from "@/utils/produceRank";
 import styles from "./ProduceRankCalculator.module.scss";
@@ -21,7 +22,7 @@ function HajimeCalculator() {
 
   const DIFFICULTY_OPTIONS = useMemo(
     () =>
-      ["regular", "pro", "master"].map((difficulty) => ({
+      ["regular", "pro", "master", "legend"].map((difficulty) => ({
         value: difficulty,
         label: t(`difficulties.${difficulty}`),
       })),
@@ -39,32 +40,41 @@ function HajimeCalculator() {
 
   const TABLE_HEADERS = [t("produceRank"), t("targetScore")];
 
-  const [difficulty, setDifficulty] = useState("master");
+  const [difficulty, setDifficulty] = useState("legend");
   const [place, setPlace] = useState(1);
   const [params, setParams] = useState([null, null, null]);
+  const [midtermScore, setMidtermScore] = useState("");
   const [actualScore, setActualScore] = useState("");
 
   const maxParams = MAX_PARAMS_BY_DIFFICULTY[difficulty];
-  const placeParamBonus = PARAM_BONUS_BY_PLACE[place];
+  const placeParamBonus =
+    difficulty === "legend"
+      ? PARAM_BONUS_BY_PLACE_LEGEND[place]
+      : PARAM_BONUS_BY_PLACE[place];
   const ratingExExamScore = calculateRatingExExamScore(
     place,
     params,
-    maxParams
+    maxParams,
+    midtermScore,
+    difficulty
   );
 
   const targetScoreRows = useMemo(
     () =>
-      calculateTargetScores(ratingExExamScore).map(({ rank, score }) => [
-        `${rank} (${TARGET_RATING_BY_RANK[rank]})`,
-        score,
-      ]),
-    [ratingExExamScore]
+      calculateTargetScores(ratingExExamScore, difficulty).map(
+        ({ rank, score }) => [
+          `${rank} (${TARGET_RATING_BY_RANK[rank].toLocaleString()})`,
+          score.toLocaleString(),
+        ]
+      ),
+    [ratingExExamScore, difficulty]
   );
   const actualRating = useMemo(
-    () => calculateActualRating(actualScore, ratingExExamScore),
-    [actualScore, ratingExExamScore]
+    () => calculateActualRating(actualScore, ratingExExamScore, difficulty),
+    [actualScore, ratingExExamScore, difficulty]
   );
   const actualRank = useMemo(() => getRank(actualRating), [actualRating]);
+  const showActualRank = difficulty !== "legend" ? !!actualScore : !!actualScore && !!midtermScore;
 
   return (
     <>
@@ -72,11 +82,30 @@ function HajimeCalculator() {
       <ButtonGroup
         options={DIFFICULTY_OPTIONS}
         selected={difficulty}
-        onChange={setDifficulty}
+        onChange={(value) => {
+          if (value !== "legend") {
+            setMidtermScore("");
+          }
+          setDifficulty(value);
+        }}
       />
       <div className={styles.bonus}>
         {t("parameterLimit")}: {maxParams}
       </div>
+
+      {difficulty === "legend" && (
+        <>
+          <label>{t("midtermScore")}</label>
+          <Input
+            type="number"
+            value={midtermScore || ""}
+            placeholder={t("midtermScore")}
+            onChange={setMidtermScore}
+            min={0}
+            max={10000000}
+          />
+        </>
+      )}
 
       <label>{t("finalExamPlacement")}</label>
       <ButtonGroup
@@ -98,21 +127,22 @@ function HajimeCalculator() {
       <label>{t("targetScores")}</label>
       <Table headers={TABLE_HEADERS} rows={targetScoreRows} />
 
-      <label>{t("score")}</label>
+      <label>{t(difficulty === "legend" ? "finalScore" : "score")}</label>
       <Input
         type="number"
         value={actualScore || ""}
-        placeholder={t("score")}
+        placeholder={t(difficulty === "legend" ? "finalScore" : "score")}
         onChange={setActualScore}
         min={0}
         max={10000000}
       />
 
-      {!!actualScore && (
+      {showActualRank && (
         <>
           <label>{t("produceRank")}</label>
           <span>
-            {actualRating} {actualRank ? `(${actualRank})` : null}
+            {actualRating.toLocaleString()}{" "}
+            {actualRank ? `(${actualRank})` : null}
           </span>
         </>
       )}

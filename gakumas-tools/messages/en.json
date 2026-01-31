@@ -72,7 +72,8 @@
     "difficulties": {
       "regular": "Regular",
       "pro": "Pro",
-      "master": "Master"
+      "master": "Master",
+      "legend": "Legend"
     },
     "places": {
       "1": "1st",
@@ -81,6 +82,7 @@
       "4": "Other"
     },
     "parameterLimit": "Parameter limit",
+    "midtermScore": "Midterm score",
     "finalExamPlacement": "Final exam placement",
     "parameter": "Parameter",
     "parameters": "Parameters",
@@ -88,6 +90,7 @@
     "produceRank": "Produce rank",
     "targetScore": "Target score",
     "score": "Score",
+    "finalScore": "Final exam score",
     "niaNote": "※Calculation will be updated as we learn more about parameter and vote counts from audition bonus.",
     "affectionAtStartOfProduce": "Affection at start of produce",
     "stage": "Stage",
@@ -131,6 +134,7 @@
   "Dex": {
     "skillCards": "Skill cards",
     "pItems": "P-items",
+    "pDrinks": "P-drinks",
     "maxTimes": "Max {n}"
   },
   "EntityBank": {
@@ -218,6 +222,7 @@
     "contest": "Contest",
     "linkContest": "Link Contest",
     "event": "Event",
+    "exam": "Exam",
     "custom": "Custom"
   },
   "StageSummary": {
@@ -226,18 +231,27 @@
     "custom": "Custom"
   },
   "StageCustomizer": {
+    "type": "Type",
+    "contest": "Contest",
+    "linkContest": "Link Contest",
+    "event": "Event",
     "turnCounts": "Turn counts",
     "firstTurn": "First turn rate",
     "criteria": "Criteria",
     "effects": "Effects",
     "effectFormat": "Effect format",
-    "defaultCards": "Default cards",
-    "contest": "Contest",
-    "event": "Event",
     "apply": "Apply"
   },
   "LoadoutSkillCardGroup": {
-    "cost": "Cost"
+    "cost": "Cost",
+    "cardCount": "Card count",
+    "memoryCalculator": "Memory calculator",
+    "memories": "Memories",
+    "importMemory": "Import memory from screenshot",
+    "addRow": "Add row",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "removeRow": "Remove row"
   },
   "SimulatorSubTools": {
     "costRanges": "Cost ranges",
@@ -311,9 +325,12 @@
     "nullifyDebuff": "Nullify debuff",
     "poorConditionTurns": "Poor condition",
     "nullifyCostCards": "Nullify cost cards",
+    "nullifyCostActiveCards": "Nullify cost active cards",
     "noActiveTurns": "No active cards",
     "noMentalTurns": "No mental cards",
+    "noCardUseTurns": "No card use",
     "uneaseTurns": "Unease",
+    "slumpTurns": "Slump",
     "scoreBuff": "Score increase buff",
     "scoreDebuff": "Score increase debuff",
     "goodImpressionTurnsBuff": "Good impression increase buff",
@@ -330,6 +347,7 @@
     "setEffect": "Set effect",
     "addedCardToHand": "Added card to hand",
     "addedCardToTopOfDeck": "Added card to top of deck",
+    "addedCardToDeckAtRandom": "Added card to random position in deck",
     "upgradedCard": "Upgraded card",
     "cardGrowth": "Card growth",
     "heldCard": "Held card",
@@ -337,10 +355,12 @@
     "movedCardToHand": "Moved card to hand",
     "movedCardToTopOfDeck": "Moved card to top of deck",
     "movedCardToDeckAtRandom": "Moved card to random position in deck",
+    "removedCard": "Removed card",
     "effect": "Effect",
     "stageEffect": "Stage effect",
     "skillCard": "Skill card",
     "pItem": "P-item",
+    "pDrink": "P-drink",
     "numTurns": "{num} {num, plural, =1 {turn} other {turns}}",
     "hand": "Hand",
     "turnN": "Turn {n}",
@@ -349,6 +369,7 @@
     "linkPhaseChange": "Idol changed",
     "skip": "Skip",
     "selectCardsToHold": "Select {num} {num, plural, =1 {card} other {cards}} to hold",
+    "selectCardsToMoveToHand": "Select {num} {num, plural, =1 {card} other {cards}} to move to hand",
     "confirm": "Confirm"
   },
   "BoxPlot": {
@@ -420,7 +441,7 @@
     "lockStanceTurns": "Lock stance turns",
     "enthusiasm": "Enthusiasm",
     "enthusiasmBonus": "Enthusiasm bonus",
-    "enthusiasmMultiplier": "Enthusiasm multiplier",
+    "enthusiasmBuffs": "Enthusiasm buffs",
     "halfCostTurns": "Half cost turns",
     "doubleCostTurns": "Double cost turns",
     "costReduction": "Cost reduction",
@@ -430,17 +451,19 @@
     "nullifyDebuff": "Nullify debuff",
     "poorConditionTurns": "Poor condition",
     "nullifyCostCards": "Nullify cost cards",
+    "nullifyCostActiveCards": "Nullify cost active cards",
     "noActiveTurns": "No active cards",
     "noMentalTurns": "No mental cards",
     "uneaseTurns": "Unease",
-    "scoreBuff": "Score increase buff",
-    "scoreDebuff": "Score increase debuff",
-    "goodImpressionTurnsBuff": "Good impression increase buff",
-    "goodImpressionTurnsEffectBuff": "Good impression effect buff",
-    "motivationBuff": "Motivation buff",
-    "goodConditionTurnsBuff": "Good condition turns buff",
-    "concentrationBuff": "Concentration buff",
-    "fullPowerChargeBuff": "Full power charge buff",
+    "slumpTurns": "Slump",
+    "scoreBuffs": "Score increase buff",
+    "scoreDebuffs": "Score increase debuff",
+    "goodImpressionTurnsBuffs": "Good impression increase buff",
+    "goodImpressionTurnsEffectBuffs": "Good impression effect buff",
+    "motivationBuffs": "Motivation buff",
+    "goodConditionTurnsBuffs": "Good condition turns buff",
+    "concentrationBuffs": "Concentration buff",
+    "fullPowerChargeBuffs": "Full power charge buff",
     "turn": "Turn",
     "numTurns": "{num} {num, plural, =1 {turn} other {turns}}",
     "hand": "Hand",
@@ -450,6 +473,28 @@
     "deckCards": "Deck",
     "discardedCards": "Discarded",
     "removedCards": "Removed",
-    "heldCards": "Held"
+    "heldCards": "Held",
+    "pDrinks": "P-drinks"
+  },
+  "StageStartingEffects": {
+    "startingEffects": "Starting Effects",
+    "goodConditionTurns": "Good Condition",
+    "concentration": "Concentration",
+    "goodImpressionTurns": "Good Impression",
+    "motivation": "Motivation",
+    "genki": "Genki",
+    "costReduction": "Cost Reduction",
+    "fullPowerCharge": "Full Power Charge",
+    "allScores": "All Parameter Increase",
+    "strengthScores": "Strength Parameter Increase",
+    "fullPowerScores": "Full Power Parameter Increase",
+    "goodConditionTurnsBuff": "Good Condition Increase Amount Increase%",
+    "concentrationBuff": "Concentration Increase Amount Increase%",
+    "goodImpressionTurnsBuff": "Good Impression Increase Amount Increase%",
+    "motivationBuff": "Motivation Increase Amount Increase%",
+    "scoreBuff": "Parameter Increase Amount Increase%",
+    "preservation": "Preservation",
+    "nullifyGenkiTurns": "Nullify Genki",
+    "slumpTurns": "Slump"
   }
 }

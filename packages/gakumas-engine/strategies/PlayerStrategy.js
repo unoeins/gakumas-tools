@@ -25,4 +25,8 @@ export default class PlayerStrategy {
       throw e;
     }
   }
+  
+  pickCardsToMoveToHand(state, cards, num = 1) {
+    return this.pickCardsToHold(state, cards, num);
+  }
 }

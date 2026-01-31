@@ -43,6 +43,10 @@
     "contestPlayer": {
       "title": "コンテストプレイヤー",
       "description": "コンテスト編成を作成、実際にコンテストをプレイし、動作を確認する"
+    },
+    "estimator": {
+      "title": "最適パラメータ推定機",
+      "description": "シミュレーターの獲得スコアから最適なパラメータ配分を推定する"
     }
   },
   "NavbarMenu": {
@@ -72,7 +76,8 @@
     "difficulties": {
       "regular": "レギュラー",
       "pro": "プロ",
-      "master": "マスター"
+      "master": "マスター",
+      "legend": "レジェンド"
     },
     "places": {
       "1": "1位",
@@ -81,6 +86,7 @@
       "4": "4位以下"
     },
     "parameterLimit": "パラメータ上限",
+    "midtermScore": "中間試験スコア",
     "finalExamPlacement": "最終試験順位",
     "parameter": "パラメータ",
     "parameters": "パラメータ",
@@ -88,6 +94,7 @@
     "produceRank": "プロデュース評価",
     "targetScore": "目標スコア",
     "score": "スコア",
+    "finalScore": "最終試験スコア",
     "niaNote": "※オーディションボーナスのパラメータや投票数の計算方法が分かり次第、機能を更新していきます。",
     "affectionAtStartOfProduce": "プロデュース開始時親愛度",
     "stage": "ステージ",
@@ -131,6 +138,7 @@
   "Dex": {
     "skillCards": "スキルカード",
     "pItems": "Pアイテム",
+    "pDrinks": "Pドリンク",
     "maxTimes": "最大{n}回"
   },
   "EntityBank": {
@@ -218,6 +226,7 @@
     "contest": "コンテスト",
     "linkContest": "リンクコンテスト",
     "event": "イベント",
+    "exam": "試験",
     "custom": "カスタム"
   },
   "StageSummary": {
@@ -226,18 +235,27 @@
     "custom": "カスタム"
   },
   "StageCustomizer": {
+    "type": "タイプ",
+    "contest": "コンテスト",
+    "linkContest": "リンクコンテスト",
+    "event": "イベント",
     "turnCounts": "ターン数",
     "firstTurn": "初手ターン率",
     "criteria": "審査基準",
     "effects": "ステージ効果",
     "effectFormat": "効果形式",
-    "defaultCards": "基本カード",
-    "contest": "コンテスト",
-    "event": "イベント",
     "apply": "適用"
   },
   "LoadoutSkillCardGroup": {
-    "cost": "コスト"
+    "cost": "コスト",
+    "cardCount": "カード枚数",
+    "memoryCalculator": "メモリー計算機",
+    "memories": "メモリー",
+    "importMemory": "スクショからメモリーを読み取る",
+    "addRow": "行を追加",
+    "moveUp": "上に移動",
+    "moveDown": "下に移動",
+    "removeRow": "行を削除"
   },
   "SimulatorSubTools": {
     "costRanges": "コスト範囲",
@@ -269,13 +287,16 @@
     "median": "中央値",
     "max": "最大値",
     "logs": "ログ",
-    "downloadScores": "スコアをダウンロード",
     "useStats": "使用回数",
     "conditionalUseStats": "条件付き使用回数",
     "priorityStats": "優先度比較"
   },
   "SimulatorResultGraphs": {
     "score": "スコア"
+  },
+  "SimulatorResultTools": {
+    "downloadScores": "スコアをダウンロード",
+    "estimateParameters": "最適パラメータを推定"
   },
   "stage": {
     "turnsRemaining": "残りターン数",
@@ -311,9 +332,12 @@
     "nullifyDebuff": "低下状態無効",
     "poorConditionTurns": "不調",
     "nullifyCostCards": "体力消費無効",
+    "nullifyCostActiveCards": "アクティブスキルカード体力消費無効",
     "noActiveTurns": "アクティブスキルカード使用不可",
     "noMentalTurns": "メンタルスキルカード使用不可",
+    "noCardUseTurns": "スキルカード使用不可",
     "uneaseTurns": "不安",
+    "slumpTurns": "スランプ",
     "scoreBuff": "スコア上昇量増加",
     "scoreDebuff": "スコア上昇量減少",
     "goodImpressionTurnsBuff": "好印象増加量増加",
@@ -330,6 +354,7 @@
     "setEffect": "持続効果付与",
     "addedCardToHand": "スキルカードを手札に生成",
     "addedCardToTopOfDeck": "スキルカードを山札の上に生成",
+    "addedCardToDeckAtRandom": "スキルカードを山札のランダムな位置に生成",
     "upgradedCard": "スキルカードをレッスン中強化",
     "cardGrowth": "スキルカードを成長",
     "heldCard": "スキルカードを保留に移動",
@@ -337,10 +362,12 @@
     "movedCardToHand": "スキルカードを手札に移動",
     "movedCardToTopOfDeck": "スキルカードを山札の上に移動",
     "movedCardToDeckAtRandom": "スキルカードを山札のランダムな位置に移動",
+    "removedCard": "スキルカードを除外に移動",
     "effect": "持続効果",
     "stageEffect": "ステージ効果",
     "skillCard": "スキルカード",
     "pItem": "Pアイテム",
+    "pDrink": "Pドリンク",
     "numTurns": "{num}ターン",
     "hand": "手札",
     "turnN": "{n}ターン目",
@@ -349,6 +376,7 @@
     "linkPhaseChange": "アイドル交代",
     "skip": "スキップ",
     "selectCardsToHold": "{num}枚のカードを選択",
+    "selectCardsToMoveToHand": "{num}枚のカードを選択",
     "confirm": "確認"
   },
   "BoxPlot": {
@@ -420,7 +448,7 @@
     "lockStanceTurns": "指針固定",
     "enthusiasm": "熱意",
     "enthusiasmBonus": "熱意追加",
-    "enthusiasmMultiplier": "熱意増加倍率",
+    "enthusiasmBuffs": "熱意増加",
     "halfCostTurns": "消費体力減少",
     "doubleCostTurns": "消費体力増加",
     "costReduction": "消費体力削減",
@@ -430,17 +458,19 @@
     "nullifyDebuff": "低下状態無効",
     "poorConditionTurns": "不調",
     "nullifyCostCards": "体力消費無効",
+    "nullifyCostActiveCards": "アクティブスキルカード体力消費無効",
     "noActiveTurns": "アクティブスキルカード使用不可",
     "noMentalTurns": "メンタルスキルカード使用不可",
     "uneaseTurns": "不安",
-    "scoreBuff": "スコア上昇量増加",
-    "scoreDebuff": "スコア上昇量減少",
-    "goodImpressionTurnsBuff": "好印象増加量増加",
-    "goodImpressionTurnsEffectBuff": "好印象強化",
-    "motivationBuff": "やる気増加量増加",
-    "goodConditionTurnsBuff": "好調増加量増加",
-    "concentrationBuff": "集中増加量増加",
-    "fullPowerChargeBuff": "全力値増加量増加",
+    "slumpTurns": "スランプ",
+    "scoreBuffs": "スコア上昇量増加",
+    "scoreDebuffs": "スコア上昇量減少",
+    "goodImpressionTurnsBuffs": "好印象増加量増加",
+    "goodImpressionTurnsEffectBuffs": "好印象強化",
+    "motivationBuffs": "やる気増加量増加",
+    "goodConditionTurnsBuffs": "好調増加量増加",
+    "concentrationBuffs": "集中増加量増加",
+    "fullPowerChargeBuffs": "全力値増加量増加",
     "turn": "ターン",
     "numTurns": "{num}ターン",
     "hand": "手札",
@@ -450,6 +480,42 @@
     "deckCards": "山札",
     "discardedCards": "捨札",
     "removedCards": "除外",
-    "heldCards": "保留"
+    "heldCards": "保留",
+    "pDrinks": "Pドリンク"
+  },
+  "StageStartingEffects": {
+    "startingEffects": "開始時効果",
+    "goodConditionTurns": "好調",
+    "concentration": "集中",
+    "goodImpressionTurns": "好印象",
+    "motivation": "やる気",
+    "genki": "元気",
+    "costReduction": "消費体力削減",
+    "fullPowerCharge": "全力値",
+    "allScores": "パラメータ値増加(全て)",
+    "strengthScores": "パラメータ値増加(強気)",
+    "fullPowerScores": "パラメータ値増加(全力)",
+    "goodConditionTurnsBuff": "好調増加量増加%",
+    "concentrationBuff": "集中増加量増加%",
+    "goodImpressionTurnsBuff": "好印象増加量増加%",
+    "motivationBuff": "やる気増加量増加%",
+    "scoreBuff": "パラメータ上昇量増加%",
+    "preservation": "温存",
+    "nullifyGenkiTurns": "元気増加無効",
+    "slumpTurns": "スランプ"
+  },
+  "ParameterEstimator": {
+    "note": "※入力データはシミュレーション結果から取り込むことができます(推奨)",
+    "notContestWarning": "注意: 選択されたステージはコンテストではありません。コンテストステージを選択してください。",
+    "supportBonus": "サポートボーナス%",
+    "totalParams": "合計パラメータ",
+    "maxParams": "最大パラメータ",
+    "minParams": "最小パラメータ",
+    "extraTurns": "追加ターン数",
+    "scores": "各ターンの獲得スコア(スコアボーナス適用前)",
+    "estimate": "最適パラメータを推定",
+    "estimatedParams": "最適パラメータ",
+    "estimatedScore": "推定スコア",
+    "reflectParametersAndGoToSimulator": "パラメータを反映してシミュレーターへ移動"
   }
 }

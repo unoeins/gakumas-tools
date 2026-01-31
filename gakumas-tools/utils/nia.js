@@ -2,12 +2,13 @@ import { TARGET_RATING_BY_RANK } from "@/utils/produceRank";
 
 export const MAX_PARAMS_BY_DIFFICULTY = {
   pro: 2000,
-  master: 2300,
+  master: 2600,
 };
 
 export const MIN_VOTES_BY_STAGE = {
   melobang: 9000,
   galaxy: 25000,
+  idolbigup: 28000,
   quartet: 40000,
   finale: 57000,
 };
@@ -116,39 +117,111 @@ export const PARAM_REGIMES_BY_DIFF_STAGE_BALANCE_ORDER = {
     },
   },
   master: {
-    finale: {
+    idolbigup: {
       flat: {
         1: [
-          { threshold: 134210, multiplier: 0, constant: 172 },
-          { threshold: 66600, multiplier: 0.000756, constant: 69 },
-          { threshold: 0, multiplier: 0.0018, constant: 0 },
+          { threshold: 43620, multiplier: 0, constant: 97 },
+          { threshold: 21510, multiplier: 0.00133, constant: 39 },
+          { threshold: 0, multiplier: 0.003143, constant: 0 },
         ],
         2: [
-          { threshold: 63750, multiplier: 0, constant: 142 },
-          { threshold: 31600, multiplier: 0.00124, constant: 62 },
-          { threshold: 0, multiplier: 0.0032, constant: 0 },
+          { threshold: 20620, multiplier: 0, constant: 80 },
+          { threshold: 10250, multiplier: 0.00228, constant: 33 },
+          { threshold: 0, multiplier: 0.0055, constant: 0 },
         ],
         3: [
-          { threshold: 36900, multiplier: 0, constant: 116 },
-          { threshold: 17600, multiplier: 0.00183, constant: 48.5 },
-          { threshold: 0, multiplier: 0.0046, constant: 0 },
+          { threshold: 12170, multiplier: 0, constant: 65 },
+          { threshold: 5700, multiplier: 0.00305, constant: 28.5 },
+          { threshold: 0, multiplier: 0.008, constant: 0 },
         ],
       },
       skew: {
         1: [
-          { threshold: 136000, multiplier: 0, constant: 215 },
-          { threshold: 43920, multiplier: 0.00092, constant: 89 },
-          { threshold: 0, multiplier: 0.00292, constant: 0 },
+          { threshold: 45400, multiplier: 0, constant: 121 },
+          { threshold: 22150, multiplier: 0.00152, constant: 52 },
+          { threshold: 0, multiplier: 0.00384, constant: 0 },
         ],
         2: [
-          { threshold: 63000, multiplier: 0, constant: 129 },
-          { threshold: 30600, multiplier: 0.0012, constant: 52.5 },
-          { threshold: 0, multiplier: 0.00292, constant: 0 },
+          { threshold: 20470, multiplier: 0, constant: 73 },
+          { threshold: 10170, multiplier: 0.00215, constant: 29 },
+          { threshold: 0, multiplier: 0.005, constant: 0 },
         ],
         3: [
-          { threshold: 36000, multiplier: 0, constant: 86 },
-          { threshold: 18000, multiplier: 0.00133, constant: 37 },
-          { threshold: 0, multiplier: 0.0034, constant: 0 },
+          { threshold: 11620, multiplier: 0, constant: 48 },
+          { threshold: 5280, multiplier: 0.00241, constant: 20 },
+          { threshold: 0, multiplier: 0.0062, constant: 0 },
+        ],
+      },
+    },
+    quartet: {
+      flat: {
+        1: [
+          { threshold: 70300, multiplier: 0, constant: 145 },
+          { threshold: 34210, multiplier: 0.001194, constant: 61.08 },
+          { threshold: 0, multiplier: 0.002965, constant: 0.5 },
+        ],
+        2: [
+          { threshold: 32870, multiplier: 0, constant: 120 },
+          { threshold: 16050, multiplier: 0.00213, constant: 50 },
+          { threshold: 0, multiplier: 0.00512, constant: 2 },
+        ],
+        3: [
+          { threshold: 18670, multiplier: 0, constant: 98 },
+          { threshold: 9120, multiplier: 0.00308, constant: 40.5 },
+          { threshold: 0, multiplier: 0.00741, constant: 1 },
+        ],
+      },
+      skew: {
+        1: [
+          { threshold: 70750, multiplier: 0, constant: 182 },
+          { threshold: 34133, multiplier: 0.00148, constant: 77.3 },
+          { threshold: 0, multiplier: 0.00373, constant: 0.5 },
+        ],
+        2: [
+          { threshold: 32900, multiplier: 0, constant: 109 },
+          { threshold: 15970, multiplier: 0.0019, constant: 46.5 },
+          { threshold: 0, multiplier: 0.00475, constant: 1 },
+        ],
+        3: [
+          { threshold: 19570, multiplier: 0, constant: 73 },
+          { threshold: 9000, multiplier: 0.0023, constant: 30 },
+          { threshold: 0, multiplier: 0.0056, constant: 0 },
+        ],
+      },
+    },
+    finale: {
+      flat: {
+        1: [
+          { threshold: 134210, multiplier: 0, constant: 172 },
+          { threshold: 66600, multiplier: 0.000756, constant: 70 },
+          { threshold: 0, multiplier: 0.0018, constant: 0.5 },
+        ],
+        2: [
+          { threshold: 63750, multiplier: 0, constant: 142 },
+          { threshold: 31350, multiplier: 0.001276, constant: 61 },
+          { threshold: 0, multiplier: 0.00325, constant: 0 },
+        ],
+        3: [
+          { threshold: 36500, multiplier: 0, constant: 116 },
+          { threshold: 17600, multiplier: 0.00182, constant: 50 },
+          { threshold: 0, multiplier: 0.00465, constant: 0 },
+        ],
+      },
+      skew: {
+        1: [
+          { threshold: 136070, multiplier: 0, constant: 215 },
+          { threshold: 65350, multiplier: 0.000915, constant: 90.5 },
+          { threshold: 0, multiplier: 0.0023, constant: 0 },
+        ],
+        2: [
+          { threshold: 63250, multiplier: 0, constant: 129 },
+          { threshold: 30900, multiplier: 0.00117, constant: 55 },
+          { threshold: 0, multiplier: 0.00295, constant: 0 },
+        ],
+        3: [
+          { threshold: 36100, multiplier: 0, constant: 86 },
+          { threshold: 17800, multiplier: 0.00136, constant: 37 },
+          { threshold: 0, multiplier: 0.003465, constant: 0 },
         ],
       },
     },
@@ -161,7 +234,7 @@ export function calculateGainedParams(paramRegimesByOrder, paramOrder, scores) {
     for (let j = 0; j < regimes.length; j++) {
       const { threshold, multiplier, constant } = regimes[j];
       if (scores[i] > threshold) {
-        return Math.ceil(scores[i] * multiplier + constant);
+        return Math.floor(scores[i] * multiplier + constant);
       }
     }
     return 0;
@@ -200,9 +273,15 @@ export function calculateBonusParams(gainedParams, paramBonuses) {
   );
 }
 
-export function calculateChallengeParams(gainedParams, challengeParamBonus) {
-  return gainedParams.map((param) =>
-    Math.floor((param * challengeParamBonus) / 100)
+export function calculateChallengeParams(
+  gainedParams,
+  bonusParams,
+  challengeParamBonus
+) {
+  return gainedParams.map(
+    (param, i) =>
+      Math.floor((param * challengeParamBonus) / 100) +
+      Math.floor((bonusParams[i] * challengeParamBonus) / 100)
   );
 }
 
@@ -245,11 +324,23 @@ export const VOTE_REGIMES_BY_DIFF_STAGE = {
     ],
   },
   master: {
+    idolbigup: [
+      { threshold: 90862, multiplier: 0, constant: 16000 },
+      { threshold: 78867, multiplier: 0.07020547945, constant: 9621 },
+      { threshold: 66750, multiplier: 0.2076203514, constant: -1216.6 },
+      { threshold: 0, multiplier: 0.1274839693, constant: 4132.5 },
+    ],
+    quartet: [
+      { threshold: 239970, multiplier: 0, constant: 25334 },
+      { threshold: 180000, multiplier: 0.02800776858, constant: 18612.6 },
+      { threshold: 119982, multiplier: 0.08399651702, constant: 8534.93 },
+      { threshold: 0, multiplier: 0.1289162297, constant: 3145.5 },
+    ],
     finale: [
-      { threshold: 1200800, multiplier: 0, constant: 32668 },
-      { threshold: 640900, multiplier: 0.004127, constant: 27713 },
-      { threshold: 260410, multiplier: 0.018215, constant: 18684 },
-      { threshold: 0, multiplier: 0.075927, constant: 3655 },
+      { threshold: 1200582, multiplier: 0, constant: 32668 },
+      { threshold: 640882, multiplier: 0.004126232489, constant: 27714.07 },
+      { threshold: 260417, multiplier: 0.01821637749, constant: 18683.95 },
+      { threshold: 0, multiplier: 0.07592333987, constant: 3656.17 },
     ],
   },
 };
@@ -279,16 +370,29 @@ function calculateScoreForVotes(voteRegimes, affection, votes) {
   return 0;
 }
 
-const VOTE_RANKS = [
-  { rank: "SSS", threshold: 140000 },
-  { rank: "SS+", threshold: 120000 },
-  { rank: "SS", threshold: 100000 },
-  { rank: "S+", threshold: 80000 },
-  { rank: "S", threshold: 60000 },
-  { rank: "A+", threshold: 40000 },
-];
+const VOTE_RANKS_BY_DIFF = {
+  pro: [
+    { rank: "SS", threshold: 100001 },
+    { rank: "S+", threshold: 80001 },
+    { rank: "S", threshold: 60001 },
+    { rank: "A+", threshold: 40001 },
+    { rank: "A", threshold: 20001 },
+    { rank: "B+", threshold: 0 },
+  ],
+  master: [
+    { rank: "SSS", threshold: 140001 },
+    { rank: "SS+", threshold: 120001 },
+    { rank: "SS", threshold: 100001 },
+    { rank: "S+", threshold: 80001 },
+    { rank: "S", threshold: 60001 },
+    { rank: "A+", threshold: 40001 },
+    { rank: "A", threshold: 20001 },
+    { rank: "B+", threshold: 0 },
+  ],
+};
 
-export function getVoteRank(votes) {
+export function getVoteRank(votes, difficulty) {
+  const VOTE_RANKS = VOTE_RANKS_BY_DIFF[difficulty];
   for (let i = 0; i < VOTE_RANKS.length; i++) {
     if (votes >= VOTE_RANKS[i].threshold) {
       return VOTE_RANKS[i].rank;
@@ -297,18 +401,30 @@ export function getVoteRank(votes) {
   return null;
 }
 
-const FAN_RATING_BY_VOTE_RANK = {
-  "A+": { base: 900, multiplier: 0.07 },
-  S: { base: 1200, multiplier: 0.065 },
-  "S+": { base: 1600, multiplier: 0.06 },
-  SS: { base: 2100, multiplier: 0.055 },
-  "SS+": { base: 3800, multiplier: 0.04 },
-  SSS: { base: 5200, multiplier: 0.03 },
+const FAN_RATING_BY_DIFF_VOTE_RANK = {
+  pro: {
+    "B+": { base: 0, multiplier: 0.1 },
+    A: { base: 300, multiplier: 0.085 },
+    "A+": { base: 900, multiplier: 0.07 },
+    S: { base: 1200, multiplier: 0.065 },
+    "S+": { base: 1600, multiplier: 0.06 },
+    SS: { base: 2100, multiplier: 0.055 },
+  },
+  master: {
+    "B+": { base: 0, multiplier: 0.1 },
+    A: { base: 300, multiplier: 0.085 },
+    "A+": { base: 900, multiplier: 0.07 },
+    S: { base: 1200, multiplier: 0.065 },
+    "S+": { base: 1600, multiplier: 0.06 },
+    SS: { base: 2600, multiplier: 0.05 },
+    "SS+": { base: 3800, multiplier: 0.04 },
+    SSS: { base: 5200, multiplier: 0.03 },
+  },
 };
 
-export function calculateVoteRating(votes, voteRank) {
-  const { base, multiplier } = FAN_RATING_BY_VOTE_RANK[voteRank];
-  return base + Math.ceil(votes * multiplier);
+export function calculateVoteRating(votes, voteRank, difficulty) {
+  const { base, multiplier } = FAN_RATING_BY_DIFF_VOTE_RANK[difficulty][voteRank];
+  return base + Math.floor(votes * multiplier);
 }
 
 export function calculateRecommendedScores(
@@ -320,7 +436,8 @@ export function calculateRecommendedScores(
   paramBonuses,
   affection,
   params,
-  votes
+  votes,
+  difficulty
 ) {
   let sft = 0;
   const maxScores = calculateMaxScores(
@@ -332,6 +449,7 @@ export function calculateRecommendedScores(
   );
   let recommendedScores = {};
   let currentScores = [0, 0, 0];
+  const VOTE_RANKS = VOTE_RANKS_BY_DIFF[difficulty];
 
   const produceRanks = Object.keys(TARGET_RATING_BY_RANK).slice(0, 8);
   let rankIndex = produceRanks.length - 1;
@@ -347,11 +465,12 @@ export function calculateRecommendedScores(
       currentScores
     );
     // console.log(gainedParams);
+    const bonusParams = calculateBonusParams(gainedParams, paramBonuses);
     const challengeParams = calculateChallengeParams(
       gainedParams,
+      bonusParams,
       challengeParamBonus
     );
-    const bonusParams = calculateBonusParams(gainedParams, paramBonuses);
     const postAuditionParams = calculatePostAuditionParams(
       maxParams,
       params,
@@ -373,9 +492,9 @@ export function calculateRecommendedScores(
     );
 
     let currentVoteRating = 0;
-    const voteRank = getVoteRank(postAuditionVotes);
+    const voteRank = getVoteRank(postAuditionVotes, difficulty);
     if (voteRank) {
-      currentVoteRating = calculateVoteRating(postAuditionVotes, voteRank);
+      currentVoteRating = calculateVoteRating(postAuditionVotes, voteRank, difficulty);
     }
 
     // console.log(currentParamRating, currentVoteRating);
@@ -450,7 +569,7 @@ export function calculateRecommendedScores(
     // Remaining score
     const currentParamRegime = paramRegimes[currentParamRegimeIndex];
     const currentVoteRegime = voteRegimes[currentVoteRegimeIndex];
-    const currentVoteRank = FAN_RATING_BY_VOTE_RANK[voteRank];
+    const currentVoteRank = FAN_RATING_BY_DIFF_VOTE_RANK[difficulty][voteRank];
 
     const remainingRating =
       targetRating - currentParamRating - currentVoteRating;

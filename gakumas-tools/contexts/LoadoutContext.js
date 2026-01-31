@@ -1,11 +1,14 @@
 "use client";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { STARTING_EFFECTS } from "gakumas-engine/constants";
 import { Stages } from "gakumas-data";
 import { usePathname } from "@/i18n/routing";
 import LoadoutUrlContext from "@/contexts/LoadoutUrlContext";
+import WorkspaceContext from "@/contexts/WorkspaceContext";
 import { getSimulatorUrl } from "@/utils/simulator";
 import { FALLBACK_STAGE } from "@/simulator/constants";
 import { fixCustomizations } from "@/utils/customizations";
+import { inferPIdolId, getExamStage } from "@/utils/exams";
 
 const LoadoutContext = createContext();
 
@@ -13,6 +16,7 @@ export function LoadoutContextProvider({ children }) {
   const pathname = usePathname();
   const { loadoutFromUrl, loadoutsFromUrl, updateUrl } =
     useContext(LoadoutUrlContext);
+  const { setPlan } = useContext(WorkspaceContext);
 
   const initialLoadout = loadoutsFromUrl[0] || loadoutFromUrl;
 
@@ -28,6 +32,11 @@ export function LoadoutContextProvider({ children }) {
   const [customizationGroups, setCustomizationGroups] = useState(
     initialLoadout.customizationGroups
   );
+  const [pDrinkIds, setPDrinkIds] = useState(initialLoadout.pDrinkIds);
+  const [startingEffects, setStartingEffects] = useState(
+    initialLoadout.startingEffects
+  );
+
   const [enableSkillCardOrder, setEnableSkillCardOrder] = useState(
     initialLoadout.enableSkillCardOrder
   );
@@ -42,13 +51,20 @@ export function LoadoutContextProvider({ children }) {
 
   // console.log("skillCardIdOrderGroups", skillCardIdOrderGroups);
   // console.log("customizationOrderGroups", customizationOrderGroups);
+  const pIdolId = inferPIdolId(pItemIds, skillCardIdGroups);
 
-  let stage = FALLBACK_STAGE;
-  if (stageId == "custom") {
-    stage = customStage;
-  } else if (stageId) {
-    stage = Stages.getById(stageId);
-  }
+  const stage = useMemo(() => {
+    let stage = FALLBACK_STAGE;
+    if (stageId == "custom") {
+      stage = customStage;
+    } else if (stageId) {
+      stage = Stages.getById(stageId);
+      if (stage.type == "exam") {
+        stage = getExamStage(stageId, pIdolId);
+      }
+    }
+    return stage;
+  }, [stageId, customStage, pIdolId]);
 
   const loadout = useMemo(
     () => ({
@@ -59,6 +75,8 @@ export function LoadoutContextProvider({ children }) {
       pItemIds,
       skillCardIdGroups,
       customizationGroups,
+      pDrinkIds,
+      startingEffects,
       enableSkillCardOrder,
       skillCardIdOrderGroups,
       customizationOrderGroups,
@@ -73,6 +91,8 @@ export function LoadoutContextProvider({ children }) {
       pItemIds,
       skillCardIdGroups,
       customizationGroups,
+      pDrinkIds,
+      startingEffects,
       enableSkillCardOrder,
       skillCardIdOrderGroups,
       customizationOrderGroups,
@@ -104,6 +124,8 @@ export function LoadoutContextProvider({ children }) {
     setSupportBonus(loadout.supportBonus);
     setParams(loadout.params);
     setPItemIds(loadout.pItemIds);
+    setPDrinkIds(loadout.pDrinkIds);
+    setStartingEffects(loadout.startingEffects);
     setSkillCardIdGroups(loadout.skillCardIdGroups);
     if (loadout.customizationGroups) {
       try {
@@ -150,6 +172,10 @@ export function LoadoutContextProvider({ children }) {
   };
 
   useEffect(() => {
+    if (["sense", "logic", "anomaly"].includes(stage.plan)) {
+      setPlan(stage.plan);
+    }
+
     if (stage.type !== "linkContest") return;
     if (loadouts.length == stage.linkTurnCounts.length) return;
 
@@ -215,39 +241,33 @@ export function LoadoutContextProvider({ children }) {
     }
   }, [pItemIds]);
 
-  // useEffect(() => {
-  //   // Ensure loadouts have skillCardOrderGroups and customizationOrderGroups
-  //   if (loadouts.some((loadout) => 
-  //     !loadout.skillCardIdOrderGroups || !loadout.customizationOrderGroups)) {
-  //     setLoadouts((cur) => {
-  //       return cur.map((loadout) => {
-  //         const size = loadout.skillCardIdGroups.length * 6 + 
-  //           (stage.type !== "linkContest" ? 8 : 0);
-  //         if (!loadout.skillCardIdOrderGroups) {
-  //           loadout.skillCardIdOrderGroups = [new Array(size).fill(0)];
-  //         }
-  //         if (!loadout.customizationOrderGroups) {
-  //           loadout.customizationOrderGroups = [new Array(size).fill({})];
-  //         }
-  //         return loadout;
-  //       });
-  //     });
-  //   }
-  // }, [loadouts]);
+  useEffect(() => {
+    const size = STARTING_EFFECTS.length;
+    if (startingEffects.length < size) {
+      setStartingEffects((cur) => cur.concat(new Array(size - cur.length).fill(0)));
+    }
+  }, [startingEffects]);
 
   function clear() {
     setMemoryParams([null, null]);
     setParams([null, null, null, null]);
-    setPItemIds([0, 0, 0, 0]);
-    setSkillCardIdGroups([
-      [0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0],
-    ]);
-    setCustomizationGroups([
-      [{}, {}, {}, {}, {}, {}],
-      [{}, {}, {}, {}, {}, {}],
-    ]);
-    const size = stage.type !== "linkContest" ? 20 : 12;
+    setPItemIds(new Array(pItemIds.length).fill(0));
+    if (stage.type === "exam") {
+      setSkillCardIdGroups([[0]]);
+      setCustomizationGroups([[{}]]);
+    } else {
+      setSkillCardIdGroups([
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0],
+      ]);
+      setCustomizationGroups([
+        [{}, {}, {}, {}, {}, {}],
+        [{}, {}, {}, {}, {}, {}],
+      ]);
+    }
+    setPDrinkIds(new Array(pDrinkIds.length).fill(0));
+    setStartingEffects(new Array(startingEffects.length).fill(0));
+    const size = stage.type === "linkContest" ? 12 : stage.type === "exam" ? 1 : 20;
     setSkillCardIdOrderGroups([new Array(size).fill(0)]);
     setCustomizationOrderGroups([new Array(size).fill({})]);
     setRemovedCardOrder("random");
@@ -255,7 +275,8 @@ export function LoadoutContextProvider({ children }) {
   }
 
   function clearOrders() {
-    const size = skillCardIdGroups.length * 6 + (stage.type !== "linkContest" ? 8 : 0);
+    const size = stage.type === "exam" ? skillCardIdGroups[0].length : 
+      skillCardIdGroups.length * 6 + (stage.type !== "linkContest" ? 8 : 0);
     setSkillCardIdOrderGroups([new Array(size).fill(0)]);
     setCustomizationOrderGroups([new Array(size).fill({})]);
     setRemovedCardOrder("random");
@@ -278,6 +299,30 @@ export function LoadoutContextProvider({ children }) {
     });
   }
 
+  function replacePDrinkId(index, drinkId) {
+    setPDrinkIds((cur) => {
+      const next = [...cur];
+      next[index] = drinkId;
+      return next;
+    });
+  }
+
+  function swapPDrinkIds(indexA, indexB) {
+    setPDrinkIds((cur) => {
+      const next = [...cur];
+      [next[indexA], next[indexB]] = [next[indexB], next[indexA]];
+      return next;
+    });
+  }
+
+  function replaceStartingEffect(index, value) {
+    setStartingEffects((cur) => {
+      const next = [...cur];
+      next[index] = value;
+      return next;
+    });
+  }
+
   function replaceSkillCardId(index, cardId) {
     let changed = false;
     setSkillCardIdGroups((cur) => {
@@ -287,9 +332,44 @@ export function LoadoutContextProvider({ children }) {
         changed = true;
       }
       updatedSkillCardIds[index] = cardId;
+      console.log("replaceSkillCardId", index, cardId, stage, updatedSkillCardIds);
+      if (stage.type === "exam" && index === updatedSkillCardIds.length - 1 && !!cardId) {
+        updatedSkillCardIds.push(0);
+        setCustomizationGroups((cur) => {
+          return [[...cur[0], []]];
+        });
+        setSkillCardIdOrderGroups((cur) => {
+          const groups = [...cur];
+          groups.forEach((group) => group.push(0));
+          return groups;
+        });
+        setCustomizationOrderGroups((cur) => {
+          const groups = [...cur];
+          groups.forEach((group) => group.push({}));
+          return groups;
+        });
+      }
+      if (stage.type === "exam" && index !== updatedSkillCardIds.length - 1 && !cardId) {
+        updatedSkillCardIds.splice(index, 1);
+        changed = false;
+        setCustomizationGroups((cur) => {
+          return [cur[0].toSpliced(index, 1)];
+        });
+        setSkillCardIdOrderGroups((cur) => {
+          const groups = [...cur];
+          groups.forEach((group) => group.splice(group.length - 1, 1));
+          return groups;
+        });
+        setCustomizationOrderGroups((cur) => {
+          const groups = [...cur];
+          groups.forEach((group) => group.splice(group.length - 1, 1));
+          return groups;
+        });
+      }
       let chunks = [];
-      for (let i = 0; i < updatedSkillCardIds.length; i += 6) {
-        chunks.push(updatedSkillCardIds.slice(i, i + 6));
+      const chunkSize = stage.type === "exam" ? updatedSkillCardIds.length : 6;
+      for (let i = 0; i < updatedSkillCardIds.length; i += chunkSize) {
+        chunks.push(updatedSkillCardIds.slice(i, i + chunkSize));
       }
       return chunks;
     });
@@ -305,8 +385,9 @@ export function LoadoutContextProvider({ children }) {
       skillCardIds[indexA] = skillCardIds[indexB];
       skillCardIds[indexB] = temp;
       let chunks = [];
-      for (let i = 0; i < skillCardIds.length; i += 6) {
-        chunks.push(skillCardIds.slice(i, i + 6));
+      const chunkSize = stage.type === "exam" ? skillCardIds.length : 6;
+      for (let i = 0; i < skillCardIds.length; i += chunkSize) {
+        chunks.push(skillCardIds.slice(i, i + chunkSize));
       }
       return chunks;
     });
@@ -317,8 +398,9 @@ export function LoadoutContextProvider({ children }) {
       curCustomizations[indexA] = curCustomizations[indexB];
       curCustomizations[indexB] = temp;
       let chunks = [];
-      for (let i = 0; i < curCustomizations.length; i += 6) {
-        chunks.push(curCustomizations.slice(i, i + 6));
+      const chunkSize = stage.type === "exam" ? curCustomizations.length : 6;
+      for (let i = 0; i < curCustomizations.length; i += chunkSize) {
+        chunks.push(curCustomizations.slice(i, i + chunkSize));
       }
       return chunks;
     });
@@ -330,8 +412,9 @@ export function LoadoutContextProvider({ children }) {
       const updatedCustomizations = [...curCustomizations];
       updatedCustomizations[index] = customizations;
       let chunks = [];
-      for (let i = 0; i < updatedCustomizations.length; i += 6) {
-        chunks.push(updatedCustomizations.slice(i, i + 6));
+      const chunkSize = stage.type === "exam" ? updatedCustomizations.length : 6;
+      for (let i = 0; i < updatedCustomizations.length; i += chunkSize) {
+        chunks.push(updatedCustomizations.slice(i, i + chunkSize));
       }
       return chunks;
     });
@@ -475,10 +558,121 @@ export function LoadoutContextProvider({ children }) {
   const updateStage = (stageId, customStage) => {
     setStageId(stageId);
     setCustomStage(customStage);
-    
+    let updatedStage = stageId === "custom" ? customStage : Stages.getById(stageId);
+    if (updatedStage.type === "exam") {
+      updatedStage = getExamStage(stageId, pIdolId);
+      if (stage.type !== "exam") {
+        const MAX_P_ITEMS = 9;
+        setPItemIds((cur) => {
+          let next = [...cur];
+          if (next.length < MAX_P_ITEMS) {
+            next = next.concat(new Array(MAX_P_ITEMS - next.length).fill(0));
+          } else if (next.length > MAX_P_ITEMS) {
+            next = next.slice(0, MAX_P_ITEMS);
+          }
+          return next;
+        });
+        setSkillCardIdGroups((cur) => {
+          let skillCardIds = [].concat(...cur);
+          let appendLast = false;
+          if (skillCardIds[skillCardIds.length - 1] !== 0) {
+            skillCardIds.push(0);
+            appendLast = true;
+          }
+          let removedIndices = [];
+          skillCardIds = skillCardIds.filter((id, i) => {
+            if (id === 0 && i < skillCardIds.length - 1) {
+              removedIndices.push(i);
+              return false;
+            } else {
+              return true;
+            }
+          });
+          setCustomizationGroups((curCustomizations) => {
+            let customizations = [].concat(...curCustomizations);
+            if (appendLast) {
+              customizations.push({});
+            }
+            for (const index of removedIndices) {
+              customizations.splice(index, 1);
+            }
+            return [customizations];
+          });
+          console.log("updateStage skillCardIds", skillCardIds);
+          setSkillCardIdOrderGroups((curGroups) => {
+            let updatedGroups = curGroups.map((group) => {
+              if (group.length > skillCardIds.length - 1) {
+                return group.slice(0, skillCardIds.length - 1);
+              } else {
+                return group.concat(new Array(skillCardIds.length - 1 - group.length).fill(0));
+              }
+            });
+            return updatedGroups;
+          });
+          setCustomizationOrderGroups((curGroups) => {
+            let updatedGroups = curGroups.map((group) => {
+              if (group.length > skillCardIds.length - 1) {
+                return group.slice(0, skillCardIds.length - 1);
+              } else {
+                return group.concat(new Array(skillCardIds.length - 1 - group.length).fill({}));
+              }
+            });
+            return updatedGroups;
+          });
+          return [skillCardIds];
+        });
+      }
+    } else if (stage.type === "exam") {
+      // From exam to non-exam, reset to 2 skill card groups
+      const MAX_P_ITEMS = 4;
+      setPItemIds((cur) => {
+        let next = [...cur];
+        if (next.length < MAX_P_ITEMS) {
+          next = next.concat(new Array(MAX_P_ITEMS - next.length).fill(0));
+        } else if (next.length > MAX_P_ITEMS) {
+          next = next.slice(0, MAX_P_ITEMS);
+        }
+        return next;
+      });
+      setSkillCardIdGroups((cur) => {
+        let skillCardIds = [].concat(...cur);
+        const size = Math.ceil(skillCardIds.length / 6) * 6;
+        skillCardIds = skillCardIds.concat(new Array(size - skillCardIds.length).fill(0));
+        let chunks = [];
+        const chunkSize = 6;
+        for (let i = 0; i < skillCardIds.length; i += chunkSize) {
+          chunks.push(skillCardIds.slice(i, i + chunkSize));
+        }
+        setCustomizationGroups((curCustomizations) => {
+          let customizations = [].concat(...curCustomizations);
+          customizations = customizations.concat(new Array(size - customizations.length).fill({}));
+          let chunks = [];
+          const chunkSize = 6;
+          for (let i = 0; i < customizations.length; i += chunkSize) {
+            chunks.push(customizations.slice(i, i + chunkSize));
+          }
+          return chunks;
+        });
+        const deckSize = size + (updatedStage.type !== "linkContest" ? 8 : 0);
+        setSkillCardIdOrderGroups((curGroups) => {
+          let updatedGroups = curGroups.map((group) => {
+            return group.concat(new Array(deckSize - group.length).fill(0));
+          });
+          return updatedGroups;
+        });
+        setCustomizationOrderGroups((curGroups) => {
+          let updatedGroups = curGroups.map((group) => {
+            return group.concat(new Array(deckSize - group.length).fill({}));
+          });
+          return updatedGroups;
+        });
+        return chunks;
+      });
+    }
+
     setSkillCardIdOrderGroups((cur) => {
-      const size = skillCardIdGroups.length * 6 + 
-        (stageId === "custom" || Stages.getById(stageId)?.type !== "linkContest" ? 8 : 0);
+      const size = updatedStage.type === "exam" ? skillCardIdGroups[0].length : 
+        skillCardIdGroups.length * 6 + (updatedStage.type !== "linkContest" ? 8 : 0);
       let updatedSkillCardIdOrderGroups = [...cur];
       updatedSkillCardIdOrderGroups = updatedSkillCardIdOrderGroups.map((group) => {
         if (group.length < size) {
@@ -491,8 +685,8 @@ export function LoadoutContextProvider({ children }) {
       return updatedSkillCardIdOrderGroups;
     });
     setCustomizationOrderGroups((cur) => {
-      const size = skillCardIdGroups.length * 6 + 
-        (stageId === "custom" || Stages.getById(stageId)?.type !== "linkContest" ? 8 : 0);
+      const size = updatedStage.type === "exam" ? skillCardIdGroups[0].length : 
+        skillCardIdGroups.length * 6 + (updatedStage.type !== "linkContest" ? 8 : 0);
       let updatedCustomizationOrderGroups = [...cur];
       updatedCustomizationOrderGroups = updatedCustomizationOrderGroups.map((group) => {
          if (group.length < size) {
@@ -506,7 +700,7 @@ export function LoadoutContextProvider({ children }) {
     });
     setTurnTypeOrder((cur) => {
       const updatedTurnTypeOrder = [...cur];
-      const turnCounts = stageId == "custom" ? customStage.turnCounts : Stages.getById(stageId).turnCounts; 
+      const turnCounts = updatedStage.turnCounts;
       const totalTurns = turnCounts.vocal + turnCounts.dance + turnCounts.visual;
       if (updatedTurnTypeOrder.length < totalTurns) {
         updatedTurnTypeOrder.push(...Array(totalTurns - updatedTurnTypeOrder.length).fill("none"));
@@ -588,6 +782,9 @@ export function LoadoutContextProvider({ children }) {
         setParams,
         replacePItemId,
         swapPItemIds,
+        replacePDrinkId,
+        swapPDrinkIds,
+        replaceStartingEffect,
         replaceSkillCardId,
         swapSkillCardIds,
         replaceCustomizations,

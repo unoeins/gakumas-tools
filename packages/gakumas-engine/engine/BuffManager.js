@@ -102,13 +102,16 @@ export default class BuffManager extends EngineComponent {
     state[S.costReduction] = 0;
     state[S.costIncrease] = 0;
     state[S.nullifyCostCards] = 0;
+    state[S.nullifyCostActiveCards] = 0;
     state[S.nullifyDebuff] = 0;
     state[S.nullifyGenkiTurns] = 0;
     state[S.doubleCardEffectCards] = 0;
     state[S.noActiveTurns] = 0;
     state[S.noMentalTurns] = 0;
+    state[S.noCardUseTurns] = 0;
     state[S.poorConditionTurns] = 0;
     state[S.uneaseTurns] = 0;
+    state[S.slumpTurns] = 0;
 
     // Buffs
     state[S.scoreBuffs] = [];
@@ -145,6 +148,17 @@ export default class BuffManager extends EngineComponent {
 
     // Buffs/debuffs protected from decrement
     state[S.freshBuffs] = {};
+
+    // Deltas
+    state[S.goodImpressionTurnsDelta] = 0;
+    state[S.motivationDelta] = 0;
+    state[S.genkiDelta] = 0;
+    state[S.goodConditionTurnsDelta] = 0;
+    state[S.concentrationDelta] = 0;
+    state[S.staminaDelta] = 0;
+
+    // Other
+    state[S.nullifySelect] = 0;
   }
 
   setBuff(state, field, amount, turns, logLabel) {

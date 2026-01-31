@@ -72,7 +72,8 @@
     "difficulties": {
       "regular": "레귤러",
       "pro": "프로",
-      "master": "마스터"
+      "master": "마스터",
+      "legend": "레전드"
     },
     "places": {
       "1": "1위",
@@ -81,6 +82,7 @@
       "4": "4위 이하"
     },
     "parameterLimit": "패러미터 상한",
+    "midtermScore": "중간시험 스코어",
     "finalExamPlacement": "최종시험 순위",
     "parameter": "패러미터",
     "parameters": "패러미터",
@@ -88,6 +90,7 @@
     "produceRank": "프로듀스 평가",
     "targetScore": "목표 스코어",
     "score": "스코어",
+    "finalScore": "최종 시험 점수",
     "niaNote": "※오디션 보너스 패러미터나 득표 수의 계산방법이 확인되는 대로, 관련 기능을 업데이트할 예정입니다.",
     "affectionAtStartOfProduce": "프로듀스 개시시 친애도",
     "stage": "스테이지",
@@ -131,6 +134,7 @@
   "Dex": {
     "skillCards": "스킬 카드",
     "pItems": "P 아이템",
+    "pDrinks": "P 드링크",
     "maxTimes": "최대 {n}회"
   },
   "EntityBank": {
@@ -214,6 +218,7 @@
     "contest": "콘테스트",
     "linkContest": "링크 콘테스트",
     "event": "이벤트",
+    "exam": "시험",
     "custom": "커스텀"
   },
   "StageSummary": {
@@ -222,18 +227,27 @@
     "custom": "커스텀"
   },
   "StageCustomizer": {
+    "type": "타입",
+    "contest": "콘테스트",
+    "linkContest": "링크 콘테스트",
+    "event": "이벤트",
     "turnCounts": "턴 수",
     "firstTurn": "첫 턴 비율",
     "criteria": "심사 기준",
     "effects": "스테이지 효과",
     "effectFormat": "효과 형식",
-    "defaultCards": "기본 카드",
-    "contest": "콘테스트",
-    "event": "이벤트",
     "apply": "적용"
   },
   "LoadoutSkillCardGroup": {
-    "cost": "코스트"
+    "cost": "코스트",
+    "cardCount": "카드 매수",
+    "memoryCalculator": "메모리 계산기",
+    "memories": "메모리",
+    "importMemory": "스크린샷에서 메모리 불러오기",
+    "addRow": "행 추가",
+    "moveUp": "위로 이동",
+    "moveDown": "아래로 이동",
+    "removeRow": "행 삭제"
   },
   "SimulatorSubTools": {
     "costRanges": "코스트 범위",
@@ -301,9 +315,12 @@
     "nullifyDebuff": "저하 상태 비활성화",
     "poorConditionTurns": "부조화",
     "nullifyCostCards": "체력 소비 무효",
+    "nullifyCostActiveCards": "액티브 스킬 카드 체력 소비 무효",
     "noActiveTurns": "액티브 스킬 카드 사용 불가",
     "noMentalTurns": "멘탈 스킬 카드 사용 불가",
+    "noCardUseTurns": "스킬 카드 사용 불가",
     "uneaseTurns": "불안",
+    "slumpTurns": "슬럼프",
     "scoreBuff": "스코어 상승량 증가",
     "scoreDebuff": "스코어 상승량 감소",
     "goodImpressionTurnsBuff": "호인상 증가량 증가",
@@ -320,6 +337,7 @@
     "setEffect": "지속 효과 부여",
     "addedCardToHand": "손패에 스킬 카드 생성",
     "addedCardToTopOfDeck": "스킬 카드를 덱 위에 생성",
+    "addedCardToDeckAtRandom": "스킬 카드를 덱의 랜덤한 위치에 생성",
     "upgradedCard": "스킬 카드를 레슨 중 강화",
     "cardGrowth": "스킬 카드 성장",
     "heldCard": "스킬 카드를 보류로 이동",
@@ -327,10 +345,12 @@
     "movedCardToHand": "스킬 카드를 손패로 이동",
     "movedCardToTopOfDeck": "스킬 카드를 덱 위로 이동",
     "movedCardToDeckAtRandom": "스킬 카드를 덱의 랜덤한 위치로 이동",
+    "removedCard": "Removed card",
     "effect": "지속 효과",
     "stageEffect": "스테이지 효과",
     "skillCard": "스킬 카드",
     "pItem": "P 아이템",
+    "pDrink": "P 드링크",
     "numTurns": "{num} 턴",
     "hand": "손패",
     "turnN": "{n} 턴",
@@ -339,6 +359,7 @@
     "linkPhaseChange": "아이돌 교대",
     "skip": "스킵",
     "selectCardsToHold": "{num}장의 카드를 선택",
+    "selectCardsToMoveToHand": "{num}장의 카드를 선택",
     "confirm": "확인"
   },
   "BoxPlot": {
@@ -384,7 +405,7 @@
     "lockStanceTurns": "지침 고정",
     "enthusiasm": "열의",
     "enthusiasmBonus": "열의 추가",
-    "enthusiasmMultiplier": "열의 증가 배율",
+    "enthusiasmBuffs": "열의 증가 배율",
     "halfCostTurns": "소비 체력 경감",
     "doubleCostTurns": "소비 체력 증가",
     "costReduction": "소비 체력 감소",
@@ -394,17 +415,19 @@
     "nullifyDebuff": "저하 상태 비활성화",
     "poorConditionTurns": "부조화",
     "nullifyCostCards": "체력 소비 무효",
+    "nullifyCostActiveCards": "액티브 스킬 카드 체력 소비 무효",
     "noActiveTurns": "액티브 스킬 카드 사용 불가",
     "noMentalTurns": "멘탈 스킬 카드 사용 불가",
     "uneaseTurns": "불안",
-    "scoreBuff": "스코어 상승량 증가",
-    "scoreDebuff": "스코어 상승량 감소",
-    "goodImpressionTurnsBuff": "호인상 증가량 증가",
-    "goodImpressionTurnsEffectBuff": "호인상 강화",
-    "motivationBuff": "의욕 증가량 증가",
-    "goodConditionTurnsBuff": "호조 증가량 증가",
-    "concentrationBuff": "집중 증가량 증가",
-    "fullPowerChargeBuff": "전력치 증가량 증가",
+    "slumpTurns": "슬럼프",
+    "scoreBuffs": "스코어 상승량 증가",
+    "scoreDebuffs": "스코어 상승량 감소",
+    "goodImpressionTurnsBuffs": "호인상 증가량 증가",
+    "goodImpressionTurnsEffectBuffs": "호인상 강화",
+    "motivationBuffs": "의욕 증가량 증가",
+    "goodConditionTurnsBuffs": "호조 증가량 증가",
+    "concentrationBuffs": "집중 증가량 증가",
+    "fullPowerChargeBuffs": "전력치 증가량 증가",
     "turn": "턴",
     "numTurns": "{num} 턴",
     "hand": "손패",
@@ -414,6 +437,28 @@
     "deckCards": "덱",
     "discardedCards": "버림패",
     "removedCards": "제외",
-    "heldCards": "보류"
+    "heldCards": "보류",
+    "pDrinks": "P 음료"
+  },
+  "StageStartingEffects": {
+    "startingEffects": "시작 시 효과",
+    "goodConditionTurns": "호조",
+    "concentration": "집중",
+    "goodImpressionTurns": "호인상",
+    "motivation": "의욕",
+    "genki": "원기",
+    "costReduction": "소비 체력 감소",
+    "fullPowerCharge": "전력치",
+    "allScores": "모든 파라미터 증가",
+    "strengthScores": "강기 파라미터 증가",
+    "fullPowerScores": "전력 파라미터 증가",
+    "goodConditionTurnsBuff": "호조 증가량 증가%",
+    "concentrationBuff": "집중 증가량 증가%",
+    "goodImpressionTurnsBuff": "호인상 증가량 증가%",
+    "motivationBuff": "의욕 증가량 증가%",
+    "scoreBuff": "스코어 상승량 증가%",
+    "preservation": "온존",
+    "nullifyGenkiTurns": "원기 증가 무효",
+    "slumpTurns": "슬럼프"
   }
 }

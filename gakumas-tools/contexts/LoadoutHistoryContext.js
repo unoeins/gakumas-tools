@@ -16,6 +16,30 @@ export function LoadoutHistoryContextProvider({ children }) {
   const [loadoutHistory, setLoadoutHistory] = useState([]);
   const [loadoutsHistory, setLoadoutsHistory] = useState([]);
 
+  function fillDefaults(loadout) {
+    return {
+      ...loadout,
+      stageId: loadout.stageId || 1,
+      supportBonus: loadout.supportBonus || 0,
+      params: loadout.params || [0, 0, 0, 0],
+      pItemIds: loadout.pItemIds || [0, 0, 0, 0],
+      pDrinkIds: loadout.pDrinkIds || [0, 0, 0],
+      skillCardIdGroups:
+        loadout.skillCardIdGroups || [[0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0]],
+      customizationGroups:
+        loadout.customizationGroups || [[{}, {}, {}, {}, {}, {}], [{}, {}, {}, {}, {}, {}]],
+      startingEffects:
+        loadout.startingEffects || new Array(17).fill(0),
+      skillCardIdOrderGroups:
+        loadout.skillCardIdOrderGroups || [new Array(20).fill(0)],
+      customizationOrderGroups:
+        loadout.customizationOrderGroups || [new Array(20).fill({})],
+      turnTypeOrder:
+        loadout.turnTypeOrder || new Array(12).fill("none"),
+      removedCardOrder: loadout.removedCardOrder || "random",
+    };
+  }
+
   useEffect(() => {
     const loadoutHistoryString = localStorage.getItem(
       LOADOUT_HISTORY_STORAGE_KEY
@@ -29,7 +53,7 @@ export function LoadoutHistoryContextProvider({ children }) {
         return;
       }
 
-      setLoadout(data[0]);
+      setLoadout(fillDefaults(data[0]));
       if (data[0].loadouts) {
         setLoadouts(data[0].loadouts);
         localStorage.removeItem(LOADOUTS_HISTORY_STORAGE_KEY);
@@ -52,7 +76,7 @@ export function LoadoutHistoryContextProvider({ children }) {
 
       setLoadouts(data[0]);
       if (data[0][0]) {
-        setLoadout(data[0][0]);
+        setLoadout(fillDefaults(data[0][0]));
       }
     }
 

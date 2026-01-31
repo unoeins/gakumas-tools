@@ -1,18 +1,22 @@
 import { memo, useContext, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { FaCheck, FaXmark } from "react-icons/fa6";
-import { PIdols, PItems, SkillCards } from "gakumas-data";
+import { PIdols, PItems, PDrinks, SkillCards } from "gakumas-data";
 import Checkbox from "@/components/Checkbox";
 import EntityIcon from "@/components/EntityIcon";
 import PlanIdolSelects from "@/components/PlanIdolSelects";
 import WorkspaceContext from "@/contexts/WorkspaceContext";
 import c from "@/utils/classNames";
-import { EntityTypes } from "@/utils/entities";
-import { comparePItems, compareSkillCards } from "@/utils/sort";
+import {
+  COMPARE_FN_BY_TYPE,
+  ENTITY_DATA_BY_TYPE,
+  EntityTypes,
+} from "@/utils/entities";
 import styles from "./EntityBank.module.scss";
 
-const HIDDEN_ITEM_IDS = [368];
-const HIDDEN_CARD_IDS = [640];
+const HIDDEN_ITEM_IDS = [];
+const HIDDEN_CARD_IDS = [];
+const HIDDEN_DRINK_IDS = [];
 
 function EntityBank({ type, onClick, filters = [], includeNull = true }) {
   const t = useTranslations("EntityBank");
@@ -27,24 +31,28 @@ function EntityBank({ type, onClick, filters = [], includeNull = true }) {
   );
 
   let entities = [];
-  const Entities = type == EntityTypes.SKILL_CARD ? SkillCards : PItems;
-  const compareFn =
-    type == EntityTypes.SKILL_CARD ? compareSkillCards : comparePItems;
+  const Entities = ENTITY_DATA_BY_TYPE[type];
+  const compareFn = COMPARE_FN_BY_TYPE[type];
 
   if (filter) {
-    const pIdolIds = PIdols.getFiltered({
-      idolIds: [idolId],
-      plans: [plan],
-    }).map((pi) => pi.id);
-    const signatureEntities = Entities.getFiltered({
-      pIdolIds,
-    });
+    let signatureEntities = [];
+    if (type !== EntityTypes.P_DRINK) {
+      const pIdolIds = PIdols.getFiltered({
+        idolIds: [idolId],
+        plans: [plan],
+      }).map((pi) => pi.id);
+      signatureEntities = Entities.getFiltered({
+        pIdolIds,
+      });
+    }
+
     const nonSignatureEntities = Entities.getFiltered({
-      rarities: ["N", "R", "SR", "SSR"],
+      rarities: ["N", "R", "SR", "SSR", "L", "T"],
       plans: [plan, "free"],
       modes: ["stage"],
       sourceTypes: ["default", "produce", "support"],
     }).sort(compareFn);
+
     entities = signatureEntities.concat(nonSignatureEntities);
   } else {
     entities = Entities.getAll().sort(compareFn);
@@ -55,6 +63,8 @@ function EntityBank({ type, onClick, filters = [], includeNull = true }) {
     entities = entities.filter((e) => !HIDDEN_CARD_IDS.includes(e.id));
   } else if (type == EntityTypes.P_ITEM) {
     entities = entities.filter((e) => !HIDDEN_ITEM_IDS.includes(e.id));
+  } else if (type == EntityTypes.P_DRINK) {
+    entities = entities.filter((e) => !HIDDEN_DRINK_IDS.includes(e.id));
   }
 
   for (let customFilter of filters) {

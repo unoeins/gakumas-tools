@@ -4,16 +4,19 @@ import {
   AiOutlineAreaChart,
   AiOutlineBarChart,
   AiOutlineBoxPlot,
+  AiOutlineTool,
 } from "react-icons/ai";
 import AreaPlot from "@/components/AreaPlot";
 import BoxPlot from "@/components/BoxPlot";
 import ButtonGroup from "@/components/ButtonGroup";
 import DistributionPlot from "@/components/DistributionPlot";
+import SimulatorResultTools from "./SimulatorResultTools";
 import styles from "./SimulatorResult.module.scss";
 
 const HISTOGRAM = <AiOutlineBarChart />;
 const BOXPLOT = <AiOutlineBoxPlot />;
 const AREA = <AiOutlineAreaChart />;
+const TOOL = <AiOutlineTool />;
 
 export default function SimulatorResultGraphs({ data, plan }) {
   const t = useTranslations("SimulatorResultGraphs");
@@ -29,6 +32,7 @@ export default function SimulatorResultGraphs({ data, plan }) {
           { value: "histogram", label: HISTOGRAM },
           { value: "boxplot", label: BOXPLOT },
           { value: "area", label: AREA },
+          { value: "tool", label: TOOL },
         ]}
         selected={graphType}
         onChange={setGraphType}
@@ -48,6 +52,9 @@ export default function SimulatorResultGraphs({ data, plan }) {
         />
       )}
       {graphType == "area" && <AreaPlot data={data.graphData} plan={plan} />}
+      {graphType == "tool" && (
+        <SimulatorResultTools data={data} />
+      )}
     </div>
   );
 }

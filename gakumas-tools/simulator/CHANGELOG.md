@@ -14,6 +14,66 @@ Dates are based on Eastern Time Zone.
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+## 2026-01-27
+
+- Add new skill cards and p-items
+
+## 2026-01-26
+
+- Add preview of Michinaru Hirogaru China and Hiro
+
+## 2026-01-19
+
+- Add preview of season 38
+
+## 2026-01-16
+
+- Add ittaiitsukara temari
+- Fix samuzora recital stamina cost
+
+## 2026-01-14
+
+- Add preview of Ittai itsu kara
+
+## 2026-01-05
+
+- Update Superlative Misuzu and event support
+
+## 2026-01-04
+
+- Update score multiplier calculation for S37, make % entry toggleable
+- Add preview of superlative
+
+## 2026-01-02
+
+- Add preview of S37
+
+## 2025-12-29
+
+- Fix kidoushuusei customizations, add tsubame icon variants
+
+## 2025-12-27
+
+- Fix typed cost growth
+- Fix cm tsubame p-item
+
+## 2025-12-26
+
+- Add new cards and icons
+- Fix supernova growth
+- Fix score calculation for pride and score buffs
+
 ## 2025-12-20
 
 - Add preview of CM Tsubame

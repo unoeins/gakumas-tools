@@ -15,6 +15,7 @@ import { LoadoutUrlContextProvider } from "@/contexts/LoadoutUrlContext";
 import { MemoryCalculatorContextProvider } from "@/contexts/MemoryCalculatorContext";
 import { MemoryContextProvider } from "@/contexts/MemoryContext";
 import { ModalContextProvider } from "@/contexts/ModalContext";
+import { ParameterEstimatorContextProvider } from "@/contexts/ParameterEstimatorContext";
 import { SearchContextProvider } from "@/contexts/SearchContext";
 import { SessionContextProvider } from "@/contexts/SessionContext";
 import { WorkspaceContextProvider } from "@/contexts/WorkspaceContext";
@@ -60,24 +61,26 @@ export default async function RootLayout({ params, children }) {
               <DataContextProvider>
                 <MemoryCalculatorContextProvider>
                   <MemoryContextProvider>
-                    <SearchContextProvider>
-                      <Suspense>
-                        <LoadoutUrlContextProvider>
-                          <LoadoutContextProvider>
-                            <LoadoutApiContextProvider>
-                              <LoadoutHistoryContextProvider>
-                                <ModalContextProvider>
-                                  <div className={styles.tools}>
-                                    <PinnedTools />
-                                    <main>{children}</main>
-                                  </div>
-                                </ModalContextProvider>
-                              </LoadoutHistoryContextProvider>
-                            </LoadoutApiContextProvider>
-                          </LoadoutContextProvider>
-                        </LoadoutUrlContextProvider>
-                      </Suspense>
-                    </SearchContextProvider>
+                    <ParameterEstimatorContextProvider>
+                      <SearchContextProvider>
+                        <Suspense>
+                          <LoadoutUrlContextProvider>
+                            <LoadoutContextProvider>
+                              <LoadoutApiContextProvider>
+                                <LoadoutHistoryContextProvider>
+                                  <ModalContextProvider>
+                                    <div className={styles.tools}>
+                                      <PinnedTools />
+                                      <main>{children}</main>
+                                    </div>
+                                  </ModalContextProvider>
+                                </LoadoutHistoryContextProvider>
+                              </LoadoutApiContextProvider>
+                            </LoadoutContextProvider>
+                          </LoadoutUrlContextProvider>
+                        </Suspense>
+                      </SearchContextProvider>
+                    </ParameterEstimatorContextProvider>
                   </MemoryContextProvider>
                 </MemoryCalculatorContextProvider>
               </DataContextProvider>

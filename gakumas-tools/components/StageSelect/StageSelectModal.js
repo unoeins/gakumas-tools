@@ -26,6 +26,7 @@ export default function StageSelectModal() {
     { value: "contest", label: t("contest") },
     { value: "linkContest", label: t("linkContest") },
     { value: "event", label: t("event") },
+    { value: "exam", label: t("exam") },
     { value: "custom", label: t("custom") },
   ];
 

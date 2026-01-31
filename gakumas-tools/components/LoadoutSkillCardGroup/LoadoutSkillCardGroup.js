@@ -9,13 +9,16 @@ import {
   FaEllipsis,
   FaImage,
   FaFilm,
+  FaPercent,
 } from "react-icons/fa6";
 import { SkillCards } from "gakumas-data";
 import MemoryImporterModal from "@/components/MemoryImporterModal";
 import MemoryPickerModal from "@/components/MemoryPickerModal";
 import StageSkillCards from "@/components/StageSkillCards";
 import LoadoutContext from "@/contexts/LoadoutContext";
+import MemoryCalculatorContext from "@/contexts/MemoryCalculatorContext";
 import ModalContext from "@/contexts/ModalContext";
+import { useRouter } from "@/i18n/routing";
 import c from "@/utils/classNames";
 import styles from "./LoadoutSkillCardGroup.module.scss";
 
@@ -28,8 +31,10 @@ function LoadoutSkillCardGroup({
 }) {
   const t = useTranslations("LoadoutSkillCardGroup");
   const { status } = useSession();
+  const router = useRouter();
   const {
     loadout,
+    stage,
     setMemory,
     replaceSkillCardId,
     swapSkillCardIds,
@@ -38,6 +43,9 @@ function LoadoutSkillCardGroup({
     deleteSkillCardIdGroup,
     swapSkillCardIdGroups,
   } = useContext(LoadoutContext);
+  const { setTargetSkillCardIds, setAcquiredSkillCardIds } = useContext(
+    MemoryCalculatorContext
+  );
   const { setModal, closeModal } = useContext(ModalContext);
   const [expanded, setExpanded] = useState(false);
 
@@ -53,6 +61,11 @@ function LoadoutSkillCardGroup({
         ),
     [skillCardIds]
   );
+  const cardCount = useMemo(
+    () => skillCardIds.filter((id) => id !== 0).length,
+    [skillCardIds]
+  );
+  const isExam = stage.type === "exam";
 
   return (
     <div>
@@ -65,72 +78,93 @@ function LoadoutSkillCardGroup({
         indications={indications}
         idolId={idolId}
         groupIndex={groupIndex}
+        stage={stage}
       />
 
       <div className={styles.sub}>
         <div className={styles.cost}>
-          {t("cost")}: {cost}
+          {isExam ? t("cardCount") : t("cost")}: {isExam ? cardCount : cost}
         </div>
         <div
           className={c(styles.buttonGroup, expanded && styles.expanded)}
           onClick={() => setExpanded(false)}
         >
           <button
-            className={styles.importButton}
-            onClick={() =>
-              setModal(
-                <MemoryImporterModal
-                  multiple={false}
-                  onSuccess={(memories) => {
-                    setMemory(memories[0], groupIndex);
-                    closeModal();
-                  }}
-                />
-              )
-            }
+            className={styles.memoryCalculatorButton}
+            onClick={() => {
+              const nonPidolSkillCardIds = skillCardIds.filter(
+                (id) => !!id && SkillCards.getById(id).sourceType != "pIdol"
+              );
+              if (!isExam) {
+                setTargetSkillCardIds(() => nonPidolSkillCardIds);
+              }
+              setAcquiredSkillCardIds(() => nonPidolSkillCardIds);
+              router.push("/memory-calculator");
+            }}
           >
-            <FaImage />
+            <FaPercent title={t("memoryCalculator")} />
           </button>
 
-          {status == "authenticated" && (
-            <button
-              className={styles.pickButton}
-              onClick={() => setModal(<MemoryPickerModal index={groupIndex} />)}
-            >
-              <FaFilm />
-            </button>
+          {!isExam && (
+            <>
+              {status == "authenticated" && (
+                <button
+                  className={styles.pickButton}
+                  onClick={() => setModal(<MemoryPickerModal index={groupIndex} />)}
+                >
+                  <FaFilm title={t("memories")} />
+                </button>
+              )}
+
+              <button
+                className={styles.importButton}
+                onClick={() =>
+                  setModal(
+                    <MemoryImporterModal
+                      multiple={false}
+                      onSuccess={(memories) => {
+                        setMemory(memories[0], groupIndex);
+                        closeModal();
+                      }}
+                    />
+                  )
+                }
+              >
+                <FaImage title={t("importMemory")} />
+              </button>
+
+              <button
+                className={styles.addButton}
+                onClick={() => insertSkillCardIdGroup(groupIndex + 1)}
+              >
+                <FaCirclePlus title={t("addRow")} />
+              </button>
+
+              <button
+                className={styles.moveButton}
+                onClick={() => swapSkillCardIdGroups(groupIndex, groupIndex - 1)}
+                disabled={groupIndex < 1}
+              >
+                <FaCircleArrowUp title={t("moveUp")} />
+              </button>
+
+              <button
+                className={styles.moveButton}
+                onClick={() => swapSkillCardIdGroups(groupIndex, groupIndex + 1)}
+                disabled={groupIndex >= loadout.skillCardIdGroups.length - 1}
+              >
+                <FaCircleArrowDown title={t("moveDown")} />
+              </button>
+
+              <button
+                className={styles.deleteButton}
+                onClick={() => deleteSkillCardIdGroup(groupIndex)}
+                disabled={loadout.skillCardIdGroups.length < 2}
+              >
+                <FaCircleXmark title={t("removeRow")} />
+              </button>
+           </> 
           )}
-
-          <button
-            className={styles.addButton}
-            onClick={() => insertSkillCardIdGroup(groupIndex + 1)}
-          >
-            <FaCirclePlus />
-          </button>
-
-          <button
-            className={styles.moveButton}
-            onClick={() => swapSkillCardIdGroups(groupIndex, groupIndex - 1)}
-            disabled={groupIndex < 1}
-          >
-            <FaCircleArrowUp />
-          </button>
-
-          <button
-            className={styles.moveButton}
-            onClick={() => swapSkillCardIdGroups(groupIndex, groupIndex + 1)}
-            disabled={groupIndex >= loadout.skillCardIdGroups.length - 1}
-          >
-            <FaCircleArrowDown />
-          </button>
-
-          <button
-            className={styles.deleteButton}
-            onClick={() => deleteSkillCardIdGroup(groupIndex)}
-            disabled={loadout.skillCardIdGroups.length < 2}
-          >
-            <FaCircleXmark />
-          </button>
         </div>
         <button
           className={styles.expandButton}

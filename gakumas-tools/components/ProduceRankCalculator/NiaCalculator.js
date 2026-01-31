@@ -50,10 +50,14 @@ const STAGE_OPTIONS_BY_DIFFICULTY = {
     { value: "quartet", label: "QUARTET" },
     { value: "finale", label: "FINALE" },
   ],
-  master: [{ value: "finale", label: "FINALE" }],
+  master: [
+    { value: "idolbigup", label: "IDOL Big up!" },
+    { value: "quartet", label: "QUARTET" },
+    { value: "finale", label: "FINALE" },
+  ],
 };
 
-const FINAL_AUDITIONS = ["quartet", "finale"];
+const FINAL_AUDITIONS = ["idolbigup", "quartet", "finale"];
 
 export default function NiaCalculator() {
   const t = useTranslations("Calculator");
@@ -73,7 +77,7 @@ export default function NiaCalculator() {
   const [difficulty, setDifficulty] = useState("master");
   const [stage, setStage] = useState("finale");
   const [params, setParams] = useState([null, null, null]);
-  const [challengeParamBonus, setChallengeParamBonus] = useState(40);
+  const [challengeParamBonus, setChallengeParamBonus] = useState(55);
   const [paramBonuses, setParamBonuses] = useState([null, null, null]);
   const [votes, setVotes] = useState(MIN_VOTES_BY_STAGE[stage]);
   const [affection, setAffection] = useState(20);
@@ -106,7 +110,8 @@ export default function NiaCalculator() {
         paramBonuses,
         affection,
         params,
-        votes
+        votes,
+        difficulty
       )
     : null;
 
@@ -115,11 +120,12 @@ export default function NiaCalculator() {
     paramOrder,
     scores
   );
+  const bonusParams = calculateBonusParams(gainedParams, paramBonuses);
   const challengeParams = calculateChallengeParams(
     gainedParams,
+    bonusParams,
     challengeParamBonus
   );
-  const bonusParams = calculateBonusParams(gainedParams, paramBonuses);
   const postAuditionParams = calculatePostAuditionParams(
     maxParams,
     params,
@@ -130,7 +136,7 @@ export default function NiaCalculator() {
   const totalScore = scores.reduce((acc, cur) => acc + cur, 0);
   const gainedVotes = calculateGainedVotes(voteRegimes, affection, totalScore);
   const totalVotes = votes + gainedVotes;
-  const voteRank = getVoteRank(totalVotes);
+  const voteRank = getVoteRank(totalVotes, difficulty);
 
   const paramRating = Math.floor(
     postAuditionParams.reduce((acc, cur) => acc + cur, 0) * 2.3
@@ -139,7 +145,7 @@ export default function NiaCalculator() {
   let actualRating = "?";
   let actualRank = "?";
   if (voteRank) {
-    const voteRating = calculateVoteRating(totalVotes, voteRank);
+    const voteRating = calculateVoteRating(totalVotes, voteRank, difficulty);
     actualRating = paramRating + voteRating;
     actualRank = getRank(actualRating);
   }
@@ -152,11 +158,11 @@ export default function NiaCalculator() {
         selected={difficulty}
         onChange={(diff) => {
           if (diff === "master") {
-            setStage("finale");
             setAffection(20);
           } else {
             setChallengeParamBonus(null);
           }
+          setStage("finale");
           setDifficulty(diff);
         }}
       />
@@ -203,7 +209,7 @@ export default function NiaCalculator() {
                 placeholder="%"
                 onChange={setChallengeParamBonus}
                 min={0}
-                max={40}
+                max={55}
               />
             </>
           )}
@@ -250,15 +256,22 @@ export default function NiaCalculator() {
                       >
                         <FaCircleChevronDown />
                         <span className={styles.rankButtonLabel}>
-                          {rank} ({TARGET_RATING_BY_RANK[rank]})
+                          {rank} ({TARGET_RATING_BY_RANK[rank].toLocaleString()}
+                          )
                         </span>
                       </button>
                     ) : (
-                      `${rank} (${TARGET_RATING_BY_RANK[rank]})`
+                      `${rank} (${TARGET_RATING_BY_RANK[
+                        rank
+                      ].toLocaleString()})`
                     ),
                   ];
                   if (recommendedScores[rank]) {
-                    return row.concat(recommendedScores[rank]);
+                    return row.concat(
+                      recommendedScores[rank].map((score) =>
+                        score.toLocaleString()
+                      )
+                    );
                   } else {
                     return row.concat(["-", "-", "-"]);
                   }
@@ -298,13 +311,13 @@ export default function NiaCalculator() {
           <div className={styles.flex}>
             <div>
               <label>{t("gainedVotes")}</label>
-              <div>+{gainedVotes}</div>
+              <div>+{gainedVotes.toLocaleString()}</div>
             </div>
 
             <div>
               <label>{t("votesPostAudition")}</label>
               <div>
-                {totalVotes}
+                {totalVotes.toLocaleString()}
                 {voteRank ? ` (${voteRank})` : null}
               </div>
             </div>
@@ -313,7 +326,8 @@ export default function NiaCalculator() {
           <div className={styles.produceRank}>
             <label>{t("produceRank")}</label>
             <span>
-              {actualRating} {actualRank ? `(${actualRank})` : null}
+              {actualRating.toLocaleString()}{" "}
+              {actualRank ? `(${actualRank})` : null}
             </span>
           </div>
         </section>

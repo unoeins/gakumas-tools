@@ -272,12 +272,12 @@ id,name,rarity,upgraded,plan,mode,sourceType,pIdolId,welfare,effects
 271,N.I.Aスマホリング,SSR,FALSE,free,produce,produce,,FALSE,
 272,N.I.Aトートバッグ,SSR,FALSE,free,produce,produce,,FALSE,
 273,N.I.Aパスケース,SSR,FALSE,free,produce,produce,,FALSE,
-274,N.I.Aバンド（金紫）,SSR,FALSE,sense,stage,produce,,FALSE,
-275,N.I.Aライト（金紫）,SSR,FALSE,sense,stage,produce,,FALSE,
-276,N.I.Aバンド（金白）,SSR,FALSE,logic,stage,produce,,FALSE,
-277,N.I.Aライト（金白）,SSR,FALSE,logic,stage,produce,,FALSE,
-278,N.I.Aバンド（金黒）,SSR,FALSE,anomaly,stage,produce,,FALSE,
-279,N.I.Aライト（金黒）,SSR,FALSE,anomaly,stage,produce,,FALSE,
+274,N.I.Aバンド（金紫）,SSR,FALSE,sense,stage,produce,,FALSE,"at:afterStartOfTurn,if:countCards(deck)+countCards(removed)>=12,do:drawCard,do:setScoreBuff(0.05),do:goodConditionTurns+=1,limit:5"
+275,N.I.Aライト（金紫）,SSR,FALSE,sense,stage,produce,,FALSE,"at:afterStartOfTurn,if:countCards(deck)+countCards(removed)>=12,do:drawCard,do:setScoreBuff(0.05),do:concentration+=1,limit:5"
+276,N.I.Aバンド（金白）,SSR,FALSE,logic,stage,produce,,FALSE,"at:afterStartOfTurn,if:countCards(deck)+countCards(removed)>=12,do:drawCard,do:setScoreBuff(0.05),do:goodImpressionTurns+=1,limit:5"
+277,N.I.Aライト（金白）,SSR,FALSE,logic,stage,produce,,FALSE,"at:afterStartOfTurn,if:countCards(deck)+countCards(removed)>=12,do:drawCard,do:setScoreBuff(0.05),do:motivation+=1,limit:5"
+278,N.I.Aバンド（金黒）,SSR,FALSE,anomaly,stage,produce,,FALSE,"at:afterStartOfTurn,if:countCards(deck)+countCards(removed)>=18,do:setScoreBuff(0.25),limit:1;at:afterStartOfTurn,if:countCards(deck)+countCards(removed)>=18,target:effect(fullPowerCharge),do:g.score+=10,limit:1"
+279,N.I.Aライト（金黒）,SSR,FALSE,anomaly,stage,produce,,FALSE,"at:afterStartOfTurn,if:countCards(deck)+countCards(removed)>=18,do:setScoreBuff(0.25),limit:1;at:afterStartOfTurn,if:countCards(deck)+countCards(removed)>=18,target:effect(strength),do:g.score+=10,limit:1"
 280,伝説のidol装備,SSR,FALSE,anomaly,stage,pIdol,94,FALSE,"at:stanceChanged,if:isStrength,if:genki>=50,do:score+=genki*4.4,do:genki=0,do:fixedStamina-=2,limit:2"
 281,伝説のidol装備+,SSR,TRUE,anomaly,stage,pIdol,94,FALSE,"at:stanceChanged,if:isStrength,if:genki>=50,do:score+=genki*5,do:genki=0,limit:2"
 282,居残りの生徒会室,SSR,FALSE,anomaly,stage,support,,FALSE,"at:startOfTurn,if:isDanceTurn,if:strengthTimes>=3,do:enthusiasmBonus+=10,limit:1"
@@ -327,8 +327,8 @@ id,name,rarity,upgraded,plan,mode,sourceType,pIdolId,welfare,effects
 326,落ち葉つかみの型,SR,FALSE,logic,produce,support,,FALSE,
 327,シェアハピ缶バッジ,SSR,FALSE,logic,stage,pIdol,108,FALSE,"at:everyTurn,if:turnsElapsed%2==1,do:fixedStamina+=3,do:goodImpressionTurns+=1,limit:2"
 328,シェアハピ缶バッジ+,SSR,TRUE,logic,stage,pIdol,108,FALSE,"at:everyTurn,if:turnsElapsed%2==1,do:fixedStamina+=3,do:goodImpressionTurns+=2,limit:2"
-329,たくやきテクノドッグ,SSR,FALSE,anomaly,stage,pIdol,109,FALSE,"at:stanceChanged,if:prevStance==fullPower,if:countCards(removed\604)>=1,target:604,do:g.fullPowerCharge+=2,do:g.score+=5,do:g.typedCost-=2,limit:3;at:stanceChanged,if:prevStance==fullPower,if:countCards(removed\604)>=1,do:holdCard(604),limit:3"
-330,たくやきテクノドッグ+,SSR,TRUE,anomaly,stage,pIdol,109,FALSE,"at:stanceChanged,if:prevStance==fullPower,if:countCards(removed\604)>=1,target:604,do:g.fullPowerCharge+=2,do:g.score+=12,do:g.typedCost-=2,limit:3;at:stanceChanged,if:prevStance==fullPower,if:countCards(removed\604)>=1,do:holdCard(604),limit:3"
+329,たこやきテクノドッグ,SSR,FALSE,anomaly,stage,pIdol,109,FALSE,"at:stanceChanged,if:prevStance==fullPower,if:countCards(removed\604)>=1,target:604,do:g.fullPowerCharge+=2,do:g.score+=5,do:g.typedCost-=2,limit:3;at:stanceChanged,if:prevStance==fullPower,if:countCards(removed\604)>=1,do:holdCard(604),limit:3"
+330,たこやきテクノドッグ+,SSR,TRUE,anomaly,stage,pIdol,109,FALSE,"at:stanceChanged,if:prevStance==fullPower,if:countCards(removed\604)>=1,target:604,do:g.fullPowerCharge+=2,do:g.score+=12,do:g.typedCost-=2,limit:3;at:stanceChanged,if:prevStance==fullPower,if:countCards(removed\604)>=1,do:holdCard(604),limit:3"
 331,しぼまない思い出,SSR,FALSE,anomaly,stage,support,,FALSE,"at:startOfTurn,if:isVocalTurn,if:stanceChangedTimes>=4,do:setScoreBuff(0.25,1),do:genki+=8,limit:2"
 332,かごいっぱいの成果,SR,FALSE,anomaly,produce,support,,FALSE,
 333,アイドルになりたい,SSR,FALSE,logic,stage,pIdol,110,FALSE,"at:goodImpressionTurnsIncreased,if:goodImpressionTurnsDelta>=7,if:genki>=30,do:score+=goodImpressionTurns*2.5,do:fixedStamina+=3,limit:2"
@@ -366,5 +366,25 @@ id,name,rarity,upgraded,plan,mode,sourceType,pIdolId,welfare,effects
 365,交わした約束+,SSR,TRUE,anomaly,stage,pIdol,120,FALSE,"at:endOfTurn,if:fullPowerCharge>=10,do:holdCard(638),do:genki+=5,limit:3;at:endOfTurn,if:fullPowerCharge>=10,limit:3;at:turn,do:setFullPowerChargeBuff(0.5,1),limit:1"
 366,完全制覇でポン,SSR,FALSE,anomaly,produce,support,,FALSE,
 367,ゲレンデを翔ける赤,SR,FALSE,anomaly,produce,support,,FALSE,
-368,あの頃憧れたヒーロー,SSR,FALSE,sense,stage,pIdol,121,FALSE,"at:cardUsed,if:usedCardBaseId==106,do:cardUsesRemaining+=1,do:moveCardToHandFromRemoved(640),do:goodConditionTurns+=9,limit:1"
+368,あの頃憧れたヒーロー,SSR,FALSE,sense,stage,pIdol,121,FALSE,"at:cardUsed,if:usedCardBaseId==106,do:cardUsesRemaining+=1,do:moveCardToHandFromRemoved(640),do:goodConditionTurns+=7,do:fixedStamina-=3,limit:1"
 369,あの頃憧れたヒーロー+,SSR,TRUE,sense,stage,pIdol,121,FALSE,"at:cardUsed,if:usedCardBaseId==106,do:cardUsesRemaining+=1,do:moveCardToHandFromRemoved(640),do:goodConditionTurns+=9,limit:1"
+370,無我の境地,SSR,FALSE,sense,produce,support,,FALSE,
+371,はつぼし記章,SSR,FALSE,free,stage,produce,,FALSE,"at:startOfStage,if:countCards(all)-countCards(N)-countCards(T)>=21,do:fixedStamina+=7,do:removeBasicCard"
+372,はつぼしメダル (橙),SSR,FALSE,sense,stage,produce,,FALSE,"at:startOfStage,if:countCards(all)-countCards(N)-countCards(T)>=21,do:goodConditionTurns+=5,do:removeBasicCard"
+373,ガラスはつみ (橙),SSR,FALSE,sense,stage,produce,,FALSE,"at:startOfStage,if:countCards(all)-countCards(N)-countCards(T)>=21,do:concentration+=5,do:removeBasicCard"
+374,はつぼしメダル (白),SSR,FALSE,logic,stage,produce,,FALSE,"at:startOfStage,if:countCards(all)-countCards(N)-countCards(T)>=21,do:goodImpressionTurns+=5,do:removeBasicCard"
+375,ガラスはつみ (白),SSR,FALSE,logic,stage,produce,,FALSE,"at:startOfStage,if:countCards(all)-countCards(N)-countCards(T)>=21,do:motivation+=5,do:removeBasicCard"
+376,はつぼしメダル (黒),SSR,FALSE,anomaly,stage,produce,,FALSE,"at:startOfStage,if:countCards(all)-countCards(N)-countCards(T)>=21,target:effect(strength),do:g.score+=10;at:startOfStage,if:countCards(all)-countCards(N)-countCards(T)>=21,do:removeBasicCard"
+377,ガラスはつみ (黒),SSR,FALSE,anomaly,stage,produce,,FALSE,"at:startOfStage,if:countCards(all)-countCards(N)-countCards(T)>=21,target:effect(fullPowerCharge),do:g.score+=10;at:startOfStage,if:countCards(all)-countCards(N)-countCards(T)>=21,do:removeBasicCard"
+378,だから、おいで,SSR,FALSE,logic,stage,pIdol,122,FALSE,"at:startOfTurn,if:goodImpressionTurns>=6,do:goodImpressionTurns+=10,do:setScoreDebuff(0.6,2),limit:1;at:startOfTurn,if:goodImpressionTurns>=6,limit:1;at:mentalCardUsed,do:motivation+=1,limit:5"
+379,だから、おいで+,SSR,TRUE,logic,stage,pIdol,122,FALSE,"at:startOfTurn,if:goodImpressionTurns>=6,do:goodImpressionTurns+=13,do:setScoreDebuff(0.6,2),limit:1;at:startOfTurn,if:goodImpressionTurns>=6,limit:1;at:mentalCardUsed,do:motivation+=1,limit:5"
+380,ぴったりコレクション,SSR,FALSE,sense,stage,support,,TRUE,"at:activeCardUsed,if:isVisualTurn,if:goodConditionTurns>=3,do:concentration+=2,do:score+=4,limit:1"
+381,憧れのはじまり,SSR,FALSE,anomaly,stage,pIdol,123,FALSE,"at:stanceChanged,if:isFullPower,do:nullifyCostActiveCards+=1,limit:3;at:stanceChanged,if:isFullPower,target:mental,do:g.genki+=4,limit:2"
+382,憧れのはじまり+,SSR,TRUE,anomaly,stage,pIdol,123,FALSE,"at:stanceChanged,if:isFullPower,do:nullifyCostActiveCards+=1,limit:3;at:stanceChanged,if:isFullPower,target:mental,do:g.genki+=5,limit:3"
+383,そっくりワンマン,SR,FALSE,anomaly,produce,support,,FALSE,
+384,ひろがる未来へ,SSR,FALSE,sense,stage,pIdol,124,FALSE,"at:buffCostConsumed,if:goodConditionTurns>=3,do:concentration+=2,do:goodConditionTurns-=1;at:buffCostConsumed,if:goodConditionTurns>=3;at:turn,do:drawCard,limit:1;"
+385,ひろがる未来へ+,SSR,TRUE,sense,stage,pIdol,124,FALSE,"at:buffCostConsumed,if:goodConditionTurns>=3,do:concentration+=2,do:goodConditionTurns-=1;at:buffCostConsumed,if:goodConditionTurns>=3;at:turn,do:drawCard,do:drawCard,limit:1;"
+386,みちなるシグナル,SSR,FALSE,logic,stage,pIdol,125,FALSE,"at:startOfStage,do:genki+=7,do:motivation+=4,do:fixedStamina-=maxStamina*0.8,limit:1;at:buffCostConsumed,do:fixedStamina+=maxStamina*0.2,do:setGoodImpressionTurnsEffectBuff(0.1)"
+387,みちなるシグナル+,SSR,TRUE,logic,stage,pIdol,125,FALSE,"at:startOfStage,do:genki+=8,do:motivation+=5,do:fixedStamina-=maxStamina*0.8,limit:1;at:buffCostConsumed,do:fixedStamina+=maxStamina*0.2,do:setGoodImpressionTurnsEffectBuff(0.1)"
+388,はじめてのけんか?,SSR,FALSE,sense,produce,support,,FALSE,
+389,迷子のゆくえ,SSR,FALSE,logic,stage,support,,FALSE,"at:startOfTurn,if:isVocalTurn,if:stamina<=maxStamina*0.5,do:motivation+=2,do:halfCostTurns+=2,limit:1"

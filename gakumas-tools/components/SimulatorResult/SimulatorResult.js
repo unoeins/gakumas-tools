@@ -1,7 +1,5 @@
 import { memo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { FaDownload } from "react-icons/fa6";
-import Button from "@/components/Button";
 import ButtonGroup from "@/components/ButtonGroup";
 import SimulatorLogs from "@/components/SimulatorLogs";
 import SimulatorResultGraphs from "./SimulatorResultGraphs";
@@ -31,16 +29,6 @@ function SimulatorResult({ data, listenerData, idolId, plan }) {
 
   const hasListenerData = listenerData && Object.keys(listenerData).length > 0;
 
-  function download() {
-    let csvData = data.scores.toSorted((a, b) => a - b).join("\n");
-    const blob = new Blob([csvData], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "simulator_scores.csv";
-    a.click();
-  }
-
   return (
     <div id="simulator_result" className={styles.result}>
       <table className={styles.stats}>
@@ -63,12 +51,6 @@ function SimulatorResult({ data, listenerData, idolId, plan }) {
       </table>
 
       <SimulatorResultGraphs data={data} plan={plan} />
-
-      {data.scores && (
-        <Button style="blue" onClick={download}>
-          <FaDownload /> {t("downloadScores")}
-        </Button>
-      )}
 
       {!hasListenerData && (
         <>

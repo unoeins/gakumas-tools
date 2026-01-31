@@ -2,6 +2,7 @@ import { memo, useContext } from "react";
 import EntityIcon from "@/components/EntityIcon";
 import ModalContext from "@/contexts/ModalContext";
 import { EntityTypes } from "@/utils/entities";
+import c from "@/utils/classNames";
 import styles from "./StageSkillCards.module.scss";
 import EntityPickerModal from "../EntityPickerModal";
 
@@ -15,11 +16,16 @@ function StageSkillCards({
   idolId,
   size,
   groupIndex = 0,
+  stage,
 }) {
   const { setModal } = useContext(ModalContext);
+  const className = c(
+    styles.stageSkillCards,
+    stage.type === "exam" && styles.examStageSkillCards
+  );
 
   return (
-    <div className={styles.stageSkillCards}>
+    <div className={className}>
       {skillCardIds.map((skillCardId, index) => (
         <EntityIcon
           key={`${index}_${skillCardId}`}

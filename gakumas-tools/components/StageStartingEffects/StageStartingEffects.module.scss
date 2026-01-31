@@ -1,0 +1,21 @@
+.stageStartingEffects {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px;
+  margin: 4px 0;
+}
+
+.stageStartingEffect {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  text-align: center;
+  gap: 8px;
+
+  input {
+    width: 100%;
+  }
+}
+
+.startingEffectInput {
+  width: 100%;
+}

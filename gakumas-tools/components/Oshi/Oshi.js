@@ -1,21 +1,15 @@
 "use client";
 import { useState } from "react";
 import { Resizable } from "re-resizable";
+import IdolIcon from "@/components/IdolIcon";
 import YouTubeVideo from "@/components/YouTubeVideo";
 import styles from "./Oshi.module.scss";
 
-const Badge = () => (
-  <div
-    style={{
-      display: "inline-block",
-      marginRight: 8,
-      backgroundColor: "#ff3333",
-      borderRadius: 5,
-      width: 10,
-      height: 10,
-    }}
-  />
-);
+export const OSHI_PROPS = {
+  text: <div>「MISHIMALIVE READING PROJECT Vol.1」配信チケット発売中！伊藤舞音さんは1月29日の公演③と④に出演します！<IdolIcon idolId={6} /></div>,
+  initiallyExpanded: true,
+  url: "https://www.confetti-web.com/events/13430",
+}
 
 export default function Oshi({
   text,
@@ -41,7 +35,7 @@ export default function Oshi({
           </a>
         ) : (
           <button className={styles.expand} onClick={() => setExpanded(true)}>
-            {hasBadge && <Badge />}{" "}
+            {hasBadge && <div className={styles.badge} />}{" "}
           </button>
         )}
       </div>

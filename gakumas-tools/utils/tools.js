@@ -1,5 +1,4 @@
 import {
-  FaAnglesUp,
   FaBook,
   FaCalculator,
   FaChartSimple,
@@ -8,6 +7,7 @@ import {
   FaPercent,
   FaTrophy,
 } from "react-icons/fa6";
+import { GrOptimize } from "react-icons/gr";
 
 export const TOOLS = {
   produceRankCalculator: {
@@ -43,6 +43,11 @@ export const TOOLS = {
   rehearsal: {
     icon: <FaChartSimple />,
     path: "/rehearsal",
+    pinnable: true,
+  },
+  estimator: {
+    icon: <GrOptimize />,
+    path: "/estimator",
     pinnable: true,
   },
 };

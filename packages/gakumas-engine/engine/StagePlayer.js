@@ -26,7 +26,7 @@ export default class StagePlayer {
     return {
       score: state[S.score],
       logs: logs,
-      graphData: state.graphData,
+      graphData: state[S.graphData],
     };
   }
 }

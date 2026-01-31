@@ -1,0 +1,31 @@
+@use "sass:color";
+@use "../../styles/colors";
+@use "../../styles/mixins";
+
+.stateViewer {
+  display: flex;
+  flex-direction: column;
+  color: colors.$black-dark;
+}
+
+.field {
+  display: flex;
+  grid-template-columns: repeat(auto-fit, minmax(20px, 1fr));
+  grid-auto-rows: 26px;
+  gap: 8px;
+}
+
+.fieldName {
+  display: flex;
+  align-items: center;
+}
+
+.fieldValue {
+  display: flex;
+  flex-direction: column;
+  font-weight: 500;
+}
+
+.fieldValue.debuff {
+  color: colors.$red;
+}

@@ -6,6 +6,7 @@ const RARITY_VALUES = {
   R: 2,
   SR: 3,
   SSR: 4,
+  L: 5,
 };
 
 const SOURCE_TYPE_VALUES = {
@@ -26,6 +27,16 @@ const TYPE_VALUES = {
   active: 1,
   mental: 2,
 };
+
+export function comparePDrinks(a, b) {
+  if (a.rarity != b.rarity) {
+    return RARITY_VALUES[a.rarity] - RARITY_VALUES[b.rarity];
+  }
+  if (a.plan != b.plan) {
+    return PLAN_VALUES[a.plan] - PLAN_VALUES[b.plan];
+  }
+  return 0;
+}
 
 export function comparePItems(a, b) {
   if (a.rarity != b.rarity) {
