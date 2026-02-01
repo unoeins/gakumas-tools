@@ -113,6 +113,7 @@ function ParameterEstimator() {
     [-2, -8, 10],
   ];
   const DIRECTIONS_5 = DIRECTIONS_10.map(dir => dir.map(v => v / 2));
+  const DIRECTIONS_50 = DIRECTIONS_10.map(dir => dir.map(v => v * 5));
   const DIRECTIONS_100 = DIRECTIONS_1.map(dir => dir.map(v => v * 100));
 
   function calculateScore(params) {
@@ -168,34 +169,35 @@ function ParameterEstimator() {
 
     let stepSizes = [
       DIRECTIONS_100,
+      DIRECTIONS_50,
       DIRECTIONS_10,
       DIRECTIONS_5,
       DIRECTIONS_3,
       DIRECTIONS_1,
-      DIRECTIONS_10,
-      DIRECTIONS_5,
-      DIRECTIONS_3,
-      DIRECTIONS_1
     ];
-    for (let directions of stepSizes) {
-      let improved = true;
-      while (improved) {
-        improved = false;
-        for (let direction of directions) {
-          let newParams = {
-            vocal: params.vocal + direction[0],
-            dance: params.dance + direction[1],
-            visual: params.visual + direction[2],
-          };
-          if (newParams.vocal < minParams[0] || newParams.vocal > maxParams[0]) continue;
-          if (newParams.dance < minParams[1] || newParams.dance > maxParams[1]) continue;
-          if (newParams.visual < minParams[2] || newParams.visual > maxParams[2]) continue;
-          let newScore = calculateScore(newParams);
-          if (newScore > score) {
-            params = newParams;
-            score = newScore;
-            improved = true;
-            // console.log("improved:", newParams.vocal, newParams.dance, newParams.visual, newScore);
+    for (let globalImproved = true; globalImproved; ) {
+      globalImproved = false;
+      for (let directions of stepSizes) {
+        let improved = true;
+        while (improved) {
+          improved = false;
+          for (let direction of directions) {
+            let newParams = {
+              vocal: params.vocal + direction[0],
+              dance: params.dance + direction[1],
+              visual: params.visual + direction[2],
+            };
+            if (newParams.vocal < minParams[0] || newParams.vocal > maxParams[0]) continue;
+            if (newParams.dance < minParams[1] || newParams.dance > maxParams[1]) continue;
+            if (newParams.visual < minParams[2] || newParams.visual > maxParams[2]) continue;
+            let newScore = calculateScore(newParams);
+            if (newScore > score) {
+              params = newParams;
+              score = newScore;
+              improved = true;
+              globalImproved = true;
+              // console.log("improved:", newParams.vocal, newParams.dance, newParams.visual, newScore);
+            }
           }
         }
       }
