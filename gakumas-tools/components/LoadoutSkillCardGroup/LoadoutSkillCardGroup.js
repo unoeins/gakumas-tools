@@ -93,7 +93,9 @@ function LoadoutSkillCardGroup({
             className={styles.memoryCalculatorButton}
             onClick={() => {
               const nonPidolSkillCardIds = skillCardIds.filter(
-                (id) => !!id && SkillCards.getById(id).sourceType != "pIdol"
+                (id) => !!id && SkillCards.getById(id).sourceType != "pIdol" &&
+                        SkillCards.getById(id).rarity != "T" &&
+                        SkillCards.getById(id).rarity != "L"
               );
               if (!isExam) {
                 setTargetSkillCardIds(() => nonPidolSkillCardIds);
