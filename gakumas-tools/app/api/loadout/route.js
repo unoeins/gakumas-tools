@@ -18,6 +18,13 @@ export async function POST(request) {
     pItemIds,
     skillCardIdGroups,
     customizationGroups,
+    pDrinkIds,
+    startingEffects,
+    enableSkillCardOrder,
+    skillCardIdOrderGroups,
+    customizationOrderGroups,
+    removedCardOrder,
+    turnTypeOrder,
   } = await request.json();
 
   const { db } = await connect();
@@ -30,6 +37,13 @@ export async function POST(request) {
     pItemIds,
     skillCardIdGroups,
     customizationGroups,
+    pDrinkIds,
+    startingEffects,
+    enableSkillCardOrder,
+    skillCardIdOrderGroups,
+    customizationOrderGroups,
+    removedCardOrder,
+    turnTypeOrder,
     userId,
     createdAt: new Date(),
   });

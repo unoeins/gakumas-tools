@@ -332,7 +332,7 @@ export function LoadoutContextProvider({ children }) {
         changed = true;
       }
       updatedSkillCardIds[index] = cardId;
-      console.log("replaceSkillCardId", index, cardId, stage, updatedSkillCardIds);
+      // console.log("replaceSkillCardId", index, cardId, stage, updatedSkillCardIds);
       if (stage.type === "exam" && index === updatedSkillCardIds.length - 1 && !!cardId) {
         updatedSkillCardIds.push(0);
         setCustomizationGroups((cur) => {
@@ -598,7 +598,7 @@ export function LoadoutContextProvider({ children }) {
             }
             return [customizations];
           });
-          console.log("updateStage skillCardIds", skillCardIds);
+          // console.log("updateStage skillCardIds", skillCardIds);
           setSkillCardIdOrderGroups((curGroups) => {
             let updatedGroups = curGroups.map((group) => {
               if (group.length > skillCardIds.length - 1) {
