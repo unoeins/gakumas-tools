@@ -21,7 +21,7 @@ function StageSkillCards({
   const { setModal } = useContext(ModalContext);
   const className = c(
     styles.stageSkillCards,
-    stage.type === "exam" && styles.examStageSkillCards
+    stage && stage.type === "exam" && styles.examStageSkillCards
   );
 
   return (
