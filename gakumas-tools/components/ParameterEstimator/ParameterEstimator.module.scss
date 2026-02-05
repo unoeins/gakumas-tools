@@ -51,8 +51,24 @@
   display: flex;
   gap: 4px;
 
-  input {
+  input[type="number"] {
     width: 80px;
+  }
+
+  input[type="range"] {
+    flex: 1;
+  }
+}
+
+.maxParamsInput {
+  input {
+    flex: 1;
+  }
+}
+
+.minParamsInput {
+  input {
+    flex: 1;
   }
 }
 

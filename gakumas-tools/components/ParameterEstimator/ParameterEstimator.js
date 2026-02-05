@@ -69,16 +69,52 @@ function ParameterEstimator() {
     }
   }, [stage, extraTurns]);
 
-  const DIRECTIONS_100 = [
-    [100, -100, 0],
-    [100, 0, -100],
-    [0, 100, -100],
-    [-100, 100, 0],
-    [-100, 0, 100],
-    [0, -100, 100],
+  useEffect(() => {
+    runEstimation();
+  }, [supportBonus, totalParams, maxParams, minParams, extraTurns, scores]);
+
+  const DIRECTIONS_1 = [
+    [1, -1, 0],
+    [1, 0, -1],
+    [0, 1, -1],
+    [-1, 1, 0],
+    [-1, 0, 1],
+    [0, -1, 1],
   ];
-  const DIRECTIONS_10 = DIRECTIONS_100.map(dir => dir.map(v => v / 10));
-  const DIRECTIONS_1 = DIRECTIONS_100.map(dir => dir.map(v => v / 100));
+  const DIRECTIONS_3 = [
+    [3, -3, 0],
+    [3, 0, -3],
+    [0, 3, -3],
+    [-3, 3, 0],
+    [-3, 0, 3],
+    [0, -3, 3],
+    [3, -2, -1],
+    [3, -1, -2],
+    [-1, 3, -2],
+    [-2, 3, -1],
+    [-2, -1, 3],
+    [-1, -2, 3],
+  ];
+  // const DIRECTIONS_3 = DIRECTIONS_1.map(dir => dir.map(v => v * 3));
+  // const DIRECTIONS_5 = DIRECTIONS_1.map(dir => dir.map(v => v * 5));
+  // const DIRECTIONS_10 = DIRECTIONS_1.map(dir => dir.map(v => v * 10));
+  const DIRECTIONS_10 = [
+    [10, -10, 0],
+    [10, 0, -10],
+    [0, 10, -10],
+    [-10, 10, 0],
+    [-10, 0, 10],
+    [0, -10, 10],
+    [10, -8, -2],
+    [10, -2, -8],
+    [-2, 10, -8],
+    [-8, 10, -2],
+    [-8, -2, 10],
+    [-2, -8, 10],
+  ];
+  const DIRECTIONS_5 = DIRECTIONS_10.map(dir => dir.map(v => v / 2));
+  const DIRECTIONS_50 = DIRECTIONS_10.map(dir => dir.map(v => v * 5));
+  const DIRECTIONS_100 = DIRECTIONS_1.map(dir => dir.map(v => v * 100));
 
   function calculateScore(params) {
     const { vocal, dance, visual } = calculateTypeMultipliers(params, stage, supportBonus);
@@ -92,10 +128,9 @@ function ParameterEstimator() {
     return totalScore;
   }
 
-  async function runEstimation() {
-    setRunning(true);
-
-    console.time("estimation");
+  function runEstimation() {
+    // setRunning(true);
+    // console.time("estimation");
 
     let params = {
       vocal: minParams[0],
@@ -132,32 +167,44 @@ function ParameterEstimator() {
     }
     let score = calculateScore(params);
 
-    let stepSizes = [100, 10, 1];
-    for (let stepSize of stepSizes) {
-      let improved = true;
-      while (improved) {
-        improved = false;
-        for (let direction of (stepSize === 100 ? DIRECTIONS_100 : stepSize === 10 ? DIRECTIONS_10 : DIRECTIONS_1)) {
-          let newParams = {
-            vocal: params.vocal + direction[0],
-            dance: params.dance + direction[1],
-            visual: params.visual + direction[2],
-          };
-          if (newParams.vocal < minParams[0] || newParams.vocal > maxParams[0]) continue;
-          if (newParams.dance < minParams[1] || newParams.dance > maxParams[1]) continue;
-          if (newParams.visual < minParams[2] || newParams.visual > maxParams[2]) continue;
-          let newScore = calculateScore(newParams);
-          if (newScore > score) {
-            params = newParams;
-            score = newScore;
-            improved = true;
+    let stepSizes = [
+      DIRECTIONS_100,
+      DIRECTIONS_50,
+      DIRECTIONS_10,
+      DIRECTIONS_5,
+      DIRECTIONS_3,
+      DIRECTIONS_1,
+    ];
+    for (let globalImproved = true; globalImproved; ) {
+      globalImproved = false;
+      for (let directions of stepSizes) {
+        let improved = true;
+        while (improved) {
+          improved = false;
+          for (let direction of directions) {
+            let newParams = {
+              vocal: params.vocal + direction[0],
+              dance: params.dance + direction[1],
+              visual: params.visual + direction[2],
+            };
+            if (newParams.vocal < minParams[0] || newParams.vocal > maxParams[0]) continue;
+            if (newParams.dance < minParams[1] || newParams.dance > maxParams[1]) continue;
+            if (newParams.visual < minParams[2] || newParams.visual > maxParams[2]) continue;
+            let newScore = calculateScore(newParams);
+            if (newScore > score) {
+              params = newParams;
+              score = newScore;
+              improved = true;
+              globalImproved = true;
+              // console.log("improved:", newParams.vocal, newParams.dance, newParams.visual, newScore);
+            }
           }
         }
       }
     }
 
-    console.timeEnd("estimation");
-    setRunning(false);
+    // console.timeEnd("estimation");
+    // setRunning(false);
     setEstimatedParams([params.vocal, params.dance, params.visual]);
     setEstimatedScore(score);
   }
@@ -194,15 +241,23 @@ function ParameterEstimator() {
             type="number"
             value={totalParams}
             min={0}
-            max={10000}
+            max={10080}
             onChange={(value) =>
               setTotalParams(value)
             }
           />
+          <input
+            type="range"
+            value={totalParams}
+            onChange={(e) => setTotalParams(parseInt(e.target.value, 10))}
+            min={0}
+            max={10080}
+            step={1}
+          />
         </div>
 
         <label>{t("maxParams")}</label>
-        <div className={styles.maxParams}>
+        <div className={styles.maxParamsInput}>
           <ParametersInput
             parameters={maxParams}
             onChange={setMaxParams}
@@ -212,7 +267,7 @@ function ParameterEstimator() {
         </div>
 
         <label>{t("minParams")}</label>
-        <div className={styles.minParams}>
+        <div className={styles.minParamsInput}>
           <ParametersInput
             parameters={minParams}
             onChange={setMinParams}
@@ -242,9 +297,9 @@ function ParameterEstimator() {
           max={10000000}
         />
 
-        <Button style="blue" onClick={runEstimation} disabled={running}>
+        {/* <Button style="blue" onClick={runEstimation} disabled={running}>
           {running ? <Loader /> : `${t("estimate")}`}
-        </Button>
+        </Button> */}
 
       {estimatedScore !== null && (
         <>
