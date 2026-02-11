@@ -555,8 +555,7 @@ export default class CardManager extends EngineComponent {
     return (
       !skillCard.upgraded &&
       skillCard.type != "trouble" &&
-      skillCard.rarity != "L" &&
-      skillCard.id != 757
+      skillCard.rarity != "L"
     );
   }
 
