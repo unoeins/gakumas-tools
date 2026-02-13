@@ -373,7 +373,7 @@ export default function Simulator() {
           <label htmlFor="enablePriorityStats">{t("enablePriorityStats")}</label>
         </div> */}
         <div className={styles.subLinks}>
-            <KofiAd />
+            {/* <KofiAd /> */}
           <a
             href="https://github.com/surisuririsu/gakumas-tools/blob/master/gakumas-tools/simulator/CHANGELOG.md"
             target="_blank"
