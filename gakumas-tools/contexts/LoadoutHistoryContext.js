@@ -55,7 +55,7 @@ export function LoadoutHistoryContextProvider({ children }) {
 
       setLoadout(fillDefaults(data[0]));
       if (data[0].loadouts) {
-        setLoadouts(data[0].loadouts);
+        setLoadouts(data[0].loadouts.map((l) => fillDefaults(l)));
         localStorage.removeItem(LOADOUTS_HISTORY_STORAGE_KEY);
         setLoaded(true);
         return;
@@ -74,7 +74,7 @@ export function LoadoutHistoryContextProvider({ children }) {
         return;
       }
 
-      setLoadouts(data[0]);
+      setLoadouts(data[0].map((l) => fillDefaults(l)));
       if (data[0][0]) {
         setLoadout(fillDefaults(data[0][0]));
       }

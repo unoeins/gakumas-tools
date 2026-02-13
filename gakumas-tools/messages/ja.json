@@ -393,6 +393,9 @@
     "stage": "ステージ{n}",
     "score": "スコア"
   },
+  "KofiAd": {
+    "prompt": "このプロジェクトを支援する"
+  },
   "SkillCardOrderGroups": {
     "Nth_order": "{n}週目のカード順",
     "removed_card_order_header": "指定したカードが除外されていた場合:",

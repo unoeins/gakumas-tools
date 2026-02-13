@@ -76,14 +76,30 @@ function NavbarMenu() {
                 href="https://github.com/surisuririsu/gakumas-tools"
                 size="small"
               />
-              <IconButton
+              {/* <IconButton
                 icon={SiKofi}
                 href="https://ko-fi.com/surisuririsu"
                 size="small"
-              />
+              /> */}
             </div>
             <div className={styles.fine}>
               with research from the Gakumas contest community
+            </div>
+          </div>
+
+          <div className={styles.author}>
+            <div>Modified by うの・あいんす</div>
+            <div className={styles.socials}>
+              <IconButton
+                icon={FaXTwitter}
+                href="https://x.com/uno_eins"
+                size="small"
+              />
+              <IconButton
+                icon={FaGithub}
+                href="https://github.com/unoeins/gakumas-tools"
+                size="small"
+              />
             </div>
           </div>
 

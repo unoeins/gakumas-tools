@@ -363,9 +363,9 @@ function Rehearsal() {
         </>
       )}
 
-      <div className={styles.ad}>
+      {/* <div className={styles.ad}>
         <KofiAd />
-      </div>
+      </div> */}
     </div>
   );
 }

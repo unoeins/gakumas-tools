@@ -386,6 +386,9 @@
     "stage": "Stage {n}",
     "score": "Score"
   },
+  "KofiAd": {
+    "prompt": "Support this project"
+  },
   "SkillCardOrderGroups": {
     "Nth_order": "{n}th Card Order",
     "removed_card_order_header": "If the specified card was removed:",
@@ -496,5 +499,19 @@
     "preservation": "Preservation",
     "nullifyGenkiTurns": "Nullify Genki",
     "slumpTurns": "Slump"
+  },
+  "ParameterEstimator": {
+    "note": "※Input data can be imported from simulation results (recommended)",
+    "notContestWarning": "Warning: The selected stage is not a contest. Please select a contest stage.",
+    "supportBonus": "Support bonus %",
+    "totalParams": "Total parameters",
+    "maxParams": "Max parameters",
+    "minParams": "Min parameters",
+    "extraTurns": "Extra turns",
+    "scores": "Score gained per turn (before score bonus)",
+    "estimate": "Estimate optimal parameters",
+    "estimatedParams": "Estimated parameters",
+    "estimatedScore": "Estimated score",
+    "reflectParametersAndGoToSimulator": "Apply parameters and go to simulator"
   }
 }

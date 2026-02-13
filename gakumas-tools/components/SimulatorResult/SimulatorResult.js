@@ -104,7 +104,7 @@ function SimulatorResult({ data, listenerData, idolId, plan }) {
         </>
       )}
 
-      <KofiAd />
+      {/* <KofiAd /> */}
     </div>
   );
 }
