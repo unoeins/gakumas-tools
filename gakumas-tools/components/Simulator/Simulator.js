@@ -374,6 +374,7 @@ export default function Simulator() {
         </div> */}
         <div className={styles.subLinks}>
             {/* <KofiAd /> */}
+          <div/>
           <a
             href="https://github.com/surisuririsu/gakumas-tools/blob/master/gakumas-tools/simulator/CHANGELOG.md"
             target="_blank"

@@ -463,5 +463,19 @@
     "preservation": "温存",
     "nullifyGenkiTurns": "元气增加无效",
     "slumpTurns": "斯兰普"
+  },
+  "ParameterEstimator": {
+    "note": "※输入数据可以从模拟结果中获取(推荐使用平均值)。",
+    "notContestWarning": "注意: 选择的舞台不是竞技场。请选取竞技场舞台。",
+    "supportBonus": "支援加成%",
+    "totalParams": "总属性",
+    "maxParams": "最大属性",
+    "minParams": "最小属性",
+    "extraTurns": "额外回合数",
+    "scores": "每回合获得的分数（应用分数加成前）",
+    "estimate": "估算最佳属性",
+    "estimatedParams": "估算属性",
+    "estimatedScore": "估算分数",
+    "reflectParametersAndGoToSimulator": "反映属性并前往模拟器"
   }
 }
