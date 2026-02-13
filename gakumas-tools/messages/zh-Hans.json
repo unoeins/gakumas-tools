@@ -376,6 +376,9 @@
     "stage": "舞台 {n}",
     "score": "分数"
   },
+  "KofiAd": {
+    "prompt": "支持这个项目"
+  },
   "ContestPlayer": {
     "startStage": "开始",
     "restartStage": "重新开始",

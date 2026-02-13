@@ -386,6 +386,9 @@
     "stage": "Stage {n}",
     "score": "Score"
   },
+  "KofiAd": {
+    "prompt": "Support this project"
+  },
   "SkillCardOrderGroups": {
     "Nth_order": "{n}th Card Order",
     "removed_card_order_header": "If the specified card was removed:",

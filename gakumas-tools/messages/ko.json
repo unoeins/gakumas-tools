@@ -376,6 +376,9 @@
     "stage": "스테이지 {n}",
     "score": "스코어"
   },
+  "KofiAd": {
+    "prompt": "이 프로젝트 후원하기"
+  },
   "ContestPlayer": {
     "startStage": "시작",
     "restartStage": "처음부터 다시 시작",
