@@ -206,6 +206,10 @@ export default class AbstractStrategy extends HeuristicStrategy {
     return state[S.handCards].length * 3;
   }
 
+  evaluateCardsUsed(state) {
+    return state[S.cardsUsed] * 8;
+  }
+
   evaluateStamina(state) {
     return state[S.stamina] * state[S.turnsRemaining] * 0.05;
   }
@@ -359,7 +363,7 @@ export default class AbstractStrategy extends HeuristicStrategy {
     ) * this.concentrationMultiplier;
   }
 
-  evaluateNNullifyGenkiTurns(state) {
+  evaluateNullifyGenkiTurns(state) {
     return state[S.nullifyGenkiTurns] * -9;
   }
 
@@ -414,6 +418,9 @@ export default class AbstractStrategy extends HeuristicStrategy {
 
     // Cards in hand
     score += this.evaluateHandCards(state);
+
+    // Cards used
+    score += this.evaluateCardsUsed(state);
 
     // Stamina
     score += this.evaluateStamina(state);
@@ -496,7 +503,7 @@ export default class AbstractStrategy extends HeuristicStrategy {
     score += this.evaluateConcentrationBuffs(state);
 
     // Nullify genki turns
-    score += this.evaluateNNullifyGenkiTurns(state);
+    score += this.evaluateNullifyGenkiTurns(state);
 
     // Turn cards upgraded
     score += this.evaluateTurnCardsUpgraded(state);
