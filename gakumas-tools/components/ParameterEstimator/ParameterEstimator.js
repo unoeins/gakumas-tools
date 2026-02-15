@@ -6,13 +6,14 @@ import StageSelect from "@/components/StageSelect";
 import Input from "@/components/Input";
 import ParametersInput from "@/components/ParametersInput";
 import Button from "@/components/Button";
-import Loader from "@/components/Loader";
 import ScoresInput from "./ScoresInput";
 import ParameterEstimatorContext from "@/contexts/ParameterEstimatorContext";
 import LoadoutContext from "@/contexts/LoadoutContext";
+import ModalContext from "@/contexts/ModalContext";
 import { useRouter } from "@/i18n/routing";
 import { calculateTypeMultipliers, calculateTurnTypes } from "@/utils/estimator";
 import styles from "./ParameterEstimator.module.scss";
+import EstimatorHelperModal from "./EstimatorHelperModal";
 
 function ParameterEstimator() {
   const t = useTranslations("ParameterEstimator");
@@ -39,7 +40,7 @@ function ParameterEstimator() {
     estimatedScore,
     setEstimatedScore,
   } = useContext(ParameterEstimatorContext);
-  const [running, setRunning] = useState(false);
+  const { setModal } = useContext(ModalContext);
 
   const turnTypes = useMemo(() => {
     return calculateTurnTypes(stage, extraTurns);
@@ -217,7 +218,9 @@ function ParameterEstimator() {
 
   return (
     <div className={styles.parameterEstimator}>
-        <p>{t("note")}</p>
+        <button className={styles.helperButton} onClick={() => setModal(<EstimatorHelperModal />)}>
+          {t("note")}
+        </button>
 
         <StageSelect />
         {stage.type === "contest" ? (

@@ -20,6 +20,17 @@
   overflow: auto;
 }
 
+.helperButton {
+  margin: 0 auto;
+  color: colors.$blue-dark;
+  font-size: 16px;
+  text-align: left;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
 .configurator {
   max-width: 600px;
   display: flex;
