@@ -298,7 +298,19 @@ export default function ContestPlayer() {
         {stage.preview && <div>{t("previewNote")}</div>}
         <StageSelect />
         {stage.type !== "contest" ? (
-          t("enterPercents")
+          <>
+            <div>{t("enterPercents")}</div>
+            {stage.type === "exam" && (
+              <div className={styles.subLinks}>
+                <a
+                  href="https://forms.gle/Z8A6ML1kcWPwj8fS8"
+                  target="_blank"
+                >
+                  {t2("requestForData")}
+                </a>
+              </div>
+            )}
+          </>
         ) : (
           <div className={styles.percentRow}>
             <div className={styles.enterPercentsToggle}>

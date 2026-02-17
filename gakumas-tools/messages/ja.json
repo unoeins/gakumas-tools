@@ -484,7 +484,8 @@
     "discardedCards": "捨札",
     "removedCards": "除外",
     "heldCards": "保留",
-    "pDrinks": "Pドリンク"
+    "pDrinks": "Pドリンク",
+    "requestForData": "データ提供のお願い"
   },
   "StageStartingEffects": {
     "startingEffects": "開始時効果",

@@ -477,7 +477,8 @@
     "discardedCards": "Discarded",
     "removedCards": "Removed",
     "heldCards": "Held",
-    "pDrinks": "P-drinks"
+    "pDrinks": "P-drinks",
+    "requestForData": "Request for data"
   },
   "StageStartingEffects": {
     "startingEffects": "Starting Effects",

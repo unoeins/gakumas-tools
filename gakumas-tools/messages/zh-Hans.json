@@ -441,7 +441,8 @@
     "discardedCards": "弃牌",
     "removedCards": "除外",
     "heldCards": "保留",
-    "pDrinks": "P 饮料"
+    "pDrinks": "P 饮料",
+    "requestForData": "数据提供"
   },
   "StageStartingEffects": {
     "startingEffects": "开始时效果",

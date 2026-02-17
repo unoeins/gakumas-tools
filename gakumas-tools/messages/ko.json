@@ -441,7 +441,8 @@
     "discardedCards": "버림패",
     "removedCards": "제외",
     "heldCards": "보류",
-    "pDrinks": "P 음료"
+    "pDrinks": "P 음료",
+    "requestForData": "데이터 제공하기"
   },
   "StageStartingEffects": {
     "startingEffects": "시작 시 효과",
