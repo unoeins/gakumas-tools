@@ -60,7 +60,7 @@ export function calculateTypeMultipliers(params, stage, supportBonus = 0) {
       } else if (param > 0) {
         multiplier = param * 4 - 250;
       }
-    } else {
+    } else if (season < 39) {
       if (param > 2800) {
         multiplier = param * 0.8525 + 3095;
       } else if (param > 2100) {
@@ -72,8 +72,19 @@ export function calculateTypeMultipliers(params, stage, supportBonus = 0) {
       } else if (param > 0) {
         multiplier = param * 2.55;
       }
+    } else {
+      if (param > 2800) {
+        multiplier = param * 0.6 + 4300;
+      } else if (param > 2100) {
+        multiplier = param * 1 + 3180;
+      } else if (param > 1500) {
+        multiplier = param * 1.8 + 1500;
+      } else if (param > 900) {
+        multiplier = param * 2.5 + 450;
+      } else if (param > 0) {
+        multiplier = param * 3;
+      }
     }
-
     if (hasFlatterBonus) multiplier += param;
 
     multiplier = multiplier * criterion + 100;
