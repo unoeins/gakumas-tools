@@ -1198,11 +1198,12 @@ export default class CardManager extends EngineComponent {
       }
     }
     if (!basicCards.length) return;
-    const pick = basicCards[Math.floor(getRand() * basicCards.length)];
-    state[pick.pile].splice(pick.index, 1);
-    this.logger.log(state, "removeCard", {
-      type: "skillCard",
-      id: state[S.cardMap][pick.cardIdx].id,
-    });
+    for (let card of basicCards.toReversed()) {
+      state[card.pile].splice(card.index, 1);
+      this.logger.log(state, "removeCard", {
+        type: "skillCard",
+        id: state[S.cardMap][card.cardIdx].id,
+      });
+    }
   }
 }
