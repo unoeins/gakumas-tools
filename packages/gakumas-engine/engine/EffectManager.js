@@ -1,7 +1,7 @@
 import { PItems, SkillCards } from "gakumas-data";
 import { DEFAULT_EFFECTS, EFFECT_SOURCES, S } from "../constants";
 import EngineComponent from "./EngineComponent";
-import { shallowCopy } from "../utils";
+import { deepCopy, shallowCopy } from "../utils";
 
 export default class EffectManager extends EngineComponent {
   initializeState(state) {
@@ -133,11 +133,39 @@ export default class EffectManager extends EngineComponent {
         continue;
       }
 
-      const effect = effects[i];
+      let effect = effects[i];
 
       // Delayed effects
       if (effect.phase) {
+        effect = deepCopy(effect);
         this.logger.debug("Setting effects", effect.effects);
+        // Add counter index for multiple delayed effects from same source
+        if (effect.actions) {
+          effect.actions = effect.actions.map((tokens) => {
+            if (tokens?.[0]) {
+              tokens[0] = tokens[0].replace(
+                /incrementCounter\((.+)\)/g,
+                "incrementCounter($1," + state[S.lastCounterIndex] + ")"
+              );
+              // tokens.push(state[S.lastCounterIndex]);
+            }
+            return tokens;
+          });
+          // console.log("Updated actions", effect.actions);
+        }
+        if (effect.conditions) {
+          effect.conditions = effect.conditions.map((tokens) => {
+            if (tokens?.[0]) {
+              tokens[0] = tokens[0].replace(
+                /getCounter\((.+)\)/g,
+                "getCounter($1," + state[S.lastCounterIndex] + ")"
+              );
+              // tokens.push(state[S.lastCounterIndex]);
+            }
+            return tokens;
+          });
+          // console.log("Updated conditions", effect.conditions);
+        }
         this.setEffects(
           state,
           [effect],

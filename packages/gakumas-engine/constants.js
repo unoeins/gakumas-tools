@@ -235,6 +235,9 @@ export const ALL_FIELDS = [
   "kyakkouCardsUsed",
   "nullifySelect",
 
+  // Counters
+  "lastCounterIndex",
+
   // Delta
   "goodImpressionTurnsDelta",
   "motivationDelta",

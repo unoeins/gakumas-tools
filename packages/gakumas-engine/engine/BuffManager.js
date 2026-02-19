@@ -31,6 +31,10 @@ export default class BuffManager extends EngineComponent {
           (acc, buff) => acc + buff.amount,
           1
         ),
+      getCounter: (state, counterName, index) => {
+        // console.log("getCounter", counterName, index, state[S[counterName]]);
+        return state[S[counterName]][index];
+      },
     };
 
     this.specialActions = {
@@ -108,6 +112,19 @@ export default class BuffManager extends EngineComponent {
           0,
           state[S.goodConditionTurns] - parseInt(amount, 10)
         );
+      },
+      setCounter: (state, counterName) => {
+        let counters = state[S[counterName]];
+        if (!counters) {
+          counters = state[S[counterName]] = [];
+        }
+        counters.push(0);
+        state[S.lastCounterIndex] = counters.length - 1;
+        // console.log("setCounter", counterName, state[S.lastCounterIndex], state[S[counterName]]);
+      },
+      incrementCounter: (state, counterName, index) => {
+        // console.log("incrementCounter", counterName, index, state[S[counterName]]);
+        state[S[counterName]][index]++;
       },
     };
   }
