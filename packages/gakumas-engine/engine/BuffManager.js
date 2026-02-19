@@ -80,6 +80,12 @@ export default class BuffManager extends EngineComponent {
           parseFloat(amount),
           turns ? parseInt(turns, 10) : null
         ),
+      setConcentrationEffectBuff: (state, amount, turns) =>
+        this.setConcentrationEffectBuff(
+          state,
+          parseFloat(amount),
+          turns ? parseInt(turns, 10) : null
+        ),
       setEnthusiasmBuff: (state, amount, turns) =>
         this.setEnthusiasmBuff(
           state,
