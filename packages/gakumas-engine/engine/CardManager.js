@@ -1200,6 +1200,11 @@ export default class CardManager extends EngineComponent {
     if (!basicCards.length) return;
     for (let card of basicCards.toReversed()) {
       state[card.pile].splice(card.index, 1);
+      state[S.removedCards].push(card.cardIdx);
+      this.engine.effectManager.triggerEffectsForPhase(
+        state,
+        "cardRemoved"
+      );
       this.logger.log(state, "removeCard", {
         type: "skillCard",
         id: state[S.cardMap][card.cardIdx].id,
