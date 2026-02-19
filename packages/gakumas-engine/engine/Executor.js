@@ -442,7 +442,11 @@ export default class Executor extends EngineComponent {
 
     if (score > 0) {
       // Apply concentration
-      score += state[S.concentration] * state[S.concentrationMultiplier];
+      const concentrationEffectBuff = state[S.concentrationEffectBuffs].reduce(
+        (acc, buff) => acc + buff.amount,
+        1
+      );
+      score += state[S.concentration] * state[S.concentrationMultiplier] * concentrationEffectBuff;
 
       // Apply enthusiasm
       score += state[S.enthusiasm];

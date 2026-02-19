@@ -301,6 +301,15 @@ export default class HeuristicStrategy extends BaseStrategy {
         0
       ) * this.concentrationMultiplier;
 
+    // Concentration effect buffs
+    score +=
+      state[S.concentrationEffectBuffs].reduce(
+        (acc, cur) => acc + cur.amount * (cur.turns || state[S.turnsRemaining]),
+        0
+      ) * 
+      state[S.goodImpressionTurns] * 
+      this.concentrationMultiplier;
+
     // Nullify genki turns
     score += state[S.nullifyGenkiTurns] * -9;
 

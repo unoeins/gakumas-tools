@@ -26,6 +26,11 @@ export default class BuffManager extends EngineComponent {
           (acc, buff) => acc + buff.amount,
           1
         ),
+      concentrationEffectBuff: (state) =>
+        state[S.concentrationEffectBuffs].reduce(
+          (acc, buff) => acc + buff.amount,
+          1
+        ),
     };
 
     this.specialActions = {
@@ -83,6 +88,12 @@ export default class BuffManager extends EngineComponent {
           parseFloat(amount),
           turns ? parseInt(turns, 10) : null
         ),
+      setConcentrationEffectBuff: (state, amount, turns) =>
+        this.setConcentrationEffectBuff(
+          state,
+          parseFloat(amount),
+          turns ? parseInt(turns, 10) : null
+        ),
       removeDebuffs: (state, amount) =>
         this.removeDebuffs(state, parseInt(amount, 10)),
       setStance: (state, stance) => this.setStance(state, stance),
@@ -90,6 +101,12 @@ export default class BuffManager extends EngineComponent {
         state[S.fullPowerCharge] = Math.max(
           0,
           state[S.fullPowerCharge] - parseInt(amount, 10)
+        );
+      },
+      decreaseGoodConditionTurns: (state, amount) => {
+        state[S.goodConditionTurns] = Math.max(
+          0,
+          state[S.goodConditionTurns] - parseInt(amount, 10)
         );
       },
     };
@@ -121,6 +138,7 @@ export default class BuffManager extends EngineComponent {
     state[S.motivationBuffs] = [];
     state[S.goodConditionTurnsBuffs] = [];
     state[S.concentrationBuffs] = [];
+    state[S.concentrationEffectBuffs] = [];
     state[S.enthusiasmBuffs] = [];
     state[S.fullPowerChargeBuffs] = [];
 
@@ -230,6 +248,16 @@ export default class BuffManager extends EngineComponent {
     );
   }
 
+  setConcentrationEffectBuff(state, amount, turns) {
+    this.setBuff(
+      state,
+      S.concentrationEffectBuffs,
+      amount,
+      turns,
+      "setConcentrationEffectBuff"
+    );
+  }
+
   setEnthusiasmBuff(state, amount, turns) {
     this.setBuff(state, S.enthusiasmBuffs, amount, turns, "setEnthusiasmBuff");
   }
@@ -276,6 +304,7 @@ export default class BuffManager extends EngineComponent {
       S.motivationBuffs,
       S.goodConditionTurnsBuffs,
       S.concentrationBuffs,
+      S.concentrationEffectBuffs,
       S.enthusiasmBuffs,
       S.fullPowerChargeBuffs,
     ];

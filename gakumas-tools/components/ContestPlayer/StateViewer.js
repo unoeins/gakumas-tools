@@ -19,6 +19,7 @@ function StateViewer({ state, idolId, plan }) {
     {name: "concentration", type: "number"},
     {name: "goodConditionTurnsBuffs", type: "buffs"},
     {name: "concentrationBuffs", type: "buffs"},
+    {name: "concentrationEffectBuffs", type: "buffs"},
   ];
 
   const LOGIC_FIELDS = [

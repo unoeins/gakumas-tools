@@ -173,6 +173,7 @@ export const ALL_FIELDS = [
   "goodImpressionTurnsBuffs",
   "goodImpressionTurnsEffectBuffs",
   "concentrationBuffs",
+  "concentrationEffectBuffs",
   "goodConditionTurns",
   "goodConditionTurnsMultiplier",
   "goodConditionTurnsBuffs",
@@ -231,6 +232,7 @@ export const ALL_FIELDS = [
   "holidayCardsUsed",
   "onigiriCardsUsed",
   "koeteCardsUsed",
+  "kyakkouCardsUsed",
   "nullifySelect",
 
   // Delta
@@ -337,6 +339,7 @@ export const DEBUFF_FIELDS = [
 export const DEBUFF_SPECIAL_ACTIONS = [
   "setScoreDebuff",
   "decreaseFullPowerCharge",
+  "decreaseGoodConditionTurns",
 ];
 
 export const INCREASE_TRIGGER_FIELDS = [
