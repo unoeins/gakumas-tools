@@ -151,6 +151,7 @@ export default class CardManager extends EngineComponent {
     state[S.onigiriCardsUsed] = 0;
     state[S.koeteCardsUsed] = 0;
     state[S.kyakkouCardsUsed] = [];
+    state[S.stageItemCount] = 0;
   }
 
   changeIdol(state) {
