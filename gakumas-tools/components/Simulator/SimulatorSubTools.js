@@ -3,11 +3,12 @@ import { useTranslations } from "next-intl";
 import CostRanges from "@/components/CostRanges";
 import LoadoutHistory from "@/components/LoadoutHistory";
 import DefaultCards from "@/components/DefaultCards";
+import SimulatorExtensions from "@/components/SimulatorExtensions";
 import LoadoutHistoryContext from "@/contexts/LoadoutHistoryContext";
 import c from "@/utils/classNames";
 import styles from "./Simulator.module.scss";
 
-function SimulatorSubTools({ defaultCardIds }) {
+function SimulatorSubTools({ config, idolId, mode, listenerConfig, setListenerConfig }) {
   const t = useTranslations("SimulatorSubTools");
 
   const { loadoutHistory } = useContext(LoadoutHistoryContext);
@@ -33,18 +34,31 @@ function SimulatorSubTools({ defaultCardIds }) {
         </button>
 
         <button
-          disabled={!defaultCardIds.length}
-          className={c(!defaultCardIds.length && styles.disabled)}
+          disabled={!config.defaultCardIds.length}
+          className={c(!config.defaultCardIds.length && styles.disabled)}
           onClick={() => toggleSubTool("defaultCards")}
         >
           {t("defaultCards")}
+        </button>
+
+        <button onClick={() => toggleSubTool("extensions")}>
+          {t("extensions")}
         </button>
       </div>
 
       {activeSubTool == "costRanges" && <CostRanges />}
       {activeSubTool == "history" && <LoadoutHistory />}
-      {activeSubTool == "defaultCards" && defaultCardIds && (
-        <DefaultCards skillCardIds={defaultCardIds} />
+      {activeSubTool == "defaultCards" && config.defaultCardIds && (
+        <DefaultCards skillCardIds={config.defaultCardIds} />
+      )}
+      {activeSubTool == "extensions" && (
+        <SimulatorExtensions
+          mode={mode}
+          config={config}
+          idolId={idolId}
+          listenerConfig={listenerConfig}
+          setListenerConfig={setListenerConfig}
+        />
       )}
     </>
   );

@@ -43,6 +43,10 @@
     "contestPlayer": {
       "title": "竞技场玩家",
       "description": "创建竞技场编成、实际进行竞技场比赛并确认操作"
+    },
+    "estimator": {
+      "title": "最优属性计算器",
+      "description": "根据模拟器得分估算最优属性分布"
     }
   },
   "NavbarMenu": {
@@ -252,7 +256,8 @@
   "SimulatorSubTools": {
     "costRanges": "容量范围",
     "history": "历史记录 β",
-    "defaultCards": "基本卡组"
+    "defaultCards": "基本卡组",
+    "extensions": "扩展功能"
   },
   "CostRanges": {
     "rank": "评级",
@@ -262,7 +267,12 @@
   "SimulatorButtons": {
     "confirm": "您确定要清除配置吗？",
     "clear": "清除",
-    "manageLoadouts": "保存/加载 β"
+    "manageLoadouts": "保存/加载 β",
+    "readLoadoutFromUrl": "URL 读取",
+    "invalidUrl": "无效的 URL。",
+    "invalidLoadout": "无法从 URL 读取配置。",
+    "clipboardError": "无法读取剪贴板内容。",
+    "confirmSetLoadout": "是否从剪贴板 URL 设置配置？"
   },
   "ConfirmModal": {
     "cancel": "取消",
@@ -379,6 +389,38 @@
   },
   "KofiAd": {
     "prompt": "支持这个项目"
+  },
+  "SimulatorExtensions": {
+    "enableSkillCardOrder": "Specify skill card order and turn order",
+    "enableUseStats": "Count skill card usage",
+    "enableConditionalUseStats": "Count skill card usage when a specific skill card is drawn",
+    "enablePriorityStats": "Count skill card priority usage"
+  },
+  "SkillCardOrderGroups": {
+    "Nth_order": "{n}th Card Order",
+    "removed_card_order_header": "If the specified card was removed:",
+    "removed_card_random": "Insert another random card",
+    "removed_card_skip": "Skip card insertion",
+    "clearOrders": "Clear card and turn order",
+    "confirmClearOrders": "Are you sure you want to clear the card and turn order?"
+  },
+  "TurnTypeOrder": {
+    "turn_type_order": "Turn Type Order"
+  },
+  "SimulatorUseStats": {
+    "useStats": "Skill Card Usage Count",
+    "turn": "Turn {turn}",
+    "total": "Total",
+    "sortByRatio": "Sort by usage ratio when skill card is drawn"
+  },
+  "SimulatorConditionalUseStats": {
+    "conditionalUseStats": "Skill Card Usage Count When Specific Card Is Drawn",
+    "turn": "Turn {turn}",
+    "sortByRatio": "Sort by usage ratio when skill card is drawn"
+  },
+  "SimulatorPriorityStats": {
+    "priorityStats": "Skill Card Priority Usage Count",
+    "turn": "Turn {turn}"
   },
   "ContestPlayer": {
     "startStage": "开始",

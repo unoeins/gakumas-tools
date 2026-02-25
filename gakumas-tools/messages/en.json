@@ -43,6 +43,10 @@
     "contestPlayer": {
       "title": "Contest Player",
       "description": "Create contest loadouts, actually play contests"
+    },
+    "estimator": {
+      "title": "Parameter Optimizer",
+      "description": "Estimate optimal parameter distribution from simulator scores"
     }
   },
   "NavbarMenu": {
@@ -205,11 +209,7 @@
     "provideData": "Provide data",
     "lastUpdated": "Last updated",
     "start": "Start",
-    "restart": "Restart",
-    "enableSkillCardOrder": "Specify skill card order and turn order",
-    "enableUseStats": "Count skill card usage",
-    "enableConditionalUseStats": "Count skill card usage when a specific skill card is drawn",
-    "enablePriorityStats": "Count skill card priority usage"
+    "restart": "Restart"
   },
   "StrategyPicker": {
     "auto": "Auto",
@@ -256,7 +256,8 @@
   "SimulatorSubTools": {
     "costRanges": "Cost ranges",
     "history": "History β",
-    "defaultCards": "Default cards"
+    "defaultCards": "Default cards",
+    "extensions": "Extensions"
   },
   "CostRanges": {
     "rank": "Rank",
@@ -389,6 +390,12 @@
   },
   "KofiAd": {
     "prompt": "Support this project"
+  },
+  "SimulatorExtensions": {
+    "enableSkillCardOrder": "Specify skill card order and turn order",
+    "enableUseStats": "Count skill card usage",
+    "enableConditionalUseStats": "Count skill card usage when a specific skill card is drawn",
+    "enablePriorityStats": "Count skill card priority usage"
   },
   "SkillCardOrderGroups": {
     "Nth_order": "{n}th Card Order",

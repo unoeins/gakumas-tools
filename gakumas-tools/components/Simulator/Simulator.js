@@ -39,7 +39,6 @@ import { bucketScores, getMedianScore, mergeResults } from "@/utils/simulator";
 import ManualPlay from "./ManualPlay";
 import SimulatorButtons from "./SimulatorButtons";
 import SimulatorSubTools from "./SimulatorSubTools";
-import SkillCardAndTurnTypeOrder from "@/components/SkillCardOrderGroups/SkillCardAndTurnTypeOrder";
 import styles from "./Simulator.module.scss";
 
 const LINK_PHASES = ["OP", "MID", "ED"];
@@ -56,7 +55,6 @@ export default function Simulator() {
     setLoadout,
     currentLoadoutIndex,
     setCurrentLoadoutIndex,
-    setEnableSkillCardOrder,
   } = useContext(LoadoutContext);
   const { pushLoadoutHistory, pushLoadoutsHistory } = useContext(
     LoadoutHistoryContext
@@ -295,7 +293,13 @@ export default function Simulator() {
           />
         )}
 
-        <SimulatorSubTools defaultCardIds={config.defaultCardIds} />
+        <SimulatorSubTools
+          mode={"simulator"}
+          config={config}
+          idolId={config.idol.idolId || idolId}
+          listenerConfig={listenerConfig}
+          setListenerConfig={setListenerConfig}
+        />
 
         <StrategyPicker
           strategy={strategy}
@@ -329,49 +333,7 @@ export default function Simulator() {
           </Button>
         )}
         <SimulatorButtons />
-        <div className={styles.skillCardOrderToggle}>
-          <input
-            type="checkbox"
-            id="enableSkillCardOrder"
-            checked={loadout.enableSkillCardOrder}
-            onChange={(e) => setEnableSkillCardOrder(e.target.checked)}
-          />
-          <label htmlFor="enableSkillCardOrder">{t("enableSkillCardOrder")}</label>
-        </div>
-        {loadout.enableSkillCardOrder && (
-          <SkillCardAndTurnTypeOrder
-            config={config}
-            idolId={config.idol.idolId || idolId}
-            defaultCardIds={config.defaultCardIds}
-          />
-        )}
-        <div className={styles.useStatsToggle}>
-          <input
-            type="checkbox"
-            id="enableUseStats"
-            checked={listenerConfig.enableUseStats}
-            onChange={(e) => setListenerConfig({ ...listenerConfig, enableUseStats: e.target.checked })}
-          />
-          <label htmlFor="enableUseStats">{t("enableUseStats")}</label>
-        </div>
-        <div className={styles.conditionalUseStatsToggle}>
-          <input
-            type="checkbox"
-            id="enableConditionalUseStats"
-            checked={listenerConfig.enableConditionalUseStats}
-            onChange={(e) => setListenerConfig({ ...listenerConfig, enableConditionalUseStats: e.target.checked })}
-          />
-          <label htmlFor="enableConditionalUseStats">{t("enableConditionalUseStats")}</label>
-        </div>
-        {/* <div className={styles.priorityStatsToggle}>
-          <input
-            type="checkbox"
-            id="enablePriorityStats"
-            checked={listenerConfig.enablePriorityStats}
-            onChange={(e) => setListenerConfig({ ...listenerConfig, enablePriorityStats: e.target.checked })}
-          />
-          <label htmlFor="enablePriorityStats">{t("enablePriorityStats")}</label>
-        </div> */}
+
         <div className={styles.subLinks}>
             {/* <KofiAd /> */}
           <div/>

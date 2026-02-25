@@ -45,7 +45,7 @@
       "description": "コンテスト編成を作成、実際にコンテストをプレイし、動作を確認する"
     },
     "estimator": {
-      "title": "最適パラメータ推定機",
+      "title": "最適パラメータ計算機",
       "description": "シミュレーターの獲得スコアから最適なパラメータ配分を推定する"
     }
   },
@@ -209,11 +209,7 @@
     "provideData": "データを提供する",
     "lastUpdated": "最終更新",
     "start": "開始",
-    "restart": "再開",
-    "enableSkillCardOrder": "スキルカード順、ターン順を指定する",
-    "enableUseStats": "スキルカード使用回数を集計する",
-    "enableConditionalUseStats": "特定のスキルカードを引いた時の条件付き使用回数を集計する",
-    "enablePriorityStats": "スキルカード優先使用回数を集計する"
+    "restart": "再開"
   },
   "StrategyPicker": {
     "auto": "自動",
@@ -260,7 +256,8 @@
   "SimulatorSubTools": {
     "costRanges": "コスト範囲",
     "history": "履歴β",
-    "defaultCards": "基本カード"
+    "defaultCards": "基本カード",
+    "extensions": "拡張機能"
   },
   "CostRanges": {
     "rank": "ランク",
@@ -396,6 +393,12 @@
   },
   "KofiAd": {
     "prompt": "このプロジェクトを支援する"
+  },
+  "SimulatorExtensions": {
+    "enableSkillCardOrder": "スキルカード順、ターン順を指定する",
+    "enableUseStats": "スキルカード使用回数を集計する",
+    "enableConditionalUseStats": "特定のスキルカードを引いた時の条件付き使用回数を集計する",
+    "enablePriorityStats": "スキルカード優先使用回数を集計する"
   },
   "SkillCardOrderGroups": {
     "Nth_order": "{n}週目のカード順",

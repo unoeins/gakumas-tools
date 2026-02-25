@@ -43,6 +43,10 @@
     "contestPlayer": {
       "title": "콘테스트 플레이어",
       "description": "콘테스트 편성 생성, 실제 콘테스트 플레이 및 동작 확인"
+    },
+    "estimator": {
+      "title": "최적 패러미터 계산기",
+      "description": "시뮬레이터의 스코어로부터 최적의 패러미터 분포를 추정합니다."
     }
   },
   "NavbarMenu": {
@@ -252,7 +256,8 @@
   "SimulatorSubTools": {
     "costRanges": "코스트 범위",
     "history": "내역 β",
-    "defaultCards": "기본 카드"
+    "defaultCards": "기본 카드",
+    "extensions": "확장 기능"
   },
   "CostRanges": {
     "rank": "랭크",
@@ -262,7 +267,12 @@
   "SimulatorButtons": {
     "confirm": "편성을 초기화할까요?",
     "clear": "초기화",
-    "manageLoadouts": "저장 및 불러오기 β"
+    "manageLoadouts": "저장 및 불러오기 β",
+    "readLoadoutFromUrl": "URL 로드",
+    "invalidUrl": "유효하지 않은 URL입니다.",
+    "invalidLoadout": "URL에서 편성을 불러올 수 없습니다.",
+    "clipboardError": "클립보드를 읽을 수 없습니다.",
+    "confirmSetLoadout": "클립보드의 URL에서 편성을 설정할까요?"
   },
   "ConfirmModal": {
     "cancel": "취소",
@@ -379,6 +389,38 @@
   },
   "KofiAd": {
     "prompt": "이 프로젝트 후원하기"
+  },
+  "SimulatorExtensions": {
+    "enableSkillCardOrder": "Specify skill card order and turn order",
+    "enableUseStats": "Count skill card usage",
+    "enableConditionalUseStats": "Count skill card usage when a specific skill card is drawn",
+    "enablePriorityStats": "Count skill card priority usage"
+  },
+  "SkillCardOrderGroups": {
+    "Nth_order": "{n}th Card Order",
+    "removed_card_order_header": "If the specified card was removed:",
+    "removed_card_random": "Insert another random card",
+    "removed_card_skip": "Skip card insertion",
+    "clearOrders": "Clear card and turn order",
+    "confirmClearOrders": "Are you sure you want to clear the card and turn order?"
+  },
+  "TurnTypeOrder": {
+    "turn_type_order": "Turn Type Order"
+  },
+  "SimulatorUseStats": {
+    "useStats": "Skill Card Usage Count",
+    "turn": "Turn {turn}",
+    "total": "Total",
+    "sortByRatio": "Sort by usage ratio when skill card is drawn"
+  },
+  "SimulatorConditionalUseStats": {
+    "conditionalUseStats": "Skill Card Usage Count When Specific Card Is Drawn",
+    "turn": "Turn {turn}",
+    "sortByRatio": "Sort by usage ratio when skill card is drawn"
+  },
+  "SimulatorPriorityStats": {
+    "priorityStats": "Skill Card Priority Usage Count",
+    "turn": "Turn {turn}"
   },
   "ContestPlayer": {
     "startStage": "시작",

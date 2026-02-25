@@ -41,7 +41,6 @@ import TurnTypeViewer from "./TurnTypeViewer";
 import StateViewer from "./StateViewer";
 import EntitiesViewer from "./EntitiesViewer";
 import HoldCardPickerModal from "./HoldCardPickerModal";
-import SkillCardAndTurnTypeOrder from "@/components/SkillCardOrderGroups/SkillCardAndTurnTypeOrder";
 import styles from "./ContestPlayer.module.scss";
 
 const LINK_PHASES = ["OP", "MID", "ED"];
@@ -59,7 +58,6 @@ export default function ContestPlayer() {
     setLoadout,
     currentLoadoutIndex,
     setCurrentLoadoutIndex,
-    setEnableSkillCardOrder,
   } = useContext(LoadoutContext);
   const { pushLoadoutHistory, pushLoadoutsHistory } = useContext(
     LoadoutHistoryContext
@@ -377,33 +375,17 @@ export default function ContestPlayer() {
           />
         )}
 
-        <SimulatorSubTools defaultCardIds={config.defaultCardIds} />
+        <SimulatorSubTools
+          mode={"contestPlayer"}
+          config={config}
+          idolId={config.idol.idolId || idolId}
+        />
 
         <Button style="blue" onClick={startStage}>
           {!running ? t2("startStage") : t2("restartStage")}
         </Button>
         <SimulatorButtons />
-        <div className={styles.skillCardOrderToggle}>
-          <input
-            type="checkbox"
-            id="enableSkillCardOrder"
-            checked={loadout.enableSkillCardOrder}
-            onChange={(e) => setEnableSkillCardOrder(e.target.checked)}
-          />
-          <label htmlFor="enableSkillCardOrder">{t("enableSkillCardOrder")}</label>
-        </div>
-        {loadout.enableSkillCardOrder && (
-          <>
-            <SkillCardAndTurnTypeOrder
-              config={config}
-              idolId={config.idol.idolId || idolId}
-              defaultCardIds={config.defaultCardIds}
-            />
-            <Button style="blue" onClick={startStage}>
-              {!running ? t2("startStage") : t2("restartStage")}
-            </Button>
-          </>
-        )}
+
         {getState() && (
           <div className={styles.playArea}>
             {/* <TurnTypeViewer
