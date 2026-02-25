@@ -198,6 +198,7 @@ export const ALL_FIELDS = [
   "preservationTimes",
   "leisureTimes",
   "fullPowerTimes",
+  "stanceChangedByCardTimes",
   "freshBuffs",
 
   // Cards
