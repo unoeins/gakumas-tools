@@ -222,7 +222,7 @@ export default function Simulator() {
   return (
     <div id="simulator_loadout" className={styles.loadoutEditor}>
       <div className={styles.configurator}>
-        <div>{t("multiplierNote")}</div>
+        {/* <div>{t("multiplierNote")}</div> */}
         {stage.preview && <div>{t("previewNote")}</div>}
         <StageSelect />
         {stage.type !== "contest" ? (
