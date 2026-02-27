@@ -391,3 +391,7 @@ id,name,rarity,upgraded,plan,mode,sourceType,pIdolId,welfare,effects
 390,最初の鳥,SSR,FALSE,logic,stage,pIdol,126,FALSE,"at:turn,if:turnsElapsed%2==1,if:genki>=30,do:fixedStamina+=1,do:score+=genki*0.2*countCards(removed\757)"
 391,最初の鳥+,SSR,TRUE,logic,stage,pIdol,126,FALSE,"at:turn,if:turnsElapsed%2==1,if:genki>=30,do:fixedStamina+=2,do:score+=genki*0.25*countCards(removed\757)"
 392,幸せの詰め合わせ,SR,FALSE,logic,produce,support,,FALSE,
+393,知らない世界へ,SSR,FALSE,sense,stage,pIdol,127,FALSE,"at:cardUsed,if:cardEffects&concentration,do:siranaiCardsUsed+=1;at:cardUsed,if:cardEffects&concentration,if:siranaiCardsUsed%3==2,do:concentration+=countCards(removed)*0.5"
+394,知らない世界へ+,SSR,TRUE,sense,stage,pIdol,127,FALSE,"at:cardUsed,if:cardEffects&concentration,do:siranaiCardsUsed+=1;at:cardUsed,if:cardEffects&concentration,if:siranaiCardsUsed%3==2,do:concentration+=countCards(removed)*0.5,do:genki+=2"
+395,箱庭のバラ,SSR,FALSE,logic,stage,pIdol,128,FALSE,"at:afterMentalCardUsed,if:goodImpressionTurns>=6,do:genki+=4,do:goodImpressionTurns+=1,limit:2"
+396,箱庭のバラ+,SSR,TRUE,logic,stage,pIdol,128,FALSE,"at:afterMentalCardUsed,if:goodImpressionTurns>=6,do:genki+=4,do:goodImpressionTurns+=2,limit:2"

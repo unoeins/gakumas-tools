@@ -234,6 +234,7 @@ export const ALL_FIELDS = [
   "onigiriCardsUsed",
   "koeteCardsUsed",
   "kyakkouCardsUsed",
+  "siranaiCardsUsed",
   "stageItemCount",
   "nullifySelect",
 
