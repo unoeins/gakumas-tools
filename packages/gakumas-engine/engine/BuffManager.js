@@ -113,12 +113,6 @@ export default class BuffManager extends EngineComponent {
           state[S.fullPowerCharge] - parseInt(amount, 10)
         );
       },
-      decreaseGoodConditionTurns: (state, amount) => {
-        state[S.goodConditionTurns] = Math.max(
-          0,
-          state[S.goodConditionTurns] - parseInt(amount, 10)
-        );
-      },
       setCounter: (state, counterName) => {
         let counters = state[S[counterName]];
         if (!counters) {

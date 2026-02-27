@@ -345,7 +345,6 @@ export const DEBUFF_FIELDS = [
 export const DEBUFF_SPECIAL_ACTIONS = [
   "setScoreDebuff",
   "decreaseFullPowerCharge",
-  "decreaseGoodConditionTurns",
 ];
 
 export const INCREASE_TRIGGER_FIELDS = [
