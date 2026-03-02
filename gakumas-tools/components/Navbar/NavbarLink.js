@@ -8,6 +8,7 @@ function NavbarLink({ icon, path, title, active }) {
       className={`${styles.link} ${active ? styles.active : ""}`}
       href={`${path}`}
       aria-label={title}
+      prefetch={false}
     >
       {icon}
     </Link>

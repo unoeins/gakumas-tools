@@ -11,7 +11,11 @@ function ToolsList() {
     <ul className={styles.toolsGrid}>
       {Object.keys(TOOLS).map((key) => (
         <li key={key}>
-          <Link className={styles.toolCard} href={TOOLS[key].path}>
+          <Link
+            className={styles.toolCard}
+            href={TOOLS[key].path}
+            prefetch={false}
+          >
             <span className={styles.toolIcon}>{TOOLS[key].icon}</span>
             <div className={styles.toolInfo}>
               <span className={styles.toolTitle}>{t(`${key}.title`)}</span>

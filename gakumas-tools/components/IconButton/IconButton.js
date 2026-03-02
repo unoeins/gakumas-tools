@@ -17,6 +17,7 @@ function IconButton({ icon: Icon, onClick, href, disabled, size = "medium" }) {
       target="_blank"
       onClick={onClick}
       disabled={disabled}
+      prefetch={false}
     >
       <Icon />
     </Link>

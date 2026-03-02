@@ -31,6 +31,7 @@ function Button({
       disabled={disabled}
       aria-label={ariaLabel}
       locale={locale}
+      prefetch={false}
     >
       {children}
     </Link>

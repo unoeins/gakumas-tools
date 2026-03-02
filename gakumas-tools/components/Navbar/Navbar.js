@@ -17,7 +17,7 @@ function Navbar() {
   return (
     <>
       <nav className={c(styles.navbar)}>
-        <Link href="/">
+        <Link href="/" prefetch={false}>
           <h1>Gakumas Tools</h1>
         </Link>
 

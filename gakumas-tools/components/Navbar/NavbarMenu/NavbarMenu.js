@@ -57,7 +57,7 @@ function NavbarMenu() {
             </div>
           )}
 
-          <Link href="/">{t("home")}</Link>
+          <Link href="/" prefetch={false}>{t("home")}</Link>
 
           <a href="https://wikiwiki.jp/gakumas/" target="_blank">
             {t("gakumasContestWiki")}
@@ -104,22 +104,22 @@ function NavbarMenu() {
           </div>
 
           {locale != "en" && (
-            <Link href={pathname} locale="en">
+            <Link href={pathname} locale="en" prefetch={false}>
               English
             </Link>
           )}
           {locale != "ja" && (
-            <Link href={pathname} locale="ja">
+            <Link href={pathname} locale="ja" prefetch={false}>
               日本語
             </Link>
           )}
           {locale != "zh-Hans" && (
-            <Link href={pathname} locale="zh-Hans">
+            <Link href={pathname} locale="zh-Hans" prefetch={false}>
               简体中文
             </Link>
           )}
           {locale != "ko" && (
-            <Link href={pathname} locale="ko">
+            <Link href={pathname} locale="ko" prefetch={false}>
               한국어
             </Link>
           )}
