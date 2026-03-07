@@ -394,6 +394,8 @@ import image_393 from "./393.png";
 import image_394 from "./394.png";
 import image_395 from "./395.png";
 import image_396 from "./396.png";
+import image_397 from "./397.png";
+import image_398 from "./398.png";
 
 const IMAGES = {
   '1': image_1,
@@ -792,6 +794,8 @@ const IMAGES = {
   '394': image_394,
   '395': image_395,
   '396': image_396,
+  '397': image_397,
+  '398': image_398,
 };
 
 export default IMAGES;

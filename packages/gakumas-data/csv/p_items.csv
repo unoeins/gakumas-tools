@@ -378,10 +378,10 @@ id,name,rarity,upgraded,plan,mode,sourceType,pIdolId,welfare,effects
 377,ガラスはつみ (黒),SSR,FALSE,anomaly,stage,produce,,FALSE,"at:startOfStage,if:countCards(all)-countCards(N)-countCards(T)>=21,target:effect(fullPowerCharge),do:g.score+=10;at:startOfStage,if:countCards(all)-countCards(N)-countCards(T)>=21,do:removeBasicCard"
 378,だから、おいで,SSR,FALSE,logic,stage,pIdol,122,FALSE,"at:startOfTurn,if:goodImpressionTurns>=6,do:goodImpressionTurns+=10,do:setScoreDebuff(0.6,2),limit:1;at:startOfTurn,if:goodImpressionTurns>=6,limit:1;at:mentalCardUsed,do:motivation+=1,limit:5"
 379,だから、おいで+,SSR,TRUE,logic,stage,pIdol,122,FALSE,"at:startOfTurn,if:goodImpressionTurns>=6,do:goodImpressionTurns+=13,do:setScoreDebuff(0.6,2),limit:1;at:startOfTurn,if:goodImpressionTurns>=6,limit:1;at:mentalCardUsed,do:motivation+=1,limit:5"
-380,ぴったりコレクション,SSR,FALSE,sense,stage,support,,TRUE,"at:activeCardUsed,if:isVisualTurn,if:goodConditionTurns>=3,do:concentration+=2,do:score+=4,limit:1"
+380,ぴったしコレクション,SSR,FALSE,sense,stage,support,,TRUE,"at:activeCardUsed,if:isVisualTurn,if:goodConditionTurns>=3,do:concentration+=2,do:score+=4,limit:1"
 381,憧れのはじまり,SSR,FALSE,anomaly,stage,pIdol,123,FALSE,"at:stanceChanged,if:isFullPower,do:nullifyCostActiveCards+=1,limit:3;at:stanceChanged,if:isFullPower,target:mental,do:g.genki+=4,limit:2"
 382,憧れのはじまり+,SSR,TRUE,anomaly,stage,pIdol,123,FALSE,"at:stanceChanged,if:isFullPower,do:nullifyCostActiveCards+=1,limit:3;at:stanceChanged,if:isFullPower,target:mental,do:g.genki+=5,limit:3"
-383,そっくりワンマン,SR,FALSE,anomaly,produce,support,,FALSE,
+383,そっくりワンワン,SR,FALSE,anomaly,produce,support,,FALSE,
 384,ひろがる未来へ,SSR,FALSE,sense,stage,pIdol,124,FALSE,"at:buffCostConsumed,if:goodConditionTurns>=3,do:concentration+=2,do:goodConditionTurns-=1;at:buffCostConsumed,if:goodConditionTurns>=3;at:turn,do:drawCard,limit:1;"
 385,ひろがる未来へ+,SSR,TRUE,sense,stage,pIdol,124,FALSE,"at:buffCostConsumed,if:goodConditionTurns>=3,do:concentration+=2,do:goodConditionTurns-=1;at:buffCostConsumed,if:goodConditionTurns>=3;at:turn,do:drawCard,do:drawCard,limit:1;"
 386,みちなるシグナル,SSR,FALSE,logic,stage,pIdol,125,FALSE,"at:startOfStage,do:genki+=7,do:motivation+=4,do:fixedStamina-=maxStamina*0.8,limit:1;at:buffCostConsumed,do:fixedStamina+=maxStamina*0.2,do:setGoodImpressionTurnsEffectBuff(0.1)"
@@ -395,3 +395,5 @@ id,name,rarity,upgraded,plan,mode,sourceType,pIdolId,welfare,effects
 394,知らない世界へ+,SSR,TRUE,sense,stage,pIdol,127,FALSE,"at:cardUsed,if:cardEffects&concentration,do:siranaiCardsUsed+=1;at:cardUsed,if:cardEffects&concentration,if:siranaiCardsUsed%3==2,do:concentration+=countCards(removed)*0.5,do:genki+=2"
 395,箱庭のバラ,SSR,FALSE,logic,stage,pIdol,128,FALSE,"at:afterMentalCardUsed,if:goodImpressionTurns>=6,do:genki+=4,do:goodImpressionTurns+=1,limit:2"
 396,箱庭のバラ+,SSR,TRUE,logic,stage,pIdol,128,FALSE,"at:afterMentalCardUsed,if:goodImpressionTurns>=6,do:genki+=4,do:goodImpressionTurns+=2,limit:2"
+397,花海メモリアル,SSR,FALSE,sense,produce,support,,FALSE,
+398,お洗濯の必需品,SR,FALSE,sense,produce,support,,FALSE,
