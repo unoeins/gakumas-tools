@@ -313,6 +313,9 @@ export default class Executor extends EngineComponent {
           console.warn(`Unresolved intermediate: ${intermediateField}`);
         }
       } else {
+        if (lhs == "genki" && state[S[lhs]] > intermediate) {
+          state[S.consumedGenki] += state[S[lhs]] - Math.ceil(intermediate);
+        }
         state[S[lhs]] = intermediate;
       }
 
@@ -401,7 +404,10 @@ export default class Executor extends EngineComponent {
     if (state[S.genki] < 0) {
       state[S.stamina] += state[S.genki];
       state[S.consumedStamina] -= state[S.genki];
+      state[S.consumedGenki] -= cost - state[S.genki];
       state[S.genki] = 0;
+    } else {
+      state[S.consumedGenki] -= cost;
     }
   }
 

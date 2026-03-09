@@ -181,6 +181,7 @@ export default class BuffManager extends EngineComponent {
     state[S.fullPowerTimes] = 0;
     state[S.leisureTimes] = 0;
     state[S.stanceChangedByCardTimes] = 0;
+    state[S.stanceChangedByDirectEffectTimes] = 0;
 
     // Buffs/debuffs protected from decrement
     state[S.freshBuffs] = {};
@@ -382,11 +383,13 @@ export default class BuffManager extends EngineComponent {
         state[S.strengthTimes]++;
       } else if (state[S.stance] == "fullPower") {
         state[S.fullPowerTimes]++;
+        state[S.stanceChangedByDirectEffectTimes]++;
       } else if (state[S.stance] == "leisure") {
         state[S.leisureTimes]++;
       }
       if (state[S.phase] == 'processCard') {
         state[S.stanceChangedByCardTimes]++;
+        state[S.stanceChangedByDirectEffectTimes]++;
       }
     }
   }

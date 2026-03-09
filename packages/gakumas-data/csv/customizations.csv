@@ -34,6 +34,7 @@ id,alias,name,type,price,max,forceInitialHand,conditions,cost,effects,limit,grow
 33,goodImpressionTurnsCost1,好印象コスト値-,cost,40,1,,,,,,"at:prestage,target:this,do:g.typedCost+=1"
 31,goodConditionTurnsCost1,好調コスト値-,cost,40,1,,,,,,"at:prestage,target:this,do:g.typedCost+=1"
 32,concentrationCost1,集中コスト値-,cost,40,1,,,,,,"at:prestage,target:this,do:g.typedCost+=1"
+104,perfectConditionTurnsCost1,絶好調コスト値-,cost,40,1,,,,,,"at:prestage,target:this,do:g.typedCost+=1"
 38,cardUsesRemaining1,スキルカード使用数+,effect,100,1,,,,do:cardUsesRemaining+=1,,
 39,upgradeHand1,スキルカード強化追加,effect,70,1,,,,do:upgradeHand,,
 37,removeLimit1,レッスン中1回の制限削除,effect,40,1,,,,,0,
@@ -58,10 +59,12 @@ id,alias,name,type,price,max,forceInitialHand,conditions,cost,effects,limit,grow
 63,onStrengthGrowThisAdd2,成長追加,effect,"40,70",2,,,,,,"level:1,at:stanceChanged,if:isStrength,target:this,do:g.score+=2;level:2,at:stanceChanged,if:isStrength,target:this,do:g.score+=5"
 86,daydreamingEffect3,持続効果+,effect,"40,40,70",3,,,,"line:2,level:1,at:startOfTurn,do:score+=genki*0.7,limit:4;line:2,level:2,at:startOfTurn,do:score+=genki*0.8,limit:4;line:2,level:3,at:startOfTurn,do:score+=genki*0.95,limit:4",,
 46,kagakimi1,持続効果+,effect,100,1,,,,"line:2,at:cardUsed,do:score+=goodImpressionTurns*0.5,do:goodImpressionTurns+=1",,
+106,kimegaoEffect1,持続効果+,effect,70,1,,,,"line:2,at:goodImpressionTurnsIncreased,if:parentPhase==processCard,do:score+=goodImpressionTurns*1.3,ttl:4",,
 85,daydreamingCondition1,条件変更,effect,70,1,,"line:1,if:genki>=15",,,,
 97,hachikuCondition1,条件変更,effect,70,1,,"line:1,if:goodConditionTurns>=4",,,,
 87,toughnessCondition1,条件変更,effect,70,1,,"line:1,if:preservationTimes>=1",,,,
 88,yumelipEffect1,条件変更,effect,70,1,,,,"line:2,if:goodImpressionTurns>=10",,
+105,kimegaoCondition1,条件変更,effect,70,1,,"line:1,if:goodImpressionTurns>=6",,,,
 41,preservation1,温存+,effect,70,1,,,,,,"at:prestage,target:this,do:g.stanceLevel+=1"
 89,preservationAdd1,温存追加,effect,70,1,,,,do:setStance(preservation),,
 42,preservationNextTurnAdd1,温存追加,effect,70,1,,,,"at:turn,do:setStance(preservation),limit:1",,

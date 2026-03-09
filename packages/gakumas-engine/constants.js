@@ -145,6 +145,7 @@ export const ALL_FIELDS = [
   "stamina",
   "consumedStamina",
   "genki",
+  "consumedGenki",
   "score",
 
   // Turns
@@ -199,6 +200,7 @@ export const ALL_FIELDS = [
   "leisureTimes",
   "fullPowerTimes",
   "stanceChangedByCardTimes",
+  "stanceChangedByDirectEffectTimes",
   "freshBuffs",
 
   // Cards

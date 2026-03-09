@@ -397,6 +397,6 @@ id,name,rarity,upgraded,plan,mode,sourceType,pIdolId,welfare,effects
 396,箱庭のバラ+,SSR,TRUE,logic,stage,pIdol,128,FALSE,"at:afterMentalCardUsed,if:goodImpressionTurns>=6,do:genki+=4,do:goodImpressionTurns+=2,limit:2"
 397,花海メモリアル,SSR,FALSE,sense,produce,support,,FALSE,
 398,お洗濯の必需品,SR,FALSE,sense,produce,support,,FALSE,
-399,ユートピアへの誘い,SSR,FALSE,anomaly,stage,pIdol,129,FALSE,"at:stanceChanged,if:parentPhase==processCard,if:isStrength,if:fullPowerCharge>=5,do:genki+=6,do:fullPowerCharge-=2;at:stanceChanged,if:parentPhase==processCard,if:isStrength,if:fullPowerCharge>=5,target:active,do:g.score+=3;at:stanceChanged,if:parentPhase==processCard,if:isStrength,if:fullPowerCharge>=5;at:turn,do:drawCard,limit:1"
+399,ユートピアへの誘い,SSR,FALSE,anomaly,stage,pIdol,129,FALSE,"at:stanceChanged,if:parentPhase==processCard,if:isStrength,if:fullPowerCharge>=5,do:genki+=4,do:fullPowerCharge-=2;at:stanceChanged,if:parentPhase==processCard,if:isStrength,if:fullPowerCharge>=5,target:active,do:g.score+=3;at:stanceChanged,if:parentPhase==processCard,if:isStrength,if:fullPowerCharge>=5;at:turn,do:drawCard,limit:1"
 400,ユートピアへの誘い+,SSR,TRUE,anomaly,stage,pIdol,129,FALSE,"at:stanceChanged,if:parentPhase==processCard,if:isStrength,if:fullPowerCharge>=5,do:genki+=6,do:fullPowerCharge-=2;at:stanceChanged,if:parentPhase==processCard,if:isStrength,if:fullPowerCharge>=5,target:active,do:g.score+=3;at:stanceChanged,if:parentPhase==processCard,if:isStrength,if:fullPowerCharge>=5;at:turn,do:drawCard,limit:1"
 401,ほくほくハンバーガー,SR,FALSE,anomaly,produce,support,,FALSE,
