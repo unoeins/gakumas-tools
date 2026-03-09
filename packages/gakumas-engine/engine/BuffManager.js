@@ -35,6 +35,14 @@ export default class BuffManager extends EngineComponent {
         // console.log("getCounter", counterName, index, state[S[counterName]]);
         return state[S[counterName]][index];
       },
+      isDirectEffect: (state) => 
+        state[S.parentPhase] == 'processCard' ||
+        state[S.parentPhase] == 'processDrink' ||
+        (
+          state[S.phase] == 'stanceChanged' &&
+          state[S.prevStance] != "fullPower" &&
+          state[S.stance] == "fullPower"
+        ),
     };
 
     this.specialActions = {
@@ -387,7 +395,7 @@ export default class BuffManager extends EngineComponent {
       } else if (state[S.stance] == "leisure") {
         state[S.leisureTimes]++;
       }
-      if (state[S.phase] == 'processCard') {
+      if (state[S.phase] == 'processCard' || state[S.phase] == 'processDrink') {
         state[S.stanceChangedByCardTimes]++;
         state[S.stanceChangedByDirectEffectTimes]++;
       }

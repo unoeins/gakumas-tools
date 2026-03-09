@@ -115,6 +115,7 @@ export default class EffectManager extends EngineComponent {
     }
 
     state[S.phase] = state[S.parentPhase];
+    delete state[S.parentPhase];
   }
 
   triggerEffects(state, effects, cndState, source, skipConditions, sourceType = EFFECT_SOURCES.SKILL_CARD) {
