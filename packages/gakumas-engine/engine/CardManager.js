@@ -1064,22 +1064,30 @@ export default class CardManager extends EngineComponent {
   }
 
   removeTroubleFromDeckOrDiscards(state) {
-    const troubleCards = state[S.cardMap].filter((c) => c.type == "trouble");
+    const troubleCards = state[S.cardMap].map(
+      (card, index) => ({ ...card, index })
+    ).filter(
+      (card) => SkillCards.getById(card.id)?.type == "trouble"
+    );
     if (!troubleCards.length) return;
+    shuffle(troubleCards);
 
-    const card = troubleCards[Math.floor(Math.random() * troubleCards.length)];
-    let index = state[S.deckCards].indexOf(card);
-    let pile = S.deckCards;
-    if (index == -1) {
-      index = state[S.discardedCards].indexOf(card);
-      pile = S.discardedCards;
-    }
-    if (index != -1) {
-      state[pile].splice(index, 1);
-      this.logger.log(state, "removeCard", {
-        type: "skillCard",
-        id: state[S.cardMap][card].id,
-      });
+    for (let card of troubleCards) {
+      let index = state[S.deckCards].indexOf(card.index);
+      let pile = S.deckCards;
+      if (index == -1) {
+        index = state[S.discardedCards].indexOf(card.index);
+        pile = S.discardedCards;
+      }
+      if (index != -1) {
+        state[pile].splice(index, 1);
+        state[S.removedCards].push(card.index);
+        this.logger.log(state, "removeCard", {
+          type: "skillCard",
+          id: card.id,
+        });
+        break;
+      }
     }
   }
 
