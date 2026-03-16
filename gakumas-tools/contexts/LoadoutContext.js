@@ -588,17 +588,18 @@ export function LoadoutContextProvider({ children }) {
               return true;
             }
           });
+          // console.log("updateStage skillCardIds", skillCardIds);
           setCustomizationGroups((curCustomizations) => {
             let customizations = [].concat(...curCustomizations);
             if (appendLast) {
               customizations.push({});
             }
-            for (const index of removedIndices) {
-              customizations.splice(index, 1);
-            }
+            customizations = customizations.filter((c, i) => {
+              return !removedIndices.includes(i);
+            });
+            // console.log("updateStage customizations", customizations);
             return [customizations];
           });
-          // console.log("updateStage skillCardIds", skillCardIds);
           setSkillCardIdOrderGroups((curGroups) => {
             let updatedGroups = curGroups.map((group) => {
               if (group.length > skillCardIds.length - 1) {

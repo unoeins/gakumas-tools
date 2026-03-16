@@ -336,7 +336,7 @@ export function mergeResults(results) {
   const graphDatas = results.map((result) => result.graphData);
   const mergedGraphData = mergeGraphDatas(graphDatas);
 
-  console.log("Merging results", results);
+  // console.log("Merging results", results);
   const listenerDatas = results.map((result) => result.listenerData);
   const mergedListenerData = mergeListenerDatas(listenerDatas);
 
@@ -378,11 +378,11 @@ export function mergeGraphDatas(graphDatas) {
 }
 
 export function mergeListenerDatas(listenerDatas) {
-  console.log("Merging listener data", listenerDatas);
+  // console.log("Merging listener data", listenerDatas);
   let mergedListenerData = {};
   for (let key of LISTENER_KEYS) {
     const datas = listenerDatas.map((data) => data[key]).filter((d) => d);
-    console.log("datas", datas);
+    // console.log("datas", datas);
     if (datas.length == 0) continue;
     switch (key) {
       case "UseStats":

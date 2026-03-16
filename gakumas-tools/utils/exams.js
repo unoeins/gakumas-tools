@@ -816,7 +816,7 @@ export function getExamStage(stageId, pIdolId) {
         examStage.turnCounts = { vocal: turnCounts[0], dance: turnCounts[1], visual: turnCounts[2] };
       }
     }
-    console.log("examStage:", examStage);
+    // console.log("examStage:", examStage);
     return examStage;
   } else {
     return stage;
