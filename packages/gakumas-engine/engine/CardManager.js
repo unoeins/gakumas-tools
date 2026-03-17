@@ -432,7 +432,7 @@ export default class CardManager extends EngineComponent {
     // Apply card effects
     const effects = this.getLines(state, card, "effects");
     state[S.phase] = "processCard";
-    if (state[S.doubleCardEffectCards]) {
+    if (state[S.doubleCardEffectCards] && skillCard.rarity != "L") {
       state[S.doubleCardEffectCards]--;
       this.engine.effectManager.triggerEffects(state, effects, null, card);
     }

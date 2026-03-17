@@ -264,10 +264,7 @@ export default function ContestPlayer() {
       // Apply card effects
       const effects = engine.cardManager.getLines(previewState, card, "effects");
       previewState[S.phase] = "processCard";
-      // if (previewState[S.doubleCardEffectCards]) {
-      //   previewState[S.doubleCardEffectCards]--;
-      //   engine.effectManager.triggerEffects(previewState, effects, null, card);
-      // }
+
       engine.effectManager.triggerEffects(previewState, effects, null, card);
       delete previewState[S.phase];
       engine.strategy.pickCardsToHold = tempPickCardsToHold;
