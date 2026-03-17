@@ -1,7 +1,6 @@
 import { Suspense } from "react";
 import { Inter } from "next/font/google";
 import { GoogleAnalytics } from "@next/third-parties/google";
-import { Analytics } from "@vercel/analytics/next";
 import { getServerSession } from "next-auth";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
@@ -87,7 +86,6 @@ export default async function RootLayout({ params, children }) {
             </WorkspaceContextProvider>
           </NextIntlClientProvider>
         </SessionContextProvider>
-        <Analytics />
       </body>
       <GoogleAnalytics gaId={GA_ID} />
     </html>
