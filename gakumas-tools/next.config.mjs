@@ -14,7 +14,7 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "gkimg.ris.moe",
+        hostname: "gkimg.unoeins.org",
         port: "",
       },
     ],

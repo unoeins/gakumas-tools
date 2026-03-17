@@ -6,8 +6,8 @@ const JSON_LD = {
   "@context": "https://schema.org",
   "@type": "WebSite",
   name: "Gakumas Tools",
-  alternateName: "gktools.ris.moe",
-  url: "https://gktools.ris.moe/",
+  alternateName: "gktools.unoeins.org",
+  url: "https://gktools.unoeins.org/",
 };
 
 export async function generateMetadata({ params }) {

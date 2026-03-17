@@ -24,7 +24,7 @@ const DEFAULTS = {
   removedCardOrder: "0",
 };
 
-const SIMULATOR_BASE_URL = "https://gktools.ris.moe/simulator";
+const SIMULATOR_BASE_URL = "https://gktools.unoeins.org/simulator";
 
 export function getSimulatorUrl(loadout, loadouts) {
   if (loadout.stageId === "custom") return null;
