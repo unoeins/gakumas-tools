@@ -188,7 +188,13 @@ export default class TurnManager extends EngineComponent {
     this.engine.effectManager.triggerEffectsForPhase(state, "endOfTurn");
 
     // Good impression
-    this.engine.effectManager.triggerEffects(state, GOOD_IMPRESSION_EFFECTS);
+    const goodImpressionTurnsEffectTimes = state[S.goodImpressionTurnsEffectAdditions].reduce(
+      (acc, cur) => acc + cur.amount,
+      1
+    );
+    for (let i = 0; i < goodImpressionTurnsEffectTimes; i++) {
+      this.engine.effectManager.triggerEffects(state, GOOD_IMPRESSION_EFFECTS);
+    }
 
     // Decrement buff turns
     this.engine.buffManager.decrementBuffTurns(state);

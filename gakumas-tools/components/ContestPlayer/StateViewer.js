@@ -28,6 +28,7 @@ function StateViewer({ state, idolId, plan }) {
     {name: "prideTurns", type: "number"},
     {name: "goodImpressionTurnsBuffs", type: "buffs"},
     {name: "goodImpressionTurnsEffectBuffs", type: "buffs"},
+    {name: "goodImpressionTurnsEffectAdditions", type: "buffs"},
     {name: "motivationBuffs", type: "buffs"},
   ];
 

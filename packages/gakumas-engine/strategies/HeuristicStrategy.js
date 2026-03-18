@@ -287,6 +287,15 @@ export default class HeuristicStrategy extends BaseStrategy {
       state[S.goodImpressionTurns] *
       this.goodImpressionTurnsMultiplier;
 
+    // Good impression turns effects additions
+    score +=
+      state[S.goodImpressionTurnsEffectAdditions].reduce(
+        (acc, cur) => acc + cur.amount * (cur.turns || state[S.turnsRemaining]),
+        0
+      ) *
+      state[S.goodImpressionTurns] *
+      this.goodImpressionTurnsMultiplier;
+
     // Good condition turns buffs
     score +=
       state[S.goodConditionTurnsBuffs].reduce(

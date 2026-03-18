@@ -26,6 +26,11 @@ export default class BuffManager extends EngineComponent {
           (acc, buff) => acc + buff.amount,
           1
         ),
+      goodImpressionTurnsEffectAddition: (state) =>
+        state[S.goodImpressionTurnsEffectAdditions].reduce(
+          (acc, addition) => acc + addition.amount,
+          0
+        ),
       concentrationEffectBuff: (state) =>
         state[S.concentrationEffectBuffs].reduce(
           (acc, buff) => acc + buff.amount,
@@ -64,6 +69,12 @@ export default class BuffManager extends EngineComponent {
         this.setGoodImpressionTurnsEffectBuff(
           state,
           parseFloat(amount),
+          turns ? parseInt(turns, 10) : null
+        ),
+      setGoodImpressionTurnsEffectAddition: (state, amount, turns) =>
+        this.setGoodImpressionTurnsEffectAddition(
+          state,
+          parseInt(amount, 10),
           turns ? parseInt(turns, 10) : null
         ),
       setMotivationBuff: (state, amount, turns) =>
@@ -143,6 +154,7 @@ export default class BuffManager extends EngineComponent {
     state[S.scoreDebuffs] = [];
     state[S.goodImpressionTurnsBuffs] = [];
     state[S.goodImpressionTurnsEffectBuffs] = [];
+    state[S.goodImpressionTurnsEffectAdditions] = [];
     state[S.motivationBuffs] = [];
     state[S.goodConditionTurnsBuffs] = [];
     state[S.concentrationBuffs] = [];
@@ -234,6 +246,16 @@ export default class BuffManager extends EngineComponent {
     );
   }
 
+  setGoodImpressionTurnsEffectAddition(state, amount, turns) {
+    this.setBuff(
+      state,
+      S.goodImpressionTurnsEffectAdditions,
+      amount,
+      turns,
+      "setGoodImpressionTurnsEffectAddition"
+    );
+  }
+
   setMotivationBuff(state, amount, turns) {
     this.setBuff(state, S.motivationBuffs, amount, turns, "setMotivationBuff");
   }
@@ -311,6 +333,7 @@ export default class BuffManager extends EngineComponent {
       S.scoreDebuffs,
       S.goodImpressionTurnsBuffs,
       S.goodImpressionTurnsEffectBuffs,
+      S.goodImpressionTurnsEffectAdditions,
       S.motivationBuffs,
       S.goodConditionTurnsBuffs,
       S.concentrationBuffs,
