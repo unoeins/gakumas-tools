@@ -403,3 +403,4 @@ id,name,rarity,upgraded,plan,mode,sourceType,pIdolId,welfare,effects
 402,すべ手を超えた先へ,SSR,FALSE,logic,stage,pIdol,130,FALSE,
 403,すべ手を超えた先へ+,SSR,TRUE,logic,stage,pIdol,130,FALSE,"do:setScoreDebuff(0.2,4);at:turn,delay:2,do:motivation+=2,do:cardUsesRemaining+=1,limit:1;at:turn,delay:5,do:goodImpressionTurns+=4,do:cardUsesRemaining+=1,limit:1"
 404,咲季の完全食・改,SSR,FALSE,logic,stage,support,,FALSE,"at:cardUsed,if:turnCardsUsed%2==1,do:goodImpressionTurns+=2,do:setGoodImpressionTurnsEffectBuff(0.25),limit:1"
+405,演技のたしなみ,SR,FALSE,logic,stage,support,,FALSE,"at:staminaDecreased,if:isVisualTurn,do:goodImpressionTurns+=2,do:halfCostTurns+=2,limit:1"
