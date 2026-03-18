@@ -145,14 +145,6 @@ export default class CardManager extends EngineComponent {
     state[S.usedDrink] = null;
 
     state[S.examCardsUsed] = 0;
-    state[S.pcchiCardsUsed] = 0;
-    state[S.natsuyaCardsUsed] = 0;
-    state[S.holidayCardsUsed] = 0;
-    state[S.onigiriCardsUsed] = 0;
-    state[S.koeteCardsUsed] = 0;
-    state[S.kyakkouCardsUsed] = [];
-    state[S.siranaiCardsUsed] = 0;
-    state[S.stageItemCount] = 0;
   }
 
   changeIdol(state) {
@@ -434,8 +426,10 @@ export default class CardManager extends EngineComponent {
     state[S.phase] = "processCard";
     if (state[S.doubleCardEffectCards] && skillCard.rarity != "L") {
       state[S.doubleCardEffectCards]--;
+      state[S.effectInstanceId]++;
       this.engine.effectManager.triggerEffects(state, effects, null, card);
     }
+    state[S.effectInstanceId]++;
     this.engine.effectManager.triggerEffects(state, effects, null, card);
     delete state[S.phase];
 

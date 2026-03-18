@@ -1,13 +1,16 @@
 import { PItems, SkillCards } from "gakumas-data";
 import { DEFAULT_EFFECTS, EFFECT_SOURCES, S } from "../constants";
 import EngineComponent from "./EngineComponent";
-import { deepCopy, shallowCopy } from "../utils";
+import { shallowCopy } from "../utils";
 
 export default class EffectManager extends EngineComponent {
   initializeState(state) {
     const config = this.getConfig(state);
 
     state[S.effects] = [];
+    state[S.effectInstanceId] = 0;
+    state[S.effectCounters] = {};
+    state[S.currentEffectInstanceId] = null;
 
     // Set default effects
     this.logger.debug("Setting default effects", DEFAULT_EFFECTS);
@@ -59,6 +62,7 @@ export default class EffectManager extends EngineComponent {
   setEffects(state, effects, source) {
     for (let i = 0; i < effects.length; i++) {
       const effect = { ...effects[i] };
+      effect.effectInstanceId = state[S.effectInstanceId];
       if (source) {
         effect.source = source;
       }
@@ -121,6 +125,14 @@ export default class EffectManager extends EngineComponent {
   triggerEffects(state, effects, cndState, source, skipConditions, sourceType = EFFECT_SOURCES.SKILL_CARD) {
     const conditionState = cndState || shallowCopy(state);
 
+    // Deep copy effectCounters so condition checks see pre-modification values
+    if (state[S.effectCounters]) {
+      conditionState[S.effectCounters] = {};
+      for (let id in state[S.effectCounters]) {
+        conditionState[S.effectCounters][id] = { ...state[S.effectCounters][id] };
+      }
+    }
+
     let triggeredEffects = [];
     let skipNextEffect = false;
 
@@ -134,39 +146,11 @@ export default class EffectManager extends EngineComponent {
         continue;
       }
 
-      let effect = effects[i];
+      const effect = effects[i];
 
       // Delayed effects
       if (effect.phase) {
-        effect = deepCopy(effect);
         this.logger.debug("Setting effects", effect.effects);
-        // Add counter index for multiple delayed effects from same source
-        if (effect.actions) {
-          effect.actions = effect.actions.map((tokens) => {
-            if (tokens?.[0]) {
-              tokens[0] = tokens[0].replace(
-                /incrementCounter\((.+)\)/g,
-                "incrementCounter($1," + state[S.lastCounterIndex] + ")"
-              );
-              // tokens.push(state[S.lastCounterIndex]);
-            }
-            return tokens;
-          });
-          // console.log("Updated actions", effect.actions);
-        }
-        if (effect.conditions) {
-          effect.conditions = effect.conditions.map((tokens) => {
-            if (tokens?.[0]) {
-              tokens[0] = tokens[0].replace(
-                /getCounter\((.+)\)/g,
-                "getCounter($1," + state[S.lastCounterIndex] + ")"
-              );
-              // tokens.push(state[S.lastCounterIndex]);
-            }
-            return tokens;
-          });
-          // console.log("Updated conditions", effect.conditions);
-        }
         this.setEffects(
           state,
           [effect],
@@ -210,6 +194,11 @@ export default class EffectManager extends EngineComponent {
         continue;
       }
 
+      // Set current effect instance ID for counter resolution
+      const prevInstanceId = state[S.currentEffectInstanceId];
+      state[S.currentEffectInstanceId] = effect.effectInstanceId;
+      conditionState[S.currentEffectInstanceId] = effect.effectInstanceId;
+
       // Check conditions
       if (!skipConditions && effect.conditions) {
         let satisfied = true;
@@ -223,6 +212,7 @@ export default class EffectManager extends EngineComponent {
           }
         }
         if (!satisfied) {
+          state[S.currentEffectInstanceId] = prevInstanceId;
           if (!effect.actions && !effect.effects) {
             skipNextEffect = true;
           }
@@ -276,6 +266,9 @@ export default class EffectManager extends EngineComponent {
       if (effect.source) {
         this.logger.log(state, "entityEnd", effect.source);
       }
+
+      // Restore previous effect instance ID
+      state[S.currentEffectInstanceId] = prevInstanceId;
 
       // Track triggered effects
       triggeredEffects.push(effect.index);

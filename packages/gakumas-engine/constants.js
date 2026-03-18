@@ -228,20 +228,12 @@ export const ALL_FIELDS = [
   "effects",
   "phase",
   "parentPhase",
+  "effectInstanceId",
+  "effectCounters",
+  "currentEffectInstanceId",
 
   // Special
-  "pcchiCardsUsed",
-  "natsuyaCardsUsed",
-  "holidayCardsUsed",
-  "onigiriCardsUsed",
-  "koeteCardsUsed",
-  "kyakkouCardsUsed",
-  "siranaiCardsUsed",
-  "stageItemCount",
   "nullifySelect",
-
-  // Counters
-  "lastCounterIndex",
 
   // Delta
   "goodImpressionTurnsDelta",

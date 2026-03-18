@@ -590,6 +590,7 @@ import image_726 from "./726.png";
 import image_72_6 from "./72_6.png";
 import image_727 from "./727.png";
 import image_72_7 from "./72_7.png";
+import image_728 from "./728.png";
 import image_72_8 from "./72_8.png";
 import image_729 from "./729.png";
 import image_72_9 from "./72_9.png";
@@ -3738,6 +3739,7 @@ const IMAGES = {
   '72_6': image_72_6,
   '727': image_727,
   '72_7': image_72_7,
+  '728': image_728,
   '72_8': image_72_8,
   '729': image_729,
   '72_9': image_72_9,
