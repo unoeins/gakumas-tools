@@ -26,6 +26,11 @@ export default class BuffManager extends EngineComponent {
           (acc, buff) => acc + buff.amount,
           1
         ),
+      goodImpressionTurnsAdditionalActivationBuff: (state) =>
+        state[S.goodImpressionTurnsAdditionalActivationBuffs].reduce(
+          (acc, buff) => acc + buff.amount,
+          1
+        ),
       concentrationEffectBuff: (state) =>
         state[S.concentrationEffectBuffs].reduce(
           (acc, buff) => acc + buff.amount,
@@ -66,6 +71,12 @@ export default class BuffManager extends EngineComponent {
         ),
       setGoodImpressionTurnsEffectBuff: (state, amount, turns) =>
         this.setGoodImpressionTurnsEffectBuff(
+          state,
+          parseFloat(amount),
+          turns ? parseInt(turns, 10) : null
+        ),
+      setGoodImpressionTurnsAdditionalActivationBuff: (state, amount, turns) =>
+        this.setGoodImpressionTurnsAdditionalActivationBuff(
           state,
           parseFloat(amount),
           turns ? parseInt(turns, 10) : null
@@ -160,6 +171,7 @@ export default class BuffManager extends EngineComponent {
     state[S.scoreDebuffs] = [];
     state[S.goodImpressionTurnsBuffs] = [];
     state[S.goodImpressionTurnsEffectBuffs] = [];
+    state[S.goodImpressionTurnsAdditionalActivationBuffs] = [];
     state[S.motivationBuffs] = [];
     state[S.goodConditionTurnsBuffs] = [];
     state[S.concentrationBuffs] = [];
@@ -251,6 +263,16 @@ export default class BuffManager extends EngineComponent {
     );
   }
 
+  setGoodImpressionTurnsAdditionalActivationBuff(state, amount, turns) {
+    this.setBuff(
+      state,
+      S.goodImpressionTurnsAdditionalActivationBuffs,
+      amount,
+      turns,
+      "setGoodImpressionTurnsAdditionalActivationBuff"
+    );
+  }
+
   setMotivationBuff(state, amount, turns) {
     this.setBuff(state, S.motivationBuffs, amount, turns, "setMotivationBuff");
   }
@@ -328,6 +350,7 @@ export default class BuffManager extends EngineComponent {
       S.scoreDebuffs,
       S.goodImpressionTurnsBuffs,
       S.goodImpressionTurnsEffectBuffs,
+      S.goodImpressionTurnsAdditionalActivationBuffs,
       S.motivationBuffs,
       S.goodConditionTurnsBuffs,
       S.concentrationBuffs,

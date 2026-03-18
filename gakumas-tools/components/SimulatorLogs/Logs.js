@@ -15,6 +15,7 @@ const BUFF_LOG_TYPES = {
   setScoreDebuff: "scoreDebuff",
   setGoodImpressionTurnsBuff: "goodImpressionTurnsBuff",
   setGoodImpressionTurnsEffectBuff: "goodImpressionTurnsEffectBuff",
+  setGoodImpressionTurnsAdditionalActivationBuff: "goodImpressionTurnsAdditionalActivationBuff",
   setMotivationBuff: "motivationBuff",
   setGoodConditionTurnsBuff: "goodConditionTurnsBuff",
   setConcentrationBuff: "concentrationBuff",

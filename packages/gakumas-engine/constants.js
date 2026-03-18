@@ -53,7 +53,7 @@ export const FULL_POWER_EFFECTS = [
 export const GOOD_IMPRESSION_EFFECTS = [
   {
     conditions: ["goodImpressionTurns>=1"],
-    actions: ["score+=goodImpressionTurns*goodImpressionTurnsEffectBuff"],
+    actions: ["score+=goodImpressionTurns*goodImpressionTurnsEffectBuff*goodImpressionTurnsAdditionalActivationBuff"],
     source: { type: "default", id: "好印象" },
   },
 ].map(formatEffect);
@@ -173,6 +173,7 @@ export const ALL_FIELDS = [
   "scoreDebuffs",
   "goodImpressionTurnsBuffs",
   "goodImpressionTurnsEffectBuffs",
+  "goodImpressionTurnsAdditionalActivationBuffs",
   "concentrationBuffs",
   "concentrationEffectBuffs",
   "goodConditionTurns",
@@ -237,6 +238,7 @@ export const ALL_FIELDS = [
   "koeteCardsUsed",
   "kyakkouCardsUsed",
   "siranaiCardsUsed",
+  "azayakaCardsUsed",
   "stageItemCount",
   "nullifySelect",
 
