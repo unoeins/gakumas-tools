@@ -522,9 +522,11 @@ export default class CardManager extends EngineComponent {
     // Apply drink effects
     const effects = pDrink.effects;
     state[S.phase] = "processDrink";
+    state[S.effectInstanceId]++;
     this.engine.effectManager.triggerEffects(
       state,
       effects,
+      null,
       pDrink.id,
       null,
       EFFECT_SOURCES.P_DRINK
