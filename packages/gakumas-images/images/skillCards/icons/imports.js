@@ -694,7 +694,9 @@ import image_781 from "./781.png";
 import image_78_1 from "./78_1.png";
 import image_782 from "./782.png";
 import image_78_2 from "./78_2.png";
+import image_783 from "./783.png";
 import image_78_3 from "./78_3.png";
+import image_784 from "./784.png";
 import image_78_4 from "./78_4.png";
 import image_78_5 from "./78_5.png";
 import image_78_6 from "./78_6.png";
@@ -3843,7 +3845,9 @@ const IMAGES = {
   '78_1': image_78_1,
   '782': image_782,
   '78_2': image_78_2,
+  '783': image_783,
   '78_3': image_78_3,
+  '784': image_784,
   '78_4': image_78_4,
   '78_5': image_78_5,
   '78_6': image_78_6,
