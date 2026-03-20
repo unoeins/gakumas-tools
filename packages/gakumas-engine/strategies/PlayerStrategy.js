@@ -17,8 +17,8 @@ export default class PlayerStrategy {
    * Returns the indices of the cards to hold.
    */
   pickCardsToHold(state, cards, num = 1) {
-    if (this.pickCardsToHoldIndices.length >= num) {
-      return this.pickCardsToHoldIndices.splice(0, num);
+    if (this.pickCardsToHoldIndices.length > 0) {
+      return this.pickCardsToHoldIndices.shift();
     } else {
       const e = new Error("not picked");
       e.args = {state, cards, num};

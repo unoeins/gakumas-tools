@@ -77,6 +77,8 @@ export default class CardManager extends EngineComponent {
         this.moveActiveCardsToDeckFromRemoved(state),
       useRandomCardFree: (state, targetRule) =>
         this.useRandomCardFree(state, targetRule),
+      useAllCardsFree: (state, targetRule) =>
+        this.useAllCardsFree(state, targetRule),
       removeBasicCard: (state) => this.removeBasicCard(state),
     };
   }
@@ -365,8 +367,8 @@ export default class CardManager extends EngineComponent {
     return true;
   }
 
-  useCard(state, card) {
-    const handIndex = state[S.handCards].indexOf(card);
+  useCard(state, card, pile = S.handCards) {
+    const pileIndex = state[pile].indexOf(card);
     const skillCard = SkillCards.getById(state[S.cardMap][card].id);
     const c11n = state[S.cardMap][card].c11n;
 
@@ -397,9 +399,11 @@ export default class CardManager extends EngineComponent {
       delete state[S.phase];
     }
 
-    // Remove card from hand
-    state[S.handCards].splice(handIndex, 1);
-    state[S.cardUsesRemaining]--;
+    // Remove card from the specified pile
+    state[pile].splice(pileIndex, 1);
+    if (! state[S.nullifyCardUse]) {
+      state[S.cardUsesRemaining]--;
+    }
 
     // Trigger effects on card used
     this.engine.effectManager.triggerEffectsForPhase(
@@ -491,7 +495,7 @@ export default class CardManager extends EngineComponent {
     }
 
     // End turn if no card uses left
-    if (state[S.cardUsesRemaining] < 1) {
+    if (state[S.cardUsesRemaining] < 1 && !state[S.nullifyCardUse]) {
       this.engine.turnManager.endTurn(state);
     }
   }
@@ -1042,10 +1046,14 @@ export default class CardManager extends EngineComponent {
   }
 
   addHeldCardsToHand(state) {
+    // consider cardMovedToHand effects causes holdCard (e.g. Expert)
+    let movedCards = [];
     while (state[S.heldCards].length) {
       const card = state[S.heldCards].pop();
       state[S.handCards].push(card);
-
+      movedCards.push(card);
+    }
+    for (let card of movedCards) {
       state[S.movedCard] = card;
       this.engine.effectManager.triggerEffectsForPhase(
         state,
@@ -1178,6 +1186,22 @@ export default class CardManager extends EngineComponent {
     return targetCards;
   }
 
+  getTargetPile(targetRule) {
+    if (targetRule.includes("hand")) {
+      return S.handCards;
+    } else if (targetRule.includes("deck")) {
+      return S.deckCards;
+    } else if (targetRule.includes("discarded")) {
+      return S.discardedCards;
+    } else if (targetRule.includes("held")) {
+      return S.heldCards;
+    } else if (targetRule.includes("removed")) {
+      return S.removedCards;
+    }
+    console.warn("Target pile not found from " + targetRule);
+    return null;
+  }
+
   countUnremovedTroubleCards(state) {
     let count = 0;
     for (let i = 0; i < state[S.cardMap].length; i++) {
@@ -1191,17 +1215,30 @@ export default class CardManager extends EngineComponent {
   }
 
   useRandomCardFree(state, targetRule) {
-    const targetCards = this.getTargetRuleCards(state, targetRule);
-    const usableCards = [];
-    for (let card of targetCards.values()) {
-      if (state[S.handCards].includes(card) && this.isCardUsable(state, card)) {
-        usableCards.push(card);
-      }
-    }
-    if (!usableCards.length) return;
-    const card = usableCards[Math.floor(getRand() * usableCards.length)];
+    const targetCards = this.getTargetRuleCards(state, targetRule.replaceAll("\\", "*"));
+    const targetPile = this.getTargetPile(targetRule);
+    console.log("targetCards:", targetCards);
+    console.log("targetPile:", targetPile);
+    if (!targetCards.size) return;
+    const card = [...targetCards][Math.floor(getRand() * targetCards.size)];
     state[S.nullifyCostCards] += 1;
-    this.useCard(state, card);
+    state[S.nullifyCardUse] += 1;
+    this.useCard(state, card, targetPile);
+    state[S.nullifyCardUse] -= 1;
+  }
+
+  useAllCardsFree(state, targetRule) {
+    const targetCards = this.getTargetRuleCards(state, targetRule.replaceAll("\\", "*"));
+    const targetPile = this.getTargetPile(targetRule);
+    console.log("targetCards:", targetCards);
+    console.log("targetPile:", targetPile);
+    if (!targetCards.size) return;
+    targetCards.forEach((card) => {
+      state[S.nullifyCostCards] += 1;
+      state[S.nullifyCardUse] += 1;
+      this.useCard(state, card, targetPile);
+      state[S.nullifyCardUse] -= 1;
+    });
   }
 
   removeBasicCard(state) {

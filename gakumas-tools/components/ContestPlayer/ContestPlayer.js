@@ -93,9 +93,9 @@ export default function ContestPlayer() {
 
   const logs = engine?.logger.peekLogs(getState());
   const structuredLogs = useMemo(() => structureLogs(logs), [logs]);
-  if (logs) {
-    console.log("logs:", logs);
-  }
+  // if (logs) {
+  //   console.log("logs:", logs);
+  // }
 
   function getState() {
     return stateHistory.length > 0 ? stateHistory[stateHistory.length - 1] : null;
@@ -139,18 +139,33 @@ export default function ContestPlayer() {
     return selectedIndices;
   }
 
-  function startStage() {
+  async function startStage() {
     setRunning(true);
     
     const engine = new StageEngine(config, linkConfigs);
     engine.strategy = new PlayerStrategy(engine, pickCardsToHold);
   
+    setEngine(engine);
+
     engine.logger.reset();
     let state = engine.getInitialState();
-    state = engine.startStage(state);
+    let nextState = null;
+    let pickCardsToHoldIndices = [];
+    while (nextState == null) {
+      try {
+        nextState = engine.startStage(state);
+      } catch (e) {
+        if (e.message === "not picked") {
+          const selectedIndices = await pickCardsToHold(e.args.state, e.args.cards, e.args.num);
+          pickCardsToHoldIndices.push(selectedIndices);
+          engine.strategy.pickCardsToHoldIndices = [...pickCardsToHoldIndices];
+        } else {
+          throw e;
+        }
+      }
+    }
 
-    setEngine(engine);
-    setStateHistory([state]);
+    setStateHistory([nextState]);
     
     pushLoadoutHistory();
     if (stage.type === "linkContest") {
@@ -166,18 +181,19 @@ export default function ContestPlayer() {
       return;
     }
     const logIndex = engine.logger.log(state, "hand", null);
-    let nextState;
-    try {
-      let previewState = deepCopy(state);
-      nextState = engine.useCard(previewState, card);
-    } catch (e) {
-      if (e.message === "not picked") {
-        const selectedIndices = await pickCardsToHold(e.args.state, e.args.cards, e.args.num);
-        engine.strategy.pickCardsToHoldIndices = selectedIndices;
-        let previewState = deepCopy(state);
-        nextState = engine.useCard(previewState, card);
-      } else {
-        throw e;
+    let nextState = null;
+    let pickCardsToHoldIndices = [];
+    while (nextState == null) {
+      try {
+        nextState = engine.useCard(state, card);
+      } catch (e) {
+        if (e.message === "not picked") {
+          const selectedIndices = await pickCardsToHold(e.args.state, e.args.cards, e.args.num);
+          pickCardsToHoldIndices.push(selectedIndices);
+          engine.strategy.pickCardsToHoldIndices = [...pickCardsToHoldIndices];
+        } else {
+          throw e;
+        }
       }
     }
 
@@ -200,27 +216,43 @@ export default function ContestPlayer() {
   async function drink(selectedIndex) {
     if (!running) return;
     const state = deepCopy(getState());
-    let nextState;
-    try {
-      let previewState = deepCopy(state);
-      nextState = engine.useDrink(previewState, selectedIndex);
-    } catch (e) {
-      if (e.message === "not picked") {
-        const selectedIndices = await pickCardsToHold(e.args.state, e.args.cards, e.args.num);
-        engine.strategy.pickCardsToHoldIndices = selectedIndices;
-        let previewState = deepCopy(state);
-        nextState = engine.useDrink(previewState, selectedIndex);
-      } else {
-        throw e;
+    let nextState = null;
+    let pickCardsToHoldIndices = [];
+    while (nextState == null) {
+      try {
+        nextState = engine.useDrink(state, selectedIndex);
+      } catch (e) {
+        if (e.message === "not picked") {
+          const selectedIndices = await pickCardsToHold(e.args.state, e.args.cards, e.args.num);
+          pickCardsToHoldIndices.push(selectedIndices);
+          engine.strategy.pickCardsToHoldIndices = [...pickCardsToHoldIndices];
+        } else {
+          throw e;
+        }
       }
     }
 
     pushState(nextState);
   }
 
-  function endTurn() {
+  async function endTurn() {
     if (!running) return;
-    const nextState = engine.endTurn(getState());
+    const state = deepCopy(getState());
+    let nextState = null;
+    let pickCardsToHoldIndices = [];
+    while (nextState == null) {
+      try {
+        nextState = engine.endTurn(state);
+      } catch (e) {
+        if (e.message === "not picked") {
+          const selectedIndices = await pickCardsToHold(e.args.state, e.args.cards, e.args.num);
+          pickCardsToHoldIndices.push(selectedIndices);
+          engine.strategy.pickCardsToHoldIndices = [...pickCardsToHoldIndices];
+        } else {
+          throw e;
+        }
+      }
+    }
     pushState(nextState);
     if (nextState[S.turnsRemaining] <= 0) {
       setRunning(false);
