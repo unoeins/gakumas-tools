@@ -604,8 +604,6 @@ export default class Executor extends EngineComponent {
   }
 
   resolveStamina(state, stamina) {
-    if (state[S.nullifyCostCards]) return;
-
     // Apply stance
     if (state[S.stance].startsWith("strength")) {
       stamina *= 2;
