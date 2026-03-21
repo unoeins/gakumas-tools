@@ -389,14 +389,19 @@ export default class CardManager extends EngineComponent {
     let conditionState = shallowCopy(state);
     this.logger.debug("Applying cost", skillCard.cost);
 
-    if (state[S.nullifyCostCards]) {
+    const cost = this.getLines(state, card, "cost")
+      .map((c) => c.actions)
+      .flat();
+    const nullifyCostApplicable = cost.some(
+      (c) => c[0] == "cost" || c[0] == "stamina"
+    );
+    if (nullifyCostApplicable && state[S.nullifyCostCards]) {
       state[S.nullifyCostCards]--;
-    } else if (skillCard.type === "active" && state[S.nullifyCostActiveCards]) {
+    } else if (nullifyCostApplicable &&
+      skillCard.type === "active" && state[S.nullifyCostActiveCards]
+    ) {
       state[S.nullifyCostActiveCards]--;
     } else {
-      const cost = this.getLines(state, card, "cost")
-        .map((c) => c.actions)
-        .flat();
       state[S.phase] = "processCost";
       this.engine.executor.executeActions(state, cost, card);
       delete state[S.phase];
