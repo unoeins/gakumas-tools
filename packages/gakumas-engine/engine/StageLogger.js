@@ -6,7 +6,7 @@ const LOGGED_BUFFS_FIELDS = [
   S.scoreDebuffs,
   S.goodImpressionTurnsBuffs,
   S.goodImpressionTurnsEffectBuffs,
-  S.goodImpressionTurnsEffectAdditions,
+  S.goodImpressionTurnsTimesBuffs,
   S.motivationBuffs,
   S.goodConditionTurnsBuffs,
   S.concentrationBuffs,
