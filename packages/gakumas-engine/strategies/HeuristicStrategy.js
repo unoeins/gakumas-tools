@@ -382,26 +382,31 @@ export default class HeuristicStrategy extends BaseStrategy {
   evaluateForHold(state, card) {
     let previewState = this.engine.getInitialState(true);
     previewState[S.cardMap] = deepCopy(state[S.cardMap]);
-    this.engine.buffManager.setStance(previewState, "fullPower");
     previewState[S.nullifySelect] = 1;
+    this.engine.buffManager.setStance(previewState, "fullPower");
     previewState = this.engine.useCard(previewState, card);
     return Math.round(previewState[S.score]);
+    // return Math.round(previewState[S.score] + 
+    //   previewState[S.fullPowerCharge] * this.engine.turnManager.getTurnMultiplier(state));
   }
 
-  pickCardsToHold(state, cards, num = 1) {
+  pickCardsToHold(state, cards, num = 1, optional = false) {
     let scores = [];
-    for (let i = 0; i < cards.length; i++) {
-      scores.push(this.evaluateForHold(state, cards[i]));
+    const evalCards = optional ? cards.concat(state[S.heldCards]) : cards;
+    for (let i = 0; i < evalCards.length; i++) {
+      scores.push(this.evaluateForHold(state, evalCards[i]));
     }
     const sortedIndices = scores
       .map((score, index) => ({ score, index }))
       .sort((a, b) => b.score - a.score)
-      .slice(0, num)
-      .map((item) => item.index);
+      .slice(0, 2)
+      .map((item) => item.index)
+      .filter((index) => index < cards.length)
+      .slice(0, num);
     return sortedIndices;
   }
 
-  pickCardsToMoveToHand(state, cards, num = 1) {
-    return this.pickCardsToHold(state, cards, num);
+  pickCardsToMoveToHand(state, cards, num = 1, optional = false) {
+    return this.pickCardsToHold(state, cards, num, optional);
   }
 }

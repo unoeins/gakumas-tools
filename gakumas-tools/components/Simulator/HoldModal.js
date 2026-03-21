@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { SkillCards } from "gakumas-data";
+import { SkillCards, PDrinks, PItems } from "gakumas-data";
 import { S } from "gakumas-engine";
+import gkImg from "gakumas-images";
+import Image from "@/components/Image";
 import Button from "@/components/Button";
 import EntityIcon from "@/components/EntityIcon";
 import Modal from "@/components/Modal";
@@ -11,8 +13,27 @@ import styles from "./ManualPlay.module.scss";
 
 export default function HoldModal({ decision, onDecision, idolId }) {
   const t = useTranslations("stage");
-  const { state, cards, num } = decision;
+  const { state, cards, num, optional = false } = decision;
   const [selectedIndices, setSelectedIndices] = useState([]);
+
+  // console.log("HoldModal phase", state[S.phase], "parentPhase", state[S.parentPhase]);
+  // console.log("HoldModal usedCard", state[S.usedCard], "usedDrink", state[S.usedDrink]);
+  // console.log("HoldModal triggeredEffect", state[S.triggeredEffect]);
+
+  let resolvedEntity = null;
+  if (state[S.phase] == "processCard") {
+    resolvedEntity = SkillCards.getById(state[S.cardMap][state[S.usedCard]].id);
+  } else if (state[S.phase] == "processDrink") {
+    resolvedEntity = PDrinks.getById(state[S.usedDrink]);
+  } else if (state[S.triggeredEffect]?.source?.type == "skillCard") {
+    resolvedEntity = SkillCards.getById(state[S.triggeredEffect].source?.id);
+  } else if (state[S.triggeredEffect]?.source?.type == "pItem") {
+    resolvedEntity = PItems.getById(state[S.triggeredEffect].source?.id);
+  } else if (state[S.triggeredEffect]?.source?.type == "pDrink") {
+    resolvedEntity = PDrinks.getById(state[S.triggeredEffect].source?.id);
+  }
+
+  const { icon } = gkImg(resolvedEntity, idolId);
 
   const toggleCard = (arrayIndex) => {
     setSelectedIndices((prev) => {
@@ -27,10 +48,28 @@ export default function HoldModal({ decision, onDecision, idolId }) {
 
   return (
     <Modal dismissable={false}>
+      {state[S.phase] == "processCard" && (
+        <div className={styles.entity}>
+          <Image src={icon} width={24} height={24} alt="" />
+          {t("skillCard")}「{resolvedEntity.name}」
+        </div>
+      )}
+      {state[S.phase] == "processDrink" && (
+        <div className={styles.entity}>
+          <Image src={icon} width={24} height={24} alt="" />
+          {t("pDrink")}「{resolvedEntity.name}」
+        </div>
+      )}
+      {state[S.phase] != "processCard" && state[S.phase] != "processDrink" && (
+        <div className={styles.entity}>
+          {resolvedEntity && <Image src={icon} width={24} height={24} alt="" />}
+          {t("effect")}{resolvedEntity ? `「${resolvedEntity.name}」` : ""}
+        </div>
+      )}
       <h3>
         {t(
           decision.type == "HOLD_SELECTION"
-            ? "selectCardsToHold"
+            ? optional ? "selectCardsToHoldOptional" : "selectCardsToHold"
             : "selectCardsToMoveToHand",
           { num }
         )}
@@ -63,7 +102,7 @@ export default function HoldModal({ decision, onDecision, idolId }) {
         style="blue"
         fill
         onClick={() => onDecision(selectedIndices)}
-        disabled={selectedIndices.length !== num}
+        disabled={!optional && selectedIndices.length < num}
       >
         {t("confirm")} ({selectedIndices.length}/{num})
       </Button>

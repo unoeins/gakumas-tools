@@ -38,6 +38,14 @@
   }
 }
 
+.entity {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  color: colors.$gk-orange;
+}
+
 .imgWrapper {
   width: 60px;
 }

@@ -56,9 +56,9 @@ export default class ManualStrategy extends BaseStrategy {
     return { card: selectedCard };
   }
 
-  pickCardsToMoveToHand(state, cards, num = 1) {
+  pickCardsToMoveToHand(state, cards, num = 1, optional = false) {
     if (!this.pickCardsToMoveToHandIndices) {
-      throw new MoveToHandSelectionRequest(state, cards, num);
+      throw new MoveToHandSelectionRequest(state, cards, num, optional);
     }
 
     const indices = this.pickCardsToMoveToHandIndices;
@@ -66,9 +66,9 @@ export default class ManualStrategy extends BaseStrategy {
     return indices;
   }
 
-  pickCardsToHold(state, cards, num = 1) {
+  pickCardsToHold(state, cards, num = 1, optional = false) {
     if (!this.pickCardsToHoldIndices) {
-      throw new HoldSelectionRequest(state, cards, num);
+      throw new HoldSelectionRequest(state, cards, num, optional);
     }
 
     const indices = this.pickCardsToHoldIndices;

@@ -232,6 +232,7 @@ export const ALL_FIELDS = [
   "effectInstanceId",
   "effectCounters",
   "currentEffectInstanceId",
+  "triggeredEffect",
 
   // Special
   "nullifySelect",

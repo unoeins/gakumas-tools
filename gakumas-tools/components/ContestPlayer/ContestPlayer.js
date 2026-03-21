@@ -36,6 +36,7 @@ import ModalContext from "@/contexts/ModalContext";
 import SimulatorButtons from "@/components/Simulator/SimulatorButtons";
 import SimulatorSubTools from "@/components/Simulator/SimulatorSubTools";
 import EntityIcon from "@/components/EntityIcon";
+import HoldModal from "@/components/Simulator/HoldModal";
 import { EntityTypes } from "@/utils/entities";
 import TurnTypeViewer from "./TurnTypeViewer";
 import StateViewer from "./StateViewer";
@@ -89,7 +90,7 @@ export default function ContestPlayer() {
     });
   }, [loadouts, stage, enterPercents]);
 
-  const { setModal } = useContext(ModalContext);
+  const { setModal, closeModal } = useContext(ModalContext);
 
   const logs = engine?.logger.peekLogs(getState());
   const structuredLogs = useMemo(() => structureLogs(logs), [logs]);
@@ -118,24 +119,45 @@ export default function ContestPlayer() {
     return state;
   }
 
-  async function pickCardsToHold(state, cards, num = 1) {
+  async function pickCardsToHold(state, cards, num = 1, optional = false) {
     let selectedIndices = [];
-    for (let i = 0; i < Math.min(num, cards.length); i++) {
+    // for (let i = 0; i < Math.min(num, cards.length); i++) {
       const promise = new Promise((resolve) => {
         setModal(
-          <HoldCardPickerModal
-            state={state}
-            cards={cards}
-            disabledIndices={selectedIndices}
+          // <HoldCardPickerModal
+          //   state={state}
+          //   cards={cards}
+          //   // disabledIndices={selectedIndices}
+          //   num={num}
+          //   optional={optional}
+          //   idolId={idolId}
+          //   onPick={(indices) => resolve(indices)}
+          // />
+          <HoldModal
+            decision={{
+              state,
+              cards,
+              num,
+              optional,
+              type: "HOLD_SELECTION",
+            }}
+            // state={state}
+            // cards={cards}
+            // disabledIndices={selectedIndices}
+            // num={num}
+            // optional={optional}
             idolId={idolId}
-            onPick={(index) => resolve(index)}
+            onDecision={(indices) => {
+              resolve(indices);
+              closeModal();
+            }}
           />
         );
-      }).then((index) => {
-        selectedIndices.push(index);
+      }).then((indices) => {
+        selectedIndices.push(...indices);
       });
       await promise;
-    }
+    // }
     return selectedIndices;
   }
 
@@ -156,7 +178,9 @@ export default function ContestPlayer() {
         nextState = engine.startStage(state);
       } catch (e) {
         if (e.message === "not picked") {
-          const selectedIndices = await pickCardsToHold(e.args.state, e.args.cards, e.args.num);
+          const selectedIndices = await pickCardsToHold(
+            e.args.state, e.args.cards, e.args.num, e.args.optional
+          );
           pickCardsToHoldIndices.push(selectedIndices);
           engine.strategy.pickCardsToHoldIndices = [...pickCardsToHoldIndices];
         } else {
@@ -188,7 +212,9 @@ export default function ContestPlayer() {
         nextState = engine.useCard(state, card);
       } catch (e) {
         if (e.message === "not picked") {
-          const selectedIndices = await pickCardsToHold(e.args.state, e.args.cards, e.args.num);
+          const selectedIndices = await pickCardsToHold(
+            e.args.state, e.args.cards, e.args.num, e.args.optional
+          );
           pickCardsToHoldIndices.push(selectedIndices);
           engine.strategy.pickCardsToHoldIndices = [...pickCardsToHoldIndices];
         } else {
@@ -223,7 +249,9 @@ export default function ContestPlayer() {
         nextState = engine.useDrink(state, selectedIndex);
       } catch (e) {
         if (e.message === "not picked") {
-          const selectedIndices = await pickCardsToHold(e.args.state, e.args.cards, e.args.num);
+          const selectedIndices = await pickCardsToHold(
+            e.args.state, e.args.cards, e.args.num, e.args.optional
+          );
           pickCardsToHoldIndices.push(selectedIndices);
           engine.strategy.pickCardsToHoldIndices = [...pickCardsToHoldIndices];
         } else {
@@ -245,7 +273,9 @@ export default function ContestPlayer() {
         nextState = engine.endTurn(state);
       } catch (e) {
         if (e.message === "not picked") {
-          const selectedIndices = await pickCardsToHold(e.args.state, e.args.cards, e.args.num);
+          const selectedIndices = await pickCardsToHold(
+            e.args.state, e.args.cards, e.args.num, e.args.optional
+          );
           pickCardsToHoldIndices.push(selectedIndices);
           engine.strategy.pickCardsToHoldIndices = [...pickCardsToHoldIndices];
         } else {

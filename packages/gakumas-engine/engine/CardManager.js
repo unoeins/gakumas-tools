@@ -65,11 +65,13 @@ export default class CardManager extends EngineComponent {
         this.holdCard(state, parseInt(cardBaseId, 10)),
       holdThisCard: (state) => this.holdThisCard(state),
       holdSelectedFromHand: (state, num = 1) =>
-        this.holdSelectedFrom(state, ["hand"], num),
+        this.holdSelectedFrom(state, ["hand"], parseInt(num, 10)),
       holdSelectedFromDeck: (state, num = 1) =>
-        this.holdSelectedFrom(state, ["deck"], num),
+        this.holdSelectedFrom(state, ["deck"], parseInt(num, 10)),
       holdSelectedFromDeckOrDiscards: (state, num = 1) =>
-        this.holdSelectedFrom(state, ["deck", "discards"], num),
+        this.holdSelectedFrom(state, ["deck", "discards"], parseInt(num, 10)),
+      holdSelectedFromDeckOrDiscardsUpto: (state, num = 1) =>
+        this.holdSelectedFrom(state, ["deck", "discards"], parseInt(num, 10), true),
       addHeldCardsToHand: (state) => this.addHeldCardsToHand(state),
       removeTroubleFromDeckOrDiscards: (state) =>
         this.removeTroubleFromDeckOrDiscards(state),
@@ -145,6 +147,7 @@ export default class CardManager extends EngineComponent {
     state[S.movedCard] = null;
 
     state[S.usedDrink] = null;
+    state[S.triggeredEffect] = null;
 
     state[S.examCardsUsed] = 0;
   }
@@ -989,7 +992,7 @@ export default class CardManager extends EngineComponent {
     }
   }
 
-  holdSelectedFrom(state, sources, num = 1) {
+  holdSelectedFrom(state, sources, num = 1, optional = false) {
     if (state[S.nullifySelect]) return;
 
     // Collect cards from specified sources
@@ -1002,24 +1005,28 @@ export default class CardManager extends EngineComponent {
     const indicesToHold = this.engine.strategy.pickCardsToHold(
       state,
       cards,
-      num
+      num,
+      optional
     );
 
-    indicesToHold.sort((a, b) => b - a);
-    if (indicesToHold.length === 0) return;
+    const sortedIndicesToHold = indicesToHold.toSorted((a, b) => b - a);
+    if (sortedIndicesToHold.length === 0) return;
 
     // Find cards and move to hold
-    for (let j = 0; j < indicesToHold.length; j++) {
-      let indexToHold = indicesToHold[j];
+    for (let j = 0; j < sortedIndicesToHold.length; j++) {
+      let indexToHold = sortedIndicesToHold[j];
       for (let i = 0; i < sources.length; i++) {
         if (indexToHold < sourceCards[i].length) {
-          const card = state[sourceKeys[i]].splice(indexToHold, 1)[0];
-          this.hold(state, card);
+          state[sourceKeys[i]].splice(indexToHold, 1)[0];
           break;
         } else {
           indexToHold -= sourceCards[i].length;
         }
       }
+    }
+    // Keep hold order
+    for (let j = 0; j < indicesToHold.length; j++) {
+      this.hold(state, cards[indicesToHold[j]]);
     }
 
     this.enforceHoldLimit(state);
@@ -1217,8 +1224,6 @@ export default class CardManager extends EngineComponent {
   useRandomCardFree(state, targetRule) {
     const targetCards = this.getTargetRuleCards(state, targetRule.replaceAll("\\", "*"));
     const targetPile = this.getTargetPile(targetRule);
-    console.log("targetCards:", targetCards);
-    console.log("targetPile:", targetPile);
     if (!targetCards.size) return;
     const card = [...targetCards][Math.floor(getRand() * targetCards.size)];
     state[S.nullifyCostCards] += 1;
@@ -1230,14 +1235,15 @@ export default class CardManager extends EngineComponent {
   useAllCardsFree(state, targetRule) {
     const targetCards = this.getTargetRuleCards(state, targetRule.replaceAll("\\", "*"));
     const targetPile = this.getTargetPile(targetRule);
-    console.log("targetCards:", targetCards);
-    console.log("targetPile:", targetPile);
     if (!targetCards.size) return;
     targetCards.forEach((card) => {
-      state[S.nullifyCostCards] += 1;
-      state[S.nullifyCardUse] += 1;
-      this.useCard(state, card, targetPile);
-      state[S.nullifyCardUse] -= 1;
+      // Only use the card if it's still in the expected pile (it may have been moved by a previous card effect)
+      if (state[targetPile].includes(card)) {
+        state[S.nullifyCostCards] += 1;
+        state[S.nullifyCardUse] += 1;
+        this.useCard(state, card, targetPile);
+        state[S.nullifyCardUse] -= 1;
+      }
     });
   }
 

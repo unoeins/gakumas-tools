@@ -375,6 +375,7 @@
     "linkPhaseChange": "アイドル交代",
     "skip": "スキップ",
     "selectCardsToHold": "{num}枚のカードを選択",
+    "selectCardsToHoldOptional": "最大{num}枚のカードを選択",
     "selectCardsToMoveToHand": "{num}枚のカードを選択",
     "confirm": "確認"
   },

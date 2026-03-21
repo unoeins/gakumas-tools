@@ -224,6 +224,7 @@ export default class EffectManager extends EngineComponent {
       if (effect.source) {
         this.logger.log(state, "entityStart", effect.source);
       }
+      state[S.triggeredEffect] = effect;
 
       this.logger.debug("Executing actions", effect.actions);
 
@@ -262,6 +263,7 @@ export default class EffectManager extends EngineComponent {
         }
       }
 
+      state[S.triggeredEffect] = null;
       // Log source end
       if (effect.source) {
         this.logger.log(state, "entityEnd", effect.source);
