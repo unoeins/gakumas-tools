@@ -292,6 +292,10 @@
   "SimulatorResultGraphs": {
     "score": "스코어"
   },
+  "SimulatorResultTools": {
+    "downloadScores": "스코어 다운로드",
+    "estimateParameters": "최적 패러미터 추정"
+  },
   "stage": {
     "turnsRemaining": "남은 턴 수",
     "cardUsesRemaining": "스킬 카드 사용 횟수",
@@ -346,6 +350,7 @@
     "upgradedHand": "손패를 모두 레슨 중 강화",
     "exchangedHand": "손패를 모두 변경",
     "setEffect": "지속 효과 부여",
+    "setReservation": "발동 예약 부여",
     "addedCardToHand": "손패에 스킬 카드 생성",
     "addedCardToTopOfDeck": "스킬 카드를 덱 위에 생성",
     "addedCardToDeckAtRandom": "스킬 카드를 덱의 랜덤한 위치에 생성",
@@ -359,6 +364,7 @@
     "removedCard": "Removed card",
     "effect": "지속 효과",
     "stageEffect": "스테이지 효과",
+    "reservation": "발동 예약",
     "skillCard": "스킬 카드",
     "pItem": "P 아이템",
     "pDrink": "P 드링크",

@@ -292,6 +292,10 @@
   "SimulatorResultGraphs": {
     "score": "Score"
   },
+  "SimulatorResultTools": {
+    "downloadScores": "Download scores",
+    "estimateParameters": "Estimate optimal parameters"
+  },
   "stage": {
     "turnsRemaining": "Turns remaining",
     "cardUsesRemaining": "Card uses remaining",
@@ -347,6 +351,7 @@
     "upgradedHand": "Upgraded all cards in hand",
     "exchangedHand": "Exchanged all cards in hand",
     "setEffect": "Set effect",
+    "setReservation": "Set reservation",
     "addedCardToHand": "Added card to hand",
     "addedCardToTopOfDeck": "Added card to top of deck",
     "addedCardToDeckAtRandom": "Added card to random position in deck",
@@ -360,6 +365,7 @@
     "removedCard": "Removed card",
     "effect": "Effect",
     "stageEffect": "Stage effect",
+    "reservation": "Reservation",
     "skillCard": "Skill card",
     "pItem": "P-item",
     "pDrink": "P-drink",

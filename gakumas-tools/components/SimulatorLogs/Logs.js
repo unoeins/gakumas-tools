@@ -26,6 +26,7 @@ const BUFF_LOG_TYPES = {
 
 const TILE_LOG_TYPES = {
   setEffect: "setEffect",
+  setReservation: "setReservation",
   upgradeHand: "upgradedHand",
   exchangeHand: "exchangedHand",
   linkPhaseChange: "linkPhaseChange",

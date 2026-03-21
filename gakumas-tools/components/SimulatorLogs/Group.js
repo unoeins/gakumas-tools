@@ -40,7 +40,7 @@ function Group({ entity, childLogs, idolId, pendingDecision, onDecision }) {
             <div className={styles.effect}>
               <Image src={icon} width={24} height={24} alt="" />
             </div>
-            {t("effect")}「{resolvedEntity.name}」
+            {entity.effectType === "reservation" ? t("reservation") : t("effect")}「{resolvedEntity.name}」
           </>
         )}
         {entity.type == "pItem" && (
@@ -54,7 +54,7 @@ function Group({ entity, childLogs, idolId, pendingDecision, onDecision }) {
             <div className={styles.effect}>
               <Image src={icon} width={24} height={24} alt="" />
             </div>
-            {t("effect")}「{resolvedEntity.name}」
+            {entity.effectType === "reservation" ? t("reservation") : t("effect")}「{resolvedEntity.name}」
           </>
         )}
         {entity.type == "pDrink" && (
@@ -68,7 +68,7 @@ function Group({ entity, childLogs, idolId, pendingDecision, onDecision }) {
             <div className={styles.effect}>
               <Image src={icon} width={24} height={24} alt="" />
             </div>
-            {t("effect")}「{resolvedEntity.name}」
+            {entity.effectType === "reservation" ? t("reservation") : t("effect")}「{resolvedEntity.name}」
           </>
         )}
       </div>

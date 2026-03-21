@@ -292,6 +292,10 @@
   "SimulatorResultGraphs": {
     "score": "分数"
   },
+  "SimulatorResultTools": {
+    "downloadScores": "下载分数",
+    "estimateParameters": "估算最优属性"
+  },
   "stage": {
     "turnsRemaining": "剩余回合",
     "cardUsesRemaining": "技能卡使用次数",
@@ -346,6 +350,7 @@
     "upgradedHand": "在训练中强化技能卡",
     "exchangedHand": "更换持有技能卡",
     "setEffect": "赋予持续效果",
+    "setReservation": "赋予发动预约",
     "addedCardToHand": "生成技能卡",
     "addedCardToTopOfDeck": "将技能卡生成至牌组顶端",
     "addedCardToDeckAtRandom": "将技能卡生成至牌组随机位置",
@@ -359,6 +364,7 @@
     "removedCard": "移除卡片",
     "effect": "发动效果",
     "stageEffect": "舞台效果",
+    "reservation": "发动预约",
     "skillCard": "技能卡",
     "pItem": "P 道具",
     "pDrink": "P 饮料",

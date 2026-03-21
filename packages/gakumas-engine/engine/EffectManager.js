@@ -14,10 +14,12 @@ export default class EffectManager extends EngineComponent {
 
     // Set default effects
     this.logger.debug("Setting default effects", DEFAULT_EFFECTS);
+    state[S.effectInstanceId]++;
     this.setEffects(state, DEFAULT_EFFECTS);
 
     // Set stage effects
     this.logger.debug("Setting stage effects", config.stage.effects);
+    state[S.effectInstanceId]++;
     this.setEffects(state, config.stage.effects, { type: "stage" });
 
     // Set p-item effects
@@ -31,6 +33,7 @@ export default class EffectManager extends EngineComponent {
       for (let i = 0; i < pItemIds.length; i++) {
         const pItem = PItems.getById(pItemIds[i]);
         this.logger.debug("Setting p-item effects", pItem.name, pItem.effects);
+        state[S.effectInstanceId]++;
         this.setEffects(state, pItem.effects, {
           type: "pItem",
           id: pItemIds[i],
@@ -50,6 +53,7 @@ export default class EffectManager extends EngineComponent {
       const growth = this.engine.cardManager.getLines(state, i, "growth");
       if (growth.length) {
         this.logger.debug("Setting growth effects", skillCard.name, growth);
+        state[S.effectInstanceId]++;
         this.setEffects(state, growth, {
           type: "skillCard",
           id: skillCardId,
@@ -68,6 +72,10 @@ export default class EffectManager extends EngineComponent {
       }
       if (!effect.actions && i < effects.length - 1) {
         effect.effects = [effects[++i]];
+      }
+      if (effect.limit == 1 && effect.phase == "turn") {
+        effect.type = "reservation";
+        console.log("Setting effect reservation", effect);
       }
       state[S.effects].push(effect);
     }
@@ -172,7 +180,11 @@ export default class EffectManager extends EngineComponent {
               }
             : null
         );
-        this.logger.log(state, "setEffect");
+        if (effect.limit == 1 && effect.phase == "turn") {
+          this.logger.log(state, "setReservation");
+        } else {
+          this.logger.log(state, "setEffect");
+        }
         continue;
       }
 
@@ -222,7 +234,7 @@ export default class EffectManager extends EngineComponent {
 
       // Log source
       if (effect.source) {
-        this.logger.log(state, "entityStart", effect.source);
+        this.logger.log(state, "entityStart", { ...effect.source, effectType: effect.type });
       }
       state[S.triggeredEffect] = effect;
 
