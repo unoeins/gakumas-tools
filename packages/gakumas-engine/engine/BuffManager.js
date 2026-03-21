@@ -18,10 +18,10 @@ export default class BuffManager extends EngineComponent {
       isNotStrength: (state) =>
         state[S.stance] == "none" || state[S.stance].startsWith("pre"),
       isFullPower: (state) => state[S.stance] == "fullPower",
-      stanceChangedTimes: (state) =>
-        state[S.strengthTimes] +
-        state[S.preservationTimes] +
-        state[S.fullPowerTimes],
+      // stanceChangedTimes: (state) =>
+      //   state[S.strengthTimes] +
+      //   state[S.preservationTimes] +
+      //   state[S.fullPowerTimes],
       goodImpressionTurnsEffectBuff: (state) =>
         state[S.goodImpressionTurnsEffectBuffs].reduce(
           (acc, buff) => acc + buff.amount,
@@ -192,6 +192,7 @@ export default class BuffManager extends EngineComponent {
     state[S.preservationTimes] = 0;
     state[S.fullPowerTimes] = 0;
     state[S.leisureTimes] = 0;
+    state[S.stanceChangedTimes] = 0;
     state[S.stanceChangedByCardTimes] = 0;
     state[S.stanceChangedByDirectEffectTimes] = 0;
 
@@ -403,15 +404,28 @@ export default class BuffManager extends EngineComponent {
       this.engine.effectManager.triggerEffectsForPhase(state, "stanceChanged");
       if (state[S.stance].startsWith("preservation")) {
         state[S.preservationTimes]++;
+        state[S.stanceChangedTimes]++;
       } else if (state[S.stance].startsWith("strength")) {
         state[S.strengthTimes]++;
+        state[S.stanceChangedTimes]++;
       } else if (state[S.stance] == "fullPower") {
         state[S.fullPowerTimes]++;
+        state[S.stanceChangedTimes]++;
         state[S.stanceChangedByDirectEffectTimes]++;
       } else if (state[S.stance] == "leisure") {
         state[S.leisureTimes]++;
       }
-      if (state[S.phase] == 'processCard' || state[S.phase] == 'processDrink') {
+      if (state[S.phase] == 'processCard' ||
+        state[S.phase] == 'processDrink' ||
+        state[S.phase] == "processCost" ||
+        (
+          state[S.triggeredEffect]?.type == "reservation" &&
+          (
+            state[S.triggeredEffect]?.source?.type == "skillCardEffect" ||
+            state[S.triggeredEffect]?.source?.type == "pDrinkEffect"
+          )
+        )
+      ) {
         state[S.stanceChangedByCardTimes]++;
         state[S.stanceChangedByDirectEffectTimes]++;
       }

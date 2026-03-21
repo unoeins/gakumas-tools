@@ -200,6 +200,7 @@ export const ALL_FIELDS = [
   "preservationTimes",
   "leisureTimes",
   "fullPowerTimes",
+  "stanceChangedTimes",
   "stanceChangedByCardTimes",
   "stanceChangedByDirectEffectTimes",
   "freshBuffs",
@@ -294,6 +295,7 @@ export const COST_FIELDS = [
   S.stamina,
   S.goodConditionTurns,
   S.concentration,
+  S.perfectConditionTurns,
   S.goodImpressionTurns,
   S.motivation,
   S.fullPowerCharge,
@@ -431,10 +433,16 @@ export const GRAPHED_FIELDS = [
   S.score,
   S.goodConditionTurns,
   S.concentration,
+  S.perfectConditionTurns,
   S.goodImpressionTurns,
   S.motivation,
   S.prideTurns,
   S.cumulativeFullPowerCharge,
+  S.strengthTimes,
+  S.preservationTimes,
+  S.fullPowerTimes,
+  S.leisureTimes,
+  S.stanceChangedTimes,
 ];
 
 export const FIELDS_TO_DIFF = [

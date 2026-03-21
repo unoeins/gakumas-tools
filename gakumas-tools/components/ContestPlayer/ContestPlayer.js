@@ -162,8 +162,6 @@ export default function ContestPlayer() {
   }
 
   async function startStage() {
-    setRunning(true);
-    
     const engine = new StageEngine(config, linkConfigs);
     engine.strategy = new PlayerStrategy(engine, pickCardsToHold);
   
@@ -190,6 +188,7 @@ export default function ContestPlayer() {
     }
 
     setStateHistory([nextState]);
+    setRunning(true);
     
     pushLoadoutHistory();
     if (stage.type === "linkContest") {

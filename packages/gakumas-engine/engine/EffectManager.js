@@ -75,7 +75,6 @@ export default class EffectManager extends EngineComponent {
       }
       if (effect.limit == 1 && effect.phase == "turn") {
         effect.type = "reservation";
-        console.log("Setting effect reservation", effect);
       }
       state[S.effects].push(effect);
     }

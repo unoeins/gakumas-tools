@@ -55,6 +55,10 @@ function AreaPlot({ data, plan }) {
               label: t("concentration"),
               color: "rgba(255, 118, 0, 0.25)",
             },
+            perfectConditionTurns: {
+              label: t("perfectConditionTurns"),
+              color: "rgba(255, 102, 242, 0.25)",
+            },
           }
         : {}),
       ...(plan == "logic"
@@ -78,6 +82,26 @@ function AreaPlot({ data, plan }) {
             cumulativeFullPowerCharge: {
               label: t("cumulativeFullPowerCharge"),
               color: "rgba(255, 171, 74, 0.25)",
+            },
+            strengthTimes: {
+              label: t("strengthTimes"),
+              color: "rgba(253, 40, 51, 0.25)",
+            },
+            preservationTimes: {
+              label: t("preservationTimes"),
+              color: "rgba(54, 40, 253, 0.25)",
+            },
+            fullPowerTimes: {
+              label: t("fullPowerTimes"),
+              color: "rgba(255, 152, 69, 0.25)",
+            },
+            leisureTimes: {
+              label: t("leisureTimes"),
+              color: "rgba(128, 32, 255, 0.25)",
+            },
+            stanceChangedTimes: {
+              label: t("stanceChangedTimes"),
+              color: "rgba(58, 255, 32, 0.25)",
             },
           }
         : {}),
