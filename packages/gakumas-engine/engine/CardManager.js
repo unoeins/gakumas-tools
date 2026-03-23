@@ -387,24 +387,26 @@ export default class CardManager extends EngineComponent {
 
     // Apply card cost
     let conditionState = shallowCopy(state);
-    this.logger.debug("Applying cost", skillCard.cost);
+    if (! state[S.nullifyCardUse]) {
+      this.logger.debug("Applying cost", skillCard.cost);
 
-    const cost = this.getLines(state, card, "cost")
-      .map((c) => c.actions)
-      .flat();
-    const nullifyCostApplicable = cost.some(
-      (c) => c[0] == "cost" || c[0] == "stamina"
-    );
-    if (nullifyCostApplicable && state[S.nullifyCostCards]) {
-      state[S.nullifyCostCards]--;
-    } else if (nullifyCostApplicable &&
-      skillCard.type === "active" && state[S.nullifyCostActiveCards]
-    ) {
-      state[S.nullifyCostActiveCards]--;
-    } else {
-      state[S.phase] = "processCost";
-      this.engine.executor.executeActions(state, cost, card);
-      delete state[S.phase];
+      const cost = this.getLines(state, card, "cost")
+        .map((c) => c.actions)
+        .flat();
+      const nullifyCostApplicable = cost.some(
+        (c) => c[0] == "cost" || c[0] == "stamina"
+      );
+      if (nullifyCostApplicable && state[S.nullifyCostCards]) {
+        state[S.nullifyCostCards]--;
+      } else if (nullifyCostApplicable &&
+        skillCard.type === "active" && state[S.nullifyCostActiveCards]
+      ) {
+        state[S.nullifyCostActiveCards]--;
+      } else {
+        state[S.phase] = "processCost";
+        this.engine.executor.executeActions(state, cost, card);
+        delete state[S.phase];
+      }
     }
 
     // Remove card from the specified pile
@@ -1231,7 +1233,6 @@ export default class CardManager extends EngineComponent {
     const targetPile = this.getTargetPile(targetRule);
     if (!targetCards.size) return;
     const card = [...targetCards][Math.floor(getRand() * targetCards.size)];
-    state[S.nullifyCostCards] += 1;
     state[S.nullifyCardUse] += 1;
     this.useCard(state, card, targetPile);
     state[S.nullifyCardUse] -= 1;
@@ -1244,7 +1245,6 @@ export default class CardManager extends EngineComponent {
     targetCards.forEach((card) => {
       // Only use the card if it's still in the expected pile (it may have been moved by a previous card effect)
       if (state[targetPile].includes(card)) {
-        state[S.nullifyCostCards] += 1;
         state[S.nullifyCardUse] += 1;
         this.useCard(state, card, targetPile);
         state[S.nullifyCardUse] -= 1;
