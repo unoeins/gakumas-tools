@@ -410,8 +410,8 @@ id,name,availableCustomizations,rarity,type,plan,unlockPlv,upgraded,unique,sourc
 409,オープニングアクト+,"40,48,63",SR,active,anomaly,29,TRUE,FALSE,produce,,FALSE,,do:cost-=4,"do:setStance(strength),do:score+=14,do:fullPowerCharge+=3",1,
 410,始まりの笑顔,,SR,active,anomaly,34,FALSE,TRUE,produce,,FALSE,,do:fullPowerCharge-=2,"do:setStance(strength),do:score+=6,do:halfCostTurns+=2;at:turn,do:drawCard,limit:1",,
 411,始まりの笑顔+,"48,58,40",SR,active,anomaly,34,TRUE,TRUE,produce,,FALSE,,do:fullPowerCharge-=1,"do:setStance(strength),do:score+=8,do:halfCostTurns+=2;at:turn,do:drawCard,limit:1",,
-412,理想のテンポ,,SR,active,anomaly,52,FALSE,FALSE,produce,,FALSE,,do:cost-=5,"do:score+=6,do:score+=6;if:!isPreservation,do:cardUsesRemaining+=1",1,"at:stanceChanged,if:isDirectEffect,target:this,do:g.score+=5"
-413,理想のテンポ+,,SR,active,anomaly,52,TRUE,FALSE,produce,,FALSE,,do:cost-=5,"do:score+=6,do:score+=6;if:!isPreservation,do:cardUsesRemaining+=1",1,"at:stanceChanged,if:isDirectEffect,target:this,do:g.score+=7"
+412,理想のテンポ,,SR,active,anomaly,52,FALSE,FALSE,produce,,FALSE,,do:cost-=5,"do:score+=6,do:score+=6;if:isNotPreservation,do:cardUsesRemaining+=1",1,"at:stanceChanged,if:isDirectEffect,target:this,do:g.score+=5"
+413,理想のテンポ+,,SR,active,anomaly,52,TRUE,FALSE,produce,,FALSE,,do:cost-=5,"do:score+=6,do:score+=6;if:isNotPreservation,do:cardUsesRemaining+=1",1,"at:stanceChanged,if:isDirectEffect,target:this,do:g.score+=7"
 414,トレーニングの成果,,SR,active,anomaly,58,FALSE,FALSE,produce,,FALSE,,do:cost-=5,"do:fullPowerCharge+=3,do:score+=28+cumulativeFullPowerCharge;at:beforeStartOfTurn,if:prevStance==fullPower,do:setStance(preservation2),limit:1",1,
 415,トレーニングの成果+,,SR,active,anomaly,58,TRUE,FALSE,produce,,FALSE,,do:cost-=5,"do:fullPowerCharge+=4,do:score+=28+cumulativeFullPowerCharge*2;at:beforeStartOfTurn,if:prevStance==fullPower,do:setStance(preservation2),limit:1",1,
 416,潜在能力,,SR,mental,anomaly,1,FALSE,FALSE,produce,,FALSE,,do:cost-=6,"do:genki+=10,do:fullPowerCharge+=3,do:holdSelectedFromHand",1,
