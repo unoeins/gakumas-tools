@@ -222,7 +222,6 @@ export default function Simulator() {
   return (
     <div id="simulator_loadout" className={styles.loadoutEditor}>
       <div className={styles.configurator}>
-        {/* <div>{t("multiplierNote")}</div> */}
         {stage.preview && <div>{t("previewNote")}</div>}
         <StageSelect />
         {stage.type !== "contest" ? (
@@ -341,7 +340,7 @@ export default function Simulator() {
             href="https://github.com/surisuririsu/gakumas-tools/blob/master/gakumas-tools/simulator/CHANGELOG.md"
             target="_blank"
           >
-            {t("lastUpdated")}: 2026-03-20
+            {t("lastUpdated")}: 2026-03-28
           </a>
         </div>
       </div>

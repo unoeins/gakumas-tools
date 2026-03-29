@@ -14,9 +14,10 @@ export default class BuffManager extends EngineComponent {
     this.variableResolvers = {
       isPreservation: (state) =>
         state[S.stance].startsWith("pre") || state[S.stance] == "leisure",
+      isNotPreservation: (state) =>
+        !state[S.stance].startsWith("pre") && state[S.stance] != "leisure",
       isStrength: (state) => state[S.stance].startsWith("str"),
-      isNotStrength: (state) =>
-        state[S.stance] == "none" || state[S.stance].startsWith("pre"),
+      isNotStrength: (state) => !state[S.stance].startsWith("str"),
       isFullPower: (state) => state[S.stance] == "fullPower",
       // stanceChangedTimes: (state) =>
       //   state[S.strengthTimes] +
@@ -25,17 +26,17 @@ export default class BuffManager extends EngineComponent {
       goodImpressionTurnsEffectBuff: (state) =>
         state[S.goodImpressionTurnsEffectBuffs].reduce(
           (acc, buff) => acc + buff.amount,
-          1
+          1,
         ),
       goodImpressionTurnsTimesBuff: (state) =>
         state[S.goodImpressionTurnsTimesBuffs].reduce(
           (acc, buff) => acc + buff.amount,
-          0
+          0,
         ),
       concentrationEffectBuff: (state) =>
         state[S.concentrationEffectBuffs].reduce(
           (acc, buff) => acc + buff.amount,
-          1
+          1,
         ),
       isDirectEffect: (state) => 
         state[S.parentPhase] == "processCard" ||
@@ -60,73 +61,73 @@ export default class BuffManager extends EngineComponent {
         this.setScoreBuff(
           state,
           parseFloat(amount),
-          turns ? parseInt(turns, 10) : null
+          turns ? parseInt(turns, 10) : null,
         ),
       setScoreDebuff: (state, amount, turns) =>
         this.setScoreDebuff(
           state,
           parseFloat(amount),
-          turns ? parseInt(turns, 10) : null
+          turns ? parseInt(turns, 10) : null,
         ),
       setGoodImpressionTurnsBuff: (state, amount, turns) =>
         this.setGoodImpressionTurnsBuff(
           state,
           parseFloat(amount),
-          turns ? parseInt(turns, 10) : null
+          turns ? parseInt(turns, 10) : null,
         ),
       setGoodImpressionTurnsEffectBuff: (state, amount, turns) =>
         this.setGoodImpressionTurnsEffectBuff(
           state,
           parseFloat(amount),
-          turns ? parseInt(turns, 10) : null
+          turns ? parseInt(turns, 10) : null,
         ),
       setGoodImpressionTurnsTimesBuff: (state, amount, turns) =>
         this.setGoodImpressionTurnsTimesBuff(
           state,
           parseInt(amount, 10),
-          turns ? parseInt(turns, 10) : null
+          turns ? parseInt(turns, 10) : null,
         ),
       setMotivationBuff: (state, amount, turns) =>
         this.setMotivationBuff(
           state,
           parseFloat(amount),
-          turns ? parseInt(turns, 10) : null
+          turns ? parseInt(turns, 10) : null,
         ),
       setGoodConditionTurnsBuff: (state, amount, turns) =>
         this.setGoodConditionTurnsBuff(
           state,
           parseFloat(amount),
-          turns ? parseInt(turns, 10) : null
+          turns ? parseInt(turns, 10) : null,
         ),
       setConcentrationBuff: (state, amount, turns) =>
         this.setConcentrationBuff(
           state,
           parseFloat(amount),
-          turns ? parseInt(turns, 10) : null
+          turns ? parseInt(turns, 10) : null,
         ),
       setConcentrationEffectBuff: (state, amount, turns) =>
         this.setConcentrationEffectBuff(
           state,
           parseFloat(amount),
-          turns ? parseInt(turns, 10) : null
+          turns ? parseInt(turns, 10) : null,
         ),
       setEnthusiasmBuff: (state, amount, turns) =>
         this.setEnthusiasmBuff(
           state,
           parseFloat(amount),
-          turns ? parseInt(turns, 10) : null
+          turns ? parseInt(turns, 10) : null,
         ),
       setFullPowerChargeBuff: (state, amount, turns) =>
         this.setFullPowerChargeBuff(
           state,
           parseFloat(amount),
-          turns ? parseInt(turns, 10) : null
+          turns ? parseInt(turns, 10) : null,
         ),
       setConcentrationEffectBuff: (state, amount, turns) =>
         this.setConcentrationEffectBuff(
           state,
           parseFloat(amount),
-          turns ? parseInt(turns, 10) : null
+          turns ? parseInt(turns, 10) : null,
         ),
       removeDebuffs: (state, amount) =>
         this.removeDebuffs(state, parseInt(amount, 10)),
@@ -134,7 +135,7 @@ export default class BuffManager extends EngineComponent {
       decreaseFullPowerCharge: (state, amount) => {
         state[S.fullPowerCharge] = Math.max(
           0,
-          state[S.fullPowerCharge] - parseInt(amount, 10)
+          state[S.fullPowerCharge] - parseInt(amount, 10),
         );
       },
     };
@@ -243,7 +244,7 @@ export default class BuffManager extends EngineComponent {
       S.goodImpressionTurnsBuffs,
       amount,
       turns,
-      "setGoodImpressionTurnsBuff"
+      "setGoodImpressionTurnsBuff",
     );
   }
 
@@ -253,7 +254,7 @@ export default class BuffManager extends EngineComponent {
       S.goodImpressionTurnsEffectBuffs,
       amount,
       turns,
-      "setGoodImpressionTurnsEffectBuff"
+      "setGoodImpressionTurnsEffectBuff",
     );
   }
 
@@ -263,7 +264,7 @@ export default class BuffManager extends EngineComponent {
       S.goodImpressionTurnsTimesBuffs,
       amount,
       turns,
-      "setGoodImpressionTurnsTimesBuff"
+      "setGoodImpressionTurnsTimesBuff",
     );
   }
 
@@ -277,7 +278,7 @@ export default class BuffManager extends EngineComponent {
       S.goodConditionTurnsBuffs,
       amount,
       turns,
-      "setGoodConditionTurnsBuff"
+      "setGoodConditionTurnsBuff",
     );
   }
 
@@ -287,7 +288,7 @@ export default class BuffManager extends EngineComponent {
       S.concentrationBuffs,
       amount,
       turns,
-      "setConcentrationBuff"
+      "setConcentrationBuff",
     );
   }
 
@@ -297,7 +298,7 @@ export default class BuffManager extends EngineComponent {
       S.concentrationEffectBuffs,
       amount,
       turns,
-      "setConcentrationEffectBuff"
+      "setConcentrationEffectBuff",
     );
   }
 
@@ -311,7 +312,7 @@ export default class BuffManager extends EngineComponent {
       S.fullPowerChargeBuffs,
       amount,
       turns,
-      "setFullPowerChargeBuff"
+      "setFullPowerChargeBuff",
     );
   }
 
