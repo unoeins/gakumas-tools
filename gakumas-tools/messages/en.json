@@ -287,7 +287,8 @@
     "downloadScores": "Download scores",
     "useStats": "Usage count",
     "conditionalUseStats": "Conditional usage count",
-    "priorityStats": "Priority comparison"
+    "priorityStats": "Priority comparison",
+    "scoreStats": "Score statistics"
   },
   "SimulatorResultGraphs": {
     "score": "Score"
@@ -407,7 +408,8 @@
     "enableSkillCardOrder": "Specify skill card order and turn order",
     "enableUseStats": "Count skill card usage",
     "enableConditionalUseStats": "Count skill card usage when a specific skill card is drawn",
-    "enablePriorityStats": "Count skill card priority usage"
+    "enablePriorityStats": "Count skill card priority usage",
+    "enableScoreStats": "Aggregate score statistics"
   },
   "SkillCardOrderGroups": {
     "Nth_order": "{n}th Card Order",
@@ -434,6 +436,12 @@
   "SimulatorPriorityStats": {
     "priorityStats": "Skill Card Priority Usage Count",
     "turn": "Turn {turn}"
+  },
+  "SimulatorScoreStats": {
+    "scoreStats": "Score stats",
+    "turn": "{turn} turns",
+    "total": "Total",
+    "turnTypeScore": "Show turn type scores"
   },
   "ContestPlayer": {
     "startStage": "Start",

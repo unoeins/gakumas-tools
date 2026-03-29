@@ -286,7 +286,8 @@
     "logs": "ログ",
     "useStats": "使用回数",
     "conditionalUseStats": "条件付き使用回数",
-    "priorityStats": "優先度比較"
+    "priorityStats": "優先度比較",
+    "scoreStats": "スコア統計"
   },
   "SimulatorResultGraphs": {
     "score": "スコア"
@@ -407,7 +408,8 @@
     "enableSkillCardOrder": "スキルカード順、ターン順を指定する",
     "enableUseStats": "スキルカード使用回数を集計する",
     "enableConditionalUseStats": "特定のスキルカードを引いた時の条件付き使用回数を集計する",
-    "enablePriorityStats": "スキルカード優先使用回数を集計する"
+    "enablePriorityStats": "スキルカード優先使用回数を集計する",
+    "enableScoreStats": "スコア統計を集計する"
   },
   "SkillCardOrderGroups": {
     "Nth_order": "{n}週目のカード順",
@@ -434,6 +436,12 @@
   "SimulatorPriorityStats": {
     "priorityStats": "スキルカード優先使用回数",
     "turn": "{turn}ターン"
+  },
+  "SimulatorScoreStats": {
+    "scoreStats": "スコア統計",
+    "turn": "{turn}ターン",
+    "total": "合計",
+    "turnTypeScore": "ターンタイプ別スコアを表示"
   },
   "ContestPlayer": {
     "startStage": "開始",

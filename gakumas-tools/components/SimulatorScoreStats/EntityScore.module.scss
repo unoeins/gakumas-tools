@@ -1,0 +1,75 @@
+@use "sass:color";
+@use "../../styles/colors";
+
+.tile {
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.entityScore {
+  @extend .tile;
+  display: flex;
+  border: 2px solid colors.$gray-extra-light;
+
+  .entity {
+    display: flex;
+    flex: 1 1 50%;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+  }
+
+  .scores {
+    display: flex;
+    flex-direction: row;
+    padding: 4px;
+    gap: 4px;
+    text-align: center;
+    
+    &.turnTypeScores {
+      flex: 1 1 50%;
+    }
+    &.totalScore {
+      flex: 1 1 20%;
+    }
+
+    .score {
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 33%;
+      padding: 0 8px;
+      align-content: center;
+      justify-content: center;
+      
+      &.total {
+        flex: 1 1 auto;
+      }
+      &.vocal {
+        color: colors.$vocal;
+        background-color: color.scale(colors.$vocal, $lightness: 80%);
+      }
+      &.dance {
+        color: colors.$dance;
+        background-color: color.scale(colors.$dance, $lightness: 80%);
+      }
+      &.visual {
+        color: colors.$visual;
+        background-color: color.scale(colors.$visual, $lightness: 80%);
+      }
+    }
+  }
+
+  .effect {
+    width: 17px;
+    height: 17px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    transform: rotate(-45deg);
+
+    img {
+      transform: rotate(45deg);
+    }
+  }
+}

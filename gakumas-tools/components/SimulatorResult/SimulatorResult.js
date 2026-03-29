@@ -6,6 +6,7 @@ import SimulatorResultGraphs from "./SimulatorResultGraphs";
 import SimulatorUseStats from "@/components/SimulatorUseStats";
 import SimulatorConditionalUseStats from "@/components/SimulatorConditionalUseStats";
 import SimulatorPriorityStats from "@/components/SimulatorPriorityStats";
+import SimulatorScoreStats from "@/components/SimulatorScoreStats";
 import styles from "./SimulatorResult.module.scss";
 import KofiAd from "../KofiAd";
 
@@ -22,6 +23,9 @@ function SimulatorResult({ data, listenerData, idolId, plan }) {
   }
   if (listenerData && listenerData["PriorityStats"]) {
     options.push({value: "priorityStats", label: t("priorityStats")});
+  }
+  if (listenerData && listenerData["ScoreStats"]) {
+    options.push({value: "scoreStats", label: t("scoreStats")});
   }
   const OPTIONS = options;
 
@@ -83,21 +87,27 @@ function SimulatorResult({ data, listenerData, idolId, plan }) {
               />
             </>
           )}
-          {activeLogType == "useStats" && (
+          {activeLogType == "useStats" && listenerData["UseStats"] && (
             <SimulatorUseStats
               useStats={listenerData["UseStats"]}
               idolId={idolId}
             />
           )}
-          {activeLogType == "conditionalUseStats" && (
+          {activeLogType == "conditionalUseStats" && listenerData["ConditionalUseStats"] && (
             <SimulatorConditionalUseStats
               conditionalUseStats={listenerData["ConditionalUseStats"]}
               idolId={idolId}
             />
           )}
-          {activeLogType == "priorityStats" && (
+          {activeLogType == "priorityStats" && listenerData["PriorityStats"] && (
             <SimulatorPriorityStats
               priorityStats={listenerData["PriorityStats"]}
+              idolId={idolId}
+            />
+          )}
+          {activeLogType == "scoreStats" && listenerData["ScoreStats"] && (
+            <SimulatorScoreStats
+              scoreStats={listenerData["ScoreStats"]}
               idolId={idolId}
             />
           )}

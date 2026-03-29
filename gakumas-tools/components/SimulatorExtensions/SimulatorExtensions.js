@@ -63,6 +63,18 @@ function SimulatorExtensions({ mode, config, idolId, listenerConfig, setListener
             />
             <label htmlFor="enablePriorityStats">{t("enablePriorityStats")}</label>
           </div> */}
+          <div className={styles.scoreStatsToggle}>
+            <input
+              type="checkbox"
+              id="enableScoreStats"
+              checked={listenerConfig.enableScoreStats}
+              onChange={(e) => setListenerConfig({
+                ...listenerConfig,
+                enableScoreStats: e.target.checked
+              })}
+            />
+            <label htmlFor="enableScoreStats">{t("enableScoreStats")}</label>
+          </div>
         </>
       )}
     </div>

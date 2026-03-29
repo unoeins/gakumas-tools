@@ -394,6 +394,9 @@ export function mergeListenerDatas(listenerDatas) {
       case "PriorityStats":
         mergedListenerData[key] = mergePriorityStatsResults(datas);
         break;
+      case "ScoreStats":
+        mergedListenerData[key] = mergeScoreStatsResults(datas);
+        break;
       default:
         console.warn("No merge function for listener key", key);
         continue;
@@ -476,6 +479,33 @@ function mergePriorityStatsResults(statsArray) {
           }
         });
       });
+    });
+  }
+  return merged;
+}
+
+function mergeScoreStatsResults(statsArray) {
+  const merged = { "data": [], turnTypes: [], numRuns: 0 };
+  for (const stats of statsArray) {
+    merged.numRuns += stats.numRuns;
+    for (const [turn, turnData] of stats.data.entries()) {
+      merged.data[turn] = (merged.data[turn] || new Map());
+      turnData.forEach((entityData, key) => {
+        if (merged.data[turn].has(key)) {
+          const mergedEntityData = merged.data[turn].get(key);
+          mergedEntityData.scores.vocal += entityData.scores.vocal;
+          mergedEntityData.scores.dance += entityData.scores.dance;
+          mergedEntityData.scores.visual += entityData.scores.visual;
+        } else {
+          merged.data[turn].set(key, { ...entityData });
+        }
+      });
+    }
+    stats.turnTypes.forEach((turnTypeData, turn) => {
+      merged.turnTypes[turn] = (merged.turnTypes[turn] || { vocal: 0, dance: 0, visual: 0 });
+      merged.turnTypes[turn].vocal += turnTypeData.vocal;
+      merged.turnTypes[turn].dance += turnTypeData.dance;
+      merged.turnTypes[turn].visual += turnTypeData.visual;
     });
   }
   return merged;

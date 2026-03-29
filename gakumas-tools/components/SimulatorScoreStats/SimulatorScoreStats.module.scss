@@ -1,0 +1,64 @@
+@use "sass:color";
+@use "../../styles/colors";
+
+.scoreStats {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 0 12px 0;
+  color: colors.$black-dark;
+}
+
+.scoreStatsHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 4px;
+}
+
+.scoreStatsTurnData {
+  border-left: 4px solid;
+  margin-bottom: -8px;
+  border-color: colors.$green;
+}
+
+.scoreStatsTurn {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 0 16px 2px 0;
+  padding: 6px;
+  padding-left: 8px;
+  color: colors.$white;
+  font-weight: 600;
+  background-color: colors.$green;
+}
+
+.turnTypes {
+  display: flex;
+  padding-right: 4px;
+  gap: 4px;
+  text-align: center;
+
+  .turnType {
+    min-width: 60px;
+
+    &.vocal {
+      color: colors.$vocal;
+      background-color: color.scale(colors.$vocal, $lightness: 80%);
+    }
+    &.dance {
+      color: colors.$dance;
+      background-color: color.scale(colors.$dance, $lightness: 80%);
+    }
+    &.visual {
+      color: colors.$visual;
+      background-color: color.scale(colors.$visual, $lightness: 80%);
+    }
+  }
+}
+
+.scoreStatsData {
+  padding: 6px 0px 6px 6px;
+}

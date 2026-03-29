@@ -67,8 +67,9 @@ export default function Simulator() {
   const [enterPercents, setEnterPercents] = useState(false);
   const [listenerConfig, setListenerConfig] = useState({
     enableUseStats: true,
-    enableConditionalUseStats: true,
+    enableConditionalUseStats: false,
     enablePriorityStats: false,
+    enableScoreStats: true,
   });
   const [listenerData, setListenerData] = useState(null);
   const workersRef = useRef();
