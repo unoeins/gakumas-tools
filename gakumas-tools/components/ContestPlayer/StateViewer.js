@@ -72,7 +72,7 @@ function StateViewer({ state, idolId, plan }) {
     plan === "sense" ? [...COMMON_FIELDS, ...SENSE_FIELDS, ...EXTRA_FIELDS] : 
     plan === "logic" ? [...COMMON_FIELDS, ...LOGIC_FIELDS, ...EXTRA_FIELDS] : 
     plan === "anomaly" ? [...COMMON_FIELDS, ...ANOMALY_FIELDS, ...EXTRA_FIELDS] : 
-    [];
+    [...COMMON_FIELDS, ...SENSE_FIELDS, ...LOGIC_FIELDS, ...ANOMALY_FIELDS, ...EXTRA_FIELDS];
 
   const viewFields = fieldsByPlan.filter((field) => {
     if (REQUIRED_FIELDS.includes(field.name)) return true;

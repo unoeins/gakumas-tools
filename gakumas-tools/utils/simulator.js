@@ -530,7 +530,7 @@ export function getIndications(config, loadout) {
     let indications = {};
 
     // Plan mismatch
-    if (plan && pItem.plan != "free" && pItem.plan != plan) {
+    if (plan && plan != "free" && pItem.plan != "free" && pItem.plan != plan) {
       indications.planMismatch = true;
     }
 
@@ -557,7 +557,7 @@ export function getIndications(config, loadout) {
       let indications = {};
 
       // Plan mismatch
-      if (plan && skillCard.plan != "free" && skillCard.plan != plan) {
+      if (plan && plan != "free" && skillCard.plan != "free" && skillCard.plan != plan) {
         indications.planMismatch = true;
       }
 
@@ -593,7 +593,7 @@ export function getIndications(config, loadout) {
     let indications = {};
 
     // Plan mismatch
-    if (plan && pDrink.plan != "free" && pDrink.plan != plan) {
+    if (plan && plan != "free" && pDrink.plan != "free" && pDrink.plan != plan) {
       indications.planMismatch = true;
     }
 

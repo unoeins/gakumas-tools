@@ -13,7 +13,7 @@ export default function LoadoutParams({
         parameters={params}
         onChange={onChange}
         withStamina={withStamina}
-        max={10000}
+        max={100000}
       />
       <div className={styles.typeMultipliers}>
         {Object.keys(typeMultipliers).map((param) => (

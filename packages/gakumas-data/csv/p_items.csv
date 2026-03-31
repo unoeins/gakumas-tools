@@ -410,3 +410,4 @@ id,name,rarity,upgraded,plan,mode,sourceType,pIdolId,welfare,effects
 409,あたしたちの約束+,SSR,TRUE,anomaly,stage,pIdol,132,FALSE,"at:endOfTurn,if:cumulativeFullPowerCharge>=13,target:787,do:g.scoreTimes+=1,limit:2;at:endOfTurn,if:cumulativeFullPowerCharge>=13,limit:2;at:turn,do:moveCardToHand(787,0),limit:1"
 410,夢を叶えるために,SSR,FALSE,sense,stage,support,,FALSE,"at:startOfTurn,if:isVisualTurn,if:numRemovedCards>=7,do:goodConditionTurns+=1"
 411,切磋琢磨のタオル,SR,FALSE,anomaly,produce,support,,FALSE,
+10001,あさり先生のおまもり,SSR,FALSE,free,stage,pIdol,1001,FALSE,"at:everyTurn,if:turnsElapsed%4==3,do:movePIdolCardToTopOfDeck"

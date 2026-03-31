@@ -61,6 +61,8 @@ export default class CardManager extends EngineComponent {
       movePreservationCardToHand: (state) =>
         this.movePreservationCardToHand(state),
       movePIdolCardToHand: (state) => this.movePIdolCardToHand(state),
+      movePIdolCardToTopOfDeck: (state) =>
+        this.movePIdolCardToTopOfDeck(state),
       holdCard: (state, cardBaseId) =>
         this.holdCard(state, parseInt(cardBaseId, 10)),
       holdThisCard: (state) => this.holdThisCard(state),
@@ -81,6 +83,8 @@ export default class CardManager extends EngineComponent {
         this.useRandomCardFree(state, targetRule),
       useAllCardsFree: (state, targetRule) =>
         this.useAllCardsFree(state, targetRule),
+      useSelectedCardFreeFromDeckOrDiscards: (state, num = 1) =>
+        this.useSelectedCardFree(state, ["deck", "discards"], parseInt(num, 10)),
       removeBasicCard: (state) => this.removeBasicCard(state),
     };
   }
@@ -899,6 +903,28 @@ export default class CardManager extends EngineComponent {
     });
   }
 
+  movePIdolCardToTopOfDeck(state) {
+    let pIdolCards = [];
+    for (let pile of [S.handCards, S.deckCards, S.discardedCards, S.removedCards]) {
+      for (let i = 0; i < state[pile].length; i++) {
+        const cardIdx = state[pile][i];
+        if (this.getCardSourceType(state, cardIdx) === "pIdol") {
+          pIdolCards.push({ pile, index: i, cardIdx });
+        }
+      }
+    }
+    if (!pIdolCards.length) return;
+
+    const pick = pIdolCards[Math.floor(getRand() * pIdolCards.length)];
+    state[pick.pile].splice(pick.index, 1);
+
+    state[S.deckCards].push(pick.cardIdx);
+    this.logger.log(state, "moveCardToTopOfDeck", {
+      type: "skillCard",
+      id: state[S.cardMap][pick.cardIdx].id,
+    });
+  }
+
   moveActiveCardsToDeckFromRemoved(state) {
     let cards = state[S.cardMap]
       .map((c, i) =>
@@ -1255,6 +1281,44 @@ export default class CardManager extends EngineComponent {
         state[S.nullifyCardUse] -= 1;
       }
     });
+  }
+
+  useSelectedCardFree(state, sources, num = 1, optional = false) {
+    if (state[S.nullifySelect]) return;
+
+    // Collect cards from specified sources
+    const sourceKeys = sources.map((s) => HOLD_SOURCES_BY_ALIAS[s]);
+    const sourceCards = sourceKeys.map((k) => state[k]);
+    const cards = [].concat(...sourceCards);
+    if (!cards.length) return;
+
+    // Pick card to use based on strategy (may throw exception if async)
+    const indicesToHold = this.engine.strategy.pickCardsToMoveToHand(
+      state,
+      cards,
+      num,
+      optional
+    );
+
+    const sortedIndicesToHold = indicesToHold.toSorted((a, b) => b - a);
+    if (sortedIndicesToHold.length === 0) return;
+
+    // Find cards and use without cost
+    for (let j = 0; j < sortedIndicesToHold.length; j++) {
+      let indexToHold = sortedIndicesToHold[j];
+      for (let i = 0; i < sources.length; i++) {
+        if (indexToHold < sourceCards[i].length) {
+          const card = cards[indicesToHold[j]];
+          const targetPile = sourceKeys[i];
+          state[S.nullifyCardUse] += 1;
+          this.useCard(state, card, targetPile);
+          state[S.nullifyCardUse] -= 1;
+          break;
+        } else {
+          indexToHold -= sourceCards[i].length;
+        }
+      }
+    }
   }
 
   removeBasicCard(state) {

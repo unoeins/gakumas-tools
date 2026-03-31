@@ -791,3 +791,5 @@ id,name,availableCustomizations,rarity,type,plan,unlockPlv,upgraded,unique,sourc
 790,天下無双,,L,active,sense,1,FALSE,TRUE,produce,,FALSE,,do:cost-=4,"do:perfectConditionTurns+=7,do:cardUsesRemaining+=1;at:afterCardUsed,if:perfectConditionTurns>=5,do:concentrationMultiplier=2,do:score+=2,do:perfectConditionTurns-=1",1,
 791,グランドフィナーレ,,L,active,anomaly,1,FALSE,TRUE,produce,,FALSE,,do:cost-=0,"do:score+=50+cumulativeFullPowerCharge*3.5,do:stamina-=maxStamina",1,"at:cardMovedToHeld,if:movedCardId==791,target:held,do:g.scoreTimes+=1"
 792,トップクオリティ,,L,mental,anomaly,1,FALSE,TRUE,produce,,FALSE,if:isPreservation,do:cost-=6,"do:cardUsesRemaining+=1;at:afterActiveCardUsed,if:isStrength,do:enthusiasmBonus+=3;at:afterMentalCardUsed,if:isPreservation,do:setEnthusiasmBuff(0.5)",1,
+10001,先生でアイドル！,,SSR,mental,free,1,FALSE,TRUE,pIdol,1001,TRUE,,do:cost-=0,"do:cardUsesRemaining+=1,do:doubleCardEffectCards+=1,do:useSelectedCardFreeFromDeckOrDiscards",1,
+10002,先生でアイドル！+,,SSR,mental,free,1,TRUE,TRUE,pIdol,1001,TRUE,,do:cost-=0,"do:cardUsesRemaining+=1,do:doubleCardEffectCards+=1,do:useSelectedCardFreeFromDeckOrDiscards",1,
