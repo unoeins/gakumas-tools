@@ -930,6 +930,11 @@ export default class CardManager extends EngineComponent {
     // Hold the card
     if (card != null) {
       state[S.heldCards].push(card);
+      state[S.movedCard] = card;
+      this.engine.effectManager.triggerEffectsForPhase(
+        state,
+        "cardMovedToHeld"
+      );
       this.logger.log(state, "holdCard", {
         type: "skillCard",
         id: state[S.cardMap][card].id,

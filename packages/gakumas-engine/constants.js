@@ -111,6 +111,7 @@ export const PHASES = [
   "buffCostConsumed",
   "cardUsed",
   "cardMovedToHand",
+  "cardMovedToHeld",
   "cardRemoved",
   "concentrationIncreased",
   "drinkUsed",
