@@ -13,7 +13,7 @@ export default class BuffManager extends EngineComponent {
 
     this.variableResolvers = {
       isPreservation: (state) =>
-        state[S.stance].startsWith("pre") || state[S.stance] == "leisure",
+        state[S.stance].startsWith("pre") || state[S.stance] === "leisure",
       isNotPreservation: (state) =>
         !state[S.stance].startsWith("pre") && state[S.stance] != "leisure",
       isStrength: (state) => state[S.stance].startsWith("str"),
@@ -210,7 +210,7 @@ export default class BuffManager extends EngineComponent {
 
     // Other
     state[S.nullifySelect] = 0;
-    state[S.nullifyCardUse] = 0;
+    state[S.freeCardUses] = 0;
   }
 
   setBuff(state, field, amount, turns, logLabel) {

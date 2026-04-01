@@ -18,7 +18,8 @@ export function WorkspaceContextProvider({ children }) {
       const data = JSON.parse(workspaceString);
       if (data.filter) setFilter(data.filter);
       if (data.plan) setPlan(data.plan);
-      if (data.idolId) setIdolId(data.idolId);
+      // avoid error if asari is selected,  remove later
+      if (data.idolId && data.idolId <= 100) setIdolId(data.idolId);
       if (data.pinnedTools) setPinnedTools(data.pinnedTools);
     }
     setLoaded(true);

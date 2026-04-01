@@ -26,8 +26,8 @@ function EntityBank({ type, onClick, filters = [], includeNull = true }) {
   const [enabledCustomFilters, setEnabledCustomFilters] = useState(
     filters.reduce(
       (acc, cur) => ({ ...acc, [cur.label]: !cur.label || cur.default }),
-      {}
-    )
+      {},
+    ),
   );
 
   let entities = [];
@@ -79,7 +79,7 @@ function EntityBank({ type, onClick, filters = [], includeNull = true }) {
 
   const toggleableFilters = useMemo(
     () => filters.filter((f) => f.label),
-    [filters]
+    [filters],
   );
 
   return (
@@ -122,7 +122,7 @@ function EntityBank({ type, onClick, filters = [], includeNull = true }) {
               key={f.label}
               className={c(
                 styles.toggle,
-                enabledCustomFilters[f.label] && styles.enabled
+                enabledCustomFilters[f.label] && styles.enabled,
               )}
               onClick={() =>
                 setEnabledCustomFilters({
