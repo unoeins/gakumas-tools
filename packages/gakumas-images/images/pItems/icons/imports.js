@@ -403,6 +403,7 @@ import image_402 from "./402.png";
 import image_403 from "./403.png";
 import image_404 from "./404.png";
 import image_405 from "./405.png";
+import image_10001 from "./10001.png";
 
 const IMAGES = {
   '1': image_1,
@@ -810,6 +811,7 @@ const IMAGES = {
   '403': image_403,
   '404': image_404,
   '405': image_405,
+  '10001': image_10001,
 };
 
 export default IMAGES;

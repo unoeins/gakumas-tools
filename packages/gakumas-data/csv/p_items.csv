@@ -404,10 +404,11 @@ id,name,rarity,upgraded,plan,mode,sourceType,pIdolId,welfare,effects
 403,すべてを超えた先へ+,SSR,TRUE,logic,stage,pIdol,130,FALSE,"at:startOfStage,do:setScoreDebuff(0.2,4),limit:1;at:turn,if:turnsElapsed==2,do:motivation+=2,do:cardUsesRemaining+=1,limit:1;at:turn,if:turnsElapsed==5,do:goodImpressionTurns+=4,do:cardUsesRemaining+=1,limit:1"
 404,咲季の完全食・改,SSR,FALSE,logic,stage,support,,FALSE,"at:cardUsed,if:turnCardsUsed%2==1,do:goodImpressionTurns+=2,do:setGoodImpressionTurnsEffectBuff(0.25),limit:1"
 405,演技のたしなみ,SR,FALSE,logic,stage,support,,FALSE,"at:staminaDecreased,if:parentPhase==processCost,if:isVisualTurn,do:goodImpressionTurns+=2,do:halfCostTurns+=2,limit:1"
-406,わたしたちの約束,SSR,FALSE,sense,stage,pIdol,131,FALSE,"at:goodConditionTurnsIncreased,if:goodConditionTurnsDelta>=7,if:concentration>=13,do:goodConditionTurns+=concentration*0.75,do:concentration=concentration/2,do:perfectConditionTurns+=2,do:genki+=2"
+406,わたしたちの約束,SSR,FALSE,sense,stage,pIdol,131,FALSE,"at:goodConditionTurnsIncreased,if:goodConditionTurnsDelta>=7,if:concentration>=13,do:goodConditionTurns+=concentration*0.75,do:concentration=concentration/2,do:perfectConditionTurns+=1,do:genki+=2"
 407,わたしたちの約束+,SSR,TRUE,sense,stage,pIdol,131,FALSE,"at:goodConditionTurnsIncreased,if:goodConditionTurnsDelta>=7,if:concentration>=13,do:goodConditionTurns+=concentration*0.75,do:concentration=concentration/2,do:perfectConditionTurns+=2,do:genki+=2"
-408,あたしたちの約束,SSR,FALSE,anomaly,stage,pIdol,132,FALSE,"at:endOfTurn,if:cumulativeFullPowerCharge>=13,target:787,do:g.scoreTimes+=1,limit:2;at:endOfTurn,if:cumulativeFullPowerCharge>=13,limit:2;at:turn,do:moveCardToHand(787,0),limit:1"
+408,あたしたちの約束,SSR,FALSE,anomaly,stage,pIdol,132,FALSE,"at:endOfTurn,if:cumulativeFullPowerCharge>=13,target:787,do:g.scoreTimes+=1,limit:2;at:endOfTurn,if:cumulativeFullPowerCharge>=13,do:fixedStamina-=1,limit:2;at:endOfTurn,if:cumulativeFullPowerCharge>=13,limit:2;at:turn,do:moveCardToHand(787,0),limit:1"
 409,あたしたちの約束+,SSR,TRUE,anomaly,stage,pIdol,132,FALSE,"at:endOfTurn,if:cumulativeFullPowerCharge>=13,target:787,do:g.scoreTimes+=1,limit:2;at:endOfTurn,if:cumulativeFullPowerCharge>=13,limit:2;at:turn,do:moveCardToHand(787,0),limit:1"
 410,夢を叶えるために,SSR,FALSE,sense,stage,support,,FALSE,"at:startOfTurn,if:isVisualTurn,if:numRemovedCards>=7,do:goodConditionTurns+=1"
 411,切磋琢磨のタオル,SR,FALSE,anomaly,produce,support,,FALSE,
+412,おかいものバッグ,SSR,FALSE,anomaly,stage,support,,TRUE,"at:stanceChanged,if:isDanceTurn,if:isDirectEffect,if:genki==0,do:halfCostTurns+=1"
 10001,あさり先生のおまもり,SSR,FALSE,free,stage,pIdol,1001,FALSE,"at:everyTurn,if:turnsElapsed%4==3,do:movePIdolCardToTopOfDeck"
