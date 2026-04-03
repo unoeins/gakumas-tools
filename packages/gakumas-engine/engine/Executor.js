@@ -106,10 +106,8 @@ export default class Executor extends EngineComponent {
     for (let i = 0; i < actions.length; i++) {
       // Snapshot state before this action for per-action triggers
       let actionPrev = {};
-      if (CHANGE_TRIGGER_PHASES.includes(state[S.phase])) {
-        for (let k = 0; k < FIELDS_TO_DIFF.length; k++) {
-          actionPrev[FIELDS_TO_DIFF[k]] = state[FIELDS_TO_DIFF[k]];
-        }
+      for (let k = 0; k < FIELDS_TO_DIFF.length; k++) {
+        actionPrev[FIELDS_TO_DIFF[k]] = state[FIELDS_TO_DIFF[k]];
       }
 
       this.executeAction(state, actions[i], card);
@@ -133,6 +131,11 @@ export default class Executor extends EngineComponent {
         if (state[NON_NEGATIVE_FIELDS[k]] < 0) {
           state[NON_NEGATIVE_FIELDS[k]] = 0;
         }
+      }
+
+      // Consumed genki
+      if (state[S.genki] < actionPrev[S.genki]) {
+        state[S.consumedGenki] += actionPrev[S.genki] - state[S.genki];
       }
 
       // Fire increase/decrease triggers after each action
@@ -189,7 +192,7 @@ export default class Executor extends EngineComponent {
         if (decreasedFields.has(BUFF_FIELDS[i])) {
           this.engine.effectManager.triggerEffectsForPhase(
             state,
-            "buffCostConsumed"
+            "buffCostConsumed",
           );
           break;
         }
@@ -204,7 +207,7 @@ export default class Executor extends EngineComponent {
         state[S[`${fieldName}Delta`]] = state[field] - actionPrev[field];
         this.engine.effectManager.triggerEffectsForPhase(
           state,
-          `${fieldName}Increased`
+          `${fieldName}Increased`,
         );
         state[S[`${fieldName}Delta`]] = 0;
       }
@@ -218,7 +221,7 @@ export default class Executor extends EngineComponent {
         state[S[`${fieldName}Delta`]] = state[field] - actionPrev[field];
         this.engine.effectManager.triggerEffectsForPhase(
           state,
-          `${fieldName}Decreased`
+          `${fieldName}Decreased`,
         );
         state[S[`${fieldName}Delta`]] = 0;
       }
@@ -331,15 +334,12 @@ export default class Executor extends EngineComponent {
             state,
             intermediate,
             growth || {},
-            rhsTokens
+            rhsTokens,
           );
         } else {
           console.warn(`Unresolved intermediate: ${intermediateField}`);
         }
       } else {
-        if (lhs == "genki" && state[S[lhs]] > intermediate) {
-          state[S.consumedGenki] += state[S[lhs]] - Math.ceil(intermediate);
-        }
         state[S[lhs]] = intermediate;
       }
 
@@ -428,10 +428,7 @@ export default class Executor extends EngineComponent {
     if (state[S.genki] < 0) {
       state[S.stamina] += state[S.genki];
       state[S.consumedStamina] -= state[S.genki];
-      state[S.consumedGenki] -= cost - state[S.genki];
       state[S.genki] = 0;
-    } else {
-      state[S.consumedGenki] -= cost;
     }
   }
 
@@ -473,8 +470,8 @@ export default class Executor extends EngineComponent {
     if (score > 0) {
       // Apply concentration
       const concentrationEffectBuff = state[S.concentrationEffectBuffs].reduce(
-        (acc, buff) => acc + buff.amount,
-        1
+        (acc, cur) => acc + cur.amount,
+        1,
       );
       score += state[S.concentration] * state[S.concentrationMultiplier] * concentrationEffectBuff;
 
@@ -513,13 +510,13 @@ export default class Executor extends EngineComponent {
       // Score buff effects
       let scoreBuff = state[S.scoreBuffs].reduce(
         (acc, cur) => acc + cur.amount,
-        0
+        0,
       );
 
       if (state[S.prideTurns]) {
         const buffAmount = Math.min(
           state[S.goodImpressionTurns],
-          state[S.motivation]
+          state[S.motivation],
         );
         scoreBuff += Math.min(buffAmount * 0.02, 0.5);
       }
@@ -529,7 +526,7 @@ export default class Executor extends EngineComponent {
       // Score debuff effects
       score *= Math.max(
         state[S.scoreDebuffs].reduce((acc, cur) => acc - cur.amount, 1),
-        0
+        0,
       );
 
       // Apply poor condition
@@ -552,7 +549,7 @@ export default class Executor extends EngineComponent {
     // Apply good impression turns buffs
     goodImpressionTurns *= state[S.goodImpressionTurnsBuffs].reduce(
       (acc, cur) => acc + cur.amount,
-      1
+      1,
     );
 
     state[S.goodImpressionTurns] += goodImpressionTurns;
@@ -562,7 +559,7 @@ export default class Executor extends EngineComponent {
     // Apply motivation buffs
     motivation *= state[S.motivationBuffs].reduce(
       (acc, cur) => acc + cur.amount,
-      1
+      1,
     );
 
     state[S.motivation] += motivation;
@@ -572,7 +569,7 @@ export default class Executor extends EngineComponent {
     // Apply good condition turns buffs
     goodConditionTurns *= state[S.goodConditionTurnsBuffs].reduce(
       (acc, cur) => acc + cur.amount,
-      1
+      1,
     );
 
     state[S.goodConditionTurns] += goodConditionTurns;
@@ -582,7 +579,7 @@ export default class Executor extends EngineComponent {
     // Apply concentration buffs
     concentration *= state[S.concentrationBuffs].reduce(
       (acc, cur) => acc + cur.amount,
-      1
+      1,
     );
 
     state[S.concentration] += concentration;
@@ -641,7 +638,7 @@ export default class Executor extends EngineComponent {
     enthusiasm += state[S.enthusiasmBonus];
     enthusiasm *= state[S.enthusiasmBuffs].reduce(
       (acc, cur) => acc + cur.amount,
-      1
+      1,
     );
     state[S.enthusiasm] += enthusiasm;
   }
@@ -651,7 +648,7 @@ export default class Executor extends EngineComponent {
       // Apply full power charge buffs
       fullPowerCharge *= state[S.fullPowerChargeBuffs].reduce(
         (acc, cur) => acc + cur.amount,
-        1
+        1,
       );
       state[S.cumulativeFullPowerCharge] += fullPowerCharge;
     }

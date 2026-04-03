@@ -15,7 +15,7 @@ import {
 import styles from "./EntityBank.module.scss";
 
 const HIDDEN_ITEM_IDS = [416];
-const HIDDEN_CARD_IDS = [799];
+const HIDDEN_CARD_IDS = [799, 802];
 const HIDDEN_DRINK_IDS = [];
 
 function EntityBank({ type, onClick, filters = [], includeNull = true }) {

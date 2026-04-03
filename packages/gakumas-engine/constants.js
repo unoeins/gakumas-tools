@@ -452,8 +452,8 @@ export const FIELDS_TO_DIFF = [
     LOGGED_FIELDS.concat(
       INCREASE_TRIGGER_FIELDS,
       DECREASE_TRIGGER_FIELDS,
-      EOT_DECREMENT_FIELDS
-    )
+      EOT_DECREMENT_FIELDS,
+    ),
   ),
 ];
 
