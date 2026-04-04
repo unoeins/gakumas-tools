@@ -51,14 +51,26 @@ export default class CardManager extends EngineComponent {
       addCardToHand: (state, cardId) => this.addCardToHand(state, cardId),
       moveCardToHand: (state, cardId, exact) =>
         this.moveCardToHand(state, cardId, parseInt(exact, 10)),
+      moveCardToHandFromDeckOrDiscards: (state, cardId, exact) =>
+        this.moveCardToHandFromDeckOrDiscards(
+          state,
+          cardId,
+          parseInt(exact, 10),
+        ),
       moveCardToHandFromRemoved: (state, cardBaseId) =>
         this.moveCardToHandFromRemoved(state, cardBaseId),
       moveSelectedFromDeckOrDiscardsToHand: (state, num = 1) =>
-        this.moveSelectedCardToHand(state, ["deck", "discards"], num),
+        this.moveSelectedCardToHand(
+          state,
+          ["deck", "discards"],
+          parseInt(num, 10),
+        ),
       moveCardToTopOfDeck: (state, cardId) =>
         this.moveCardToTopOfDeck(state, cardId),
-      moveSSRToTopOfDeck: (state, num) => this.moveSSRToTopOfDeck(state, num),
-      moveSSRToHand: (state, num) => this.moveSSRToHand(state, num),
+      moveSSRToTopOfDeck: (state, num) =>
+        this.moveSSRToTopOfDeck(state, parseInt(num, 10)),
+      moveSSRToHand: (state, num) =>
+        this.moveSSRToHand(state, parseInt(num, 10)),
       movePreservationCardToHand: (state) =>
         this.movePreservationCardToHand(state),
       movePIdolCardToHand: (state) => this.movePIdolCardToHand(state),
@@ -702,8 +714,39 @@ export default class CardManager extends EngineComponent {
     });
   }
 
-  // From deck/discards
+  // From anywhere
   moveCardToHand(state, cardId, exact) {
+    if (state[S.handCards].length >= 5) return;
+    let matchingCards = [];
+    for (let pile of CARD_PILES) {
+      for (let i = 0; i < state[pile].length; i++) {
+        const cardIdx = state[pile][i];
+        const card = state[S.cardMap][cardIdx];
+        if (exact && card.id == cardId) {
+          matchingCards.push({ pile, index: i, cardIdx });
+        } else if (!exact && card.baseId == cardId) {
+          matchingCards.push({ pile, index: i, cardIdx });
+        }
+      }
+    }
+
+    if (!matchingCards.length) return;
+
+    const pick = matchingCards[Math.floor(getRand() * matchingCards.length)];
+    state[pick.pile].splice(pick.index, 1);
+    state[S.handCards].push(pick.cardIdx);
+
+    state[S.movedCard] = pick.cardIdx;
+    this.engine.effectManager.triggerEffectsForPhase(state, "cardMovedToHand");
+
+    this.logger.log(state, "moveCardToHand", {
+      type: "skillCard",
+      id: state[S.cardMap][pick.cardIdx].id,
+    });
+  }
+
+  // From deck/discards
+  moveCardToHandFromDeckOrDiscards(state, cardId, exact) {
     if (state[S.handCards].length >= 5) return;
     let matchingCards = [];
     for (let pile of [S.deckCards, S.discardedCards]) {
