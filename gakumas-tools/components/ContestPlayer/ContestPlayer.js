@@ -92,7 +92,7 @@ export default function ContestPlayer() {
 
   const { setModal, closeModal } = useContext(ModalContext);
 
-  const logs = engine?.logger.peekLogs(getState());
+  const logs = running ? engine.logger.peekLogs(getState()) : null;
   const structuredLogs = useMemo(() => structureLogs(logs), [logs]);
   // if (logs) {
   //   console.log("logs:", logs);
@@ -162,17 +162,21 @@ export default function ContestPlayer() {
   }
 
   async function startStage() {
+    setStateHistory([]);
+    setRunning(false);
+    
     const engine = new StageEngine(config, linkConfigs);
     engine.strategy = new PlayerStrategy(engine, pickCardsToHold);
   
     setEngine(engine);
 
     engine.logger.reset();
-    let state = engine.getInitialState();
+    const initialState = engine.getInitialState();
     let nextState = null;
     let pickCardsToHoldIndices = [];
     while (nextState == null) {
       try {
+        const state = deepCopy(initialState);
         nextState = engine.startStage(state);
       } catch (e) {
         if (e.message === "not picked") {
