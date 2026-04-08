@@ -158,9 +158,14 @@ export default class EffectManager extends EngineComponent {
       // Delayed effects
       if (effect.phase) {
         this.logger.debug("Setting effects", effect.effects);
+        let settingEffects = [effect];
+        if (!effect.actions && !effect.effects && i < effects.length - 1) {
+          settingEffects.push(effects[i+1]);
+          skipNextEffect = true;
+        }
         this.setEffects(
           state,
-          [effect],
+          settingEffects,
           source != null && sourceType === EFFECT_SOURCES.SKILL_CARD
             ? {
                 type: "skillCardEffect",
