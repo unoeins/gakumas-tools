@@ -92,7 +92,7 @@ export default function ContestPlayer() {
 
   const { setModal, closeModal } = useContext(ModalContext);
 
-  const logs = running ? engine.logger.peekLogs(getState()) : null;
+  const logs = getState() ? engine?.logger.peekLogs(getState()) : null;
   const structuredLogs = useMemo(() => structureLogs(logs), [logs]);
   // if (logs) {
   //   console.log("logs:", logs);
