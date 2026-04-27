@@ -4,11 +4,15 @@ import { useTranslations } from "next-intl";
 import { FaCircleChevronDown } from "react-icons/fa6";
 import { Idols } from "gakumas-data";
 import gkImg from "gakumas-images";
+import Alert from "@/components/Alert";
 import ButtonGroup from "@/components/ButtonGroup";
+import DifficultyPicker from "@/components/DifficultyPicker";
 import IconSelect from "@/components/IconSelect";
 import Input from "@/components/Input";
 import LineChart from "@/components/LineChart";
+import Panel from "@/components/Panel";
 import ParametersInput from "@/components/ParametersInput";
+import ProduceRankResult from "@/components/ProduceRankResult";
 import Table from "@/components/Table";
 import WorkspaceContext from "@/contexts/WorkspaceContext";
 import { getRank, TARGET_RATING_BY_RANK } from "@/utils/produceRank";
@@ -64,14 +68,7 @@ const FINAL_AUDITIONS = ["idolbigup", "quartet", "finale"];
 export default function NiaCalculator() {
   const t = useTranslations("Calculator");
 
-  const DIFFICULTY_OPTIONS = useMemo(
-    () =>
-      ["pro", "master"].map((difficulty) => ({
-        value: difficulty,
-        label: t(`difficulties.${difficulty}`),
-      })),
-    [t],
-  );
+  const DIFFICULTIES = ["pro", "master"];
   const TABLE_HEADERS = [t("produceRank"), "Vo", "Da", "Vi"];
 
   const { idolId, setIdolId } = useContext(WorkspaceContext);
@@ -102,20 +99,36 @@ export default function NiaCalculator() {
   const maxParams = MAX_PARAMS_BY_DIFFICULTY[difficulty];
   const paramOrder = PARAM_ORDER_BY_IDOL[idolId];
 
-  const recommendedScores = FINAL_AUDITIONS.includes(stage)
-    ? calculateRecommendedScores(
-        paramRegimesByOrder,
-        voteRegimes,
-        maxParams,
-        paramOrder,
-        challengeParamBonus,
-        paramBonuses,
-        affection,
-        params,
-        votes,
-        difficulty,
+  const recommendedScores = useMemo(
+    () =>
+      FINAL_AUDITIONS.includes(stage)
+        ? calculateRecommendedScores(
+            paramRegimesByOrder,
+            voteRegimes,
+            maxParams,
+            paramOrder,
+            challengeParamBonus,
+            paramBonuses,
+            affection,
+            params,
+            votes,
+            difficulty,
       )
-    : null;
+        : null,
+    [
+      stage,
+      paramRegimesByOrder,
+      voteRegimes,
+      maxParams,
+      paramOrder,
+      challengeParamBonus,
+      paramBonuses,
+      affection,
+      params,
+      votes,
+      difficulty,
+    ],
+  );
 
   const gainedParams = calculateGainedParams(
     paramRegimesByOrder,
@@ -155,8 +168,8 @@ export default function NiaCalculator() {
   return (
     <>
       <label>{t("difficulty")}</label>
-      <ButtonGroup
-        options={DIFFICULTY_OPTIONS}
+      <DifficultyPicker
+        difficulties={DIFFICULTIES}
         selected={difficulty}
         onChange={(diff) => {
           if (diff === "master") {
@@ -173,168 +186,169 @@ export default function NiaCalculator() {
       </div>
 
       <div className={styles.nia}>
-        <section>
-          <label>{t("idol")}</label>
-          <div className={styles.idolSelect}>
-            <IconSelect
-              options={IDOL_OPTIONS}
-              selected={idolId}
-              onChange={setIdolId}
+        <Panel label={t("idol")}>
+          <div className={styles.section}>
+            <div className={styles.idolSelect}>
+              <IconSelect
+                options={IDOL_OPTIONS}
+                selected={idolId}
+                onChange={setIdolId}
+              />
+            </div>
+
+            {difficulty === "pro" && (
+              <>
+                <label>{t("affectionAtStartOfProduce")}</label>
+                <ButtonGroup
+                  options={AFFECTION_OPTIONS}
+                  selected={affection}
+                  onChange={setAffection}
+                />
+              </>
+            )}
+
+            <label>{t("paramBonusPct")}</label>
+            <ParametersInput
+              parameters={paramBonuses}
+              max={maxParams}
+              onChange={setParamBonuses}
+              round={false}
+            />
+
+            {difficulty === "master" && (
+              <>
+                <label>{t("challengePItemsParamBonusPct")}</label>
+                <Input
+                  type="number"
+                  value={challengeParamBonus || ""}
+                  placeholder="%"
+                  onChange={setChallengeParamBonus}
+                  min={0}
+                  max={55}
+                />
+              </>
+            )}
+          </div>
+        </Panel>
+
+        <Panel label={t("stage")}>
+          <div className={styles.section}>
+            <ButtonGroup
+              options={STAGE_OPTIONS_BY_DIFFICULTY[difficulty]}
+              selected={stage}
+              onChange={setStage}
+            />
+
+            <label>{t("paramsPreAudition")}</label>
+            <ParametersInput
+              parameters={params}
+              max={maxParams}
+              onChange={setParams}
+            />
+
+            <label>{t("votesPreAudition")}</label>
+            <Input
+              type="number"
+              value={votes || ""}
+              placeholder={t("voteCount")}
+              onChange={setVotes}
+              min={0}
+              max={10000000}
             />
           </div>
-
-          {difficulty === "pro" && (
-            <>
-              <label>{t("affectionAtStartOfProduce")}</label>
-              <ButtonGroup
-                options={AFFECTION_OPTIONS}
-                selected={affection}
-                onChange={setAffection}
-              />
-            </>
-          )}
-
-          <label>{t("paramBonusPct")}</label>
-          <ParametersInput
-            parameters={paramBonuses}
-            max={maxParams}
-            onChange={setParamBonuses}
-            round={false}
-          />
-
-          {difficulty === "master" && (
-            <>
-              <label>{t("challengePItemsParamBonusPct")}</label>
-              <Input
-                type="number"
-                value={challengeParamBonus || ""}
-                placeholder="%"
-                onChange={setChallengeParamBonus}
-                min={0}
-                max={55}
-              />
-            </>
-          )}
-        </section>
-
-        <section>
-          <label>{t("stage")}</label>
-          <ButtonGroup
-            options={STAGE_OPTIONS_BY_DIFFICULTY[difficulty]}
-            selected={stage}
-            onChange={setStage}
-          />
-
-          <label>{t("paramsPreAudition")}</label>
-          <ParametersInput
-            parameters={params}
-            max={maxParams}
-            onChange={setParams}
-          />
-
-          <label>{t("votesPreAudition")}</label>
-          <Input
-            type="number"
-            value={votes || ""}
-            placeholder={t("voteCount")}
-            onChange={setVotes}
-            min={0}
-            max={10000000}
-          />
-        </section>
+        </Panel>
 
         {recommendedScores && (
-          <section className={styles.recommendedScores}>
-            <label>{t("recommendedScores")}</label>
-            <Table
-              headers={TABLE_HEADERS}
-              rows={Object.keys(TARGET_RATING_BY_RANK)
-                .slice(0, 8)
-                .map((rank) => {
-                  let row = [
-                    recommendedScores[rank] ? (
-                      <button
-                        onClick={() => setScores(recommendedScores[rank])}
-                      >
-                        <FaCircleChevronDown />
-                        <span className={styles.rankButtonLabel}>
-                          {rank} ({TARGET_RATING_BY_RANK[rank].toLocaleString()}
-                          )
-                        </span>
-                      </button>
-                    ) : (
-                      `${rank} (${TARGET_RATING_BY_RANK[
-                        rank
-                      ].toLocaleString()})`
-                    ),
-                  ];
-                  if (recommendedScores[rank]) {
-                    return row.concat(
-                      recommendedScores[rank].map((score) =>
-                        score.toLocaleString(),
+          <Panel label={t("recommendedScores")}>
+            <div className={styles.recommendedScores}>
+              <Table
+                headers={TABLE_HEADERS}
+                rows={Object.keys(TARGET_RATING_BY_RANK)
+                  .slice(0, 8)
+                  .map((rank) => {
+                    let row = [
+                      recommendedScores[rank] ? (
+                        <button
+                          onClick={() => setScores(recommendedScores[rank])}
+                        >
+                          <FaCircleChevronDown />
+                          <span className={styles.rankButtonLabel}>
+                            {rank} (
+                            {TARGET_RATING_BY_RANK[rank].toLocaleString()})
+                          </span>
+                        </button>
+                      ) : (
+                        `${rank} (${TARGET_RATING_BY_RANK[
+                          rank
+                        ].toLocaleString()})`
                       ),
-                    );
-                  } else {
-                    return row.concat(["-", "-", "-"]);
-                  }
-                })}
-            />
-          </section>
+                    ];
+                    if (recommendedScores[rank]) {
+                      return row.concat(
+                        recommendedScores[rank].map((score) =>
+                          score.toLocaleString(),
+                        ),
+                      );
+                    } else {
+                      return row.concat(["-", "-", "-"]);
+                    }
+                  })}
+              />
+            </div>
+          </Panel>
         )}
 
-        <section>
-          {difficulty === "pro" && (
-            <LineChart
-              paramOrder={paramOrder}
-              paramRegimes={paramRegimesByOrder}
-              scores={scores}
-              gainedParams={gainedParams}
+        <Panel label={t("scores")}>
+          <div className={styles.section}>
+            {difficulty === "pro" && (
+              <LineChart
+                paramOrder={paramOrder}
+                paramRegimes={paramRegimesByOrder}
+                scores={scores}
+                gainedParams={gainedParams}
+              />
+            )}
+
+            <ParametersInput
+              parameters={scores}
+              max={1000000000}
+              onChange={setScores}
             />
-          )}
 
-          <label>{t("scores")}</label>
-          <ParametersInput
-            parameters={scores}
-            max={1000000000}
-            onChange={setScores}
-          />
+            <label>{t("gainedParams")}</label>
+            <ParamBadges params={gainedParams} />
 
-          <label>{t("gainedParams")}</label>
-          <ParamBadges params={gainedParams} />
+            <label>{t("bonusParams")}</label>
+            <ParamBadges params={bonusParams} />
 
-          <label>{t("bonusParams")}</label>
-          <ParamBadges params={bonusParams} />
+            {difficulty === "master" && (
+              <ParamBadges params={challengeParams} />
+            )}
 
-          {difficulty === "master" && <ParamBadges params={challengeParams} />}
+            <label>{t("paramsPostAudition")}</label>
+            <Params params={postAuditionParams} />
 
-          <label>{t("paramsPostAudition")}</label>
-          <Params params={postAuditionParams} />
-
-          <div className={styles.flex}>
-            <div>
-              <label>{t("gainedVotes")}</label>
-              <div>+{gainedVotes.toLocaleString()}</div>
-            </div>
-
-            <div>
-              <label>{t("votesPostAudition")}</label>
+            <div className={styles.flex}>
               <div>
-                {totalVotes.toLocaleString()}
-                {voteRank ? ` (${voteRank})` : null}
+                <label>{t("gainedVotes")}</label>
+                <div>+{gainedVotes.toLocaleString()}</div>
+              </div>
+
+              <div>
+                <label>{t("votesPostAudition")}</label>
+                <div>
+                  {totalVotes.toLocaleString()}
+                  {voteRank ? ` (${voteRank})` : null}
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className={styles.produceRank}>
             <label>{t("produceRank")}</label>
-            <span>
-              {actualRating.toLocaleString()}{" "}
-              {actualRank ? `(${actualRank})` : null}
-            </span>
+            <ProduceRankResult rating={actualRating} rank={actualRank} />
           </div>
-        </section>
+        </Panel>
 
-        <span className={styles.note}>{t("niaNote")}</span>
+        <Alert>{t("niaNote")}</Alert>
       </div>
     </>
   );

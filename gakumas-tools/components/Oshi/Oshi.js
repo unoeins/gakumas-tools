@@ -8,12 +8,11 @@ import styles from "./Oshi.module.scss";
 export const OSHI_PROPS = {
   text: (
     <div>
-      朗読劇『カラフル』チケット発売中！伊藤舞音さんは4/22と4/26の①・⑧・⑨に出演されます！
-      <IdolIcon idolId={6} />
+      朗読劇『結びの言葉』チケット発売中！伊藤舞音さんは5/13と5/14の①②③に出演されます！
     </div>
   ),
   initiallyExpanded: true,
-  url: "https://otonashogakusei-fc.com/news/PDFJMMDB8vJqTzfpTypXSX",
+  url: "http://x.com/bigbridge_com/status/2048024840683368950",
 };
 
 export default function Oshi({

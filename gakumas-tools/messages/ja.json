@@ -59,10 +59,10 @@
   },
   "Welcome": {
     "title": "Gakumas Tools - 学マスツール",
-    "introduction": "プロデュース評価に必要な最終試験スコアの計算、メモリー生成確率の計算、コンテスト編成のシミュレーションなど、便利な機能が揃っています。"
+    "introduction": "プロデュース評価に必要な最終試験スコアの計算、メモリー生成確率の計算、コンテスト編成のシミュレーションなど、便利な機能が揃っています。",
+    "disclaimer": "本サイトは非公式のファンサイトであり、『学園アイドルマスター』の開発・運営元とは一切関係ありません。"
   },
   "Calculator": {
-    "scenario": "シナリオ",
     "scenarios": {
       "hajime": "初",
       "nia": "N.I.A"
@@ -160,14 +160,32 @@
   "MemoryCalculator": {
     "note": "※表示される確率はあくまで全メモリーが同確立で生成されるとして求められた推測値であり、実際の確率とは異なる可能性があります。",
     "target": "欲しい組み合わせ",
-    "acquired": "取得スキルカード（強化前後含む）",
+    "acquired": "取得スキルカード",
+    "acquiredInfo": "各カードの強化前後を含めてください",
     "produceRank": "プロデュース評価",
     "costRange": "コスト範囲",
     "success": "成功",
-    "failure": "失敗"
+    "failure": "失敗",
+    "clear": "クリア",
+    "confirm": "これらのスキルカードをクリアしますか？"
   },
   "TargetSkillCards": {
     "acquired": "取得済み"
+  },
+  "DraftPick": {
+    "label": "ドラフト比較",
+    "info": "最大3枚の候補を選んで、取得済みに加えた場合の成功確率を比較します",
+    "show": "表示",
+    "hide": "非表示",
+    "clear": "クリア",
+    "commit": "選ぶ",
+    "import": "読み込み"
+  },
+  "DraftPickImporterModal": {
+    "title": "スクリーンショットから読み込み",
+    "instructions": "スキルカード取得画面のスクリーンショットをアップロードしてください。3枚のカードを自動で検出して読み込みます。",
+    "processing": "処理中...",
+    "error": "読み込みに失敗しました"
   },
   "MemorySummaryActionButtons": {
     "edit": "編集"
@@ -175,7 +193,11 @@
   "MemoryEditorModal": {
     "name": "名前",
     "contestPower": "総合力",
-    "cost": "コスト"
+    "cost": "コスト",
+    "parameters": "パラメータ",
+    "pItems": "Pアイテム",
+    "skillCards": "スキルカード",
+    "customizations": "カスタマイズ"
   },
   "ParametersInput": {
     "stamina": "体力"
@@ -206,6 +228,7 @@
     "linkContestNote": "リンクコンテストの挙動は正確に再現されない場合があります。アイドル間でのPアイテムやスキルカードの重複排除はまだ実装されていません。手動で重複排除を行って、基本カードを入れてください。",
     "custom": "カスタム",
     "simulate": "実行",
+    "numRuns": "試行回数",
     "provideData": "データを提供する",
     "lastUpdated": "最終更新",
     "start": "開始",
@@ -255,7 +278,6 @@
   },
   "SimulatorSubTools": {
     "costRanges": "コスト範囲",
-    "history": "履歴β",
     "defaultCards": "基本カード",
     "extensions": "拡張機能"
   },
@@ -267,12 +289,26 @@
   "SimulatorButtons": {
     "confirm": "編成をクリアしますか？",
     "clear": "クリア",
-    "manageLoadouts": "保存・読み込みβ",
+    "share": "共有",
+    "openLoadouts": "編成",
     "readLoadoutFromUrl": "URL読み込み",
     "invalidUrl": "有効なURLではありません。",
     "invalidLoadout": "URLから編成を読み込めません。",
     "clipboardError": "クリップボードを読み込めません。",
     "confirmSetLoadout": "クリップボードのURLから編成をセットしますか？"
+  },
+  "SimulatorLoadoutImporterModal": {
+    "title": "スクリーンショットから編成を読み込み",
+    "instructions": "コンテスト編成画面のスクリーンショットをアップロードしてください。Pアイテムとスキルカードを自動で検出します。この画面のアイコンスタイルでは分類器の学習データに含まれていないため、認識精度は低い可能性があります。",
+    "processing": "処理中...",
+    "error": "読み込みに失敗しました"
+  },
+  "ShareModal": {
+    "title": "共有",
+    "more": "その他…",
+    "x": "Xで共有",
+    "saveImage": "画像として保存",
+    "exporting": "保存中…"
   },
   "ConfirmModal": {
     "cancel": "キャンセル",
@@ -284,10 +320,53 @@
     "median": "中央値",
     "max": "最大値",
     "logs": "ログ",
+    "stats": "統計",
+    "compare": "比較",
+    "downloadScores": "スコア",
+    "optimizeParams": "パラメータ最適化",
     "useStats": "使用回数",
     "conditionalUseStats": "条件付き使用回数",
     "priorityStats": "優先度比較",
     "scoreStats": "スコア統計"
+  },
+  "CompareTab": {
+    "saved": "保存済み",
+    "history": "履歴",
+    "current": "現在",
+    "noScores": "スコアなし",
+    "mean": "平均",
+    "median": "中央",
+    "load": "ロード",
+    "save": "保存",
+    "edit": "名前変更",
+    "cancel": "キャンセル",
+    "delete": "削除",
+    "confirmDelete": "削除しますか？",
+    "signInPrompt": "保存するにはサインインが必要です。Discordへ進みますか？",
+    "signInToView": "保存済み編成を見るにはサインインしてください。",
+    "savePrompt": "名前",
+    "emptyHistory": "シミュレーションを実行すると表示されます。",
+    "emptySaved": "保存済み編成がまだありません。",
+    "loading": "読み込み中…",
+    "fifoHint": "{count} / {max} — 古い履歴は自動的に削除されます",
+    "fifoAtLimit": "{max}件上限 — 古い履歴は置き換えられます。保存して残してください。",
+    "hiddenByFilters": "フィルターで{count}件非表示",
+    "allHiddenByFilters": "フィルターで全{count}件非表示",
+    "clearFilters": "フィルターをクリア",
+    "showDetails": "詳細を表示",
+    "hideDetails": "詳細を隠す",
+    "season": "シーズン",
+    "allSeasons": "全シーズン",
+    "allIdols": "全アイドル",
+    "allStages": "全ステージ"
+  },
+  "SimulatorStats": {
+    "total": "合計",
+    "turn": "{turn}ターン目",
+    "card": "項目",
+    "uses": "使用",
+    "usePct": "使用率",
+    "score": "スコア"
   },
   "SimulatorResultGraphs": {
     "score": "スコア"
@@ -308,6 +387,12 @@
     "goodImpressionTurns": "好印象",
     "motivation": "やる気",
     "prideTurns": "プライド",
+    "cumulativeFullPowerCharge": "累計全力値",
+    "strengthTimes": "強気回数",
+    "preservationTimes": "温存回数",
+    "fullPowerTimes": "全力回数",
+    "leisureTimes": "のんびり回数",
+    "stanceChangedTimes": "指針変更回数",
     "stance": "指針",
     "none": "無し",
     "preservation": "温存 1",
@@ -317,12 +402,6 @@
     "strength2": "強気 2",
     "fullPower": "全力",
     "fullPowerCharge": "全力値",
-    "cumulativeFullPowerCharge": "累積全力値",
-    "strengthTimes": "強気回数",
-    "preservationTimes": "温存回数",
-    "fullPowerTimes": "全力回数",
-    "leisureTimes": "のんびり回数",
-    "stanceChangedTimes": "指針変更回数",
     "lockStanceTurns": "指針固定",
     "enthusiasm": "熱意",
     "enthusiasmBonus": "熱意追加",
@@ -399,7 +478,13 @@
     "addScreenshots": "リハーサル結果画面のスクリーンショットからスコアを読み取ります。",
     "accuracyNotGuaranteed": "精度は保証できません。スクリーンショットと比較して、結果を確認することをお勧めします。",
     "stage": "ステージ{n}",
-    "score": "スコア"
+    "score": "スコア",
+    "progress": "進捗: {progress}/{total}",
+    "analyzingVideo": "動画を解析中...",
+    "scanningVideo": "フレーム {analyzed}/{total} を解析中・これまでに{found}件の結果を検出",
+    "videoComplete": "完了！{count}件のリハーサル結果が見つかりました。",
+    "videoError": "動画の処理中にエラーが発生しました: {message}",
+    "imageError": "{count}件のスクリーンショットを解析できず、スキップされました。"
   },
   "KofiAd": {
     "prompt": "このプロジェクトを支援する"

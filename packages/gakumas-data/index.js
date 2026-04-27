@@ -7,7 +7,12 @@ export { default as SkillCards } from "./data/skillCards";
 export { default as Stages } from "./data/stages";
 export {
   serializeEffect,
-  deserializeEffect,
   serializeEffectSequence,
+  serializePatches,
   deserializeEffectSequence,
+  deserializePatchSequence,
 } from "./utils/effects";
+export { parseEffects, parsePatches } from "./utils/parser";
+export { Tokenizer } from "./utils/parser/tokenizer";
+export { TokenType } from "./utils/parser/tokens";
+export { transformEffects, transformPatches } from "./utils/transformer";

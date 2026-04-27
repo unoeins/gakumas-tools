@@ -59,10 +59,10 @@
   },
   "Welcome": {
     "title": "Gakumas Tools - 학원마스 툴",
-    "introduction": "프로듀스 평가에 필요한 최종시험 스코어 계산, 메모리 생성확률 계산, 콘테스트 편성 시뮬레이션 등 편리한 기능을 제공합니다."
+    "introduction": "프로듀스 평가에 필요한 최종시험 스코어 계산, 메모리 생성확률 계산, 콘테스트 편성 시뮬레이션 등 편리한 기능을 제공합니다.",
+    "disclaimer": "본 사이트는 비공식 팬 사이트이며, 『학원 아이돌마스터』의 개발·운영사와는 일절 관계가 없습니다."
   },
   "Calculator": {
-    "scenario": "시나리오",
     "scenarios": {
       "hajime": "하지메",
       "nia": "N.I.A"
@@ -160,14 +160,32 @@
   "MemoryCalculator": {
     "note": "※표시된 확률은 모든 메모리가 동일한 확률로 생성된다는 전제 하에 계산된 추정값으로, 실제 확률과는 차이가 있을 수 있습니다.",
     "target": "원하는 조합",
-    "acquired": "획득 스킬 카드 (강화 전후 포함)",
+    "acquired": "획득 스킬 카드",
+    "acquiredInfo": "각 카드의 강화 전후를 포함하세요",
     "produceRank": "프로듀스 평가",
     "costRange": "코스트 범위",
     "success": "성공",
-    "failure": "실패"
+    "failure": "실패",
+    "clear": "초기화",
+    "confirm": "이 스킬 카드들을 초기화할까요?"
   },
   "TargetSkillCards": {
     "acquired": "획득 완료"
+  },
+  "DraftPick": {
+    "label": "드래프트 비교",
+    "info": "최대 3장의 후보 카드를 골라, 획득 카드에 추가했을 때의 성공 확률을 비교합니다",
+    "show": "표시",
+    "hide": "숨기기",
+    "clear": "초기화",
+    "commit": "선택",
+    "import": "가져오기"
+  },
+  "DraftPickImporterModal": {
+    "title": "스크린샷에서 가져오기",
+    "instructions": "스킬 카드 획득 화면의 스크린샷을 업로드하세요. 3장의 카드를 자동으로 감지하여 불러옵니다.",
+    "processing": "처리 중...",
+    "error": "가져오기에 실패했습니다"
   },
   "MemorySummaryActionButtons": {
     "edit": "편집"
@@ -175,7 +193,11 @@
   "MemoryEditorModal": {
     "name": "이름",
     "contestPower": "종합력",
-    "cost": "코스트"
+    "cost": "코스트",
+    "parameters": "파라미터",
+    "pItems": "P아이템",
+    "skillCards": "스킬 카드",
+    "customizations": "커스터마이즈"
   },
   "ParametersInput": {
     "stamina": "체력"
@@ -206,6 +228,7 @@
     "linkContestNote": "링크 콘테스트의 행동은 정확하게 재현되지 않을 수 있습니다. 아이돌 간 P 아이템과 스킬 카드들의 중복 제거는 아직 구현되지 않았습니다. 직접 중복을 제거하고 기본 카드를 추가해 주세요.",
     "custom": "커스텀",
     "simulate": "실행",
+    "numRuns": "시행 횟수",
     "provideData": "데이터 제공하기",
     "lastUpdated": "최종 업데이트",
     "start": "시작",
@@ -255,7 +278,6 @@
   },
   "SimulatorSubTools": {
     "costRanges": "코스트 범위",
-    "history": "내역 β",
     "defaultCards": "기본 카드",
     "extensions": "확장 기능"
   },
@@ -267,12 +289,25 @@
   "SimulatorButtons": {
     "confirm": "편성을 초기화할까요?",
     "clear": "초기화",
-    "manageLoadouts": "저장 및 불러오기 β",
+    "share": "공유",
     "readLoadoutFromUrl": "URL 로드",
     "invalidUrl": "유효하지 않은 URL입니다.",
     "invalidLoadout": "URL에서 편성을 불러올 수 없습니다.",
     "clipboardError": "클립보드를 읽을 수 없습니다.",
     "confirmSetLoadout": "클립보드의 URL에서 편성을 설정할까요?"
+  },
+  "SimulatorLoadoutImporterModal": {
+    "title": "스크린샷에서 편성 불러오기",
+    "instructions": "콘테스트 편성 화면의 스크린샷을 업로드하세요. P-아이템과 스킬 카드를 자동으로 감지합니다. 이 화면의 아이콘 스타일은 분류기 학습 데이터에 포함되어 있지 않아 인식 정확도가 낮을 수 있습니다.",
+    "processing": "처리 중...",
+    "error": "불러오기에 실패했습니다"
+  },
+  "ShareModal": {
+    "title": "공유",
+    "more": "더보기…",
+    "x": "X에 공유",
+    "saveImage": "이미지로 저장",
+    "exporting": "저장 중…"
   },
   "ConfirmModal": {
     "cancel": "취소",
@@ -284,11 +319,21 @@
     "median": "중앙값",
     "max": "최댓값",
     "logs": "로그",
-    "downloadScores": "스코어 다운로드",
+    "stats": "통계",
+    "downloadScores": "점수",
+    "optimizeParams": "파라미터 최적화",
     "useStats": "사용 횟수",
     "conditionalUseStats": "조건부 사용 횟수",
     "priorityStats": "우선도 비교",
     "scoreStats": "스코어 통계"
+  },
+  "SimulatorStats": {
+    "total": "합계",
+    "turn": "{turn}턴",
+    "card": "항목",
+    "uses": "사용",
+    "usePct": "사용률",
+    "score": "스코어"
   },
   "SimulatorResultGraphs": {
     "score": "스코어"
@@ -309,6 +354,12 @@
     "goodImpressionTurns": "호인상",
     "motivation": "의욕",
     "prideTurns": "프라이드",
+    "cumulativeFullPowerCharge": "누적 전력치",
+    "strengthTimes": "강기 횟수",
+    "preservationTimes": "온존 횟수",
+    "fullPowerTimes": "전력 횟수",
+    "leisureTimes": "여유 회수",
+    "stanceChangedTimes": "지침 변경 횟수",
     "stance": "지침",
     "none": "없음",
     "preservation": "온존 1",
@@ -318,12 +369,6 @@
     "strength2": "강기 2",
     "fullPower": "전력",
     "fullPowerCharge": "전력치",
-    "cumulativeFullPowerCharge": "누적 전력치",
-    "strengthTimes": "강기 회수",
-    "preservationTimes": "온존 회수",
-    "fullPowerTimes": "전력 회수",
-    "leisureTimes": "여유 회수",
-    "stanceChangedTimes": "지침 변경 회수",
     "lockStanceTurns": "지침 고정",
     "enthusiasm": "열의",
     "enthusiasmBonus": "열의 추가",
@@ -399,7 +444,13 @@
     "addScreenshots": "리허설 결과 스크린샷으로부터 스코어를 불러옵니다.",
     "accuracyNotGuaranteed": "정확도는 보장되지 않습니다. 스크린샷과 비교하여 결과를 확인하는 것을 권장합니다.",
     "stage": "스테이지 {n}",
-    "score": "스코어"
+    "score": "스코어",
+    "progress": "진행: {progress}/{total}",
+    "analyzingVideo": "동영상 분석 중...",
+    "scanningVideo": "프레임 {analyzed}/{total} 분석 중 · 지금까지 {found}개의 결과",
+    "videoComplete": "완료! {count}개의 리허설 결과를 찾았습니다.",
+    "videoError": "동영상 처리 중 오류: {message}",
+    "imageError": "{count}개의 스크린샷을 분석하지 못해 건너뛰었습니다."
   },
   "KofiAd": {
     "prompt": "이 프로젝트 후원하기"

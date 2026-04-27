@@ -81,27 +81,42 @@ function AreaPlot({ data, plan }) {
         ? {
             cumulativeFullPowerCharge: {
               label: t("cumulativeFullPowerCharge"),
-              color: "rgba(255, 171, 74, 0.25)",
+              color: "rgba(186, 85, 211, 0.25)",
             },
             strengthTimes: {
               label: t("strengthTimes"),
-              color: "rgba(253, 40, 51, 0.25)",
+              color: "rgba(255, 99, 132, 0.25)",
             },
             preservationTimes: {
               label: t("preservationTimes"),
-              color: "rgba(54, 40, 253, 0.25)",
+              color: "rgba(75, 192, 192, 0.25)",
             },
             fullPowerTimes: {
               label: t("fullPowerTimes"),
-              color: "rgba(255, 152, 69, 0.25)",
+              color: "rgba(255, 159, 64, 0.25)",
             },
             leisureTimes: {
               label: t("leisureTimes"),
               color: "rgba(128, 32, 255, 0.25)",
             },
+            // Synthesized: sum of the three stance-times series. The engine
+            // exposes `stanceChangedTimes` only as a derived resolver, so we
+            // compute it here from the components rather than add a state
+            // field.
             stanceChangedTimes: {
               label: t("stanceChangedTimes"),
-              color: "rgba(58, 255, 32, 0.25)",
+              color: "rgba(153, 102, 255, 0.25)",
+              compute: (data) => {
+                const a = data[S.strengthTimes] || [];
+                const b = data[S.preservationTimes] || [];
+                const c = data[S.fullPowerTimes] || [];
+                const n = Math.max(a.length, b.length, c.length);
+                const out = [];
+                for (let i = 0; i < n; i++) {
+                  out.push((a[i] || 0) + (b[i] || 0) + (c[i] || 0));
+                }
+                return out;
+              },
             },
           }
         : {}),
@@ -148,13 +163,17 @@ function AreaPlot({ data, plan }) {
     labels: data[S.score].map((_, i) => i),
     datasets: Object.keys(FIELDS)
       .filter((f) => activeFields[f])
-      .map((field) => ({
-        label: FIELDS[field].label,
-        data: data[S[field]].map((v) => parseFloat(v.toFixed(2))),
-        backgroundColor: FIELDS[field].color,
-        fill: true,
-        yAxisID: FIELDS[field].yAxisID || "y",
-      })),
+      .map((field) => {
+        const config = FIELDS[field];
+        const raw = config.compute ? config.compute(data) : data[S[field]];
+        return {
+          label: config.label,
+          data: raw.map((v) => parseFloat(v.toFixed(2))),
+          backgroundColor: config.color,
+          fill: true,
+          yAxisID: config.yAxisID || "y",
+        };
+      }),
   };
 
   return (

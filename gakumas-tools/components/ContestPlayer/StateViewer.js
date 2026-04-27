@@ -55,7 +55,6 @@ function StateViewer({ state, idolId, plan }) {
     {name: "poorConditionTurns", type: "number", style: "debuff"},
     {name: "nullifyCostCards", type: "number"},
     {name: "nullifyCostActiveCards", type: "number"},
-    {name: "nullifyCostMentalCards", type: "number"},
     {name: "cardUsesRemaining", type: "number"},
     {name: "noActiveTurns", type: "number", style: "debuff"},
     {name: "noMentalTurns", type: "number", style: "debuff"},

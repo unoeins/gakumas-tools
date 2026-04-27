@@ -1,228 +1,168 @@
-export async function extractCandidateFrames(
+import { DEBUG } from "./common";
+
+const LOAD_TIMEOUT_MS = 300_000;
+const SEEK_TIMEOUT_MS = 10_000;
+// A 64×64 average is plenty for a brightness check and ~500× cheaper than
+// drawing and reading a full-size frame.
+const BRIGHTNESS_SAMPLE_SIZE = 64;
+
+// Stream candidate frames — the dark frame immediately before each
+// dark→bright brightness transition. Emits each frame as it's found in a
+// single pass through the video, plus one extra re-seek per detected
+// transition to capture the previous frame at full resolution.
+//
+// The same canvas is reused across yields, so consumers must finish with a
+// frame (synchronously read its pixels, or pass it to an async API that
+// captures the data synchronously) before resuming iteration.
+//
+// `onProgress(analyzed, total)` fires after each analyzed sample.
+export async function* streamCandidateFrames(
   videoFile,
-  intervalMs = 500,
-  brightnessThreshold = 180
+  {
+    intervalMs = 500,
+    brightnessThreshold = 180,
+    onProgress,
+  } = {},
 ) {
+  const { video, blobURL } = await loadVideo(videoFile);
+  try {
+    const frameCount = Math.floor((video.duration * 1000) / intervalMs);
+    const timeOf = (frame) => (frame * intervalMs) / 1000;
+
+    const sampleCanvas = createCanvas(
+      BRIGHTNESS_SAMPLE_SIZE,
+      BRIGHTNESS_SAMPLE_SIZE,
+    );
+    const sampleCtx = sampleCanvas.getContext("2d", {
+      willReadFrequently: true,
+    });
+    const frameCanvas = createCanvas(video.videoWidth, video.videoHeight);
+    const frameCtx = frameCanvas.getContext("2d");
+
+    // Start above the threshold so the first sample isn't treated as a
+    // transition even if the video opens on a bright frame.
+    let prevBrightness = 255;
+    let found = 0;
+
+    for (let i = 0; i < frameCount; i++) {
+      await seekTo(video, timeOf(i));
+      sampleCtx.drawImage(
+        video,
+        0,
+        0,
+        BRIGHTNESS_SAMPLE_SIZE,
+        BRIGHTNESS_SAMPLE_SIZE,
+      );
+      const brightness = getAverageBrightness(sampleCanvas);
+      onProgress?.(i + 1, frameCount);
+
+      if (
+        prevBrightness < brightnessThreshold &&
+        brightness >= brightnessThreshold
+      ) {
+        // The rehearsal result screen is the DARK frame before the flash,
+        // not the bright one. Re-seek back one interval to capture it.
+        await seekTo(video, timeOf(i - 1));
+        frameCtx.drawImage(video, 0, 0, frameCanvas.width, frameCanvas.height);
+        found++;
+        yield frameCanvas;
+      }
+      prevBrightness = brightness;
+    }
+
+    if (DEBUG) {
+      console.log(
+        `videoFrameExtractor: ${found} transitions in ${frameCount} frames`,
+      );
+    }
+  } finally {
+    URL.revokeObjectURL(blobURL);
+  }
+}
+
+function loadVideo(videoFile) {
   return new Promise((resolve, reject) => {
     const video = document.createElement("video");
     const blobURL = URL.createObjectURL(videoFile);
-
     video.preload = "metadata";
-    video.src = blobURL;
     video.muted = true;
     video.playsInline = true;
+    video.src = blobURL;
 
-    const candidateFrames = [];
-    const brightnesses = [];
-    let seekTimeout = null;
-
-    const loadTimeout = setTimeout(() => {
+    const timeout = setTimeout(() => {
       URL.revokeObjectURL(blobURL);
       reject(new Error("Video loading timed out."));
-    }, 300000);
+    }, LOAD_TIMEOUT_MS);
 
-    const cleanup = () => {
-      clearTimeout(loadTimeout);
-      if (seekTimeout) clearTimeout(seekTimeout);
-    };
-
-    video.addEventListener("loadedmetadata", () => {
-      if (
-        !video.duration ||
-        video.duration === Infinity ||
-        isNaN(video.duration)
-      ) {
-        cleanup();
-        URL.revokeObjectURL(blobURL);
-        reject(new Error("Invalid video duration."));
-        return;
-      }
-
-      if (!video.videoWidth || !video.videoHeight) {
-        cleanup();
-        URL.revokeObjectURL(blobURL);
-        reject(new Error("Unable to read video dimensions."));
-        return;
-      }
-
-      const duration = video.duration;
-      const frameCount = Math.floor((duration * 1000) / intervalMs);
-      let currentFrame = 0;
-
-      // Reusable canvas for brightness detection
-      let tempCanvas;
-      if (typeof OffscreenCanvas !== "undefined") {
-        tempCanvas = new OffscreenCanvas(video.videoWidth, video.videoHeight);
-      } else {
-        tempCanvas = document.createElement("canvas");
-        tempCanvas.width = video.videoWidth;
-        tempCanvas.height = video.videoHeight;
-      }
-      const tempCtx = tempCanvas.getContext("2d");
-
-      // First pass: collect all brightnesses
-      const firstPassSeek = () => {
-        if (currentFrame >= frameCount) {
-          // First pass complete, now identify transitions
-          console.log(`Analyzed ${brightnesses.length} frames for transitions`);
-          const transitions = [];
-
-          for (let i = 0; i < brightnesses.length - 1; i++) {
-            if (
-              brightnesses[i] < brightnessThreshold &&
-              brightnesses[i + 1] > brightnessThreshold
-            ) {
-              console.log(
-                `Transition detected at frame ${i}: ${brightnesses[i].toFixed(
-                  1
-                )} -> ${brightnesses[i + 1].toFixed(1)}`
-              );
-              transitions.push(i);
-            }
-          }
-
-          // Now extract only those specific frames
-          console.log(
-            `Found ${transitions.length} transitions, extracting those frames...`
-          );
-          currentFrame = 0;
-
-          const secondPassSeek = () => {
-            if (currentFrame >= transitions.length) {
-              cleanup();
-              URL.revokeObjectURL(blobURL);
-              console.log(
-                `Extraction complete: ${candidateFrames.length} candidate frames`
-              );
-              resolve(candidateFrames);
-              return;
-            }
-
-            const frameIndex = transitions[currentFrame];
-            const targetTime = (frameIndex * intervalMs) / 1000;
-
-            if (seekTimeout) clearTimeout(seekTimeout);
-            seekTimeout = setTimeout(() => {
-              cleanup();
-              URL.revokeObjectURL(blobURL);
-              reject(
-                new Error(`Second pass seek timeout at frame ${frameIndex}`)
-              );
-            }, 10000);
-
-            video.currentTime = targetTime;
-            currentFrame++;
-          };
-
-          // Handle second pass seeks
-          const secondPassHandler = () => {
-            if (seekTimeout) clearTimeout(seekTimeout);
-
-            try {
-              let canvas;
-              if (typeof OffscreenCanvas !== "undefined") {
-                canvas = new OffscreenCanvas(
-                  video.videoWidth,
-                  video.videoHeight
-                );
-              } else {
-                canvas = document.createElement("canvas");
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-              }
-
-              const ctx = canvas.getContext("2d");
-              ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-              candidateFrames.push(canvas);
-
-              setTimeout(secondPassSeek, 0);
-            } catch (error) {
-              cleanup();
-              URL.revokeObjectURL(blobURL);
-              reject(new Error(`Failed to capture frame: ${error.message}`));
-            }
-          };
-
-          video.removeEventListener("seeked", firstPassHandler);
-          video.addEventListener("seeked", secondPassHandler);
-          secondPassSeek();
+    video.addEventListener(
+      "loadedmetadata",
+      () => {
+        clearTimeout(timeout);
+        if (!video.duration || !isFinite(video.duration)) {
+          URL.revokeObjectURL(blobURL);
+          reject(new Error("Invalid video duration."));
           return;
         }
-
-        const targetTime = (currentFrame * intervalMs) / 1000;
-
-        if (seekTimeout) clearTimeout(seekTimeout);
-        seekTimeout = setTimeout(() => {
-          cleanup();
+        if (!video.videoWidth || !video.videoHeight) {
           URL.revokeObjectURL(blobURL);
-          reject(new Error(`First pass seek timeout at frame ${currentFrame}`));
-        }, 10000);
-
-        video.currentTime = targetTime;
-        currentFrame++;
-      };
-
-      const firstPassHandler = () => {
-        if (seekTimeout) clearTimeout(seekTimeout);
-
-        try {
-          tempCtx.drawImage(video, 0, 0, tempCanvas.width, tempCanvas.height);
-          const brightness = getAverageBrightness(tempCanvas);
-          brightnesses.push(brightness);
-
-          setTimeout(firstPassSeek, 0);
-        } catch (error) {
-          cleanup();
-          URL.revokeObjectURL(blobURL);
-          reject(new Error(`Failed to analyze frame: ${error.message}`));
+          reject(new Error("Unable to read video dimensions."));
+          return;
         }
-      };
+        resolve({ video, blobURL });
+      },
+      { once: true },
+    );
 
-      video.addEventListener("seeked", firstPassHandler);
-      firstPassSeek();
-    });
-
-    video.addEventListener("error", (e) => {
-      cleanup();
-      URL.revokeObjectURL(blobURL);
-      const errorMsg = video.error
-        ? `Video error (code ${video.error.code}): ${video.error.message}`
-        : `Failed to load video`;
-      reject(new Error(errorMsg));
-    });
+    video.addEventListener(
+      "error",
+      () => {
+        clearTimeout(timeout);
+        URL.revokeObjectURL(blobURL);
+        const err = video.error;
+        reject(
+          err
+            ? new Error(`Video error (code ${err.code}): ${err.message}`)
+            : new Error("Failed to load video"),
+        );
+      },
+      { once: true },
+    );
 
     video.load();
   });
 }
 
-export function canvasToImage(canvas) {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const img = new Image();
-      img.onload = () => resolve(img);
-
-      // OffscreenCanvas uses convertToBlob(), regular canvas uses toDataURL()
-      if (canvas.convertToBlob) {
-        const blob = await canvas.convertToBlob();
-        img.src = URL.createObjectURL(blob);
-      } else {
-        img.src = canvas.toDataURL();
-      }
-    } catch (error) {
-      reject(error);
-    }
+function seekTo(video, time) {
+  return new Promise((resolve, reject) => {
+    const onSeeked = () => {
+      clearTimeout(timeout);
+      resolve();
+    };
+    const timeout = setTimeout(() => {
+      video.removeEventListener("seeked", onSeeked);
+      reject(new Error(`Seek timed out at ${time.toFixed(2)}s`));
+    }, SEEK_TIMEOUT_MS);
+    video.addEventListener("seeked", onSeeked, { once: true });
+    video.currentTime = time;
   });
 }
 
-export function getAverageBrightness(canvas) {
-  const ctx = canvas.getContext("2d");
-  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  const data = imageData.data;
+function createCanvas(width, height) {
+  if (typeof OffscreenCanvas !== "undefined") {
+    return new OffscreenCanvas(width, height);
+  }
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  return canvas;
+}
 
+function getAverageBrightness(canvas) {
+  const ctx = canvas.getContext("2d");
+  const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height);
   let sum = 0;
   for (let i = 0; i < data.length; i += 4) {
     sum += data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
   }
-
   return sum / (data.length / 4);
 }

@@ -1,13 +1,13 @@
-@use "sass:color";
 @use "../../styles/colors";
+@use "../../styles/tokens";
 
 .result {
   flex: 1;
   max-width: Min(100%, 800px);
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 4px 16px 16px;
+  gap: tokens.$space-2;
+  padding: tokens.$space-1 tokens.$space-4 tokens.$space-4;
 
   .graphSelect button {
     font-size: 20px;
@@ -15,20 +15,73 @@
   }
 }
 
-.stats {
-  text-align: center;
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: tokens.$space-2;
+}
 
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: tokens.$space-2;
+
+  > * {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.stats {
   thead {
-    background-color: color.adjust(colors.$gk-orange, $lightness: 20%);
+    background: tokens.$gradient-brand;
+
+    th {
+      color: colors.$white;
+    }
   }
 
   tbody {
-    background-color: color.adjust(colors.$gk-orange, $lightness: 40%);
+    background-color: colors.$gk-orange-extra-light;
+
+    tr {
+      border-bottom: 0;
+    }
   }
 
-  th {
-    width: 25%;
+  td {
+    font-size: tokens.$text-lg;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
   }
+
+  th,
+  td {
+    padding: tokens.$space-1 tokens.$space-2;
+  }
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.toTop {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: colors.$blue;
+}
+
+.download {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: colors.$blue;
+  font-size: inherit;
 }
 
 .tools {

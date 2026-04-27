@@ -1,4 +1,7 @@
-import { PItems, SkillCards } from "gakumas-data";
+import {
+  PItems,
+  SkillCards,
+} from "gakumas-data";
 import { DEFAULT_EFFECTS, EFFECT_SOURCES, S } from "../constants";
 import EngineComponent from "./EngineComponent";
 import { shallowCopy } from "../utils";
@@ -20,7 +23,10 @@ export default class EffectManager extends EngineComponent {
     // Set stage effects
     this.logger.debug("Setting stage effects", config.stage.effects);
     state[S.effectInstanceId]++;
-    this.setEffects(state, config.stage.effects, { type: "stage" });
+    this.setEffects(state, config.stage.effects, {
+      type: "stage",
+      primary: true,
+    });
 
     // Set p-item effects
     let configs = [config];
@@ -37,27 +43,29 @@ export default class EffectManager extends EngineComponent {
         this.setEffects(state, pItem.effects, {
           type: "pItem",
           id: pItemIds[i],
+          primary: true,
         });
       }
     }
 
-    // Set growth effects
-    this.initializeGrowthEffects(state);
+    // Set card effects
+    this.initializeCardEffects(state);
   }
 
-  initializeGrowthEffects(state) {
+  initializeCardEffects(state) {
     for (let i = 0; i < state[S.cardMap].length; i++) {
       const skillCardId = state[S.cardMap][i].id;
 
       const skillCard = SkillCards.getById(skillCardId);
-      const growth = this.engine.cardManager.getLines(state, i, "growth");
-      if (growth.length) {
-        this.logger.debug("Setting growth effects", skillCard.name, growth);
+      const cardEffects = this.engine.cardManager.getLines(state, i, "effects");
+      if (cardEffects.length) {
+        this.logger.debug("Setting card effects", skillCard.name, cardEffects);
         state[S.effectInstanceId]++;
-        this.setEffects(state, growth, {
+        this.setEffects(state, cardEffects, {
           type: "skillCard",
           id: skillCardId,
           idx: i,
+          primary: true,
         });
       }
     }
@@ -70,12 +78,14 @@ export default class EffectManager extends EngineComponent {
       if (source) {
         effect.source = source;
       }
-      if (!effect.actions && i < effects.length - 1) {
-        effect.effects = [effects[++i]];
-      }
-      if (effect.limit == 1 && effect.phase == "turn") {
+      // Effects scheduled for a single future turn (e.g. "次のターン" /
+      // "Nターン後" — phase:turn + limit:1) are reservations. When they
+      // fire, isDirectEffect treats them as direct so chain-triggered
+      // p-items with if:isDirectEffect still match.
+      if (effect.phase == "turn" && effect.limit == 1) {
         effect.type = "reservation";
       }
+      // Nested effects are now explicit in the AST - no more fallthrough
       state[S.effects].push(effect);
     }
   }
@@ -95,32 +105,75 @@ export default class EffectManager extends EngineComponent {
   }
 
   triggerEffectsForPhase(state, phase, conditionState) {
+    // Fast path: no active effect matches this phase. Empirically ~79%
+    // of triggerEffectsForPhase calls hit this — skip the phase
+    // save/restore dance and the effectsByGroup allocation entirely.
+    const effectList = state[S.effects];
+    let anyMatch = false;
+    for (let i = 0; i < effectList.length; i++) {
+      if (effectList[i].phase === phase) { anyMatch = true; break; }
+    }
+    if (!anyMatch) return;
+
     state[S.parentPhase] = state[S.phase];
     state[S.phase] = phase;
 
-    // Filter and group effects
-    let effectsByGroup = {};
-    for (let i = 0; i < state[S.effects].length; i++) {
-      const effect = state[S.effects][i];
-      if (effect.phase != phase) continue;
+    // Filter and group effects. Pair each matched effect ref with its
+    // index via parallel arrays so we can pass refs straight to
+    // triggerEffects — skipping the per-match `{...effect, phase: null,
+    // index: i}` spread, which was a substantial allocation hot spot.
+    let effectsByGroup = null;
+    let indicesByGroup = null;
+    for (let i = 0; i < effectList.length; i++) {
+      const effect = effectList[i];
+      if (effect.phase !== phase) continue;
+      // Phase target filter: at:phase[rule] — fires only when the source
+      // card (state.usedCard) matches the target rule.
+      if (effect.filter) {
+        const sourceCard = state[S.usedCard];
+        if (sourceCard == null) continue;
+        const matching = this.engine.cardManager.getTargetRuleCards(
+          state,
+          effect.filter,
+          null,
+        );
+        if (!matching.has(sourceCard)) continue;
+      }
       const group = effect.group || 0;
-      if (!effectsByGroup[group]) effectsByGroup[group] = [];
-      effectsByGroup[group].push({ ...effect, phase: null, index: i });
+      if (!effectsByGroup) {
+        effectsByGroup = {};
+        indicesByGroup = {};
+      }
+      let ge = effectsByGroup[group];
+      if (!ge) {
+        ge = [];
+        effectsByGroup[group] = ge;
+        indicesByGroup[group] = [];
+      }
+      ge.push(effect);
+      indicesByGroup[group].push(i);
     }
 
     // Trigger effects
-    const groupKeys = Object.keys(effectsByGroup);
-    this.logger.debug(phase, effectsByGroup);
-    for (let i = 0; i < groupKeys.length; i++) {
-      const triggeredEffects = this.triggerEffects(
-        state,
-        effectsByGroup[groupKeys[i]],
-        conditionState
-      );
-      for (let j = 0; j < triggeredEffects.length; j++) {
-        const effectIndex = triggeredEffects[j];
-        if (state[S.effects][effectIndex].limit) {
-          state[S.effects][effectIndex].limit--;
+    if (effectsByGroup) {
+      this.logger.debug(phase, effectsByGroup);
+      for (const gKey in effectsByGroup) {
+        const triggered = this.triggerEffects(
+          state,
+          effectsByGroup[gKey],
+          conditionState,
+          null,
+          false,
+          indicesByGroup[gKey],
+        );
+        for (let j = 0; j < triggered.length; j++) {
+          const idx = triggered[j];
+          const eff = effectList[idx];
+          if (eff.limit) {
+            // Replace the effect with a decremented copy; effects are
+            // shared across states via cloneValue's ref-share fast path.
+            effectList[idx] = { ...eff, limit: eff.limit - 1 };
+          }
         }
       }
     }
@@ -129,7 +182,7 @@ export default class EffectManager extends EngineComponent {
     delete state[S.parentPhase];
   }
 
-  triggerEffects(state, effects, cndState, source, skipConditions, sourceType = EFFECT_SOURCES.SKILL_CARD) {
+  triggerEffects(state, effects, cndState, source, skipConditions, indices, sourceType = EFFECT_SOURCES.SKILL_CARD) {
     const conditionState = cndState || shallowCopy(state);
 
     // Deep copy effectCounters so condition checks see pre-modification values
@@ -141,31 +194,24 @@ export default class EffectManager extends EngineComponent {
     }
 
     let triggeredEffects = [];
-    let skipNextEffect = false;
 
     this.logger.debug(effects);
 
-    for (let i = 0; i < effects.length; i++) {
-      // Skip effect if condition not satisfied
-      if (skipNextEffect) {
-        this.logger.debug("Skipping effect", effects[i]);
-        skipNextEffect = false;
-        continue;
-      }
+    // When `indices` is provided (callers: triggerEffectsForPhase, which
+    // has already matched `effect.phase === phase`), we execute the
+    // effects now and skip the "re-register as delayed" branch. That lets
+    // the caller pass effect refs directly instead of spread copies.
+    const fromPhase = indices !== undefined && indices !== null;
 
+    for (let i = 0; i < effects.length; i++) {
       const effect = effects[i];
 
-      // Delayed effects
-      if (effect.phase) {
-        this.logger.debug("Setting effects", effect.effects);
-        let settingEffects = [effect];
-        if (!effect.actions && !effect.effects && i < effects.length - 1) {
-          settingEffects.push(effects[i+1]);
-          skipNextEffect = true;
-        }
+      // Delayed effects (nested phase blocks)
+      if (!fromPhase && effect.phase) {
+        this.logger.debug("Setting delayed effect", effect);
         this.setEffects(
           state,
-          settingEffects,
+          [effect],
           source != null && sourceType === EFFECT_SOURCES.SKILL_CARD
             ? {
                 type: "skillCardEffect",
@@ -215,7 +261,7 @@ export default class EffectManager extends EngineComponent {
       state[S.currentEffectInstanceId] = effect.effectInstanceId;
       conditionState[S.currentEffectInstanceId] = effect.effectInstanceId;
 
-      // Check conditions
+      // Check conditions (AST nodes with proper AND support)
       if (!skipConditions && effect.conditions) {
         let satisfied = true;
         for (let j = 0; j < effect.conditions.length; j++) {
@@ -229,9 +275,6 @@ export default class EffectManager extends EngineComponent {
         }
         if (!satisfied) {
           state[S.currentEffectInstanceId] = prevInstanceId;
-          if (!effect.actions && !effect.effects) {
-            skipNextEffect = true;
-          }
           continue;
         }
       }
@@ -240,9 +283,13 @@ export default class EffectManager extends EngineComponent {
       if (effect.source) {
         this.logger.log(state, "entityStart", { ...effect.source, effectType: effect.type });
       }
-      state[S.triggeredEffect] = effect;
-
       this.logger.debug("Executing actions", effect.actions);
+
+      // Track the effect being triggered so isDirectEffect can see whether
+      // this run is a reservation firing (e.g. card-scheduled "next turn"
+      // effects should propagate as direct).
+      const prevTriggeredEffect = state[S.triggeredEffect];
+      state[S.triggeredEffect] = effect;
 
       // Apply growth or actions or effects
       if (effect.targets) {
@@ -279,7 +326,6 @@ export default class EffectManager extends EngineComponent {
         }
       }
 
-      state[S.triggeredEffect] = null;
       // Log source end
       if (effect.source) {
         this.logger.log(state, "entityEnd", effect.source);
@@ -288,26 +334,31 @@ export default class EffectManager extends EngineComponent {
       // Restore previous effect instance ID
       state[S.currentEffectInstanceId] = prevInstanceId;
 
-      // Track triggered effects
-      triggeredEffects.push(effect.index);
+      // Track triggered effects — if called with indices, the caller's
+      // parallel indices array tells us the effect's position in
+      // state[S.effects]; otherwise fall back to effect.index set by
+      // legacy spread callers.
+      triggeredEffects.push(fromPhase ? indices[i] : effect.index);
     }
 
     return triggeredEffects;
   }
 
   decrementTtl(state) {
-    for (let i = 0; i < state[S.effects].length; i++) {
-      if (state[S.effects][i].ttl == null || state[S.effects][i].ttl == -1)
-        continue;
-      state[S.effects][i].ttl--;
+    const effects = state[S.effects];
+    for (let i = 0; i < effects.length; i++) {
+      const eff = effects[i];
+      if (eff.ttl == null || eff.ttl == -1) continue;
+      effects[i] = { ...eff, ttl: eff.ttl - 1 };
     }
   }
 
   decrementDelay(state) {
-    for (let i = 0; i < state[S.effects].length; i++) {
-      if (state[S.effects][i].delay == null || state[S.effects][i].delay == -1)
-        continue;
-      state[S.effects][i].delay--;
+    const effects = state[S.effects];
+    for (let i = 0; i < effects.length; i++) {
+      const eff = effects[i];
+      if (eff.delay == null || eff.delay == -1) continue;
+      effects[i] = { ...eff, delay: eff.delay - 1 };
     }
   }
 }

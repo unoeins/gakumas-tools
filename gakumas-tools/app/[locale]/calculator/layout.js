@@ -1,42 +1,23 @@
 "use client";
-import { useMemo } from "react";
-import { useTranslations } from "next-intl";
-import ButtonGroup from "@/components/ButtonGroup";
+import ScenarioPicker from "@/components/ScenarioPicker";
 import { useRouter, usePathname } from "@/i18n/routing";
+import { SCENARIOS } from "@/utils/scenarios";
 import styles from "./layout.module.scss";
 
 export default function CalculatorLayout({ children }) {
   const pathname = usePathname();
   const router = useRouter();
-  const t = useTranslations("Calculator");
 
-  let currentScenario = null;
-  if (pathname.startsWith("/calculator/hajime")) {
-    currentScenario = "hajime";
-  } else if (pathname.startsWith("/calculator/nia")) {
-    currentScenario = "nia";
-  }
-
-  const SCENARIO_OPTIONS = useMemo(
-    () =>
-      ["hajime", "nia"].map((scenario) => ({
-        value: scenario,
-        label: t(`scenarios.${scenario}`),
-      })),
-    [t]
-  );
+  const currentScenario =
+    SCENARIOS.find((s) => pathname.startsWith(`/calculator/${s}`)) || null;
 
   return (
     <div className={styles.calculator}>
       {currentScenario && (
-        <>
-          <label>{t("scenario")}</label>
-          <ButtonGroup
-            options={SCENARIO_OPTIONS}
-            selected={currentScenario}
-            onChange={(val) => router.push(`/calculator/${val}`)}
-          />
-        </>
+        <ScenarioPicker
+          selected={currentScenario}
+          onChange={(val) => router.push(`/calculator/${val}`)}
+        />
       )}
       {children}
     </div>

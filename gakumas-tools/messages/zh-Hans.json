@@ -59,10 +59,10 @@
   },
   "Welcome": {
     "title": "学园偶像大师工具站",
-    "introduction": "一个为学园偶像大师而生的工具站。本站有计算目标评级所需得分、回忆卡生成概率计算、查看P道具与技能卡信息、导入和搜索回忆卡、竞技场编成与打分模拟等功能"
+    "introduction": "一个为学园偶像大师而生的工具站。本站有计算目标评级所需得分、回忆卡生成概率计算、查看P道具与技能卡信息、导入和搜索回忆卡、竞技场编成与打分模拟等功能",
+    "disclaimer": "本站为非官方粉丝站点，与《学园偶像大师》的开发运营方无关。"
   },
   "Calculator": {
-    "scenario": "剧本",
     "scenarios": {
       "hajime": "初",
       "nia": "N.I.A"
@@ -160,14 +160,32 @@
   "MemoryCalculator": {
     "note": "注意: 显示的概率是基于均匀分布的估算值，实际的技能卡选择算法尚不明确。",
     "target": "目标技能卡",
-    "acquired": "已获得的技能卡（包括升级前/后）",
+    "acquired": "已获得的技能卡",
+    "acquiredInfo": "请包括每张卡的升级前/后版本",
     "produceRank": "制作评级",
     "costRange": "容量范围",
     "success": "成功",
-    "failure": "失败"
+    "failure": "失败",
+    "clear": "清除",
+    "confirm": "您确定要清除这些技能卡吗？"
   },
   "TargetSkillCards": {
     "acquired": "已获得"
+  },
+  "DraftPick": {
+    "label": "抽卡对比",
+    "info": "最多选择 3 张候选卡，比较加入已获得后的成功概率",
+    "show": "展开",
+    "hide": "收起",
+    "clear": "清除",
+    "commit": "选择",
+    "import": "导入"
+  },
+  "DraftPickImporterModal": {
+    "title": "从截图导入",
+    "instructions": "请上传技能卡抽取界面的截图。将自动识别 3 张卡并载入。",
+    "processing": "处理中...",
+    "error": "导入失败"
   },
   "MemorySummaryActionButtons": {
     "edit": "编辑"
@@ -175,7 +193,11 @@
   "MemoryEditorModal": {
     "name": "命名",
     "contestPower": "总合力",
-    "cost": "容量"
+    "cost": "容量",
+    "parameters": "参数",
+    "pItems": "P道具",
+    "skillCards": "技能卡",
+    "customizations": "定制"
   },
   "ParametersInput": {
     "stamina": "体力"
@@ -206,6 +228,7 @@
     "linkContestNote": "Link Contest 的行为模拟可能不准确。尚未实现不同偶像间 P 道具和技能卡的去重。请在配置编辑器中手动去重并添加基本卡组。",
     "custom": "自定义",
     "simulate": "模拟",
+    "numRuns": "运行次数",
     "provideData": "提供数据",
     "lastUpdated": "最后更新于",
     "start": "开始",
@@ -255,7 +278,6 @@
   },
   "SimulatorSubTools": {
     "costRanges": "容量范围",
-    "history": "历史记录 β",
     "defaultCards": "基本卡组",
     "extensions": "扩展功能"
   },
@@ -267,12 +289,25 @@
   "SimulatorButtons": {
     "confirm": "您确定要清除配置吗？",
     "clear": "清除",
-    "manageLoadouts": "保存/加载 β",
+    "share": "分享",
     "readLoadoutFromUrl": "URL 读取",
     "invalidUrl": "无效的 URL。",
     "invalidLoadout": "无法从 URL 读取配置。",
     "clipboardError": "无法读取剪贴板内容。",
     "confirmSetLoadout": "是否从剪贴板 URL 设置配置？"
+  },
+  "SimulatorLoadoutImporterModal": {
+    "title": "从截图导入编组",
+    "instructions": "请上传游戏内选秀编组画面的截图。P道具和技能卡将被自动检测并加载。由于分类器未针对此图标样式进行训练，识别准确率可能较低。",
+    "processing": "正在处理截图...",
+    "error": "导入失败"
+  },
+  "ShareModal": {
+    "title": "分享",
+    "more": "更多…",
+    "x": "分享到 X",
+    "saveImage": "保存为图片",
+    "exporting": "保存中…"
   },
   "ConfirmModal": {
     "cancel": "取消",
@@ -284,11 +319,21 @@
     "median": "中位分",
     "max": "最高分",
     "logs": "记录",
-    "downloadScores": "下载分数",
+    "stats": "统计",
+    "downloadScores": "分数",
+    "optimizeParams": "优化参数",
     "useStats": "使用次数",
     "conditionalUseStats": "条件使用次数",
     "priorityStats": "优先度比较",
     "scoreStats": "分数统计"
+  },
+  "SimulatorStats": {
+    "total": "合计",
+    "turn": "第{turn}回合",
+    "card": "项目",
+    "uses": "使用",
+    "usePct": "使用率",
+    "score": "分数"
   },
   "SimulatorResultGraphs": {
     "score": "分数"
@@ -309,6 +354,12 @@
     "goodImpressionTurns": "好印象",
     "motivation": "干劲",
     "prideTurns": "Pride",
+    "cumulativeFullPowerCharge": "累计全力值",
+    "strengthTimes": "强气次数",
+    "preservationTimes": "温存次数",
+    "fullPowerTimes": "全力次数",
+    "leisureTimes": "悠闲次数",
+    "stanceChangedTimes": "指针变更次数",
     "stance": "指针",
     "none": "无",
     "preservation": "温存 1",
@@ -318,12 +369,6 @@
     "strength2": "强气 2",
     "fullPower": "全力",
     "fullPowerCharge": "全力值",
-    "cumulativeFullPowerCharge": "累积全力值",
-    "strengthTimes": "强气次数",
-    "preservationTimes": "温存次数",
-    "fullPowerTimes": "全力次数",
-    "leisureTimes": "悠闲次数",
-    "stanceChangedTimes": "指针变更次数",
     "lockStanceTurns": "指针固定",
     "enthusiasm": "热意",
     "enthusiasmBonus": "热意增加",
@@ -399,7 +444,13 @@
     "addScreenshots": "添加竞技场配队结果的屏幕截图以解析分数。",
     "accuracyNotGuaranteed": "准确性无法保证，建议与您的截图自行对比验证结果。",
     "stage": "舞台 {n}",
-    "score": "分数"
+    "score": "分数",
+    "progress": "进度: {progress}/{total}",
+    "analyzingVideo": "正在分析视频...",
+    "scanningVideo": "正在分析第 {analyzed}/{total} 帧 · 已找到 {found} 个结果",
+    "videoComplete": "完成！找到 {count} 个竞技场结果。",
+    "videoError": "处理视频时出错: {message}",
+    "imageError": "{count} 张截图无法解析，已跳过。"
   },
   "KofiAd": {
     "prompt": "支持这个项目"

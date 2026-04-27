@@ -18,6 +18,9 @@ export async function POST(request) {
     pItemIds,
     skillCardIdGroups,
     customizationGroups,
+    linkLoadouts,
+    stats,
+    derived,
     pDrinkIds,
     startingEffects,
     enableSkillCardOrder,
@@ -37,6 +40,9 @@ export async function POST(request) {
     pItemIds,
     skillCardIdGroups,
     customizationGroups,
+    linkLoadouts: linkLoadouts || null,
+    stats: stats || null,
+    derived: derived || null,
     pDrinkIds,
     startingEffects,
     enableSkillCardOrder,
@@ -66,6 +72,26 @@ export async function GET(request) {
     .toArray();
 
   return Response.json(loadouts);
+}
+
+export async function PATCH(request) {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return new Response("Unauthorized", { status: 401 });
+  }
+  const userId = session.user.id;
+  const { id, name } = await request.json();
+  if (!id) {
+    return new Response("Missing id", { status: 400 });
+  }
+
+  const { db } = await connect();
+  await db.collection("loadouts").updateOne(
+    { _id: new ObjectId(id), userId },
+    { $set: { name } },
+  );
+
+  return new Response(null, { status: 204 });
 }
 
 export async function DELETE(request) {

@@ -7,6 +7,26 @@ import {
 } from "../constants";
 import EngineComponent from "./EngineComponent";
 
+const BUFF_TYPES = [
+  { action: "setScoreBuff", field: S.scoreBuffs },
+  { action: "setScoreDebuff", field: S.scoreDebuffs },
+  { action: "setGoodImpressionTurnsBuff", field: S.goodImpressionTurnsBuffs },
+  {
+    action: "setGoodImpressionTurnsEffectBuff",
+    field: S.goodImpressionTurnsEffectBuffs,
+  },
+  {
+    action: "setGoodImpressionTurnsTimesBuff",
+    field: S.goodImpressionTurnsTimesBuffs,
+  },
+  { action: "setMotivationBuff", field: S.motivationBuffs },
+  { action: "setGoodConditionTurnsBuff", field: S.goodConditionTurnsBuffs },
+  { action: "setConcentrationBuff", field: S.concentrationBuffs },
+  { action: "setConcentrationEffectBuff", field: S.concentrationEffectBuffs },
+  { action: "setEnthusiasmBuff", field: S.enthusiasmBuffs },
+  { action: "setFullPowerChargeBuff", field: S.fullPowerChargeBuffs },
+];
+
 export default class BuffManager extends EngineComponent {
   constructor(engine) {
     super(engine);
@@ -14,15 +34,22 @@ export default class BuffManager extends EngineComponent {
     this.variableResolvers = {
       isPreservation: (state) =>
         state[S.stance].startsWith("pre") || state[S.stance] === "leisure",
-      isNotPreservation: (state) =>
-        !state[S.stance].startsWith("pre") && state[S.stance] != "leisure",
       isStrength: (state) => state[S.stance].startsWith("str"),
-      isNotStrength: (state) => !state[S.stance].startsWith("str"),
       isFullPower: (state) => state[S.stance] == "fullPower",
-      // stanceChangedTimes: (state) =>
-      //   state[S.strengthTimes] +
-      //   state[S.preservationTimes] +
-      //   state[S.fullPowerTimes],
+      isDirectEffect: (state) =>
+        state[S.parentPhase] === "processCard" ||
+        state[S.parentPhase] === "processCost" ||
+        state[S.parentPhase] == "processDrink" ||
+        (state[S.triggeredEffect]?.type === "reservation" &&
+          (state[S.triggeredEffect]?.source?.type == "skillCardEffect" ||
+            state[S.triggeredEffect]?.source?.type == "pDrinkEffect")) ||
+        (state[S.phase] == "stanceChanged" &&
+          state[S.prevStance] != "fullPower" &&
+          state[S.stance] == "fullPower"),
+      stanceChangedTimes: (state) =>
+        state[S.strengthTimes] +
+        state[S.preservationTimes] +
+        state[S.fullPowerTimes],
       goodImpressionTurnsEffectBuff: (state) =>
         state[S.goodImpressionTurnsEffectBuffs].reduce(
           (acc, buff) => acc + buff.amount,
@@ -38,97 +65,9 @@ export default class BuffManager extends EngineComponent {
           (acc, buff) => acc + buff.amount,
           1,
         ),
-      isDirectEffect: (state) => 
-        state[S.parentPhase] == "processCard" ||
-        state[S.parentPhase] == "processCost" ||
-        state[S.parentPhase] == "processDrink" ||
-        (
-          state[S.triggeredEffect]?.type == "reservation" &&
-          (
-            state[S.triggeredEffect]?.source?.type == "skillCardEffect" ||
-            state[S.triggeredEffect]?.source?.type == "pDrinkEffect"
-          )
-        ) ||
-        (
-          state[S.phase] == "stanceChanged" &&
-          state[S.prevStance] != "fullPower" &&
-          state[S.stance] == "fullPower"
-        ),
     };
 
     this.specialActions = {
-      setScoreBuff: (state, amount, turns) =>
-        this.setScoreBuff(
-          state,
-          parseFloat(amount),
-          turns ? parseInt(turns, 10) : null,
-        ),
-      setScoreDebuff: (state, amount, turns) =>
-        this.setScoreDebuff(
-          state,
-          parseFloat(amount),
-          turns ? parseInt(turns, 10) : null,
-        ),
-      setGoodImpressionTurnsBuff: (state, amount, turns) =>
-        this.setGoodImpressionTurnsBuff(
-          state,
-          parseFloat(amount),
-          turns ? parseInt(turns, 10) : null,
-        ),
-      setGoodImpressionTurnsEffectBuff: (state, amount, turns) =>
-        this.setGoodImpressionTurnsEffectBuff(
-          state,
-          parseFloat(amount),
-          turns ? parseInt(turns, 10) : null,
-        ),
-      setGoodImpressionTurnsTimesBuff: (state, amount, turns) =>
-        this.setGoodImpressionTurnsTimesBuff(
-          state,
-          parseInt(amount, 10),
-          turns ? parseInt(turns, 10) : null,
-        ),
-      setMotivationBuff: (state, amount, turns) =>
-        this.setMotivationBuff(
-          state,
-          parseFloat(amount),
-          turns ? parseInt(turns, 10) : null,
-        ),
-      setGoodConditionTurnsBuff: (state, amount, turns) =>
-        this.setGoodConditionTurnsBuff(
-          state,
-          parseFloat(amount),
-          turns ? parseInt(turns, 10) : null,
-        ),
-      setConcentrationBuff: (state, amount, turns) =>
-        this.setConcentrationBuff(
-          state,
-          parseFloat(amount),
-          turns ? parseInt(turns, 10) : null,
-        ),
-      setConcentrationEffectBuff: (state, amount, turns) =>
-        this.setConcentrationEffectBuff(
-          state,
-          parseFloat(amount),
-          turns ? parseInt(turns, 10) : null,
-        ),
-      setEnthusiasmBuff: (state, amount, turns) =>
-        this.setEnthusiasmBuff(
-          state,
-          parseFloat(amount),
-          turns ? parseInt(turns, 10) : null,
-        ),
-      setFullPowerChargeBuff: (state, amount, turns) =>
-        this.setFullPowerChargeBuff(
-          state,
-          parseFloat(amount),
-          turns ? parseInt(turns, 10) : null,
-        ),
-      setConcentrationEffectBuff: (state, amount, turns) =>
-        this.setConcentrationEffectBuff(
-          state,
-          parseFloat(amount),
-          turns ? parseInt(turns, 10) : null,
-        ),
       removeDebuffs: (state, amount) =>
         this.removeDebuffs(state, parseInt(amount, 10)),
       setStance: (state, stance) => this.setStance(state, stance),
@@ -139,6 +78,18 @@ export default class BuffManager extends EngineComponent {
         );
       },
     };
+
+    // Generate buff methods and special actions
+    for (const { action, field } of BUFF_TYPES) {
+      this[action] = (state, amount, turns) =>
+        this.setBuff(state, field, amount, turns, action);
+      this.specialActions[action] = (state, amount, turns) =>
+        this[action](
+          state,
+          parseFloat(amount),
+          turns ? parseInt(turns, 10) : null,
+        );
+    }
   }
 
   initializeState(state) {
@@ -193,8 +144,6 @@ export default class BuffManager extends EngineComponent {
     state[S.preservationTimes] = 0;
     state[S.fullPowerTimes] = 0;
     state[S.leisureTimes] = 0;
-    state[S.stanceChangedTimes] = 0;
-    state[S.stanceChangedByCardTimes] = 0;
     state[S.stanceChangedByDirectEffectTimes] = 0;
 
     // Buffs/debuffs protected from decrement
@@ -211,14 +160,20 @@ export default class BuffManager extends EngineComponent {
     // Other
     state[S.nullifySelect] = 0;
     state[S.freeCardUses] = 0;
+    state[S.scoreTimes] = 0;
   }
 
   setBuff(state, field, amount, turns, logLabel) {
-    const buffIndex = state[field].findIndex((b) => b.turns == turns);
+    // Buffs are shared by reference across states via cloneValue's
+    // shallow-slice array path, so instead of mutating an existing
+    // buff's amount we replace the entry with a fresh object.
+    const arr = state[field];
+    const buffIndex = arr.findIndex((b) => b.turns == turns);
     if (buffIndex != -1) {
-      state[field][buffIndex].amount += amount;
+      const old = arr[buffIndex];
+      arr[buffIndex] = { ...old, amount: old.amount + amount };
     } else {
-      state[field].push({
+      arr.push({
         amount,
         turns,
         fresh: !UNFRESH_PHASES.includes(state[S.phase]),
@@ -228,92 +183,6 @@ export default class BuffManager extends EngineComponent {
       amount,
       turns,
     });
-  }
-
-  setScoreBuff(state, amount, turns) {
-    this.setBuff(state, S.scoreBuffs, amount, turns, "setScoreBuff");
-  }
-
-  setScoreDebuff(state, amount, turns) {
-    this.setBuff(state, S.scoreDebuffs, amount, turns, "setScoreDebuff");
-  }
-
-  setGoodImpressionTurnsBuff(state, amount, turns) {
-    this.setBuff(
-      state,
-      S.goodImpressionTurnsBuffs,
-      amount,
-      turns,
-      "setGoodImpressionTurnsBuff",
-    );
-  }
-
-  setGoodImpressionTurnsEffectBuff(state, amount, turns) {
-    this.setBuff(
-      state,
-      S.goodImpressionTurnsEffectBuffs,
-      amount,
-      turns,
-      "setGoodImpressionTurnsEffectBuff",
-    );
-  }
-
-  setGoodImpressionTurnsTimesBuff(state, amount, turns) {
-    this.setBuff(
-      state,
-      S.goodImpressionTurnsTimesBuffs,
-      amount,
-      turns,
-      "setGoodImpressionTurnsTimesBuff",
-    );
-  }
-
-  setMotivationBuff(state, amount, turns) {
-    this.setBuff(state, S.motivationBuffs, amount, turns, "setMotivationBuff");
-  }
-
-  setGoodConditionTurnsBuff(state, amount, turns) {
-    this.setBuff(
-      state,
-      S.goodConditionTurnsBuffs,
-      amount,
-      turns,
-      "setGoodConditionTurnsBuff",
-    );
-  }
-
-  setConcentrationBuff(state, amount, turns) {
-    this.setBuff(
-      state,
-      S.concentrationBuffs,
-      amount,
-      turns,
-      "setConcentrationBuff",
-    );
-  }
-
-  setConcentrationEffectBuff(state, amount, turns) {
-    this.setBuff(
-      state,
-      S.concentrationEffectBuffs,
-      amount,
-      turns,
-      "setConcentrationEffectBuff",
-    );
-  }
-
-  setEnthusiasmBuff(state, amount, turns) {
-    this.setBuff(state, S.enthusiasmBuffs, amount, turns, "setEnthusiasmBuff");
-  }
-
-  setFullPowerChargeBuff(state, amount, turns) {
-    this.setBuff(
-      state,
-      S.fullPowerChargeBuffs,
-      amount,
-      turns,
-      "setFullPowerChargeBuff",
-    );
   }
 
   removeDebuffs(state, amount) {
@@ -340,33 +209,21 @@ export default class BuffManager extends EngineComponent {
       }
     }
 
-    const buffArrayFields = [
-      S.scoreBuffs,
-      S.scoreDebuffs,
-      S.goodImpressionTurnsBuffs,
-      S.goodImpressionTurnsEffectBuffs,
-      S.goodImpressionTurnsTimesBuffs,
-      S.motivationBuffs,
-      S.goodConditionTurnsBuffs,
-      S.concentrationBuffs,
-      S.concentrationEffectBuffs,
-      S.enthusiasmBuffs,
-      S.fullPowerChargeBuffs,
-    ];
-
-    for (const field of buffArrayFields) {
+    for (const { field } of BUFF_TYPES) {
       const buffs = state[field];
-      state[field] = [];
+      const next = [];
       for (let i = 0; i < buffs.length; i++) {
-        if (buffs[i].fresh) {
-          buffs[i].fresh = false;
-        } else if (buffs[i].turns) {
-          buffs[i].turns--;
-        }
-        if (buffs[i].turns != 0) {
-          state[field].push(buffs[i]);
-        }
+        const b = buffs[i];
+        // Replace the entry with a decremented copy — buffs are shared
+        // by reference across states via cloneValue's shallow-slice
+        // array path.
+        let nb;
+        if (b.fresh) nb = { ...b, fresh: false };
+        else if (b.turns) nb = { ...b, turns: b.turns - 1 };
+        else nb = b;
+        if (nb.turns != 0) next.push(nb);
       }
+      state[field] = next;
     }
   }
 
@@ -416,18 +273,16 @@ export default class BuffManager extends EngineComponent {
       } else if (state[S.stance] == "leisure") {
         state[S.leisureTimes]++;
       }
-      if (state[S.phase] == 'processCard' ||
-        state[S.phase] == 'processDrink' ||
+      // Mirror the isDirectEffect resolver's definition of "direct":
+      // card actions, card cost, or a scheduled card-sourced reservation.
+      if (
+        state[S.phase] == "processCard" ||
         state[S.phase] == "processCost" ||
-        (
-          state[S.triggeredEffect]?.type == "reservation" &&
-          (
-            state[S.triggeredEffect]?.source?.type == "skillCardEffect" ||
-            state[S.triggeredEffect]?.source?.type == "pDrinkEffect"
-          )
-        )
+        state[S.phase] == 'processDrink' ||
+        (state[S.triggeredEffect]?.type === "reservation" &&
+          (state[S.triggeredEffect]?.source?.type == "skillCardEffect" ||
+            state[S.triggeredEffect]?.source?.type == "pDrinkEffect"))
       ) {
-        state[S.stanceChangedByCardTimes]++;
         state[S.stanceChangedByDirectEffectTimes]++;
       }
     }

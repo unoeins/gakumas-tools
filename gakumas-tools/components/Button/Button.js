@@ -10,15 +10,19 @@ function Button({
   href,
   target,
   style = "default",
+  size = "md",
   disabled,
   ariaLabel,
   fill,
+  pill,
   locale,
 }) {
   const fullClassName = c(
     styles.button,
     styles[disabled ? "disabled" : style],
+    styles[size],
     fill && styles.fill,
+    pill && styles.pill,
     className
   );
 

@@ -1,0 +1,163 @@
+@use "sass:color";
+@use "../../styles/colors";
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  color: colors.$black-dark;
+}
+
+.sectionHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px 0;
+}
+
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+// Plain large text marker — visually heavier than the table rows, no
+// background to compete with the right-side type chips.
+.title {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.typeChips {
+  display: flex;
+  gap: 4px;
+  font-size: 11px;
+}
+
+.chip {
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: colors.$white;
+  white-space: nowrap;
+
+  &.vocal {
+    background-color: colors.$vocal-light;
+  }
+  &.dance {
+    background-color: colors.$dance-light;
+  }
+  &.visual {
+    background-color: colors.$visual-light;
+  }
+}
+
+.typeBar {
+  display: flex;
+  height: 3px;
+
+  > div {
+    height: 100%;
+  }
+
+  .vocal {
+    background-color: colors.$vocal-light;
+  }
+  .dance {
+    background-color: colors.$dance-light;
+  }
+  .visual {
+    background-color: colors.$visual-light;
+  }
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  // Auto layout so the card column can absorb whatever space the
+  // (short, nowrap) numeric columns don't need — avoids truncating
+  // names on narrow screens when numbers only need ~40–50px apiece.
+  table-layout: auto;
+  font-size: 12px;
+
+  th,
+  td {
+    padding: 4px 6px;
+    vertical-align: middle;
+  }
+
+  th {
+    font-weight: 600;
+    color: colors.$gray-dark;
+    border-bottom: 1px solid colors.$gray-extra-light;
+    white-space: nowrap;
+  }
+
+  tbody tr:nth-child(even) {
+    background-color: color.adjust(colors.$gk-orange, $lightness: 45%);
+  }
+}
+
+.sortable {
+  cursor: pointer;
+  user-select: none;
+
+  &:hover {
+    color: colors.$black-dark;
+  }
+}
+
+.activeSort {
+  color: colors.$black-dark;
+}
+
+.sortArrow {
+  font-size: 10px;
+  margin-left: 2px;
+}
+
+// Card column soaks up whatever's left after the numeric columns claim
+// their natural width. `width: 100%` on a single column under auto layout
+// is the standard "flex fill" trick: the browser still shrinks other
+// columns to content first.
+.cardCell {
+  width: 100%;
+  text-align: left;
+}
+
+.numericCell {
+  width: 1%;
+  white-space: nowrap;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+tbody .cardCell {
+  overflow: hidden;
+}
+
+tbody .cardCell > div,
+tbody .cardCell > span {
+  vertical-align: middle;
+}
+
+tbody .cardCell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.iconWrap {
+  position: relative;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+}
+
+.cardName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}

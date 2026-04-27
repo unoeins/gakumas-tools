@@ -6,11 +6,11 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
 import Navbar from "@/components/Navbar";
 import PinnedTools from "@/components/PinnedTools";
+import Tooltips from "@/components/Tooltips";
 import { DataContextProvider } from "@/contexts/DataContext";
-import { LoadoutApiContextProvider } from "@/contexts/LoadoutApiContext";
 import { LoadoutContextProvider } from "@/contexts/LoadoutContext";
-import { LoadoutHistoryContextProvider } from "@/contexts/LoadoutHistoryContext";
 import { LoadoutUrlContextProvider } from "@/contexts/LoadoutUrlContext";
+import { SimulationRunsContextProvider } from "@/contexts/SimulationRunsContext";
 import { MemoryCalculatorContextProvider } from "@/contexts/MemoryCalculatorContext";
 import { MemoryContextProvider } from "@/contexts/MemoryContext";
 import { ModalContextProvider } from "@/contexts/ModalContext";
@@ -65,16 +65,15 @@ export default async function RootLayout({ params, children }) {
                         <Suspense>
                           <LoadoutUrlContextProvider>
                             <LoadoutContextProvider>
-                              <LoadoutApiContextProvider>
-                                <LoadoutHistoryContextProvider>
-                                  <ModalContextProvider>
-                                    <div className={styles.tools}>
-                                      <PinnedTools />
-                                      <main>{children}</main>
-                                    </div>
-                                  </ModalContextProvider>
-                                </LoadoutHistoryContextProvider>
-                              </LoadoutApiContextProvider>
+                              <SimulationRunsContextProvider>
+                                <ModalContextProvider>
+                                  <div className={styles.tools}>
+                                    <PinnedTools />
+                                    <main>{children}</main>
+                                  </div>
+                                  <Tooltips />
+                                </ModalContextProvider>
+                              </SimulationRunsContextProvider>
                             </LoadoutContextProvider>
                           </LoadoutUrlContextProvider>
                         </Suspense>

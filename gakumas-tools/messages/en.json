@@ -59,10 +59,10 @@
   },
   "Welcome": {
     "title": "Gakumas Tools",
-    "introduction": "Tools for playing Gakuen Idolmaster. Calculate required final exam scores for produce ranks, view p-item and skill card information, import and search memories, simulate contest loadouts and more!"
+    "introduction": "Tools for playing Gakuen Idolmaster. Calculate required final exam scores for produce ranks, view p-item and skill card information, import and search memories, simulate contest loadouts and more!",
+    "disclaimer": "This is an unofficial, fan-made site. Not affiliated with or endorsed by the creators of Gakuen Idolmaster."
   },
   "Calculator": {
-    "scenario": "Scenario",
     "scenarios": {
       "hajime": "Hajime",
       "nia": "N.I.A"
@@ -160,14 +160,32 @@
   "MemoryCalculator": {
     "note": "Note: Probabilities shown are estimated based on a uniform distribution. The real skill card selection algorithm is not known.",
     "target": "Target skill cards",
-    "acquired": "Acquired skill cards (include pre/post-upgrade)",
+    "acquired": "Acquired skill cards",
+    "acquiredInfo": "Include pre/post-upgrade versions of each card",
     "produceRank": "Produce rank",
     "costRange": "Cost range",
     "success": "Success",
-    "failure": "Failure"
+    "failure": "Failure",
+    "clear": "Clear",
+    "confirm": "Are you sure you want to clear these skill cards?"
   },
   "TargetSkillCards": {
     "acquired": "Acquired"
+  },
+  "DraftPick": {
+    "label": "Draft pick",
+    "info": "Pick up to 3 candidate cards to compare success probability if added to acquired",
+    "show": "Show",
+    "hide": "Hide",
+    "clear": "Clear",
+    "commit": "Pick",
+    "import": "Import"
+  },
+  "DraftPickImporterModal": {
+    "title": "Import draft pick from screenshot",
+    "instructions": "Upload a screenshot of the in-game skill card draft screen. The 3 cards shown will be auto-detected and loaded.",
+    "processing": "Processing screenshot...",
+    "error": "Failed to import"
   },
   "MemorySummaryActionButtons": {
     "edit": "Edit"
@@ -175,7 +193,11 @@
   "MemoryEditorModal": {
     "name": "Name",
     "contestPower": "Contest power",
-    "cost": "Cost"
+    "cost": "Cost",
+    "parameters": "Parameters",
+    "pItems": "P-items",
+    "skillCards": "Skill cards",
+    "customizations": "Customizations"
   },
   "ParametersInput": {
     "stamina": "Stamina"
@@ -206,6 +228,7 @@
     "linkContestNote": "Link contest behavior may not be accurately simulated. Deduplication of p-items and skill cards across idols is not yet implemented. Please deduplicate and add default cards manually in the loadout editor.",
     "custom": "Custom",
     "simulate": "Simulate",
+    "numRuns": "Number of runs",
     "provideData": "Provide data",
     "lastUpdated": "Last updated",
     "start": "Start",
@@ -255,7 +278,6 @@
   },
   "SimulatorSubTools": {
     "costRanges": "Cost ranges",
-    "history": "History β",
     "defaultCards": "Default cards",
     "extensions": "Extensions"
   },
@@ -267,12 +289,26 @@
   "SimulatorButtons": {
     "confirm": "Are you sure you want to clear the loadout?",
     "clear": "Clear",
-    "manageLoadouts": "Save/Load β",
+    "share": "Share",
+    "openLoadouts": "Loadouts",
     "readLoadoutFromUrl": "Read URL",
     "invalidUrl": "Invalid URL.",
     "invalidLoadout": "Cannot load loadout from URL.",
     "clipboardError": "Cannot read from clipboard.",
     "confirmSetLoadout": "Are you sure you want to set loadout from clipboard URL?"
+  },
+  "SimulatorLoadoutImporterModal": {
+    "title": "Import loadout from screenshot",
+    "instructions": "Upload a screenshot of the in-game contest loadout screen. P-items and skill cards will be auto-detected and loaded. Classification may be inaccurate since the classifier was not trained on this icon style.",
+    "processing": "Processing screenshot...",
+    "error": "Failed to import"
+  },
+  "ShareModal": {
+    "title": "Share",
+    "more": "More…",
+    "x": "Share on X",
+    "saveImage": "Save as image",
+    "exporting": "Saving…"
   },
   "ConfirmModal": {
     "cancel": "Cancel",
@@ -284,11 +320,53 @@
     "median": "Median",
     "max": "Max",
     "logs": "Logs",
-    "downloadScores": "Download scores",
+    "stats": "Stats",
+    "compare": "Compare",
+    "downloadScores": "Scores",
+    "optimizeParams": "Optimize params",
     "useStats": "Usage count",
     "conditionalUseStats": "Conditional usage count",
     "priorityStats": "Priority comparison",
     "scoreStats": "Score statistics"
+  },
+  "CompareTab": {
+    "saved": "Saved",
+    "history": "History",
+    "current": "Current",
+    "noScores": "No scores",
+    "mean": "Mean",
+    "median": "Median",
+    "load": "Load",
+    "save": "Save",
+    "edit": "Rename",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "confirmDelete": "Delete this run?",
+    "signInPrompt": "Saving requires sign-in. Continue to Discord?",
+    "signInToView": "Sign in to view your saved loadouts.",
+    "savePrompt": "Name",
+    "emptyHistory": "Run a simulation to see it here.",
+    "emptySaved": "No saved loadouts yet.",
+    "loading": "Loading…",
+    "fifoHint": "{count} / {max} — save to keep older runs",
+    "fifoAtLimit": "At {max} — oldest runs are replaced. Save to keep.",
+    "hiddenByFilters": "{count} hidden by filters",
+    "allHiddenByFilters": "All {count} hidden by filters",
+    "clearFilters": "Clear filters",
+    "showDetails": "Show details",
+    "hideDetails": "Hide details",
+    "season": "Season",
+    "allSeasons": "All seasons",
+    "allIdols": "All idols",
+    "allStages": "All stages"
+  },
+  "SimulatorStats": {
+    "total": "Total",
+    "turn": "Turn {turn}",
+    "card": "Card / Item",
+    "uses": "Uses",
+    "usePct": "Use %",
+    "score": "Score"
   },
   "SimulatorResultGraphs": {
     "score": "Score"
@@ -309,6 +387,12 @@
     "goodImpressionTurns": "Good impression",
     "motivation": "Motivation",
     "prideTurns": "Pride",
+    "cumulativeFullPowerCharge": "Cumulative full power charge",
+    "strengthTimes": "Strength stances",
+    "preservationTimes": "Preservation stances",
+    "fullPowerTimes": "Full power stances",
+    "leisureTimes": "Leisure stances",
+    "stanceChangedTimes": "Stance changes",
     "stance": "Stance",
     "none": "None",
     "preservation": "Preservation 1",
@@ -318,12 +402,6 @@
     "strength2": "Strength 2",
     "fullPower": "Full power",
     "fullPowerCharge": "Full power charge",
-    "cumulativeFullPowerCharge": "Cumulative full power charge",
-    "strengthTimes": "Strength times",
-    "preservationTimes": "Preservation times",
-    "fullPowerTimes": "Full power times",
-    "leisureTimes": "Leisure times",
-    "stanceChangedTimes": "Stance changed times",
     "lockStanceTurns": "Lock stance turns",
     "enthusiasm": "Enthusiasm",
     "enthusiasmBonus": "Enthusiasm bonus",
@@ -399,7 +477,13 @@
     "addScreenshots": "Add screenshots of the rehearsal result screen to parse scores from.",
     "accuracyNotGuaranteed": "Accuracy is not guaranteed. It is recommended to manually verify the results by comparing with your screenshots.",
     "stage": "Stage {n}",
-    "score": "Score"
+    "score": "Score",
+    "progress": "Progress: {progress}/{total}",
+    "analyzingVideo": "Analyzing video...",
+    "scanningVideo": "Analyzing frame {analyzed}/{total} · {found} result(s) found so far",
+    "videoComplete": "Completed! Found {count} rehearsal results.",
+    "videoError": "Error processing video: {message}",
+    "imageError": "{count} screenshot(s) could not be parsed and were skipped."
   },
   "KofiAd": {
     "prompt": "Support this project"

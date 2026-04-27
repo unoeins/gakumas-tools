@@ -1,29 +1,42 @@
 @use "sass:color";
 @use "../../styles/colors";
+@use "../../styles/tokens";
 
 .input {
   min-width: 0;
   outline: none;
-  border: none;
-  border-bottom: 2px solid colors.$gk-orange;
-  padding: 6px;
+  padding: tokens.$space-1 tokens.$space-2;
+  border: 1px solid tokens.$surface-border;
+  border-radius: tokens.$radius-xs;
   background-color: transparent;
   color: colors.$black;
+  font-size: tokens.$text-base;
   font-weight: 600;
   text-align: center;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 
   &::placeholder {
-    color: color.adjust(colors.$gk-orange, $lightness: 15%);
+    color: colors.$gray;
+    font-weight: 400;
   }
 
-  /* Chrome, Safari, Edge, Opera */
+  &:hover {
+    border-color: colors.$gk-orange-light;
+  }
+
+  &:focus {
+    border-color: colors.$gk-orange;
+    box-shadow: 0 0 0 3px color.adjust(colors.$gk-orange, $alpha: -0.85);
+  }
+
   &::-webkit-outer-spin-button,
   &::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
   }
 
-  /* Firefox */
   &[type="number"] {
     -moz-appearance: textfield;
   }

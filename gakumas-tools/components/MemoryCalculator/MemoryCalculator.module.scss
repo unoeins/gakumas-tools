@@ -1,29 +1,51 @@
 @use "../../styles/colors";
+@use "../../styles/tokens";
 
 .memoryCalculator {
-  max-width: 500px;
+  max-width: 560px;
   margin: 0 auto;
-  padding: 0 16px 16px;
+  padding: tokens.$space-4 tokens.$space-4 tokens.$space-6;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: tokens.$space-5;
 }
 
-.rankSelect {
-  align-self: flex-start;
+.settingsRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: tokens.$space-3;
 }
 
-.resultsToggle {
-  justify-content: flex-start;
-  gap: 8px;
-  color: colors.$gk-orange;
-  font-size: 16px;
+.settingField {
+  display: flex;
+  flex-direction: column;
+  gap: tokens.$space-1;
+
+  label {
+    margin-top: 0;
+  }
+}
+
+.costRange {
+  font-size: tokens.$text-lg;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: tokens.$surface-ink;
+}
+
+.resultsPanel {
+  overflow: hidden;
+}
+
+.resultsContent {
+  padding: tokens.$space-2;
 }
 
 .result {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: tokens.$space-1;
 }
 
 .card {

@@ -3,10 +3,13 @@
 .fieldButtons {
   @extend .buttonGroup;
 
-  flex-wrap: wrap;
   margin-top: 8px;
+  flex-wrap: wrap;
 
   button {
+    // Size buttons to their label instead of sharing row equally — with
+    // nowrap labels and flex: 1 the text overflowed each box and overlapped.
+    flex: 1 1 auto;
     padding: 6px;
     min-width: 16%;
 

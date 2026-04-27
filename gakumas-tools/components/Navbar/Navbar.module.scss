@@ -1,29 +1,59 @@
-@use "sass:color";
 @use "../../styles/colors";
+@use "../../styles/tokens";
 
 .navbar {
-  min-height: 48px;
+  min-height: 52px;
   display: flex;
   align-items: center;
-  box-shadow: 0 0 4px color.adjust(colors.$black, $alpha: -0.75);
-  padding: 0 8px;
-  border-radius: 0 0 24px 24px;
-  background-color: colors.$white;
-  color: colors.$black-light;
-
-  h1 {
-    margin: 0 8px;
-  }
+  padding: 0 tokens.$space-3;
+  border-radius: 0 0 20px 20px;
+  background: tokens.$gradient-brand;
+  color: colors.$white;
 
   &.hasOshi {
     border-radius: 0;
   }
 }
 
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3em;
+  padding: 0 tokens.$space-2;
+  color: colors.$white;
+  font-size: 20px;
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+.brandPrimary {
+  font-weight: 800;
+}
+
+.brandSecondary {
+  font-weight: 400;
+  opacity: 0.85;
+}
+
 .links {
+  position: relative;
   flex: 1;
   height: 100%;
   display: flex;
+}
+
+.indicator {
+  position: absolute;
+  left: 0;
+  bottom: 6px;
+  height: 2px;
+  border-radius: 2px;
+  background-color: colors.$white;
+  pointer-events: none;
+  transition:
+    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.2s ease;
 }
 
 .link {
@@ -31,24 +61,25 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  transition: color 0.2s;
+  color: rgba(255, 255, 255, 0.75);
+  transition: color 0.15s;
 
   &:hover {
-    color: colors.$gk-red-orange;
+    color: colors.$white;
   }
 }
 
 .right {
   display: flex;
-  gap: 8px;
+  gap: tokens.$space-2;
 }
 
 .active {
-  color: colors.$gk-orange;
+  color: colors.$white;
 }
 
 @media only screen and (max-width: 600px) {
-  .navbar h1 {
+  .brand {
     display: none;
   }
 }

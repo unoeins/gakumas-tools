@@ -1,14 +1,6 @@
 @use "sass:color";
 @use "../../styles/colors";
-@use "../../styles/mixins";
-
-.oshi {
-  font-size: 24px;
-  font-weight: bold;
-  color: colors.$blue;
-  text-decoration: underline;
-  text-align: center;
-}
+@use "../../styles/tokens";
 
 .loadoutEditor {
   display: flex;
@@ -20,24 +12,22 @@
   max-width: 600px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 8px 16px;
+  gap: tokens.$space-2;
+  padding: tokens.$space-2 tokens.$space-4;
   overflow: auto;
+
+  @media (max-width: 480px) {
+    padding: tokens.$space-2;
+    padding-bottom: 0;
+    gap: tokens.$space-1;
+  }
 }
 
 .percentRow {
   display: flex;
-  flex-direction: row-reverse;
-  justify-content: space-between;
-  gap: 4px;
-}
-
-.enterPercentsToggle {
-  display: flex;
-  flex-direction: row-reverse;
   align-items: center;
-  gap: 8px;
-  color: colors.$gk-orange;
+  gap: tokens.$space-3;
+  flex-wrap: wrap;
 }
 
 .loadoutTabs {
@@ -70,41 +60,109 @@
   padding: 0 4px;
 }
 
-.note a {
-  color: colors.$blue-dark;
-  text-decoration: underline;
-}
-
 .supportBonusInput {
   display: flex;
+  gap: tokens.$space-2;
+  align-items: baseline;
 
   input {
     width: 80px;
   }
 }
 
-.expanderButtons {
+.simControls {
   display: flex;
-  margin-bottom: 4px;
+  align-items: center;
+  gap: tokens.$space-1 tokens.$space-2;
+  flex-wrap: wrap;
+}
+
+.strategyPicker {
+  flex: 0 0 auto;
+  min-width: 160px;
 
   button {
-    margin: 0 auto;
-    color: colors.$blue;
-    font-size: 16px;
-    text-align: center;
+    padding: tokens.$space-1 tokens.$space-3;
   }
 
-  .disabled {
-    color: colors.$gray;
-    cursor: default;
+  @media (max-width: 500px) {
+    flex: 1 1 100%;
   }
 }
 
-.strategySelect {
-  border: 2px solid colors.$gray-light;
-  border-radius: 4px;
-  padding: 4px;
-  display: none;
+.numRunsRow {
+  display: flex;
+  align-items: center;
+  gap: tokens.$space-2;
+  flex: 1;
+  min-width: 220px;
+
+  label {
+    margin: 0;
+    flex-shrink: 0;
+  }
+
+  span {
+    min-width: 42px;
+    color: tokens.$surface-ink;
+    font-size: tokens.$text-base;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+}
+
+.numRunsSlider {
+  flex: 1;
+  min-width: 0;
+}
+
+.expanderButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: tokens.$space-1;
+
+  & + * {
+    margin-top: tokens.$space-2;
+  }
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: tokens.$space-1;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background-color: tokens.$surface-muted;
+    color: tokens.$surface-ink-muted;
+    font-size: tokens.$text-xs;
+    font-weight: 600;
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease;
+
+    svg {
+      font-size: 10px;
+      transition: transform 0.15s ease;
+    }
+
+    &:not(.disabled):hover {
+      color: tokens.$surface-ink;
+    }
+
+    &.expanded {
+      background-color: colors.$gk-orange-extra-light;
+      color: colors.$gk-red-orange;
+
+      svg {
+        transform: rotate(180deg);
+      }
+    }
+
+    &.disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+  }
 }
 
 .subLinks {
@@ -114,27 +172,24 @@
   font-size: 12px;
 }
 
-.url {
-  font-size: 10px;
-  word-break: break-all;
-}
-
 .buttons {
   display: flex;
+  flex-wrap: wrap;
   align-items: stretch;
-  gap: 8px;
+  gap: tokens.$space-2;
+}
 
-  button,
-  a {
-    min-width: 60px;
-    padding: 8px;
+.buttonText {
+  @media (max-width: 480px) {
+    display: none;
   }
 }
 
-.loader {
-  flex: 0;
+.progressBarWrap {
+  margin-top: tokens.$space-1;
 }
 
-.ad {
-  margin-bottom: 16px;
+.resultPlaceholder {
+  flex-basis: 100%;
+  height: 8px;
 }

@@ -1,17 +1,14 @@
-import { memo, useContext, useState } from "react";
+import { memo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { FaChevronDown } from "react-icons/fa6";
 import CostRanges from "@/components/CostRanges";
-import LoadoutHistory from "@/components/LoadoutHistory";
 import DefaultCards from "@/components/DefaultCards";
 import SimulatorExtensions from "@/components/SimulatorExtensions";
-import LoadoutHistoryContext from "@/contexts/LoadoutHistoryContext";
 import c from "@/utils/classNames";
 import styles from "./Simulator.module.scss";
 
 function SimulatorSubTools({ config, idolId, mode, listenerConfig, setListenerConfig }) {
   const t = useTranslations("SimulatorSubTools");
-
-  const { loadoutHistory } = useContext(LoadoutHistoryContext);
   const [activeSubTool, setActiveSubTool] = useState(null);
 
   const toggleSubTool = (subTool) => {
@@ -21,33 +18,36 @@ function SimulatorSubTools({ config, idolId, mode, listenerConfig, setListenerCo
   return (
     <>
       <div className={styles.expanderButtons}>
-        <button onClick={() => toggleSubTool("costRanges")}>
-          {t("costRanges")}
-        </button>
-
         <button
-          disabled={!loadoutHistory.length}
-          className={c(!loadoutHistory.length && styles.disabled)}
-          onClick={() => toggleSubTool("history")}
+          className={c(activeSubTool === "costRanges" && styles.expanded)}
+          onClick={() => toggleSubTool("costRanges")}
         >
-          {t("history")}
+          {t("costRanges")}
+          <FaChevronDown />
         </button>
 
         <button
           disabled={!config.defaultCardIds.length}
-          className={c(!config.defaultCardIds.length && styles.disabled)}
+          className={c(
+            !config.defaultCardIds.length && styles.disabled,
+            activeSubTool === "defaultCards" && styles.expanded
+          )}
           onClick={() => toggleSubTool("defaultCards")}
         >
           {t("defaultCards")}
+          <FaChevronDown />
         </button>
 
-        <button onClick={() => toggleSubTool("extensions")}>
+        <button
+          className={c(activeSubTool === "extensions" && styles.expanded)}
+          onClick={() => toggleSubTool("extensions")}
+        >
           {t("extensions")}
+          <FaChevronDown />
         </button>
       </div>
 
       {activeSubTool == "costRanges" && <CostRanges />}
-      {activeSubTool == "history" && <LoadoutHistory />}
       {activeSubTool == "defaultCards" && config.defaultCardIds && (
         <DefaultCards skillCardIds={config.defaultCardIds} />
       )}

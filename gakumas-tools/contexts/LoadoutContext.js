@@ -8,6 +8,8 @@ import WorkspaceContext from "@/contexts/WorkspaceContext";
 import { getSimulatorUrl } from "@/utils/simulator";
 import { FALLBACK_STAGE } from "@/simulator/constants";
 import { fixCustomizations } from "@/utils/customizations";
+import { DEFAULTS } from "@/utils/simulator";
+import { deserializeIds } from "@/utils/ids";
 import { inferPIdolId, getExamStage } from "@/utils/exams";
 
 const LoadoutContext = createContext();
@@ -124,8 +126,8 @@ export function LoadoutContextProvider({ children }) {
     setSupportBonus(loadout.supportBonus);
     setParams(loadout.params);
     setPItemIds(loadout.pItemIds);
-    setPDrinkIds(loadout.pDrinkIds);
-    setStartingEffects(loadout.startingEffects);
+    setPDrinkIds(loadout.pDrinkIds || deserializeIds(DEFAULTS.pDrinkIds));
+    setStartingEffects(loadout.startingEffects || deserializeIds(DEFAULTS.startingEffects));
     setSkillCardIdGroups(loadout.skillCardIdGroups);
     if (loadout.customizationGroups) {
       try {

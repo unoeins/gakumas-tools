@@ -8,8 +8,7 @@ import {
   useState,
 } from "react";
 import { useTranslations } from "next-intl";
-import { FaArrowsRotate, FaHashtag, FaPercent } from "react-icons/fa6";
-import { Tooltip } from "react-tooltip";
+import { FaHashtag, FaPercent } from "react-icons/fa6";
 import {
   IdolConfig,
   StageConfig,
@@ -20,28 +19,37 @@ import {
   StagePlayer,
   S,
 } from "gakumas-engine";
+import Alert from "@/components/Alert";
 import Button from "@/components/Button";
-import IconButton from "@/components/IconButton";
+import ButtonGroup from "@/components/ButtonGroup";
 import Input from "@/components/Input";
 import KofiAd from "@/components/KofiAd";
 import Loader from "@/components/Loader";
 import LoadoutEditor from "@/components/LoadoutEditor";
 import LoadoutSummary from "@/components/LoadoutHistory/LoadoutSummary";
+import ProgressBar from "@/components/ProgressBar";
 import SimulatorResult from "@/components/SimulatorResult";
 import StageSelect from "@/components/StageSelect";
 import StrategyPicker from "@/components/StrategyPicker";
 import LoadoutContext from "@/contexts/LoadoutContext";
-import LoadoutHistoryContext from "@/contexts/LoadoutHistoryContext";
+import SimulationRunsContext from "@/contexts/SimulationRunsContext";
 import WorkspaceContext from "@/contexts/WorkspaceContext";
 import { simulate } from "@/simulator";
-import { MAX_WORKERS, DEFAULT_NUM_RUNS, SYNC } from "@/simulator/constants";
+import {
+  MAX_WORKERS,
+  DEFAULT_NUM_RUNS,
+  SYNC,
+  WORKER_MESSAGE,
+} from "@/simulator/constants";
 import { bucketScores, getMedianScore, mergeResults } from "@/utils/simulator";
+import usePersistedState from "@/utils/usePersistedState";
 import ManualPlay from "./ManualPlay";
 import SimulatorButtons from "./SimulatorButtons";
 import SimulatorSubTools from "./SimulatorSubTools";
 import styles from "./Simulator.module.scss";
 
 const LINK_PHASES = ["OP", "MID", "ED"];
+const NUM_RUNS_KEY = "gakumas-tools.simulator.numRuns";
 
 export default function Simulator() {
   const t = useTranslations("Simulator");
@@ -56,26 +64,28 @@ export default function Simulator() {
     currentLoadoutIndex,
     setCurrentLoadoutIndex,
   } = useContext(LoadoutContext);
-  const { pushLoadoutHistory, pushLoadoutsHistory } = useContext(
-    LoadoutHistoryContext
-  );
+  const { pushRun } = useContext(SimulationRunsContext);
   const { plan, idolId } = useContext(WorkspaceContext);
   const [strategy, setStrategy] = useState("HeuristicStrategy");
   const [simulatorData, setSimulatorData] = useState(null);
   const [running, setRunning] = useState(false);
-  const [numRuns, setNumRuns] = useState(DEFAULT_NUM_RUNS);
+  const [numRuns, setNumRuns] = usePersistedState(
+    NUM_RUNS_KEY,
+    DEFAULT_NUM_RUNS,
+  );
   const [enterPercents, setEnterPercents] = useState(false);
   const [listenerConfig, setListenerConfig] = useState({
-    enableUseStats: true,
+    enableUseStats: false,
     enableConditionalUseStats: false,
     enablePriorityStats: false,
-    enableScoreStats: true,
+    enableScoreStats: false,
   });
   const [listenerData, setListenerData] = useState(null);
   const workersRef = useRef();
 
   const [pendingDecision, setPendingDecision] = useState(null);
   const resolveDecisionRef = useRef(null);
+  const [progress, setProgress] = useState(0);
 
   const config = useMemo(() => {
     const idolConfig = new IdolConfig(loadout);
@@ -121,12 +131,15 @@ export default function Simulator() {
     if (navigator.hardwareConcurrency) {
       numWorkers = Math.min(navigator.hardwareConcurrency, MAX_WORKERS);
     }
-    setNumRuns(Math.floor((numWorkers * 250) / 200) * 200);
+    // Seed a hardware-scaled default only when the user has no saved value.
+    if (localStorage.getItem(NUM_RUNS_KEY) == null) {
+      setNumRuns(Math.round(Math.min(numWorkers, MAX_WORKERS) / 2) * 1000);
+    }
 
     workersRef.current = [];
     for (let i = 0; i < numWorkers; i++) {
       workersRef.current.push(
-        new Worker(new URL("../../simulator/worker.js", import.meta.url))
+        new Worker(new URL("../../simulator/worker.js", import.meta.url)),
       );
     }
 
@@ -143,8 +156,14 @@ export default function Simulator() {
       setSimulatorData({ bucketedScores, medianScore, bucketSize, ...result });
       setListenerData(result.listenerData);
       setRunning(false);
+
+      pushRun({
+        loadout,
+        loadouts: stage.type === "linkContest" ? loadouts : null,
+        scores: result.scores,
+      });
     },
-    [setSimulatorData, setRunning]
+    [setSimulatorData, setRunning, pushRun, loadout, loadouts, stage],
   );
 
   async function startManualPlay() {
@@ -152,16 +171,17 @@ export default function Simulator() {
     setSimulatorData(null);
     setPendingDecision(null);
 
-    pushLoadoutHistory();
-    if (stage.type === "linkContest") {
-      pushLoadoutsHistory();
-    }
+    pushRun({
+      loadout,
+      loadouts: stage.type === "linkContest" ? loadouts : null,
+      scores: null,
+    });
 
     const engine = new StageEngine(config, linkConfigs);
 
     const wrappedInputCallback = async (decision) => {
       const currentLogs = decision.state[S.logs].map(
-        (logIndex) => engine.logger.logs[logIndex]
+        (logIndex) => engine.logger.logs[logIndex],
       );
       currentLogs[currentLogs.length - 1] = {
         ...currentLogs[currentLogs.length - 1],
@@ -183,11 +203,18 @@ export default function Simulator() {
 
   async function runSimulation() {
     setRunning(true);
+    setProgress(0);
 
     console.time("simulation");
 
     if (SYNC || !workersRef.current) {
-      const result = await simulate(config, linkConfigs, strategy, numRuns);
+      const result = await simulate(
+        config,
+        linkConfigs,
+        strategy,
+        numRuns,
+        (completed) => setProgress(completed),
+      );
       setResult(result);
     } else {
       const numWorkers = workersRef.current.length;
@@ -198,24 +225,26 @@ export default function Simulator() {
       for (let i = 0; i < numWorkers; i++) {
         promises.push(
           new Promise((resolve) => {
-            workersRef.current[i].onmessage = (e) => resolve(e.data);
+            workersRef.current[i].onmessage = (e) => {
+              if (e.data.type === WORKER_MESSAGE.PROGRESS) {
+                setProgress((p) => p + e.data.delta);
+              } else if (e.data.type === WORKER_MESSAGE.RESULT) {
+                resolve(e.data.result);
+              }
+            };
             workersRef.current[i].postMessage({
               idolStageConfig: config,
               linkConfigs: linkConfigs,
               strategyName: strategy,
               numRuns: i == 0 ? runsPerWorker + extraRuns : runsPerWorker
             });
-          })
+          }),
         );
       }
 
       Promise.all(promises).then((results) => {
         const mergedResults = mergeResults(results);
         setResult(mergedResults);
-        pushLoadoutHistory();
-        if (stage.type === "linkContest") {
-          pushLoadoutsHistory();
-        }
       });
     }
   }
@@ -223,27 +252,27 @@ export default function Simulator() {
   return (
     <div id="simulator_loadout" className={styles.loadoutEditor}>
       <div className={styles.configurator}>
-        {stage.preview && <div>{t("previewNote")}</div>}
+        {stage.preview && <Alert>{t("previewNote")}</Alert>}
         <StageSelect />
         {stage.type !== "contest" ? (
-          t("enterPercents")
+          <Alert>{t("enterPercents")}</Alert>
         ) : (
           <div className={styles.percentRow}>
-            <div className={styles.enterPercentsToggle}>
-              <IconButton
-                icon={FaArrowsRotate}
-                size="small"
-                onClick={() => setEnterPercents(!enterPercents)}
-              />
-              {enterPercents ? <FaPercent /> : <FaHashtag />}
-            </div>
+            <ButtonGroup
+              selected={enterPercents ? "percent" : "count"}
+              options={[
+                { value: "count", label: <FaHashtag /> },
+                { value: "percent", label: <FaPercent /> },
+              ]}
+              onChange={(v) => setEnterPercents(v === "percent")}
+            />
             {!enterPercents && (
               <div className={styles.supportBonusInput}>
                 <label>{t("supportBonus")}</label>
                 <Input
                   type="number"
                   value={parseFloat(
-                    ((loadout.supportBonus || 0) * 100).toFixed(2)
+                    ((loadout.supportBonus || 0) * 100).toFixed(2),
                   )}
                   onChange={(value) =>
                     setSupportBonus(parseFloat((value / 100).toFixed(4)))
@@ -253,7 +282,9 @@ export default function Simulator() {
             )}
           </div>
         )}
-        {stage.type == "linkContest" && <div>{t("linkContestNote")}</div>}
+        {stage.type == "linkContest" && (
+          <Alert variant="warning">{t("linkContestNote")}</Alert>
+        )}
         {stage.type == "linkContest" ? (
           <div className={styles.loadoutTabs}>
             {loadouts.map((loadout, index) => (
@@ -293,55 +324,82 @@ export default function Simulator() {
           />
         )}
 
-        <SimulatorSubTools
-          mode={"simulator"}
-          config={config}
-          idolId={config.idol.idolId || idolId}
-          listenerConfig={listenerConfig}
-          setListenerConfig={setListenerConfig}
-        />
+        <div data-export-hide="true">
+          <SimulatorSubTools
+            mode={"simulator"}
+            config={config}
+            idolId={config.idol.idolId || idolId}
+            listenerConfig={listenerConfig}
+            setListenerConfig={setListenerConfig}
+          />
+        </div>
 
-        <StrategyPicker
-          strategy={strategy}
-          setStrategy={(value) => {
-            setSimulatorData(null);
-            setPendingDecision(null);
-            setStrategy(value);
-            setRunning(false);
-          }}
-        />
-
-        {strategy === "HeuristicStrategy" && (
-          <>
-            <input
-              type="range"
-              value={numRuns}
-              onChange={(e) => setNumRuns(parseInt(e.target.value, 10))}
-              min={100}
-              max={4000}
-              step={100}
+        <div className={styles.simControls} data-export-hide="true">
+          <div className={styles.strategyPicker}>
+            <StrategyPicker
+              strategy={strategy}
+              setStrategy={(value) => {
+                setSimulatorData(null);
+                setPendingDecision(null);
+                setStrategy(value);
+                setRunning(false);
+              }}
             />
-            <Button style="blue" onClick={runSimulation} disabled={running}>
-              {running ? <Loader /> : `${t("simulate")} (n=${numRuns})`}
-            </Button>
-          </>
-        )}
+          </div>
+          {strategy === "HeuristicStrategy" && (
+            <div className={styles.numRunsRow}>
+              <label>{t("numRuns")}</label>
+              <span>{numRuns}</span>
+              <input
+                className={styles.numRunsSlider}
+                type="range"
+                value={numRuns}
+                onChange={(e) => setNumRuns(parseInt(e.target.value, 10))}
+                min={1000}
+                max={10000}
+                step={1000}
+              />
+            </div>
+          )}
+        </div>
 
-        {strategy === "ManualStrategy" && (
-          <Button style="blue" onClick={startManualPlay}>
-            {running ? t("restart") : t("start")}
-          </Button>
-        )}
+        <div data-export-hide="true">
+          {strategy === "HeuristicStrategy" && (
+            <>
+              <Button
+                style="blue"
+                fill
+                onClick={runSimulation}
+                disabled={running}
+              >
+                {running ? <Loader /> : t("simulate")}
+              </Button>
+              {running && numRuns > 0 && (
+                <div className={styles.progressBarWrap}>
+                  <ProgressBar value={progress} max={numRuns} />
+                </div>
+              )}
+            </>
+          )}
+
+          {strategy === "ManualStrategy" && (
+            <Button style="blue" fill onClick={startManualPlay}>
+              {running ? t("restart") : t("start")}
+            </Button>
+          )}
+        </div>
+
         <SimulatorButtons />
 
-        <div className={styles.subLinks}>
+
+        <div className={styles.subLinks} data-export-hide="true">
             {/* <KofiAd /> */}
           <div/>
           <a
             href="https://github.com/surisuririsu/gakumas-tools/blob/master/gakumas-tools/simulator/CHANGELOG.md"
             target="_blank"
           >
-            {t("lastUpdated")}: 2026-04-13
+            {t("lastUpdated")}: 2026-04-22
           </a>
         </div>
       </div>
@@ -358,13 +416,15 @@ export default function Simulator() {
       {strategy === "HeuristicStrategy" && simulatorData && (
         <SimulatorResult
           data={simulatorData}
+          config={config}
+          enterPercents={enterPercents}
           listenerData={listenerData}
           idolId={config.idol.idolId || idolId}
           plan={config.idol.plan || plan}
         />
       )}
 
-      <Tooltip id="indications-tooltip" />
+      {!simulatorData && <div className={styles.resultPlaceholder} />}
     </div>
   );
 }

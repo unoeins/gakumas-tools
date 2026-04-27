@@ -1,43 +1,52 @@
 @use "sass:color";
 @use "../../styles/colors";
+@use "../../styles/tokens";
 
 .button {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 8px;
-  border-radius: 4px;
-  padding: 12px;
-  font-size: 16px;
-  transition: all 0.2s;
+  gap: tokens.$space-2;
+  border-radius: tokens.$radius-sm;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
 
-  &:hover,
-  &:focus {
-    box-shadow: 0 0 8px color.adjust(colors.$black, $alpha: -0.5);
-  }
+.sm {
+  gap: tokens.$space-1;
+  padding: tokens.$space-1 tokens.$space-2;
+  font-size: tokens.$text-sm;
+}
+
+.md {
+  padding: tokens.$space-3;
+  font-size: tokens.$text-base;
+}
+
+.lg {
+  padding: tokens.$space-3 tokens.$space-5;
+  font-size: tokens.$text-lg;
 }
 
 .default {
   background-color: colors.$white;
   color: colors.$black;
-  border: 1px solid colors.$gray-light;
+  border: 1px solid tokens.$surface-border;
 
   &:hover,
-  &:focus {
-    color: colors.$gk-red-orange;
-    box-shadow: 0 0 8px color.adjust(colors.$black, $alpha: -0.5);
+  &:focus-visible {
+    background-color: tokens.$surface-alt;
   }
 }
 
 .primary {
-  background-color: colors.$gk-orange;
+  background: tokens.$gradient-brand;
   color: colors.$white;
-  box-shadow: 0 0 8px color.adjust(colors.$black, $alpha: -0.75);
 
   &:hover,
-  &:focus {
-    background-color: colors.$white;
-    color: colors.$gk-red-orange;
+  &:focus-visible {
+    background: colors.$gk-red-orange;
   }
 }
 
@@ -46,7 +55,7 @@
   color: colors.$gk-orange;
 
   &:hover,
-  &:focus {
+  &:focus-visible {
     background-color: colors.$gk-orange-extra-light;
     color: colors.$gk-red-orange;
   }
@@ -57,9 +66,8 @@
   color: colors.$white;
 
   &:hover,
-  &:focus {
-    background-color: colors.$red-extra-light;
-    color: colors.$red-dark;
+  &:focus-visible {
+    background-color: color.adjust(colors.$red-dark, $lightness: -6%);
   }
 }
 
@@ -68,7 +76,7 @@
   color: colors.$red;
 
   &:hover,
-  &:focus {
+  &:focus-visible {
     background-color: colors.$red-extra-light;
     color: colors.$red-dark;
   }
@@ -77,13 +85,10 @@
 .blue {
   background-color: colors.$blue;
   color: colors.$white;
-  box-shadow: 0 0 8px color.adjust(colors.$black, $alpha: -0.75);
 
   &:hover,
-  &:focus {
-    background-color: colors.$white;
-    color: colors.$blue;
-    box-shadow: 0 0 8px color.adjust(colors.$black, $alpha: -0.5);
+  &:focus-visible {
+    background-color: colors.$blue-dark;
   }
 }
 
@@ -92,14 +97,13 @@
   color: colors.$blue;
 
   &:hover,
-  &:focus {
+  &:focus-visible {
     background-color: colors.$blue-extra-light;
     color: colors.$blue-dark;
   }
 }
 
 .disabled {
-  box-shadow: none !important;
   background-color: colors.$gray-extra-light;
   color: colors.$gray;
   cursor: default;
@@ -108,4 +112,8 @@
 .fill {
   width: 100%;
   flex: 1;
+}
+
+.pill {
+  border-radius: 999px;
 }

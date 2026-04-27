@@ -5,14 +5,28 @@
     "dev": "yarn workspace gakumas-tools dev",
     "build": "yarn workspace gakumas-tools build",
     "process": "python -m scripts.process_screenshots_iphone",
+    "train:classifier": "python -m scripts.train_classifier",
+    "train:classifier:fresh": "python -m scripts.train_classifier --fresh",
     "generate": "./scripts/pull_gkdata.sh && yarn workspace gakumas-data generate && yarn workspace gakumas-images generate && python -m scripts.generate",
     "regenerate": "rm -rf gk-img/docs/*s && yarn generate",
+    "test:regression": "node --loader ./scripts/extensionless-loader.mjs ./scripts/regression/run.mjs",
+    "test:regression:update": "node --loader ./scripts/extensionless-loader.mjs ./scripts/regression/run.mjs --update",
+    "regression:add": "node --loader ./scripts/extensionless-loader.mjs ./scripts/regression/add.mjs",
+    "regression:bootstrap": "node --loader ./scripts/extensionless-loader.mjs ./scripts/regression/generate-suite.mjs",
+    "regression:coverage": "node --loader ./scripts/extensionless-loader.mjs ./scripts/regression/coverage.mjs",
+    "bench": "node --loader ./scripts/extensionless-loader.mjs ./scripts/regression/bench.mjs",
+    "bench:update": "node --loader ./scripts/extensionless-loader.mjs ./scripts/regression/bench.mjs --update",
+    "validate:data": "node --loader ./scripts/extensionless-loader.mjs ./scripts/validate-data.mjs",
     "changelog": "node ./scripts/changelog.js",
     "backup-db": "yarn workspace gakumas-tools backup-db"
+  },
+  "dependencies": {
+    "gakumas-data": "workspace:*",
+    "gakumas-engine": "workspace:*"
   },
   "workspaces": [
     "gakumas-tools",
     "packages/*"
   ],
-  "packageManager": "yarn@4.13.0"
+  "packageManager": "yarn@4.14.1"
 }

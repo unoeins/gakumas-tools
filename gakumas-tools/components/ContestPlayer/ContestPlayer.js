@@ -8,7 +8,6 @@ import {
   useState,
 } from "react";
 import { useTranslations } from "next-intl";
-import { Tooltip } from "react-tooltip";
 import { FaCircleArrowUp, FaArrowsRotate, FaHashtag, FaPercent } from "react-icons/fa6";
 import {
   IdolConfig,
@@ -21,8 +20,9 @@ import PlayerStrategy from "gakumas-engine/strategies/PlayerStrategy";
 import { S } from "gakumas-engine/constants";
 import { deepCopy } from "gakumas-engine/utils";
 import { structureLogs } from "@/utils/simulator";
+import Alert from "@/components/Alert";
 import Button from "@/components/Button";
-import IconButton from "@/components/IconButton";
+import ButtonGroup from "@/components/ButtonGroup";
 import Input from "@/components/Input";
 import LoadoutEditor from "@/components/LoadoutEditor";
 import LoadoutSummary from "@/components/LoadoutHistory/LoadoutSummary";
@@ -30,7 +30,7 @@ import Logs from "@/components/SimulatorLogs/Logs";
 import TurnIndicator from "@/components/SimulatorLogs/TurnIndicator";
 import StageSelect from "@/components/StageSelect";
 import LoadoutContext from "@/contexts/LoadoutContext";
-import LoadoutHistoryContext from "@/contexts/LoadoutHistoryContext";
+import SimulationRunsContext from "@/contexts/SimulationRunsContext";
 import WorkspaceContext from "@/contexts/WorkspaceContext";
 import ModalContext from "@/contexts/ModalContext";
 import SimulatorButtons from "@/components/Simulator/SimulatorButtons";
@@ -38,10 +38,8 @@ import SimulatorSubTools from "@/components/Simulator/SimulatorSubTools";
 import EntityIcon from "@/components/EntityIcon";
 import HoldModal from "@/components/Simulator/HoldModal";
 import { EntityTypes } from "@/utils/entities";
-import TurnTypeViewer from "./TurnTypeViewer";
 import StateViewer from "./StateViewer";
 import EntitiesViewer from "./EntitiesViewer";
-import HoldCardPickerModal from "./HoldCardPickerModal";
 import styles from "./ContestPlayer.module.scss";
 
 const LINK_PHASES = ["OP", "MID", "ED"];
@@ -60,9 +58,8 @@ export default function ContestPlayer() {
     currentLoadoutIndex,
     setCurrentLoadoutIndex,
   } = useContext(LoadoutContext);
-  const { pushLoadoutHistory, pushLoadoutsHistory } = useContext(
-    LoadoutHistoryContext
-  );
+  const { pushRun } = useContext(SimulationRunsContext);
+
   const { plan, idolId } = useContext(WorkspaceContext);
   const [running, setRunning] = useState(false);
   const [enterPercents, setEnterPercents] = useState(false);
@@ -124,15 +121,6 @@ export default function ContestPlayer() {
     // for (let i = 0; i < Math.min(num, cards.length); i++) {
       const promise = new Promise((resolve) => {
         setModal(
-          // <HoldCardPickerModal
-          //   state={state}
-          //   cards={cards}
-          //   // disabledIndices={selectedIndices}
-          //   num={num}
-          //   optional={optional}
-          //   idolId={idolId}
-          //   onPick={(indices) => resolve(indices)}
-          // />
           <HoldModal
             decision={{
               state,
@@ -141,11 +129,6 @@ export default function ContestPlayer() {
               optional,
               type: "HOLD_SELECTION",
             }}
-            // state={state}
-            // cards={cards}
-            // disabledIndices={selectedIndices}
-            // num={num}
-            // optional={optional}
             idolId={idolId}
             onDecision={(indices) => {
               resolve(indices);
@@ -164,7 +147,13 @@ export default function ContestPlayer() {
   async function startStage() {
     setStateHistory([]);
     setRunning(false);
-    
+
+    pushRun({
+      loadout,
+      loadouts: stage.type === "linkContest" ? loadouts : null,
+      scores: null,
+    });
+
     const engine = new StageEngine(config, linkConfigs);
     engine.strategy = new PlayerStrategy(engine, pickCardsToHold);
   
@@ -174,6 +163,7 @@ export default function ContestPlayer() {
     const initialState = engine.getInitialState();
     let nextState = null;
     let pickCardsToHoldIndices = [];
+    engine.strategy.pickCardsToHoldIndices = [];
     while (nextState == null) {
       try {
         const state = deepCopy(initialState);
@@ -193,11 +183,6 @@ export default function ContestPlayer() {
 
     setStateHistory([nextState]);
     setRunning(true);
-    
-    pushLoadoutHistory();
-    if (stage.type === "linkContest") {
-      pushLoadoutsHistory();
-    }
   }
 
   async function playCard(selectedIndex) {
@@ -210,6 +195,7 @@ export default function ContestPlayer() {
     const logIndex = engine.logger.log(state, "hand", null);
     let nextState = null;
     let pickCardsToHoldIndices = [];
+    engine.strategy.pickCardsToHoldIndices = [];
     while (nextState == null) {
       try {
         nextState = engine.useCard(state, card);
@@ -247,6 +233,7 @@ export default function ContestPlayer() {
     const state = deepCopy(getState());
     let nextState = null;
     let pickCardsToHoldIndices = [];
+    engine.strategy.pickCardsToHoldIndices = [];
     while (nextState == null) {
       try {
         nextState = engine.useDrink(state, selectedIndex);
@@ -271,6 +258,7 @@ export default function ContestPlayer() {
     const state = deepCopy(getState());
     let nextState = null;
     let pickCardsToHoldIndices = [];
+    engine.strategy.pickCardsToHoldIndices = [];
     while (nextState == null) {
       try {
         nextState = engine.endTurn(state);
@@ -326,11 +314,11 @@ export default function ContestPlayer() {
       delete previewState[S.phase];
       if (previewState[S.nullifyCostCards]) previewState[S.nullifyCostCards]--;
 
-      // Apply card effects
-      const effects = engine.cardManager.getLines(previewState, card, "effects");
+      // Apply card actions
+      const actions = engine.cardManager.getLines(previewState, card, "actions");
       previewState[S.phase] = "processCard";
 
-      engine.effectManager.triggerEffects(previewState, effects, null, card);
+      engine.effectManager.triggerEffects(previewState, actions, null, card);
       delete previewState[S.phase];
       engine.strategy.pickCardsToHold = tempPickCardsToHold;
       return previewState[S.score];
@@ -354,12 +342,11 @@ export default function ContestPlayer() {
   return (
     <div id="simulator_loadout" className={styles.loadoutEditor}>
       <div className={styles.configurator}>
-        {/* <div>{t("multiplierNote")}</div> */}
-        {stage.preview && <div>{t("previewNote")}</div>}
+        {stage.preview && <Alert>{t("previewNote")}</Alert>}
         <StageSelect />
         {stage.type !== "contest" ? (
           <>
-            <div>{t("enterPercents")}</div>
+            <Alert>{t("enterPercents")}</Alert>
             {stage.type === "exam" && (
               <div className={styles.subLinks}>
                 <a
@@ -373,14 +360,14 @@ export default function ContestPlayer() {
           </>
         ) : (
           <div className={styles.percentRow}>
-            <div className={styles.enterPercentsToggle}>
-              <IconButton
-                icon={FaArrowsRotate}
-                size="small"
-                onClick={() => setEnterPercents(!enterPercents)}
-              />
-              {enterPercents ? <FaPercent /> : <FaHashtag />}
-            </div>
+            <ButtonGroup
+              selected={enterPercents ? "percent" : "count"}
+              options={[
+                { value: "count", label: <FaHashtag /> },
+                { value: "percent", label: <FaPercent /> },
+              ]}
+              onChange={(v) => setEnterPercents(v === "percent")}
+            />
             {!enterPercents && (
               <div className={styles.supportBonusInput}>
                 <label>{t("supportBonus")}</label>
@@ -397,7 +384,9 @@ export default function ContestPlayer() {
             )}
           </div>
         )}
-        {stage.type == "linkContest" && <div>{t("linkContestNote")}</div>}
+        {stage.type == "linkContest" && (
+          <Alert variant="warning">{t("linkContestNote")}</Alert>
+        )}
         {stage.type == "linkContest" ? (
           <div className={styles.loadoutTabs}>
             {loadouts.map((loadout, index) => (
@@ -437,23 +426,27 @@ export default function ContestPlayer() {
           />
         )}
 
-        <SimulatorSubTools
-          mode={"contestPlayer"}
-          config={config}
-          idolId={config.idol.idolId || idolId}
-        />
+        <div data-export-hide="true">
+          <SimulatorSubTools
+            mode={"contestPlayer"}
+            config={config}
+            idolId={config.idol.idolId || idolId}
+          />
+        </div>
 
-        <Button style="blue" onClick={startStage}>
-          {!running ? t2("startStage") : t2("restartStage")}
-        </Button>
+        <div data-export-hide="true">
+          <Button
+            style="blue"
+            fill
+            onClick={startStage}
+          >
+            {!running ? t2("startStage") : t2("restartStage")}
+          </Button>
+        </div>
         <SimulatorButtons />
 
         {getState() && (
           <div className={styles.playArea}>
-            {/* <TurnTypeViewer
-              state={getState()}
-              turn={engine.logger.getHandStateForLogging(getState()).turn}
-            /> */}
             <div className={styles.infoArea}>
               <div className={styles.turnStateArea}>
                 <div className={styles.turnIndicatorWrapper}>
@@ -564,8 +557,6 @@ export default function ContestPlayer() {
           </div>
         </div>
       )}
-
-      <Tooltip id="indications-tooltip" />
     </div>
   );
 }

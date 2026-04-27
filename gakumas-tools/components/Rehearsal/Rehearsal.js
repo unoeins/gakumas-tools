@@ -1,5 +1,5 @@
 "use client";
-import React, {
+import {
   memo,
   useCallback,
   useEffect,
@@ -19,27 +19,37 @@ import { createWorker } from "tesseract.js";
 import BoxPlot from "@/components/BoxPlot";
 import Button from "@/components/Button";
 import Image from "@/components/Image";
+import ProgressBar from "@/components/ProgressBar";
+import Table from "@/components/Table";
+import { downloadBlob } from "@/utils/download";
+import { DEBUG } from "@/utils/imageProcessing/common";
 import {
   getScoresFromFile,
   getScoresFromImage,
 } from "@/utils/imageProcessing/rehearsal";
-import {
-  extractCandidateFrames,
-  canvasToImage,
-} from "@/utils/imageProcessing/videoFrameExtractor";
-import RehearsalTable from "./RehearsalTable";
-import styles from "./Rehearsal.module.scss";
+import { streamCandidateFrames } from "@/utils/imageProcessing/videoFrameExtractor";
+import { bucketScores } from "@/utils/simulator";
+import { runBatched } from "@/utils/workerPool";
 import KofiAd from "../KofiAd";
 import DistributionPlot from "../DistributionPlot";
-import { bucketScores } from "@/utils/simulator";
+import RehearsalTable from "./RehearsalTable";
+import { bucketFiles, parseCsvFile } from "./rehearsalFiles";
+import {
+  buildBoxPlotData,
+  computeStats,
+  scoresForSelected,
+} from "./rehearsalStats";
+import styles from "./Rehearsal.module.scss";
 
 const MAX_WORKERS = 8;
+const FRAME_INTERVAL_MS = 200;
+const BRIGHTNESS_THRESHOLD = 180;
 
 function Rehearsal() {
   const t = useTranslations("Rehearsal");
   const tRes = useTranslations("SimulatorResult");
 
-  const [total, setTotal] = useState("?");
+  const [total, setTotal] = useState(null);
   const [progress, setProgress] = useState(null);
   const [processingStatus, setProcessingStatus] = useState("");
   const [data, setData] = useState([]);
@@ -47,225 +57,164 @@ function Rehearsal() {
   const workersRef = useRef();
 
   useEffect(() => {
-    let numWorkers = 1;
-    if (navigator.hardwareConcurrency) {
-      numWorkers = Math.min(navigator.hardwareConcurrency, MAX_WORKERS);
-    }
-
-    workersRef.current = [];
-    for (let i = 0; i < numWorkers; i++) {
-      workersRef.current.push(createWorker("eng", 1));
-    }
-
-    return () =>
-      workersRef.current?.forEach(async (worker) => (await worker).terminate());
+    const numWorkers = Math.min(
+      navigator.hardwareConcurrency || 1,
+      MAX_WORKERS,
+    );
+    workersRef.current = Array.from({ length: numWorkers }, () =>
+      createWorker("eng", 1),
+    );
+    return () => {
+      workersRef.current?.forEach(async (w) => (await w).terminate());
+    };
   }, []);
 
-  const handleFiles = useCallback(async (e) => {
-    // Get files and reset progress
-    const files = Array.from(e.target.files);
-    setProgress(null);
-    setProcessingStatus("");
-    if (!files.length) return;
-    setData([]);
-    setTotal(files.length);
-    setProgress(0);
-
-    const csvFiles = files.filter(
-      (f) => f.type === "text/csv" || f.name.endsWith(".csv")
-    );
-    const videoFiles = files.filter(
-      (f) =>
-        f.type.startsWith("video/") || /\.(mp4|mov|avi|mkv|webm)$/i.test(f.name)
-    );
-    const imageFiles = files.filter(
-      (f) => !csvFiles.includes(f) && !videoFiles.includes(f)
-    );
-
-    let results = [];
-
-    if (csvFiles.length) {
-      for (const file of csvFiles) {
-        const text = await file.text();
-        const rows = text
-          .trim()
-          .split("\n")
-          .map((line) => line.split(",").map(Number));
-        const parsed = rows.map((row) => [
-          row.slice(0, 3),
-          row.slice(3, 6),
-          row.slice(6, 9),
-        ]);
-        results = results.concat(parsed);
-      }
-      setData(results);
-      setProgress(csvFiles.length);
-      return;
-    }
-
-    if (!imageFiles.length && !videoFiles.length) return;
-    console.time("All results parsed");
-
-    if (videoFiles.length) {
-      for (const videoFile of videoFiles) {
-        try {
-          console.log(`Processing video: ${videoFile.name}`);
-          setProcessingStatus(
-            `Analyzing video and detecting rehearsal results...`
-          );
-
-          // Extract only candidate frames (just before brightness transitions)
-          const candidateFrames = await extractCandidateFrames(
-            videoFile,
-            200,
-            180
-          );
-          console.log(`Found ${candidateFrames.length} candidate frames`);
-
-          setProcessingStatus(
-            `Found ${candidateFrames.length} potential rehearsal results. Reading scores...`
-          );
-
-          const batchSize = workersRef.current.length;
-          let processedCount = 0;
-
-          for (
-            let batchStart = 0;
-            batchStart < candidateFrames.length;
-            batchStart += batchSize
-          ) {
-            const batchEnd = Math.min(
-              batchStart + batchSize,
-              candidateFrames.length
-            );
-            const batch = candidateFrames.slice(batchStart, batchEnd);
-
-            setProcessingStatus(
-              `Reading scores (${processedCount + 1}-${
-                processedCount + batch.length
-              }/${candidateFrames.length})...`
-            );
-
-            const batchPromises = batch.map(async (canvas, j) => {
-              const worker = await workersRef.current[
-                j % workersRef.current.length
-              ];
-
-              const img = await canvasToImage(canvas);
-              const scores = await getScoresFromImage(img, worker);
-
-              if (scores && scores.length === 3) {
-                console.log(
-                  `Candidate frame ${
-                    batchStart + j
-                  }: Found valid result: ${scores.flat().join(",")}`
-                );
-                return scores;
-              }
-              return null;
-            });
-
-            const batchResults = await Promise.all(batchPromises);
-
-            for (const scores of batchResults) {
-              if (scores && scores.length === 3) {
-                results.push(scores);
-              }
-            }
-
-            processedCount += batch.length;
+  const processVideo = useCallback(
+    async (videoFile) => {
+      setProcessingStatus(t("analyzingVideo"));
+      // Single worker is enough: seeking dominates runtime, OCR is fast, and
+      // one-frame-at-a-time streaming keeps peak memory flat (one canvas
+      // instead of N candidates on mobile).
+      const worker = await workersRef.current[0];
+      const results = [];
+      let scanStarted = false;
+      let lastStatusAt = 0;
+      for await (const canvas of streamCandidateFrames(videoFile, {
+        intervalMs: FRAME_INTERVAL_MS,
+        brightnessThreshold: BRIGHTNESS_THRESHOLD,
+        onProgress: (analyzed, frameTotal) => {
+          if (!scanStarted) {
+            scanStarted = true;
+            // The video was initially allocated 1 unit in the total; expand
+            // that to `frameTotal` so the progress bar tracks per-frame.
+            setTotal((cur) => cur + frameTotal - 1);
           }
-
-          console.log(`Found ${results.length} rehearsal results in video`);
+          setProgress((p) => p + 1);
+          // Throttle status updates to ~4/sec — seeking can fire every
+          // ~50ms on desktop.
+          const now = performance.now();
+          if (now - lastStatusAt < 250 && analyzed !== frameTotal) return;
+          lastStatusAt = now;
           setProcessingStatus(
-            `Completed! Found ${results.length} rehearsal results.`
+            t("scanningVideo", {
+              analyzed,
+              total: frameTotal,
+              found: results.length,
+            }),
           );
-        } catch (error) {
-          console.error(`Error processing video ${videoFile.name}:`, error);
-          setProcessingStatus(`Error processing video: ${error.message}`);
-        }
+        },
+      })) {
+        const scores = await getScoresFromImage(canvas, worker);
+        if (scores && scores.length === 3) results.push(scores);
+      }
+      setProcessingStatus(t("videoComplete", { count: results.length }));
+      return { results, scanStarted };
+    },
+    [t],
+  );
+
+  const processImages = useCallback(async (imageFiles) => {
+    const workers = workersRef.current;
+    const scored = await runBatched(imageFiles, workers, async (file, worker) => {
+      try {
+        return await getScoresFromFile(file, worker);
+      } catch (err) {
+        console.error(`Error parsing ${file.name}:`, err);
+        return null;
+      } finally {
         setProgress((p) => p + 1);
       }
-    }
-
-    // Process image files
-    if (imageFiles.length) {
-      const batchSize = workersRef.current.length;
-      for (let i = 0; i < imageFiles.length; i += batchSize) {
-        const batch = imageFiles.slice(i, i + batchSize);
-        const promises = batch.map(async (file, j) => {
-          const worker = await workersRef.current[
-            j % workersRef.current.length
-          ];
-          const scores = await getScoresFromFile(file, worker);
-          setProgress((p) => p + 1);
-          return scores;
-        });
-        const res = await Promise.all(promises);
-        results = results.concat(res);
-      }
-    }
-
-    console.timeEnd("All results parsed");
-    setData(results);
+    });
+    const results = scored.filter(Boolean);
+    return { results, failures: scored.length - results.length };
   }, []);
 
-  function download() {
-    let csvData = data
+  const handleFiles = useCallback(
+    async (e) => {
+      const files = Array.from(e.target.files);
+      setProgress(null);
+      setProcessingStatus("");
+      if (!files.length) return;
+      setData([]);
+      setTotal(files.length);
+      setProgress(0);
+
+      const { csvs, videos, images } = bucketFiles(files);
+      if (DEBUG) console.time("All results parsed");
+      const results = [];
+
+      // CSVs don't use the OCR worker pool, so they run alongside video/image OCR.
+      const csvPromise = Promise.all(
+        csvs.map((f) =>
+          parseCsvFile(f).catch((err) => {
+            console.error(`Error parsing CSV ${f.name}:`, err);
+            return [];
+          }),
+        ),
+      ).then((perFile) => {
+        for (const rows of perFile) results.push(...rows);
+        if (csvs.length) setProgress((p) => p + csvs.length);
+      });
+
+      // Videos and images share the OCR worker pool, so they run sequentially.
+      const ocrPromise = (async () => {
+        for (const videoFile of videos) {
+          let scanStarted = false;
+          try {
+            const res = await processVideo(videoFile);
+            results.push(...res.results);
+            scanStarted = res.scanStarted;
+          } catch (err) {
+            console.error(`Error processing ${videoFile.name}:`, err);
+            setProcessingStatus(t("videoError", { message: err.message }));
+          }
+          // If the scan never started (loadVideo error), close out the
+          // video's 1-unit allocation here. Otherwise per-frame ticking
+          // already covered it.
+          if (!scanStarted) setProgress((p) => p + 1);
+        }
+        if (images.length) {
+          const { results: imgResults, failures } = await processImages(images);
+          results.push(...imgResults);
+          if (failures) {
+            setProcessingStatus(t("imageError", { count: failures }));
+          }
+        }
+      })();
+
+      await Promise.all([csvPromise, ocrPromise]);
+      if (DEBUG) console.timeEnd("All results parsed");
+      setData(results);
+    },
+    [processVideo, processImages, t],
+  );
+
+  const download = useCallback(() => {
+    const csv = data
       .map((row) => row.map((stage) => stage.join(",")).join(","))
       .join("\n");
-    const blob = new Blob([csvData], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "rehearsal_data.csv";
-    a.click();
-  }
+    downloadBlob(new Blob([csv], { type: "text/csv" }), "rehearsal_data.csv");
+  }, [data]);
 
-  const boxPlotData = useMemo(
-    () =>
-      data.reduce(
-        (acc, cur) => {
-          for (let i = 0; i < 3; i++) {
-            for (let j = 0; j < 3; j++) {
-              if (cur[i]?.[j]) acc[j].data[i].push(cur[i][j]);
-            }
-          }
-          return acc;
-        },
-        [{ data: [[], [], []] }, { data: [[], [], []] }, { data: [[], [], []] }]
-      ),
-    [data]
-  );
+  const boxPlotData = useMemo(() => buildBoxPlotData(data), [data]);
 
   const selectedData = useMemo(() => {
     if (selected == null) return null;
-    const scores = boxPlotData[selected % 3].data[Math.floor(selected / 3)];
-    let median = null;
-    if (scores.length) {
-      const sorted = [...scores].sort((a, b) => a - b);
-      const mid = Math.floor(scores.length / 2);
-      if (scores.length % 2 === 0) {
-        median = Math.round((sorted[mid - 1] + sorted[mid]) / 2);
-      } else {
-        median = Math.round(sorted[mid]);
-      }
-    }
-
+    const scores = scoresForSelected(boxPlotData, selected);
+    const stats = computeStats(scores);
+    if (!stats) return null;
     const { bucketedScores, bucketSize } = bucketScores(scores);
-
-    return {
-      scores,
-      bucketedScores,
-      bucketSize,
-      min: Math.min(...scores),
-      average: Math.round(
-        scores.reduce((acc, cur) => acc + cur, 0) / scores.length
-      ),
-      median,
-      max: Math.max(...scores),
-    };
+    return { scores, bucketedScores, bucketSize, ...stats };
   }, [selected, boxPlotData]);
+
+  const handleChartClick = useCallback(
+    (x) => setSelected((cur) => (x === cur ? null : x)),
+    [],
+  );
+  const handleRowDelete = useCallback(
+    (i) => setData((d) => d.filter((_, j) => j !== i)),
+    [],
+  );
 
   return (
     <div className={styles.rehearsal}>
@@ -300,13 +249,14 @@ function Rehearsal() {
 
       {progress != null && (
         <div className={styles.progress}>
-          {processingStatus ? (
-            <>{processingStatus}</>
-          ) : (
-            <>
-              Progress: {progress}/{total} {progress == total && <FaCheck />}
-            </>
-          )}
+          <div className={styles.progressLabel}>
+            <span>
+              {processingStatus ||
+                t("progress", { progress, total: total ?? "?" })}
+            </span>
+            {progress === total && <FaCheck />}
+          </div>
+          {total > 0 && <ProgressBar value={progress} max={total} />}
         </div>
       )}
 
@@ -318,32 +268,31 @@ function Rehearsal() {
 
           <BoxPlot
             labels={[0, 1, 2].map(
-              (i) => t("stage", { n: i + 1 }) + ` (n=${data.length})`
+              (i) => t("stage", { n: i + 1 }) + ` (n=${data.length})`,
             )}
             data={boxPlotData}
             showLegend={false}
           />
 
-          {selected !== null && (
+          {selectedData && (
             <div className={styles.statsWrapper}>
-              <table className={styles.stats}>
-                <thead>
-                  <tr>
-                    <th>{tRes("min")}</th>
-                    <th>{tRes("average")}</th>
-                    <th>{tRes("median")}</th>
-                    <th>{tRes("max")}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>{selectedData.min}</td>
-                    <td>{selectedData.average}</td>
-                    <td>{selectedData.median}</td>
-                    <td>{selectedData.max}</td>
-                  </tr>
-                </tbody>
-              </table>
+              <Table
+                className={styles.stats}
+                headers={[
+                  tRes("min"),
+                  tRes("average"),
+                  tRes("median"),
+                  tRes("max"),
+                ]}
+                rows={[
+                  [
+                    selectedData.min,
+                    selectedData.average,
+                    selectedData.median,
+                    selectedData.max,
+                  ],
+                ]}
+              />
               <DistributionPlot
                 label={`${t("score")} (n=${selectedData.scores.length})`}
                 data={selectedData.bucketedScores}
@@ -356,8 +305,8 @@ function Rehearsal() {
             <RehearsalTable
               data={data}
               selected={selected}
-              onChartClick={(x) => setSelected(x == selected ? null : x)}
-              onRowDelete={(i) => setData((d) => d.filter((_, j) => j !== i))}
+              onChartClick={handleChartClick}
+              onRowDelete={handleRowDelete}
             />
           </div>
         </>

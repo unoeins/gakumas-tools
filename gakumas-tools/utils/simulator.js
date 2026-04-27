@@ -1,5 +1,5 @@
 import { PIdols, PItems, PDrinks, SkillCards, Stages } from "gakumas-data";
-import { GRAPHED_FIELDS } from "gakumas-engine";
+import { GRAPHED_FIELDS, S } from "gakumas-engine";
 import { LISTENER_KEYS } from "gakumas-engine/constants";
 import { MIN_BUCKET_SIZE } from "@/simulator/constants";
 import {
@@ -8,7 +8,7 @@ import {
 } from "./customizations";
 import { deserializeIds, serializeIds } from "./ids";
 
-const DEFAULTS = {
+export const DEFAULTS = {
   stageId: Stages.getAll().findLast((s) => s.type == "contest" && !s.preview)
     .id,
   supportBonus: "0.04",
@@ -307,6 +307,12 @@ export function formatRun(run) {
   };
 }
 
+export function addScoreByType(dst, src, multiplier = 1) {
+  dst.vocal += src.vocal * multiplier;
+  dst.dance += src.dance * multiplier;
+  dst.visual += src.visual * multiplier;
+}
+
 export function mergeResults(results) {
   let scores = [];
   for (let result of results) {
@@ -336,6 +342,69 @@ export function mergeResults(results) {
   const graphDatas = results.map((result) => result.graphData);
   const mergedGraphData = mergeGraphDatas(graphDatas);
 
+  // Merge cardUsage across workers: element-wise per turn, key-wise per card.
+  const cardUsage = { numRuns: 0, turns: [] };
+  for (let result of results) {
+    const s = result.cardUsage;
+    if (!s) continue;
+    cardUsage.numRuns += s.numRuns || 0;
+    for (let t = 0; t < s.turns.length; t++) {
+      if (!cardUsage.turns[t]) cardUsage.turns[t] = {};
+      const into = cardUsage.turns[t];
+      const from = s.turns[t] || {};
+      for (const key in from) {
+        if (!into[key]) {
+          into[key] = { ...from[key] };
+        } else {
+          into[key].use += from[key].use;
+          into[key].draw += from[key].draw;
+        }
+      }
+    }
+  }
+
+  // Merge scoreStats across workers.
+  const scoreStats = { numRuns: 0, turns: [] };
+  for (let result of results) {
+    const s = result.scoreStats;
+    if (!s) continue;
+    scoreStats.numRuns += s.numRuns || 0;
+    for (let t = 0; t < s.turns.length; t++) {
+      const from = s.turns[t];
+      if (!from) continue;
+      if (!scoreStats.turns[t]) {
+        scoreStats.turns[t] = {
+          turnTypeCounts: { vocal: 0, dance: 0, visual: 0 },
+          totalScore: 0,
+          totalScoreByType: { vocal: 0, dance: 0, visual: 0 },
+          byEntity: {},
+        };
+      }
+      const into = scoreStats.turns[t];
+      into.turnTypeCounts.vocal += from.turnTypeCounts.vocal;
+      into.turnTypeCounts.dance += from.turnTypeCounts.dance;
+      into.turnTypeCounts.visual += from.turnTypeCounts.visual;
+      into.totalScore += from.totalScore;
+      into.totalScoreByType.vocal += from.totalScoreByType.vocal;
+      into.totalScoreByType.dance += from.totalScoreByType.dance;
+      into.totalScoreByType.visual += from.totalScoreByType.visual;
+      for (const key in from.byEntity) {
+        const src = from.byEntity[key];
+        if (!into.byEntity[key]) {
+          into.byEntity[key] = {
+            ...src,
+            scoreByType: { ...src.scoreByType },
+          };
+        } else {
+          into.byEntity[key].uses =
+            (into.byEntity[key].uses || 0) + (src.uses || 0);
+          into.byEntity[key].score += src.score;
+          addScoreByType(into.byEntity[key].scoreByType, src.scoreByType);
+        }
+      }
+    }
+  }
+
   // console.log("Merging results", results);
   const listenerDatas = results.map((result) => result.listenerData);
   const mergedListenerData = mergeListenerDatas(listenerDatas);
@@ -347,8 +416,221 @@ export function mergeResults(results) {
     maxRun,
     averageScore,
     scores,
+    cardUsage,
+    scoreStats,
     listenerData: mergedListenerData,
   };
+}
+
+/**
+ * Walk a single run's flat log stream and accumulate per-turn
+ * {id, c, use, draw} counts into `cardUsage.turns`. Also ticks
+ * `cardUsage.numRuns`.
+ *
+ * Shape: cardUsage.turns[turnIndex] is an object keyed by stringified
+ * `{id, c}`; values are `{ id, c, use, draw }`. A synthetic `{id: 0}` row
+ * counts skipped turns (selectedIndex === null).
+ */
+export function accumulateCardUsage(logs, cardUsage) {
+  cardUsage.numRuns = (cardUsage.numRuns || 0) + 1;
+  if (!cardUsage.turns) cardUsage.turns = [];
+
+  let turnIndex = -1;
+  let drawnThisTurn = null;
+
+  for (const log of logs) {
+    if (log.logType === "startTurn") {
+      turnIndex++;
+      if (!cardUsage.turns[turnIndex]) cardUsage.turns[turnIndex] = {};
+      drawnThisTurn = new Set();
+      continue;
+    }
+    if (log.logType !== "hand") continue;
+    if (turnIndex < 0 || !drawnThisTurn) continue;
+
+    const turnData = cardUsage.turns[turnIndex];
+    const { handCards, selectedIndex } = log.data;
+
+    for (let i = 0; i < handCards.length; i++) {
+      const { id, c } = handCards[i];
+      const key = JSON.stringify({ id, c: c || null });
+      // Count a card as "drawn" once per turn even if it appears in
+      // multiple hand presentations (e.g., after a moveToHand).
+      if (!drawnThisTurn.has(key)) {
+        drawnThisTurn.add(key);
+        if (!turnData[key]) {
+          turnData[key] = { id, c: c || null, use: 0, draw: 1 };
+        } else {
+          turnData[key].draw++;
+        }
+      }
+      if (i === selectedIndex) {
+        turnData[key].use++;
+      }
+    }
+
+    if (selectedIndex == null) {
+      const key = "SKIP";
+      if (!turnData[key]) {
+        turnData[key] = { id: 0, c: null, use: 1, draw: 0 };
+      } else {
+        turnData[key].use++;
+      }
+    }
+  }
+}
+
+/**
+ * Walk a single run's log stream and accumulate per-turn score attribution
+ * into `scoreStats.turns`. Ticks `scoreStats.numRuns`.
+ *
+ * Attribution: entityStart/entityEnd logs bracket an entity's window. We
+ * maintain a stack; each score `diff` log is credited only to the INNERMOST
+ * entity on the stack. A few normalizations reshape the raw stack into the
+ * attribution the UI wants:
+ *
+ *   - `skillCardEffect` (delayed effects registered by a card, e.g. "next
+ *     turn do X") folds into the card that registered it — they share the
+ *     skill-card id, so a card still "owns" the score it set up.
+ *   - `stage` is transparent: its score bubbles up to the enclosing entity
+ *     so a card that triggered a stage effect gets credit. When a stage
+ *     effect fires with no parent (turn-boundary phases), its score is
+ *     dropped from byEntity (it still contributes to the turn total).
+ *   - `pItem` tracks a `uses` count in addition to score. Only "primary"
+ *     activations (effects registered at init, flagged by the engine via
+ *     source.primary) count toward uses — delayed/registered sub-effects
+ *     contribute their score to the same p-item but don't tick the
+ *     counter. Within primary activations we also require at least one
+ *     observable log; if the only action was `effectCounter += N` (no log
+ *     emitted), the activation is still skipped so counter-bookkeeping
+ *     p-items don't inflate usage stats.
+ *
+ * scoreByType buckets each credit by the turn-type rolled that run, so the
+ * UI can show "this card produced X on dance turns."
+ */
+export function accumulateScoreStats(logs, scoreStats) {
+  scoreStats.numRuns = (scoreStats.numRuns || 0) + 1;
+  if (!scoreStats.turns) scoreStats.turns = [];
+
+  let turnIndex = -1;
+  let turnType = null;
+  const groupStack = [];
+
+  for (const log of logs) {
+    if (log.logType === "startTurn") {
+      turnIndex++;
+      turnType = log.data.type;
+      const turn = ensureScoreTurn(scoreStats.turns, turnIndex);
+      turn.turnTypeCounts[turnType] = (turn.turnTypeCounts[turnType] || 0) + 1;
+      continue;
+    }
+
+    if (log.logType === "entityStart") {
+      groupStack.push({
+        entity: log.data,
+        ownScore: 0,
+        hasActivity: false,
+        startTurn: turnIndex,
+        startTurnType: turnType,
+      });
+      continue;
+    }
+
+    if (log.logType === "entityEnd") {
+      const group = groupStack.pop();
+      if (!group) continue;
+
+      // Bubble activity to the parent so ancestors reflect any work done
+      // in descendant frames — required for a primary p-item whose work
+      // happens inside a nested stage/sub-effect frame.
+      const parent = groupStack.length
+        ? groupStack[groupStack.length - 1]
+        : null;
+      if (parent && group.hasActivity) parent.hasActivity = true;
+
+      const entityType = group.entity.type;
+
+      // Stage: transparent. Hand ownScore to the parent; never create a
+      // stage row in byEntity. A stage effect fired outside any entity
+      // (turn-boundary) just vanishes from byEntity.
+      if (entityType === "stage") {
+        if (parent) parent.ownScore += group.ownScore;
+        continue;
+      }
+
+      if (group.startTurn < 0) continue;
+
+      // Fold skillCardEffect → skillCard so a card's delayed effects
+      // aggregate under the card.
+      const keyType =
+        entityType === "skillCardEffect" ? "skillCard" : entityType;
+
+      // A primary p-item activation with any observable work counts as a
+      // fresh "use." Derived (runtime-registered) p-item effects still
+      // contribute their score to the same row but do not tick the
+      // counter.
+      const countsAsUse =
+        keyType === "pItem" && !!group.entity.primary && group.hasActivity;
+
+      // Record a row if there's either score to attribute or a new
+      // activation to count.
+      const shouldRecord = countsAsUse || group.ownScore !== 0;
+      if (!shouldRecord) continue;
+
+      const turn = ensureScoreTurn(scoreStats.turns, group.startTurn);
+      const key = `${keyType}:${group.entity.id}`;
+      if (!turn.byEntity[key]) {
+        turn.byEntity[key] = {
+          type: keyType,
+          id: group.entity.id,
+          uses: 0,
+          score: 0,
+          scoreByType: { vocal: 0, dance: 0, visual: 0 },
+        };
+      }
+      if (countsAsUse) {
+        turn.byEntity[key].uses += 1;
+      }
+      turn.byEntity[key].score += group.ownScore;
+      if (group.startTurnType) {
+        turn.byEntity[key].scoreByType[group.startTurnType] += group.ownScore;
+      }
+      continue;
+    }
+
+    // Any non-frame log marks the innermost frame as "active"; activity
+    // bubbles to ancestors on each entityEnd. Critical for p-items: a
+    // counter-only effect emits no log, so its frame ends with
+    // hasActivity=false and the activation is skipped.
+    if (groupStack.length) {
+      groupStack[groupStack.length - 1].hasActivity = true;
+    }
+
+    if (log.logType === "diff" && log.data.field === S.score) {
+      const delta = parseFloat(log.data.next) - parseFloat(log.data.prev);
+      if (groupStack.length) {
+        // Innermost only — ancestors aren't credited for a child's delta.
+        groupStack[groupStack.length - 1].ownScore += delta;
+      }
+      if (turnIndex >= 0) {
+        const turn = scoreStats.turns[turnIndex];
+        turn.totalScore += delta;
+        if (turnType) turn.totalScoreByType[turnType] += delta;
+      }
+    }
+  }
+}
+
+function ensureScoreTurn(turns, i) {
+  if (!turns[i]) {
+    turns[i] = {
+      turnTypeCounts: { vocal: 0, dance: 0, visual: 0 },
+      totalScore: 0,
+      totalScoreByType: { vocal: 0, dance: 0, visual: 0 },
+      byEntity: {},
+    };
+  }
+  return turns[i];
 }
 
 export function mergeGraphDatas(graphDatas) {
