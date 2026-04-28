@@ -20,6 +20,7 @@ const LOGGED_BUFFS_FIELDS = [
   S.concentrationBuffs,
   S.concentrationEffectBuffs,
   S.enthusiasmBuffs,
+  S.enthusiasmBonusBuffs,
   S.fullPowerChargeBuffs,
 ];
 

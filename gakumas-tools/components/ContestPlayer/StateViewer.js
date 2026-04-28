@@ -28,7 +28,7 @@ function StateViewer({ state, idolId, plan }) {
     {name: "prideTurns", type: "number"},
     {name: "goodImpressionTurnsBuffs", type: "buffs"},
     {name: "goodImpressionTurnsEffectBuffs", type: "buffs"},
-    {name: "goodImpressionTurnsTimesBuffs", type: "buffs"},
+    {name: "goodImpressionTurnsTimesBuffs", type: "buffs_flat"},
     {name: "motivationBuffs", type: "buffs"},
   ];
 
@@ -37,7 +37,7 @@ function StateViewer({ state, idolId, plan }) {
     {name: "fullPowerCharge", type: "number"},
     {name: "fullPowerChargeBuffs", type: "buffs"},
     {name: "enthusiasm", type: "number"},
-    {name: "enthusiasmBonus", type: "number"},
+    {name: "enthusiasmBonusBuffs", type: "buffs_flat"},
     {name: "enthusiasmBuffs", type: "buffs"},
     {name: "lockStanceTurns", type: "number", style: "debuff"},
   ];
@@ -78,7 +78,7 @@ function StateViewer({ state, idolId, plan }) {
     if (state[S[field.name]] == null) return false;
     if (field.type === "number") {
       return state[S[field.name]] !== 0;
-    } else if (field.type === "buffs") {
+    } else if (field.type === "buffs" || field.type === "buffs_flat") {
       return state[S[field.name]].length > 0;
     } else if (field.type === "string") {
       return state[S[field.name]] !== "";
@@ -92,7 +92,7 @@ function StateViewer({ state, idolId, plan }) {
       return String(state[S[field.name]]);
     } else if (field.type === "string") {
       return t(state[S[field.name]]);
-    } else if (field.type === "buffs") {
+    } else if (field.type === "buffs" || field.type === "buffs_flat") {
       const buffs = state[S[field.name]].reduce((acc, cur) => {
         const existingBuff = acc.find((buff) => 
           (buff.amount === cur.amount && buff.turns === cur.turns)
@@ -106,7 +106,9 @@ function StateViewer({ state, idolId, plan }) {
       }, []);
       return buffs.map(({ amount, turns, count }) => (
         <div key={`${amount}-${turns}-${count}`}>
-          {`${Math.round(amount * 100 * count)}%` + (turns ? ` (${t("numTurns", { num: turns })})` : "")}
+          {(field.type === "buffs" ?
+            `${Math.round(amount * 100 * count)}%` : `${(amount * count)}`) + 
+            (turns ? ` (${t("numTurns", { num: turns })})` : "")}
         </div>
       ));
     } else {

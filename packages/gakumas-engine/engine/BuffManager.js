@@ -24,6 +24,7 @@ const BUFF_TYPES = [
   { action: "setConcentrationBuff", field: S.concentrationBuffs },
   { action: "setConcentrationEffectBuff", field: S.concentrationEffectBuffs },
   { action: "setEnthusiasmBuff", field: S.enthusiasmBuffs },
+  { action: "setEnthusiasmBonus", field: S.enthusiasmBonusBuffs },
   { action: "setFullPowerChargeBuff", field: S.fullPowerChargeBuffs },
 ];
 
@@ -121,6 +122,7 @@ export default class BuffManager extends EngineComponent {
     state[S.concentrationBuffs] = [];
     state[S.concentrationEffectBuffs] = [];
     state[S.enthusiasmBuffs] = [];
+    state[S.enthusiasmBonusBuffs] = [];
     state[S.fullPowerChargeBuffs] = [];
 
     // Sense
@@ -139,7 +141,6 @@ export default class BuffManager extends EngineComponent {
     state[S.fullPowerCharge] = 0;
     state[S.cumulativeFullPowerCharge] = 0;
     state[S.enthusiasm] = 0;
-    state[S.enthusiasmBonus] = 0;
     state[S.strengthTimes] = 0;
     state[S.preservationTimes] = 0;
     state[S.fullPowerTimes] = 0;
