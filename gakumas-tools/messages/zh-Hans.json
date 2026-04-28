@@ -290,6 +290,7 @@
     "confirm": "您确定要清除配置吗？",
     "clear": "清除",
     "share": "分享",
+    "openLoadouts": "编组",
     "readLoadoutFromUrl": "URL 读取",
     "invalidUrl": "无效的 URL。",
     "invalidLoadout": "无法从 URL 读取配置。",

@@ -290,6 +290,7 @@
     "confirm": "편성을 초기화할까요?",
     "clear": "초기화",
     "share": "공유",
+    "openLoadouts": "편성",
     "readLoadoutFromUrl": "URL 로드",
     "invalidUrl": "유효하지 않은 URL입니다.",
     "invalidLoadout": "URL에서 편성을 불러올 수 없습니다.",
