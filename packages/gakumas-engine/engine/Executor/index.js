@@ -136,7 +136,12 @@ export default class Executor extends EngineComponent {
       // accounting below.
       const phase = state[S.phase];
       const needsChangeTrigger =
-        phase === "processCard" || phase === "processCost";
+        phase === "processCard" ||
+        phase === "processCost" ||
+        phase === "processDrink" ||
+        (state[S.triggeredEffect]?.type === "reservation" &&
+          (state[S.triggeredEffect]?.source?.type === "skillCardEffect" ||
+            state[S.triggeredEffect]?.source?.type === "pDrinkEffect"));
       const actionPrev = needsChangeTrigger ? state.slice() : null;
       const prevGenki = state[S.genki];
 
