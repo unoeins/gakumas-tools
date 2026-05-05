@@ -1,4 +1,4 @@
-import { DEBUG } from "./constants";
+import { DEBUG, S } from "./constants";
 
 const seed = 610397104;
 
@@ -12,16 +12,77 @@ function mulberry32(a) {
   };
 }
 
-let _getRand = DEBUG ? mulberry32(seed) : Math.random;
+let randomBufferEnabled = [];
+let randomBuffer = [];
+let randomPosition = [];
+
+function nextRandom(state) {
+  const runId = state?.[S.runId];
+  // if (randomBuffer[runId]) {
+  //   console.log("random enabled buf pos", randomBufferEnabled[runId], randomBuffer[runId], randomPosition[runId]);
+  // }
+  if (!runId || !randomBufferEnabled[runId]) {
+    return Math.random();
+  } else if (randomBuffer[runId].length > randomPosition[runId]) {
+    // console.log("random reuse", runId, randomBuffer[runId][randomPosition[runId]]);
+    return randomBuffer[runId][randomPosition[runId]++];
+  } else {
+    const next = Math.random();
+    randomBuffer[runId].push(next);
+    randomPosition[runId]++;
+    // console.log("random new", runId, next);
+    return next;
+  }
+}
+
+let _getRand = DEBUG ? mulberry32(seed) : nextRandom;
 let _getRandCount = 0;
 
-export function getRand() {
+export function getRand(state) {
+  // console.log((new Error()).stack?.split("\n")[2]?.trim());//.split(" ")[1]);
   _getRandCount++;
-  return _getRand();
+  return _getRand(state);
 }
 
 export function getRandCallCount() {
   return _getRandCount;
+}
+
+export function isRandomBufferEnabled(state) {
+  const runId = state[S.runId];
+  return !!(runId && randomBufferEnabled[runId]);
+}
+
+export function enableRandomBuffer(state) {
+  const runId = state[S.runId];
+  if (runId) {
+    randomBufferEnabled[runId] = true;
+    if (!randomBuffer[runId]) {
+      resetRandomBuffer(state);
+    }
+  }
+}
+
+export function disableRandomBuffer(state) {
+  const runId = state[S.runId];
+  if (runId) {
+    randomBufferEnabled[runId] = false;
+  }
+}
+
+export function resetRandomBuffer(state) {
+  const runId = state[S.runId];
+  if (runId) {
+    randomBuffer[runId] = [];
+    randomPosition[runId] = 0;
+  }
+}
+
+export function flipRandomBuffer(state) {
+  const runId = state[S.runId];
+  if (runId) {
+    randomPosition[runId] = 0;
+  }
 }
 
 // Seed the RNG for deterministic runs. DEBUG only controls the *default*
@@ -32,11 +93,11 @@ export function resetRand(customSeed) {
   _getRandCount = 0;
 }
 
-export function shuffle(arr) {
+export function shuffle(arr, state) {
   let currentIndex = arr.length;
 
   while (currentIndex != 0) {
-    let randomIndex = Math.floor(getRand() * currentIndex);
+    let randomIndex = Math.floor(getRand(state) * currentIndex);
     currentIndex--;
 
     [arr[currentIndex], arr[randomIndex]] = [

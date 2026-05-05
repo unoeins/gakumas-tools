@@ -235,6 +235,11 @@ export const ALL_FIELDS = [
   // Card Order
   "cardOrderGroups",
   "shuffleCount",
+
+  // Random
+  "runId",
+  "randomBuffer",
+  "randomPosition",
 ];
 
 export const S = ALL_FIELDS.reduce((acc, cur, i) => {

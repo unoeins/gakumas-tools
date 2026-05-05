@@ -77,7 +77,8 @@ export default class StageEngine {
     this.logger.log(state, "linkPhaseChange", { phase: state[S.linkPhase] });
   }
 
-  startStage(state) {
+  startStage(prevState) {
+    const state = deepCopy(prevState);
     this.logger.disable();
     this.effectManager.triggerEffectsForPhase(state, "prestage");
     this.effectManager.clearPrestageEffects(state);
@@ -94,10 +95,15 @@ export default class StageEngine {
   }
 
   executeDecision(state, decision) {
+    // console.log("executeDecision", decision);
     if (decision.state) {
       return decision.state;
-    } else if (decision.card !== null) {
+    } else if (decision.card != null) {
       return this.useCard(state, decision.card);
+    } else if (decision.drink != null) {
+      return this.useDrink(state, decision.drink);
+    } else if (decision.start) {
+      return this.startStage(state);
     } else {
       return this.endTurn(state);
     }
@@ -119,7 +125,7 @@ export default class StageEngine {
   endTurn(prevState) {
     const state = deepCopy(prevState);
     this.turnManager.endTurn(state);
-    this.listenerManager.triggerEvent(EVENTS.TURN_ENDED, state);
+    // this.listenerManager.triggerEvent(EVENTS.TURN_ENDED, state);
     return state;
   }
 }

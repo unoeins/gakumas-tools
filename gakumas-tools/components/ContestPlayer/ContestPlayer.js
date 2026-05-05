@@ -18,7 +18,14 @@ import {
 } from "gakumas-engine";
 import PlayerStrategy from "gakumas-engine/strategies/PlayerStrategy";
 import { S } from "gakumas-engine/constants";
-import { deepCopy } from "gakumas-engine/utils";
+import {
+  deepCopy,
+  isRandomBufferEnabled,
+  enableRandomBuffer,
+  disableRandomBuffer,
+  resetRandomBuffer,
+  flipRandomBuffer,
+} from "gakumas-engine/utils";
 import { structureLogs } from "@/utils/simulator";
 import Alert from "@/components/Alert";
 import Button from "@/components/Button";
@@ -118,37 +125,62 @@ export default function ContestPlayer() {
 
   async function pickCardsToHold(state, cards, num = 1, optional = false) {
     let selectedIndices = [];
-    // for (let i = 0; i < Math.min(num, cards.length); i++) {
-      const promise = new Promise((resolve) => {
-        setModal(
-          <HoldModal
-            decision={{
-              state,
-              cards,
-              num,
-              optional,
-              type: "HOLD_SELECTION",
-            }}
-            idolId={idolId}
-            onDecision={(indices) => {
-              resolve(indices);
-              closeModal();
-            }}
-          />
-        );
-      }).then((indices) => {
-        selectedIndices.push(...indices);
-      });
-      await promise;
-    // }
+    const promise = new Promise((resolve) => {
+      setModal(
+        <HoldModal
+          decision={{
+            state,
+            cards,
+            num,
+            optional,
+            type: "HOLD_SELECTION",
+          }}
+          idolId={idolId}
+          onDecision={(indices) => {
+            resolve(indices);
+            closeModal();
+          }}
+        />
+      );
+    }).then((indices) => {
+      selectedIndices.push(...indices);
+    });
+    await promise;
     return selectedIndices;
+  }
+
+  async function executeDecision(engine, state, decision) {
+    let nextState = null;
+    let pickCardsToHoldIndices = [];
+    engine.strategy.pickCardsToHoldIndices = [];
+    enableRandomBuffer(state);
+    resetRandomBuffer(state);
+    while (nextState == null) {
+      try {
+        nextState = engine.executeDecision(state, decision);
+      } catch (e) {
+        if (e.message === "not picked") {
+          const selectedIndices = await pickCardsToHold(
+            e.args.state, e.args.cards, e.args.num, e.args.optional
+          );
+          pickCardsToHoldIndices.push(selectedIndices);
+          engine.strategy.pickCardsToHoldIndices = [...pickCardsToHoldIndices];
+          flipRandomBuffer(state);
+        } else {
+          throw e;
+        }
+      }
+    }
+    disableRandomBuffer(state);
+    resetRandomBuffer(state);
+    return nextState;
   }
 
   async function startStage() {
     setStateHistory([]);
     setRunning(false);
 
-    pushRun({
+    const run = pushRun({
       loadout,
       loadouts: stage.type === "linkContest" ? loadouts : null,
       scores: null,
@@ -161,25 +193,9 @@ export default function ContestPlayer() {
 
     engine.logger.reset();
     const initialState = engine.getInitialState();
-    let nextState = null;
-    let pickCardsToHoldIndices = [];
-    engine.strategy.pickCardsToHoldIndices = [];
-    while (nextState == null) {
-      try {
-        const state = deepCopy(initialState);
-        nextState = engine.startStage(state);
-      } catch (e) {
-        if (e.message === "not picked") {
-          const selectedIndices = await pickCardsToHold(
-            e.args.state, e.args.cards, e.args.num, e.args.optional
-          );
-          pickCardsToHoldIndices.push(selectedIndices);
-          engine.strategy.pickCardsToHoldIndices = [...pickCardsToHoldIndices];
-        } else {
-          throw e;
-        }
-      }
-    }
+    initialState[S.runId] = run.id;
+    const decision = { start: true };
+    const nextState = await executeDecision(engine, initialState, decision);
 
     setStateHistory([nextState]);
     setRunning(true);
@@ -193,24 +209,8 @@ export default function ContestPlayer() {
       return;
     }
     const logIndex = engine.logger.log(state, "hand", null);
-    let nextState = null;
-    let pickCardsToHoldIndices = [];
-    engine.strategy.pickCardsToHoldIndices = [];
-    while (nextState == null) {
-      try {
-        nextState = engine.useCard(state, card);
-      } catch (e) {
-        if (e.message === "not picked") {
-          const selectedIndices = await pickCardsToHold(
-            e.args.state, e.args.cards, e.args.num, e.args.optional
-          );
-          pickCardsToHoldIndices.push(selectedIndices);
-          engine.strategy.pickCardsToHoldIndices = [...pickCardsToHoldIndices];
-        } else {
-          throw e;
-        }
-      }
-    }
+    const decision = { card };
+    const nextState = await executeDecision(engine, state, decision);
 
     engine.logger.logs[logIndex].data = {
       handCards: state[S.handCards].map((card) => ({
@@ -231,24 +231,8 @@ export default function ContestPlayer() {
   async function drink(selectedIndex) {
     if (!running) return;
     const state = deepCopy(getState());
-    let nextState = null;
-    let pickCardsToHoldIndices = [];
-    engine.strategy.pickCardsToHoldIndices = [];
-    while (nextState == null) {
-      try {
-        nextState = engine.useDrink(state, selectedIndex);
-      } catch (e) {
-        if (e.message === "not picked") {
-          const selectedIndices = await pickCardsToHold(
-            e.args.state, e.args.cards, e.args.num, e.args.optional
-          );
-          pickCardsToHoldIndices.push(selectedIndices);
-          engine.strategy.pickCardsToHoldIndices = [...pickCardsToHoldIndices];
-        } else {
-          throw e;
-        }
-      }
-    }
+    const decision = { drink: selectedIndex };
+    const nextState = await executeDecision(engine, state, decision);
 
     pushState(nextState);
   }
@@ -256,24 +240,9 @@ export default function ContestPlayer() {
   async function endTurn() {
     if (!running) return;
     const state = deepCopy(getState());
-    let nextState = null;
-    let pickCardsToHoldIndices = [];
-    engine.strategy.pickCardsToHoldIndices = [];
-    while (nextState == null) {
-      try {
-        nextState = engine.endTurn(state);
-      } catch (e) {
-        if (e.message === "not picked") {
-          const selectedIndices = await pickCardsToHold(
-            e.args.state, e.args.cards, e.args.num, e.args.optional
-          );
-          pickCardsToHoldIndices.push(selectedIndices);
-          engine.strategy.pickCardsToHoldIndices = [...pickCardsToHoldIndices];
-        } else {
-          throw e;
-        }
-      }
-    }
+    const decision = { endTurn: true };
+    const nextState = await executeDecision(engine, state, decision);
+
     pushState(nextState);
     if (nextState[S.turnsRemaining] <= 0) {
       setRunning(false);
@@ -292,13 +261,14 @@ export default function ContestPlayer() {
   function getHandCardScores() {
     if (!running) return [];
     const state = getState();
-    return state[S.handCards].map((card) => {
+    const prevEnabled = isRandomBufferEnabled(state);
+    disableRandomBuffer(state);
+    const scores = state[S.handCards].map((card) => {
       if (!engine.isCardUsable(state, card)) {
         return -Infinity;
       }
-      const tempPickCardsToHold = engine.strategy.pickCardsToHold;
-      engine.strategy.pickCardsToHold = () => [];
       const previewState = deepCopy(state);
+      previewState[S.nullifySelect] = 1;
       previewState[S.effects] = [];
       previewState[S.score] = 0;
       
@@ -319,10 +289,12 @@ export default function ContestPlayer() {
       previewState[S.phase] = "processCard";
 
       engine.effectManager.triggerEffects(previewState, actions, null, card);
-      delete previewState[S.phase];
-      engine.strategy.pickCardsToHold = tempPickCardsToHold;
       return previewState[S.score];
     });
+    if (prevEnabled) {
+      enableRandomBuffer(state);
+    }
+    return scores;
   }
 
   function getTurnInfo() {
