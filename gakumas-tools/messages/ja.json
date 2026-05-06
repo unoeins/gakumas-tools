@@ -24,6 +24,10 @@
       "title": "P図鑑",
       "description": "Pアイテムとスキルカード情報を表示する"
     },
+    "pIdolCollection": {
+      "title": "Pアイドル所持率",
+      "description": "獲得済みのPアイドルを記録して、レアリティ・プラン・アイドル別の所持率を確認できます"
+    },
     "memoryCalculator": {
       "title": "メモリー生成確率計算機",
       "description": "欲しいメモリーの生成確率を計算する"
@@ -136,10 +140,54 @@
     "score": "スコア"
   },
   "Dex": {
-    "skillCards": "スキルカード",
-    "pItems": "Pアイテム",
-    "pDrinks": "Pドリンク",
-    "maxTimes": "最大{n}回"
+    "maxTimes": "最大{n}回",
+    "tabs": {
+      "skill-cards": "スキルカード",
+      "p-items": "Pアイテム",
+      "p-drinks": "Pドリンク",
+      "p-idols": "Pアイドル",
+      "support-cards": "サポートカード"
+    },
+    "categories": {
+      "reference": {
+        "title": "図鑑",
+        "description": "スキルカード・Pアイテム・Pドリンクの情報を表示する"
+      },
+      "collection": {
+        "title": "コレクション",
+        "description": "獲得済みのPアイドルを記録する"
+      },
+      "tierlist": {
+        "title": "ティア表",
+        "description": "近日公開"
+      }
+    }
+  },
+  "PIdolCollection": {
+    "collected": "獲得済み",
+    "byRarity": "レアリティ別",
+    "byPlan": "プラン別",
+    "byIdol": "アイドル別",
+    "markAll": "全て獲得",
+    "clearAll": "クリア",
+    "share": "シェア",
+    "emptyResults": "条件に合うPアイドルがありません",
+    "plans": {
+      "sense": "センス",
+      "logic": "ロジック",
+      "anomaly": "アノマリー"
+    },
+    "shareText": "学マスPアイドル所持率\n{scope}を{have}/{total}（{percent}%）獲得しました！あなたはいくつ持っていますか？",
+    "shareScope": {
+      "all": "{idol}の{rarity}{plan}Pアイドル",
+      "rarity_plan": "{rarity}{plan}Pアイドル",
+      "rarity_idol": "{idol}の{rarity}Pアイドル",
+      "plan_idol": "{idol}の{plan}Pアイドル",
+      "rarity": "{rarity}Pアイドル",
+      "plan": "{plan}Pアイドル",
+      "idol": "{idol}のPアイドル",
+      "none": "Pアイドル"
+    }
   },
   "EntityBank": {
     "filter": "フィルタ"
