@@ -1,10 +1,16 @@
 import { Stages } from "gakumas-data";
 import { FaLink } from "react-icons/fa6";
 
-const latestSeason = Math.max(...Stages.getAll().map((s) => s.season));
+const stageTypes = ["contest", "linkContest", "event", "exam"];
+const latestSeasons = {};
+stageTypes.forEach((type) => {
+  latestSeasons[type] = Math.max(
+    ...Stages.getAll().filter((s) => s.type === type).map((s) => s.season)
+  );
+});
 
 export function isLatestSeason(stage) {
-  return stage.season === latestSeason;
+  return stage.season === latestSeasons[stage.type];
 }
 
 export function formatStageName(stage, t) {
