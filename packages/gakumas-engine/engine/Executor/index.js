@@ -47,23 +47,22 @@ export default class Executor extends EngineComponent {
     };
 
     this.intermediateResolvers = {
-      cost: (state, value, growth) => resolvers.resolveCost(state, value, growth),
+      cost: (state, value, growth) =>
+        resolvers.resolveCost(state, value, growth),
       fixedGenki: (state, value) => resolvers.resolveFixedGenki(state, value),
-      fixedStamina: (state, value) => resolvers.resolveFixedStamina(state, value),
+      fixedStamina: (state, value) =>
+        resolvers.resolveFixedStamina(state, value),
       score: (state, value, growth, rhs) =>
-        resolvers.resolveScore(
-          state,
-          value,
-          growth,
-          rhs,
-          (s) => this.engine.turnManager.getTurnMultiplier(s)
+        resolvers.resolveScore(state, value, growth, rhs, (s) =>
+          this.engine.turnManager.getTurnMultiplier(s),
         ),
       goodImpressionTurns: (state, value) =>
         resolvers.resolveGoodImpressionTurns(state, value),
       motivation: (state, value) => resolvers.resolveMotivation(state, value),
       goodConditionTurns: (state, value) =>
         resolvers.resolveGoodConditionTurns(state, value),
-      concentration: (state, value) => resolvers.resolveConcentration(state, value),
+      concentration: (state, value) =>
+        resolvers.resolveConcentration(state, value),
       genki: (state, value) => resolvers.resolveGenki(state, value),
       stamina: (state, value) => resolvers.resolveStamina(state, value),
       enthusiasm: (state, value) => resolvers.resolveEnthusiasm(state, value),
@@ -219,7 +218,7 @@ export default class Executor extends EngineComponent {
         if (state[f] < prev[f]) {
           this.engine.effectManager.triggerEffectsForPhase(
             state,
-            "buffCostConsumed"
+            "buffCostConsumed",
           );
           break;
         }
@@ -297,6 +296,8 @@ export default class Executor extends EngineComponent {
 
       if (op === "+=") {
         state[S.effectCounters][id][name] += rhsValue;
+      } else if (op === "=") {
+        state[S.effectCounters][id][name] = rhsValue;
       } else {
         console.warn(`Unsupported effectCounter operation: ${op}`);
       }
@@ -363,7 +364,7 @@ export default class Executor extends EngineComponent {
           state,
           intermediate,
           growth || {},
-          rhs
+          rhs,
         );
       } else {
         console.warn(`Unresolved intermediate: ${intermediateField}`);
@@ -423,7 +424,10 @@ export default class Executor extends EngineComponent {
 
   executeSpecialAction(state, actionName) {
     if (actionName in this.specialActions) {
-      if (state[S.nullifyDebuff] && DEBUFF_SPECIAL_ACTIONS.includes(actionName)) {
+      if (
+        state[S.nullifyDebuff] &&
+        DEBUFF_SPECIAL_ACTIONS.includes(actionName)
+      ) {
         state[S.nullifyDebuff]--;
         return;
       }
