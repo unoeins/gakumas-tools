@@ -452,9 +452,19 @@ export default class CardManager extends EngineComponent {
     const hasStaminaCost = cost.some(
       (action) => action.lhs === "cost" || action.lhs === "stamina",
     );
+    let skipActions = false;
     if (usingFree) {
       // Skip cost entirely when using card free; wrapper (useRandomCardFree
       // / useSelectedCardFree / useAllCardsFree) manages the counter.
+      const conditions = this.getLines(state, card, "conditions")
+        .map((c) => c.conditions)
+        .flat();
+      for (let i = 0; i < conditions.length; i++) {
+        if (!this.engine.evaluator.evaluateCondition(state, conditions[i])) {
+          skipActions = true;
+          break;
+        }
+      }
     } else if (hasStaminaCost && state[S.nullifyCostCards]) {
       state[S.nullifyCostCards]--;
     } else if (
@@ -493,16 +503,18 @@ export default class CardManager extends EngineComponent {
       );
     }
 
-    const actions = this.getLines(state, card, "actions");
-    state[S.phase] = "processCard";
-    if (state[S.doubleCardEffectCards] && skillCard.rarity !== "L") {
-      state[S.doubleCardEffectCards]--;
+    if (!skipActions) {
+      const actions = this.getLines(state, card, "actions");
+      state[S.phase] = "processCard";
+      if (state[S.doubleCardEffectCards] && skillCard.rarity !== "L") {
+        state[S.doubleCardEffectCards]--;
+        state[S.effectInstanceId]++;
+        this.engine.effectManager.triggerEffects(state, actions, null, card);
+      }
       state[S.effectInstanceId]++;
       this.engine.effectManager.triggerEffects(state, actions, null, card);
+      delete state[S.phase];
     }
-    state[S.effectInstanceId]++;
-    this.engine.effectManager.triggerEffects(state, actions, null, card);
-    delete state[S.phase];
 
     state[S.cardsUsed]++;
     state[S.turnCardsUsed]++;
