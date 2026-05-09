@@ -70,6 +70,13 @@ export default function ContestPlayer() {
   const { plan, idolId } = useContext(WorkspaceContext);
   const [running, setRunning] = useState(false);
   const [enterPercents, setEnterPercents] = useState(false);
+  const [listenerConfig, setListenerConfig] = useState({
+    enableUseStats: false,
+    enableConditionalUseStats: false,
+    enablePriorityStats: false,
+    enableScoreStats: false,
+    enableSelectRandomCards: false,
+  });
   const [stateHistory, setStateHistory] = useState([]);
   const [engine, setEngine] = useState(null);
 
@@ -77,10 +84,11 @@ export default function ContestPlayer() {
     const idolConfig = new IdolConfig(loadout);
     const stageConfig = new StageConfig(stage, loadout.startingEffects);
     const simulatorConfig = new SimulatorConfig({
-      enableSkillCardOrder: loadout.enableSkillCardOrder
+      enableSkillCardOrder: loadout.enableSkillCardOrder,
+      ...listenerConfig,
     });
     return new IdolStageConfig(idolConfig, stageConfig, enterPercents, simulatorConfig);
-  }, [loadout, stage, enterPercents]);
+  }, [loadout, stage, enterPercents, listenerConfig]);
 
   const linkConfigs = useMemo(() => {
     if (stage.type !== "linkContest") return null;
@@ -88,11 +96,12 @@ export default function ContestPlayer() {
       const idolConfig = new IdolConfig(ld);
       const stageConfig = new StageConfig(stage, ld.startingEffects);
       const simulatorConfig = new SimulatorConfig({
-        enableSkillCardOrder: ld.enableSkillCardOrder
+        enableSkillCardOrder: ld.enableSkillCardOrder,
+        ...listenerConfig,
       });
       return new IdolStageConfig(idolConfig, stageConfig, enterPercents, simulatorConfig);
     });
-  }, [loadouts, stage, enterPercents]);
+  }, [loadouts, stage, enterPercents, listenerConfig]);
 
   const { setModal, closeModal } = useContext(ModalContext);
 
@@ -123,7 +132,7 @@ export default function ContestPlayer() {
     return state;
   }
 
-  async function pickCardsToHold(state, cards, num = 1, optional = false) {
+  async function pickCardsToHold(state, cards, num = 1, optional = false, isRawId = false) {
     let selectedIndices = [];
     const promise = new Promise((resolve) => {
       setModal(
@@ -133,6 +142,7 @@ export default function ContestPlayer() {
             cards,
             num,
             optional,
+            isRawId,
             type: "HOLD_SELECTION",
           }}
           idolId={idolId}
@@ -161,7 +171,7 @@ export default function ContestPlayer() {
       } catch (e) {
         if (e.message === "not picked") {
           const selectedIndices = await pickCardsToHold(
-            e.args.state, e.args.cards, e.args.num, e.args.optional
+            e.args.state, e.args.cards, e.args.num, e.args.optional, e.args.isRawId
           );
           pickCardsToHoldIndices.push(selectedIndices);
           engine.strategy.pickCardsToHoldIndices = [...pickCardsToHoldIndices];
@@ -403,6 +413,8 @@ export default function ContestPlayer() {
             mode={"contestPlayer"}
             config={config}
             idolId={config.idol.idolId || idolId}
+            listenerConfig={listenerConfig}
+            setListenerConfig={setListenerConfig}
           />
         </div>
 

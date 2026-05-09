@@ -510,7 +510,8 @@
     "enableUseStats": "Count skill card usage",
     "enableConditionalUseStats": "Count skill card usage when a specific skill card is drawn",
     "enablePriorityStats": "Count skill card priority usage",
-    "enableScoreStats": "Aggregate score statistics"
+    "enableScoreStats": "Aggregate score statistics",
+    "enableSelectRandomCards": "Enable manual selection of effects that randomly select skill cards"
   },
   "SkillCardOrderGroups": {
     "Nth_order": "{n}th Card Order",

@@ -28,7 +28,7 @@ function SimulatorExtensions({ mode, config, idolId, listenerConfig, setListener
           defaultCardIds={config.defaultCardIds}
         />
       )}
-      {mode == "simulator" && (
+      {mode === "simulator" && (
         <>
           <div className={styles.useStatsToggle}>
             <input
@@ -76,6 +76,20 @@ function SimulatorExtensions({ mode, config, idolId, listenerConfig, setListener
             <label htmlFor="enableScoreStats">{t("enableScoreStats")}</label>
           </div>
         </>
+      )}
+      {mode === "contestPlayer" && (
+        <div className={styles.selectRandomCardsToggle}>
+          <input
+            type="checkbox"
+            id="enableSelectRandomCards"
+            checked={listenerConfig.enableSelectRandomCards}
+            onChange={(e) => setListenerConfig({
+              ...listenerConfig,
+              enableSelectRandomCards: e.target.checked
+            })}
+          />
+          <label htmlFor="enableSelectRandomCards">{t("enableSelectRandomCards")}</label>
+        </div>
       )}
     </div>
   );

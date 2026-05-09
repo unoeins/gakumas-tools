@@ -79,6 +79,7 @@ export default function Simulator() {
     enableConditionalUseStats: false,
     enablePriorityStats: false,
     enableScoreStats: false,
+    enableSelectRandomCards: false,
   });
   const [listenerData, setListenerData] = useState(null);
   const workersRef = useRef();
@@ -92,7 +93,7 @@ export default function Simulator() {
     const stageConfig = new StageConfig(stage, loadout.startingEffects);
     const simulatorConfig = new SimulatorConfig({
       enableSkillCardOrder: loadout.enableSkillCardOrder,
-      ...listenerConfig
+      ...listenerConfig,
     });
     return new IdolStageConfig(idolConfig, stageConfig, enterPercents, simulatorConfig);
   }, [loadout, stage, enterPercents, listenerConfig]);

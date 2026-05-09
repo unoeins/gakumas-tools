@@ -13,7 +13,7 @@ import styles from "./ManualPlay.module.scss";
 
 export default function HoldModal({ decision, onDecision, idolId }) {
   const t = useTranslations("stage");
-  const { state, cards, num, optional = false } = decision;
+  const { state, cards, num, optional = false, isRawId = false } = decision;
   const [selectedIndices, setSelectedIndices] = useState([]);
 
   // console.log("HoldModal phase", state[S.phase], "parentPhase", state[S.parentPhase]);
@@ -25,11 +25,11 @@ export default function HoldModal({ decision, onDecision, idolId }) {
     resolvedEntity = SkillCards.getById(state[S.cardMap][state[S.usedCard]].id);
   } else if (state[S.phase] == "processDrink") {
     resolvedEntity = PDrinks.getById(state[S.usedDrink]);
-  } else if (state[S.triggeredEffect]?.source?.type == "skillCard") {
+  } else if (["skillCard", "skillCardEffect"].includes(state[S.triggeredEffect]?.source?.type)) {
     resolvedEntity = SkillCards.getById(state[S.triggeredEffect].source?.id);
-  } else if (state[S.triggeredEffect]?.source?.type == "pItem") {
+  } else if (["pItem", "pItemEffect"].includes(state[S.triggeredEffect]?.source?.type)) {
     resolvedEntity = PItems.getById(state[S.triggeredEffect].source?.id);
-  } else if (state[S.triggeredEffect]?.source?.type == "pDrink") {
+  } else if (["pDrink", "pDrinkEffect"].includes(state[S.triggeredEffect]?.source?.type)) {
     resolvedEntity = PDrinks.getById(state[S.triggeredEffect].source?.id);
   }
 
@@ -76,7 +76,7 @@ export default function HoldModal({ decision, onDecision, idolId }) {
       </h3>
       <div className={styles.cardGrid}>
         {cards.map((cardIndex, arrayIndex) => {
-          const card = state[S.cardMap][cardIndex];
+          const card = isRawId ? { id: cardIndex } : state[S.cardMap][cardIndex];
           const isSelected = selectedIndices.includes(arrayIndex);
           return (
             <button

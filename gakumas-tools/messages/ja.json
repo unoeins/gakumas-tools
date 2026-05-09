@@ -543,7 +543,8 @@
     "enableUseStats": "スキルカード使用回数を集計する",
     "enableConditionalUseStats": "特定のスキルカードを引いた時の条件付き使用回数を集計する",
     "enablePriorityStats": "スキルカード優先使用回数を集計する",
-    "enableScoreStats": "スコア統計を集計する"
+    "enableScoreStats": "スコア統計を集計する",
+    "enableSelectRandomCards": "スキルカードをランダムに選ぶ効果を手動で選択する"
   },
   "SkillCardOrderGroups": {
     "Nth_order": "{n}週目のカード順",

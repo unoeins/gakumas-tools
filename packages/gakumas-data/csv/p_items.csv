@@ -403,9 +403,9 @@ id,name,rarity,upgraded,plan,mode,sourceType,pIdolId,welfare,effects
 403,すべてを超えた先へ+,SSR,TRUE,logic,stage,pIdol,130,FALSE,"at:startOfStage { setScoreDebuff(0.2,4); limit:1 }; at:turn { if:turnsElapsed==2 { motivation+=2; cardUsesRemaining+=1 }; limit:1 }; at:turn { if:turnsElapsed==5 { goodImpressionTurns+=4; cardUsesRemaining+=1 }; limit:1 }"
 404,咲季の完全食・改,SSR,FALSE,logic,stage,support,,FALSE,at:cardUsed { if:turnCardsUsed%2==1 { goodImpressionTurns+=2; setGoodImpressionTurnsEffectBuff(0.25) }; limit:1 }
 405,演技のたしなみ,SR,FALSE,logic,stage,support,,FALSE,at:staminaDecreased { if:parentPhase==processCost & isVisualTurn { goodImpressionTurns+=2; halfCostTurns+=2 }; limit:1 }
-406,あさり先生のおまもり,SSR,FALSE,sense,stage,pIdol,131,FALSE,at:everyTurn { if:turnsElapsed%4==3 { moveRandomToTopOfDeck[pIdol & (deck | discarded | hand | held)] } }
-407,あさり先生のおまもり,SSR,FALSE,logic,stage,pIdol,132,FALSE,at:everyTurn { if:turnsElapsed%4==3 { moveRandomToTopOfDeck[pIdol & (deck | discarded | hand | held)] } }
-408,あさり先生のおまもり,SSR,FALSE,anomaly,stage,pIdol,133,FALSE,at:everyTurn { if:turnsElapsed%4==3 { moveRandomToTopOfDeck[pIdol & (deck | discarded | hand | held)] } }
+406,あさり先生のおまもり,SSR,FALSE,sense,stage,pIdol,131,FALSE,at:everyTurn { if:turnsElapsed%4==3 { moveRandomToTopOfDeck[pIdol & (deck | discarded | removed | hand | held)] } }
+407,あさり先生のおまもり,SSR,FALSE,logic,stage,pIdol,132,FALSE,at:everyTurn { if:turnsElapsed%4==3 { moveRandomToTopOfDeck[pIdol & (deck | discarded | removed | hand | held)] } }
+408,あさり先生のおまもり,SSR,FALSE,anomaly,stage,pIdol,133,FALSE,at:everyTurn { if:turnsElapsed%4==3 { moveRandomToTopOfDeck[pIdol & (deck | discarded | removed | hand | held)] } }
 409,わたしたちの約束,SSR,FALSE,sense,stage,pIdol,134,FALSE,at:goodConditionTurnsIncreased { if:isDirectEffect & goodConditionTurnsDelta>=7 & concentration>=13 { goodConditionTurns+=concentration*0.75; concentration/=2; perfectConditionTurns+=1; genki+=2 } }
 410,わたしたちの約束+,SSR,TRUE,sense,stage,pIdol,134,FALSE,at:goodConditionTurnsIncreased { if:isDirectEffect & goodConditionTurnsDelta>=7 & concentration>=13 { goodConditionTurns+=concentration*0.75; concentration/=2; perfectConditionTurns+=2; genki+=2 } }
 411,あたしたちの約束,SSR,FALSE,anomaly,stage,pIdol,135,FALSE,at:endOfTurn { if:cumulativeFullPowerCharge>=13 { target:797 { g.scoreTimes+=1 }; fixedStamina-=1; at:turn { moveRandomToHand[baseId(797)]; limit:1 } }; limit:2 }

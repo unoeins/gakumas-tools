@@ -1,5 +1,5 @@
 import { G, S } from "../constants";
-import { deepCopy } from "../utils";
+import { deepCopy, getRand } from "../utils";
 import BaseStrategy from "./BaseStrategy";
 
 const MAX_DEPTH = 3;
@@ -422,5 +422,9 @@ export default class HeuristicStrategy extends BaseStrategy {
 
   pickCardsToUseFree(state, cards, num = 1) {
     return this.pickCardsToHold(state, cards, num);
+  }
+
+  pickRandomCard(state, cards, isRawId = false) {
+    return Math.floor(getRand(state) * cards.length);
   }
 }

@@ -5,13 +5,15 @@ export default class SimulatorConfig {
       enableUseStats,
       enableConditionalUseStats,
       enablePriorityStats,
-      enableScoreStats
+      enableScoreStats,
+      enableSelectRandomCards,
     }) {
     this.enableSkillCardOrder = enableSkillCardOrder;
     this.enableUseStats = enableUseStats;
     this.enableConditionalUseStats = enableConditionalUseStats;
     this.enablePriorityStats = enablePriorityStats;
     this.enableScoreStats = enableScoreStats;
+    this.enableSelectRandomCards = enableSelectRandomCards;
   }
 
 }

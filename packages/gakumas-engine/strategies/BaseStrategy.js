@@ -47,4 +47,8 @@ export default class BaseStrategy {
   handleException(exception) {
     throw exception;
   }
+
+  pickRandomCard(state, cards, isRawId = false) {
+    throw new Error("pickRandomCard is not implemented!");
+  }
 }

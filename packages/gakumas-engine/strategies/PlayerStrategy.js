@@ -25,8 +25,27 @@ export default class PlayerStrategy {
       throw e;
     }
   }
-  
-  pickCardsToMoveToHand(state, cards, num = 1) {
+
+  pickCardsToMoveToHand(state, cards, num = 1, optional = false) {
+    return this.pickCardsToHold(state, cards, num, optional);
+  }
+
+  pickCardsToUseFree(state, cards, num = 1) {
     return this.pickCardsToHold(state, cards, num);
+  }
+
+  pickRandomCard(state, cards, isRawId = false) {
+    if (cards.length === 0) return 0;
+    if (isRawId) {
+      if (this.pickCardsToHoldIndices.length > 0) {
+        return this.pickCardsToHoldIndices.shift()[0];
+      } else {
+        const e = new Error("not picked");
+        e.args = {state, cards, num: 1, optional: false, isRawId: true};
+        throw e;
+      }
+    } else {
+      return this.pickCardsToHold(state, cards, 1)[0];
+    }
   }
 }
