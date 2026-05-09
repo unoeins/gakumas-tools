@@ -510,29 +510,6 @@ export default class CardManager extends EngineComponent {
       state[S.activeCardsUsed]++;
     }
 
-    conditionState = shallowCopy(state);
-    this.engine.effectManager.triggerEffectsForPhase(
-      state,
-      "afterCardUsed",
-      conditionState,
-    );
-    if (skillCard.type == "active") {
-      this.engine.effectManager.triggerEffectsForPhase(
-        state,
-        "afterActiveCardUsed",
-        conditionState,
-      );
-    } else if (skillCard.type == "mental") {
-      this.engine.effectManager.triggerEffectsForPhase(
-        state,
-        "afterMentalCardUsed",
-        conditionState,
-      );
-    }
-
-    state[S.lastUsedCard] = state[S.usedCard];
-    state[S.usedCard] = null;
-
     this.logger.log(state, "entityEnd", {
       type: "skillCard",
       id: skillCard.id,
@@ -557,6 +534,29 @@ export default class CardManager extends EngineComponent {
         conditionState,
       );
     }
+
+    conditionState = shallowCopy(state);
+    this.engine.effectManager.triggerEffectsForPhase(
+      state,
+      "afterCardUsed",
+      conditionState,
+    );
+    if (skillCard.type == "active") {
+      this.engine.effectManager.triggerEffectsForPhase(
+        state,
+        "afterActiveCardUsed",
+        conditionState,
+      );
+    } else if (skillCard.type == "mental") {
+      this.engine.effectManager.triggerEffectsForPhase(
+        state,
+        "afterMentalCardUsed",
+        conditionState,
+      );
+    }
+
+    state[S.lastUsedCard] = state[S.usedCard];
+    state[S.usedCard] = null;
 
     // Free uses don't consume cardUsesRemaining, so they can't end the
     // turn — mirror legacy to keep parity across free-use chains (e.g.
