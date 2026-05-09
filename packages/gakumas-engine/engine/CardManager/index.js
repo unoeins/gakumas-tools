@@ -532,10 +532,7 @@ export default class CardManager extends EngineComponent {
       state[S.activeCardsUsed]++;
     }
 
-    this.logger.log(state, "entityEnd", {
-      type: "skillCard",
-      id: skillCard.id,
-    });
+    conditionState = shallowCopy(state);
 
     if (state[S.thisCardHeld]) {
       state[S.thisCardHeld] = false;
@@ -557,7 +554,6 @@ export default class CardManager extends EngineComponent {
       );
     }
 
-    conditionState = shallowCopy(state);
     this.engine.effectManager.triggerEffectsForPhase(
       state,
       "afterCardUsed",
@@ -579,6 +575,11 @@ export default class CardManager extends EngineComponent {
 
     state[S.lastUsedCard] = state[S.usedCard];
     state[S.usedCard] = null;
+
+    this.logger.log(state, "entityEnd", {
+      type: "skillCard",
+      id: skillCard.id,
+    });
 
     // Free uses don't consume cardUsesRemaining, so they can't end the
     // turn — mirror legacy to keep parity across free-use chains (e.g.
