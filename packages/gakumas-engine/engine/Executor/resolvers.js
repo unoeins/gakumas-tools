@@ -127,7 +127,10 @@ export function resolveScore(state, score, growth, rhsNode, getTurnMultiplier) {
       (acc, cur) => acc + cur.amount,
       1,
     );
-    score += state[S.concentration] * state[S.concentrationMultiplier] * concentrationEffectBuff;
+    score +=
+      state[S.concentration] *
+      state[S.concentrationMultiplier] *
+      concentrationEffectBuff;
 
     // Apply enthusiasm
     score += state[S.enthusiasm];

@@ -1,9 +1,13 @@
 import { memo } from "react";
 import { FaPlus } from "react-icons/fa6";
-import gkImg from "gakumas-images";
+import { Idols } from "gakumas-data";
 import Image from "@/components/Image";
 import c from "@/utils/classNames";
-import { ENTITY_DATA_BY_TYPE, EntityTypes } from "@/utils/entities";
+import {
+  ENTITY_DATA_BY_TYPE,
+  EntityTypes,
+  resolveEntityIcon,
+} from "@/utils/entities";
 import { useDrag, useDrop } from "@/utils/safeDnd";
 import CustomizationCounts from "./CustomizationCounts";
 import Indications from "./Indications";
@@ -27,7 +31,7 @@ function EntityIcon({
   argumentType = "entity",
 }) {
   const entity = ENTITY_DATA_BY_TYPE[type].getById(id);
-  const { icon } = gkImg(entity, idolId);
+  const icon = resolveEntityIcon(entity, idolId);
 
   const [{ isDragging }, dragRef] = useDrag({
     type: dndType,
@@ -46,14 +50,20 @@ function EntityIcon({
     },
   });
 
+  let displayName = entity?.name;
+  if (entity?._type === "pIdol") {
+    const idol = Idols.getById(entity.idolId);
+    displayName = `${idol?.name || ""} ${entity.title || ""}`.trim();
+  }
+
   let unwrappedElement = null;
   if (entity) {
     unwrappedElement = (
       <>
         <Image
           src={icon}
-          alt={entity.name}
-          title={entity.name}
+          alt={displayName}
+          title={displayName}
           fill
           sizes="64px"
           draggable={false}

@@ -27,3 +27,19 @@
   flex-shrink: 0;
   padding: tokens.$space-1;
 }
+
+.flexible {
+  height: auto;
+
+  .content {
+    flex: none;
+    min-height: 0;
+  }
+}
+
+.tabsSticky {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background-color: tokens.$surface-bg;
+}

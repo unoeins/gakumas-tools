@@ -470,6 +470,8 @@ export default class CardManager extends EngineComponent {
     if (usingFree) {
       // Skip cost entirely when using card free; wrapper (useRandomCardFree
       // / useSelectedCardFree / useAllCardsFree) manages the counter.
+      // Free-use wrappers bypass isCardUsable, so re-check conditions here
+      // and skip actions (but still emit cardUsed/afterCardUsed) if unmet.
       const conditions = this.getLines(state, card, "conditions")
         .map((c) => c.conditions)
         .flat();
