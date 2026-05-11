@@ -1,5 +1,5 @@
 import { PItems, PIdols, SkillCards, Stages, deserializeEffectSequence } from "gakumas-data";
-import { deepCopy } from "gakumas-engine/utils";
+import { deepCopy, RECOMMENDED_EFFECT_MAPPINGS } from "gakumas-engine/utils";
 
 export function inferPIdolId(pItemIds, skillCardIdGroups) {
   const signatureSkillCardId = skillCardIdGroups.flat().find(
@@ -22,7 +22,7 @@ const CRITERIA_HAJIME_BY_IDOL = {
   3: [0.15, 0.45, 0.4],
   4: [0.45, 0.15, 0.4],
   5: [0.27, 0.33, 0.4],
-  6: [0.2, 0.5, 0.33],
+  6: [0.2, 0.5, 0.3],
   7: [0.17, 0.6, 0.23],
   8: [0.4, 0.33, 0.27],
   9: [0.27, 0.33, 0.4],
@@ -266,8 +266,6 @@ const SUPPORT_EFFECTS_HAJIME_REGULAR_MID = {
   ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
   strength: [  // TODO
   ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
-  preservation: [  // TODO
-  ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
   fullPower: [  // TODO
   ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
 };
@@ -282,8 +280,6 @@ const SUPPORT_EFFECTS_HAJIME_REGULAR_FINAL = {
   motivation: [  // TODO
   ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
   strength: [  // TODO
-  ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
-  preservation: [  // TODO
   ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
   fullPower: [  // TODO
   ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
@@ -300,8 +296,6 @@ const SUPPORT_EFFECTS_HAJIME_PRO_MID = {
   ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
   strength: [  // TODO
   ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
-  preservation: [  // TODO
-  ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
   fullPower: [  // TODO
   ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
 };
@@ -316,8 +310,6 @@ const SUPPORT_EFFECTS_HAJIME_PRO_FINAL = {
   motivation: [  // TODO
   ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
   strength: [  // TODO
-  ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
-  preservation: [  // TODO
   ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
   fullPower: [  // TODO
   ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
@@ -334,8 +326,6 @@ const SUPPORT_EFFECTS_HAJIME_MASTER_MID = {
   ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
   strength: [  // TODO
   ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
-  preservation: [  // TODO
-  ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
   fullPower: [  // TODO
   ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
 };
@@ -350,8 +340,6 @@ const SUPPORT_EFFECTS_HAJIME_MASTER_FINAL = {
   motivation: [  // TODO
   ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
   strength: [  // TODO
-  ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
-  preservation: [  // TODO
   ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
   fullPower: [  // TODO
   ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
@@ -381,13 +369,6 @@ const SUPPORT_EFFECTS_NIA_PRO_FINALE = {
     "at:startOfTurn { if:turnsElapsed==7 & genki>=50 { setScoreBuff(0.25) }; limit:1 }",
   ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
   strength: [
-    "at:startOfTurn { if:turnsElapsed==0 { at:afterActiveCardUsed { if:isStrength { target:all { g.score+=2 } } } }; limit:1 }",
-    "at:startOfTurn { if:turnsElapsed==3 & strengthTimes>=2 { target:all { g.score+=13 } }; limit:1 }",
-    "at:startOfTurn { if:turnsElapsed==5 & cumulativeFullPowerCharge>=5 { target:all { g.score+=8 } }; limit:1 }",
-    "at:startOfTurn { if:turnsElapsed==7 & strengthTimes>=3 { setScoreBuff(0.25) }; limit:1 }",
-    "at:startOfTurn { if:turnsElapsed==9 & strengthTimes>=4 { setScoreBuff(0.5) }; limit:1 }",
-  ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
-  preservation: [
     "at:startOfTurn { if:turnsElapsed==0 { at:afterActiveCardUsed { if:isStrength { target:all { g.score+=2 } } } }; limit:1 }",
     "at:startOfTurn { if:turnsElapsed==3 & strengthTimes>=2 { target:all { g.score+=13 } }; limit:1 }",
     "at:startOfTurn { if:turnsElapsed==5 & cumulativeFullPowerCharge>=5 { target:all { g.score+=8 } }; limit:1 }",
@@ -436,13 +417,6 @@ const SUPPORT_EFFECTS_NIA_PRO_QUARTET = {
     "at:startOfTurn { if:turnsElapsed==7 & strengthTimes>=2 { setScoreBuff(0.25) }; limit:1 }",
     "at:startOfTurn { if:turnsElapsed==9 & strengthTimes>=3 { setScoreBuff(0.5) }; limit:1 }",
   ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
-  preservation: [
-    "at:startOfTurn { if:turnsElapsed==0 { at:mentalCardUsed { examCardUsed+=1 } }; limit:1 }",
-    "at:startOfTurn { if:turnsElapsed==0 { at:mentalCardUsed { if:examCardUsed%5==4 { target:all { g.score+=3 } } } }; limit:1 }",
-    "at:startOfTurn { if:turnsElapsed==3 & cumulativeFullPowerCharge>=5 { target:all { g.score+=5 } }; limit:1 }",
-    "at:startOfTurn { if:turnsElapsed==7 & strengthTimes>=2 { setScoreBuff(0.25) }; limit:1 }",
-    "at:startOfTurn { if:turnsElapsed==9 & strengthTimes>=3 { setScoreBuff(0.5) }; limit:1 }",
-  ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
   fullPower: [
     "at:startOfTurn { if:turnsElapsed==0 { at:mentalCardUsed { examCardUsed+=1 } }; limit:1 }",
     "at:startOfTurn { if:turnsElapsed==0 { at:mentalCardUsed { if:examCardUsed%5==4 { target:all { g.score+=3 } } } }; limit:1 }",
@@ -483,13 +457,6 @@ const SUPPORT_EFFECTS_NIA_PRO_GALAXY = {
     "at:startOfTurn { if:turnsElapsed==6 & preservationTimes>=2 { setScoreBuff(0.15) }; limit:1 }",
     "at:startOfTurn { if:turnsElapsed==8 & strengthTimes>=4 { setScoreBuff(0.2) }; limit:1 }",
   ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
-  preservation: [
-    "at:startOfTurn { if:turnsElapsed==0 { at:cardUsed { examCardUsed+=1 } }; limit:1 }",
-    "at:startOfTurn { if:turnsElapsed==0 { at:cardUsed { if:examCardUsed%3==2 { target:all { g.score+=2 } } } }; limit:1 }",
-    "at:startOfTurn { if:turnsElapsed==4 & cumulativeFullPowerCharge>=5 { target:all { g.score+=10 } }; limit:1 }",
-    "at:startOfTurn { if:turnsElapsed==6 & preservationTimes>=2 { setScoreBuff(0.15) }; limit:1 }",
-    "at:startOfTurn { if:turnsElapsed==8 & strengthTimes>=4 { setScoreBuff(0.2) }; limit:1 }",
-  ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
   fullPower: [
     "at:startOfTurn { if:turnsElapsed==0 { at:cardUsed { examCardUsed+=1 } }; limit:1 }",
     "at:startOfTurn { if:turnsElapsed==0 { at:cardUsed { if:examCardUsed%3==2 { target:all { g.score+=2 } } } }; limit:1 }",
@@ -518,11 +485,6 @@ const SUPPORT_EFFECTS_NIA_PRO_MELOBANG = {
     "at:startOfTurn { if:turnsElapsed==5 & motivation>=12 { setScoreBuff(0.15) }; limit:1 }",
   ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
   strength: [
-    "at:startOfTurn { if:turnsElapsed==0 { at:stanceChanged { if:isStrength { target:all { g.score+=2 } } } }; limit:1 }",
-    "at:startOfTurn { if:turnsElapsed==3 & strengthTimes>=1 { setScoreBuff(0.1) }; limit:1 }",
-    "at:startOfTurn { if:turnsElapsed==5 & strengthTimes>=2 { setScoreBuff(0.15) }; limit:1 }",
-  ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
-  preservation: [
     "at:startOfTurn { if:turnsElapsed==0 { at:stanceChanged { if:isStrength { target:all { g.score+=2 } } } }; limit:1 }",
     "at:startOfTurn { if:turnsElapsed==3 & strengthTimes>=1 { setScoreBuff(0.1) }; limit:1 }",
     "at:startOfTurn { if:turnsElapsed==5 & strengthTimes>=2 { setScoreBuff(0.15) }; limit:1 }",
@@ -557,12 +519,6 @@ const SUPPORT_EFFECTS_NIA_PRO_MUSICORDER = {
     "at:startOfTurn { if:turnsElapsed==5 & motivation>=12 { setScoreBuff(0.15) }; limit:1 }",
   ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
   strength: [
-    "at:startOfTurn { if:turnsElapsed==0 { at:cardUsed { examCardUsed+=1 } }; limit:1 }",
-    "at:startOfTurn { if:turnsElapsed==0 { at:cardUsed { if:examCardUsed%5==4 { target:all { g.score+=2 } } } }; limit:1 }",
-    "at:startOfTurn { if:turnsElapsed==3 & strengthTimes>=1 { setScoreBuff(0.15) }; limit:1 }",
-    "at:startOfTurn { if:turnsElapsed==5 & strengthTimes>=2 { setScoreBuff(0.15) }; limit:1 }",
-  ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
-  preservation: [
     "at:startOfTurn { if:turnsElapsed==0 { at:cardUsed { examCardUsed+=1 } }; limit:1 }",
     "at:startOfTurn { if:turnsElapsed==0 { at:cardUsed { if:examCardUsed%5==4 { target:all { g.score+=2 } } } }; limit:1 }",
     "at:startOfTurn { if:turnsElapsed==3 & strengthTimes>=1 { setScoreBuff(0.15) }; limit:1 }",
@@ -689,13 +645,6 @@ const SUPPORT_EFFECTS_HAJIME_LEGEND_FINAL = {
     "at:startOfTurn { if:turnsElapsed==6 & preservationTimes>=2 { target:all { g.score+=8 } }; limit:1 }",
     "at:startOfTurn { if:turnsElapsed==8 & strengthTimes>=4 { target:all { g.score+=15 } }; limit:1 }",
   ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
-  preservation: [
-    "at:startOfTurn { if:turnsElapsed==0 { setScoreBuff(0.2) }; limit:1 }",
-    "at:startOfTurn { if:turnsElapsed==2 & preservationTimes>=1 { target:all { g.score+=3 } }; limit:1 }",
-    "at:startOfTurn { if:turnsElapsed==4 & strengthTimes>=2 { target:all { g.score+=5 } }; limit:1 }",
-    "at:startOfTurn { if:turnsElapsed==6 & preservationTimes>=2 { target:all { g.score+=8 } }; limit:1 }",
-    "at:startOfTurn { if:turnsElapsed==8 & strengthTimes>=4 { target:all { g.score+=15 } }; limit:1 }",
-  ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
   fullPower: [
     "at:startOfTurn { if:turnsElapsed==0 { setScoreBuff(0.1) }; limit:1 }",
     "at:startOfTurn { if:turnsElapsed==2 & preservationTimes>=1 { fullPowerCharge+=5 }; limit:1 }",
@@ -726,12 +675,6 @@ const SUPPORT_EFFECTS_HAJIME_LEGEND_MID = {
     "at:startOfTurn { if:turnsElapsed==6 & motivation>=13 { genki+=7 }; limit:1 }",
   ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
   strength: [
-    "at:startOfTurn { if:turnsElapsed==0 { setScoreBuff(0.2) }; limit:1 }",
-    "at:startOfTurn { if:turnsElapsed==2 & strengthTimes>=1 { target:all { g.score+=2 } }; limit:1 }",
-    "at:startOfTurn { if:turnsElapsed==4 & preservationTimes>=2 { target:all { g.score+=4 } }; limit:1 }",
-    "at:startOfTurn { if:turnsElapsed==6 & strengthTimes>=2 { target:all { g.score+=7 } }; limit:1 }",
-  ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
-  preservation: [
     "at:startOfTurn { if:turnsElapsed==0 { setScoreBuff(0.2) }; limit:1 }",
     "at:startOfTurn { if:turnsElapsed==2 & strengthTimes>=1 { target:all { g.score+=2 } }; limit:1 }",
     "at:startOfTurn { if:turnsElapsed==4 & preservationTimes>=2 { target:all { g.score+=4 } }; limit:1 }",
@@ -795,7 +738,8 @@ export function getExamStage(stageId, pIdolId) {
     if (!pIdol) return stage;
     const examStage = deepCopy(stage);
     examStage.plan = pIdol.plan;
-    examStage.effects = SUPPORT_EFFECTS_BY_SEASON_STAGE_EFFECT[stage.season][stage.stage][pIdol.recommendedEffect];
+    const recommendedEffect = RECOMMENDED_EFFECT_MAPPINGS[pIdol.id] || pIdol.recommendedEffect;
+    examStage.effects = SUPPORT_EFFECTS_BY_SEASON_STAGE_EFFECT[stage.season][stage.stage][recommendedEffect];
     if (stage.season < 4) { // Hajime
       const criteria = CRITERIA_HAJIME_BY_IDOL[pIdol.idolId];
       examStage.criteria = { vocal: criteria[0], dance: criteria[1], visual: criteria[2] };

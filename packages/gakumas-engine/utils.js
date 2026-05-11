@@ -208,3 +208,9 @@ export function getBaseId(entity) {
   if (entity.upgraded) return entity.id - 1;
   return entity.id;
 }
+
+export const RECOMMENDED_EFFECT_MAPPINGS = {
+  91: "fullPower",
+  92: "strength",
+  93: "fullPower",
+};

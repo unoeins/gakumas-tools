@@ -11,6 +11,7 @@ import { fixCustomizations } from "@/utils/customizations";
 import { DEFAULTS } from "@/utils/simulator";
 import { deserializeIds } from "@/utils/ids";
 import { inferPIdolId, getExamStage } from "@/utils/exams";
+import { getIdolRoadStage } from "@/utils/idolRoad";
 
 const LoadoutContext = createContext();
 
@@ -63,6 +64,8 @@ export function LoadoutContextProvider({ children }) {
       stage = Stages.getById(stageId);
       if (stage.type == "exam") {
         stage = getExamStage(stageId, pIdolId);
+      } else if (stage.type === "idolRoad") {
+        stage = getIdolRoadStage(stageId, pIdolId);
       }
     }
     return stage;

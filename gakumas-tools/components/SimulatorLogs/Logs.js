@@ -39,6 +39,7 @@ const ADD_CARD_LOG_TYPES = {
   drawCard: "cardDrawn",
   addCardToHand: "addedCardToHand",
   addCardToTopOfDeck: "addedCardToTopOfDeck",
+  addCardToBottomOfDeck: "addedCardToBottomOfDeck",
   addCardToDeckAtRandom: "addedCardToDeckAtRandom",
   upgradeRandomCardInHand: "upgradedCard",
   growth: "cardGrowth",

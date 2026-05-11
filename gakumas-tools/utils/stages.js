@@ -1,7 +1,7 @@
 import { Stages } from "gakumas-data";
 import { FaLink } from "react-icons/fa6";
 
-const stageTypes = ["contest", "linkContest", "event", "exam"];
+const stageTypes = ["contest", "linkContest", "event", "exam", "idolRoad"];
 const latestSeasons = {};
 stageTypes.forEach((type) => {
   latestSeasons[type] = Math.max(
@@ -40,6 +40,10 @@ export function formatStageName(stage, t) {
     });
   } else if (stage.type == "exam") {
     stageName = stage.name;
+  } else if (stage.type === "idolRoad") {
+    stageName = t("idolRoadStageName", {
+      stage: stage.stage,
+    });
   }
   if (stage.preview) {
     stageName += "*";
@@ -64,6 +68,8 @@ export function formatStageShortName(stage, t) {
   } else if (stage.type == "exam") {
     const splitName = stage.name.split(" ");
     stageName = splitName[splitName.length - 1];
+  } else if (stage.type === "idolRoad") {
+    stageName = stage.name;
   }
   return stageName;
 }

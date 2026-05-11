@@ -141,6 +141,10 @@ export default class CardManager extends EngineComponent {
         this.useAllCardsFree(state, targetRule),
       removeRandom: (state, targetRule) =>
         this.removeCardByTarget(state, targetRule),
+      copySelectedToBottomOfDeck: (state, targetRule, num = 1) =>
+        this.copySelectedToBottomOfDeckByTarget(state, targetRule, parseInt(num, 10)),
+      copySelectedToBottomOfDeckUpto: (state, targetRule, num = 1) =>
+        this.copySelectedToBottomOfDeckByTarget(state, targetRule, parseInt(num, 10), true),
 
       // Legacy action aliases (keep for backward-compat during migration).
       moveToHand: (state, targetRule, num = 1) =>
@@ -1362,4 +1366,33 @@ export default class CardManager extends EngineComponent {
       });
     }
   }
+
+  copySelectedToBottomOfDeckByTarget(state, targetRule, num = 1, optional = false) {
+    if (state[S.nullifySelect]) return;
+
+    const targetCards = this.getTargetRuleCards(state, targetRule, null);
+    const cards = Array.from(targetCards);
+    if (!cards.length) return;
+
+    const indicesToCopy = this.engine.strategy.pickCardsToCopy(
+      state,
+      cards,
+      num,
+      optional,
+    );
+
+    if (indicesToCopy.length === 0) return;
+
+    for (let j = 0; j < indicesToCopy.length; j++) {
+      const skillCard = state[S.cardMap][cards[indicesToCopy[j]]];
+      
+      state[S.cardMap].push({...skillCard});
+      state[S.deckCards].unshift(state[S.cardMap].length - 1);
+      this.logger.log(state, "addCardToBottomOfDeck", {
+        type: "skillCard",
+        id: skillCard.id,
+      });
+    }
+  }
+
 }

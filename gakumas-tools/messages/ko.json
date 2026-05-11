@@ -294,11 +294,13 @@
     "linkContest": "링크 콘테스트",
     "event": "이벤트",
     "exam": "시험",
+    "idolRoad": "아이돌로드",
     "custom": "커스텀"
   },
   "StageSummary": {
     "contestStageName": "시즌 {season} - 스테이지 {stage}",
     "eventStageName": "{name} - 스테이지 {stage} - 라운드 {round}",
+    "idolRoadStageName": "아이돌로드 스테이지 {stage}",
     "custom": "커스텀",
     "activeSeason": "현재 시즌"
   },
@@ -456,6 +458,7 @@
     "setReservation": "발동 예약 부여",
     "addedCardToHand": "손패에 스킬 카드 생성",
     "addedCardToTopOfDeck": "스킬 카드를 덱 위에 생성",
+    "addedCardToBottomOfDeck": "스킬 카드를 덱의 가장 아래에 생성",
     "addedCardToDeckAtRandom": "스킬 카드를 덱의 랜덤한 위치에 생성",
     "upgradedCard": "스킬 카드를 레슨 중 강화",
     "cardGrowth": "스킬 카드 성장",

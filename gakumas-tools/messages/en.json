@@ -294,11 +294,13 @@
     "linkContest": "Link Contest",
     "event": "Event",
     "exam": "Exam",
+    "idolRoad": "Idol Road",
     "custom": "Custom"
   },
   "StageSummary": {
     "contestStageName": "Season {season} - Stage {stage}",
     "eventStageName": "{name} - Stage {stage} - Round {round}",
+    "idolRoadStageName": "Idol Road Stage {stage}",
     "custom": "Custom",
     "activeSeason": "Current season"
   },
@@ -488,6 +490,7 @@
     "setReservation": "Set reservation",
     "addedCardToHand": "Added card to hand",
     "addedCardToTopOfDeck": "Added card to top of deck",
+    "addedCardToBottomOfDeck": "Added card to bottom of deck",
     "addedCardToDeckAtRandom": "Added card to random position in deck",
     "upgradedCard": "Upgraded card",
     "cardGrowth": "Card growth",

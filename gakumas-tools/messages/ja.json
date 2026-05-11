@@ -294,11 +294,13 @@
     "linkContest": "リンクコンテスト",
     "event": "イベント",
     "exam": "試験",
+    "idolRoad": "アイドルへの道",
     "custom": "カスタム"
   },
   "StageSummary": {
     "contestStageName": "シーズン{season} ステージ{stage}",
     "eventStageName": "{name} ステージ{stage} {round}周目",
+    "idolRoadStageName": "アイドルへの道 STAGE{stage}",
     "custom": "カスタム",
     "activeSeason": "開催中のシーズン"
   },
@@ -488,6 +490,7 @@
     "setReservation": "発動予約付与",
     "addedCardToHand": "スキルカードを手札に生成",
     "addedCardToTopOfDeck": "スキルカードを山札の上に生成",
+    "addedCardToBottomOfDeck": "スキルカードを山札の一番下に生成",
     "addedCardToDeckAtRandom": "スキルカードを山札のランダムな位置に生成",
     "upgradedCard": "スキルカードをレッスン中強化",
     "cardGrowth": "スキルカードを成長",

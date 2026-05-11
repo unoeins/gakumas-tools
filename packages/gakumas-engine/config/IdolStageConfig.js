@@ -1,4 +1,5 @@
 import { calculateTypeMultipliers } from "../typeMultipliers";
+import { RECOMMENDED_EFFECT_MAPPINGS } from "../utils";
 
 const CONTEST_DEFAULT_CARD_IDS_BY_PLAN = {
   sense: [5, 7, 1, 1, 15, 15, 17, 17],
@@ -13,6 +14,15 @@ const EVENT_DEFAULT_CARD_IDS_BY_RECOMMENDED_EFFECT = {
   motivation: [21, 21, 11, 1, 1, 3, 13, 13],
   strength: [376, 376, 370, 1, 1, 368, 13, 13],
   fullPower: [370, 372, 1, 1, 374, 374, 376, 376], // TODO: Fix
+};
+
+const IDOL_ROAD_DEFAULT_CARD_IDS_BY_RECOMMENDED_EFFECT = {
+  goodConditionTurns: [642, 15],
+  concentration: [648, 17],
+  goodImpressionTurns: [674, 19],
+  motivation: [652, 21],
+  strength: [656, 376],
+  fullPower: [660, 376],
 };
 
 export default class IdolStageConfig {
@@ -46,6 +56,12 @@ export default class IdolStageConfig {
     const defaultCardSet = stageConfig.defaultCardSet || stageConfig.type;
     if (defaultCardSet == "event" && idolConfig.recommendedEffect) {
       return EVENT_DEFAULT_CARD_IDS_BY_RECOMMENDED_EFFECT[
+        RECOMMENDED_EFFECT_MAPPINGS[idolConfig.pIdolId] ||
+        idolConfig.recommendedEffect
+      ];
+    } else if (defaultCardSet == "idolRoad" && idolConfig.recommendedEffect) {
+      return IDOL_ROAD_DEFAULT_CARD_IDS_BY_RECOMMENDED_EFFECT[
+        RECOMMENDED_EFFECT_MAPPINGS[idolConfig.pIdolId] ||
         idolConfig.recommendedEffect
       ];
     } else if (idolConfig.plan) {

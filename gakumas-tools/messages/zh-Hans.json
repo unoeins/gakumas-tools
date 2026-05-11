@@ -294,11 +294,13 @@
     "linkContest": "Link Contest",
     "event": "活动",
     "exam": "考试",
+    "idolRoad": "偶像之路",
     "custom": "自定义"
   },
   "StageSummary": {
     "contestStageName": "第 {season} 赛季 - 第 {stage} 舞台",
     "eventStageName": "{name} - 第 {stage} 舞台 - {round} 回合",
+    "idolRoadStageName": "偶像之路 第 {stage} 舞台",
     "custom": "自定义",
     "activeSeason": "当前赛季"
   },
@@ -456,6 +458,7 @@
     "setReservation": "赋予发动预约",
     "addedCardToHand": "生成技能卡",
     "addedCardToTopOfDeck": "将技能卡生成至牌组顶端",
+    "addedCardToBottomOfDeck": "将技能卡生成至牌组底部",
     "addedCardToDeckAtRandom": "将技能卡生成至牌组随机位置",
     "upgradedCard": "临时强化技能卡",
     "cardGrowth": "强化技能卡",

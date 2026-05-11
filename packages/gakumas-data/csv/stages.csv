@@ -184,3 +184,4 @@ id,name,type,preview,season,stage,round,plan,criteria,turnCounts,firstTurns,effe
 10027,初レジェンド 中間試験,exam,FALSE,6,1,,free,"0.34,0.33,0.33","4,3,3","0.9,0.1,0",,
 10028,初レジェンド 最終試験,exam,FALSE,6,2,,free,"0.34,0.33,0.33","4,4,4","0.9,0.1,0",,
 20001,NEOスタジアム,event,FALSE,101,A,1,free,"0.34,0.33,0.33","4,3,3","0.9,0.1,0",,
+30024,STAGE24,idolRoad,FALSE,1,24,,free,"0.34,0.33,0.33","7,6,5","0.9,0.1,0",,
