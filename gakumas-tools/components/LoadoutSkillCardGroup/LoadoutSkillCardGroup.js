@@ -14,6 +14,7 @@ import {
 } from "react-icons/fa6";
 import { SkillCards } from "gakumas-data";
 import gkImg from "gakumas-images";
+import { RARITIES } from "gakumas-engine/constants";
 import Image from "@/components/Image";
 import MemoryPickerModal from "@/components/MemoryPickerModal";
 
@@ -70,6 +71,21 @@ function LoadoutSkillCardGroup({
             card,
           };
         }),
+    [skillCardIds],
+  );
+  const rarityBreakdown = useMemo(
+    () =>
+      skillCardIds
+        .filter((id) => id)
+        .reduce((acc, cur) => {
+          const card = SkillCards.getById(cur);
+          if (!acc[card.rarity]) {
+            acc[card.rarity] = 1
+          } else {
+            acc[card.rarity] += 1;
+          }
+          return acc;
+        }, {}),
     [skillCardIds],
   );
 
@@ -203,7 +219,7 @@ function LoadoutSkillCardGroup({
         </button>
       </div>
 
-      {costExpanded && (
+      {costExpanded && !isExam && (
         <ul className={styles.costBreakdown} data-export-hide="true">
           {costBreakdown.map((item, i) => (
             <li key={`${i}_${item.id}`}>
@@ -215,6 +231,16 @@ function LoadoutSkillCardGroup({
               />
               <span className={styles.breakdownName}>{item.name}</span>
               <span className={styles.breakdownCost}>{item.cost}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      {costExpanded && isExam && (
+        <ul className={styles.costBreakdown} data-export-hide="true">
+          {RARITIES.map((rarity) => (
+            <li key={rarity}>
+              <span className={styles.breakdownName}>{rarity}</span>
+              <span className={styles.breakdownCost}>{rarityBreakdown[rarity] || 0}</span>
             </li>
           ))}
         </ul>
