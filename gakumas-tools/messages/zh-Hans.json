@@ -354,7 +354,8 @@
     "addRow": "添加行",
     "moveUp": "上移",
     "moveDown": "下移",
-    "removeRow": "删除行"
+    "removeRow": "删除行",
+    "sort": "排序"
   },
   "SimulatorSubTools": {
     "costRanges": "容量范围",

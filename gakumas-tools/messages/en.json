@@ -354,7 +354,8 @@
     "addRow": "Add row",
     "moveUp": "Move up",
     "moveDown": "Move down",
-    "removeRow": "Remove row"
+    "removeRow": "Remove row",
+    "sort": "Sort"
   },
   "SimulatorSubTools": {
     "costRanges": "Cost ranges",

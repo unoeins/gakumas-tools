@@ -354,7 +354,8 @@
     "addRow": "행 추가",
     "moveUp": "위로 이동",
     "moveDown": "아래로 이동",
-    "removeRow": "행 삭제"
+    "removeRow": "행 삭제",
+    "sort": "정렬"
   },
   "SimulatorSubTools": {
     "costRanges": "코스트 범위",

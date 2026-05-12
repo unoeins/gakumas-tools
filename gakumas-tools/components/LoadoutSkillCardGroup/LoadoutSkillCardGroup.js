@@ -11,12 +11,14 @@ import {
   FaImage,
   FaFilm,
   FaPercent,
+  FaSort,
 } from "react-icons/fa6";
 import { SkillCards } from "gakumas-data";
 import gkImg from "gakumas-images";
 import { RARITIES } from "gakumas-engine/constants";
 import Image from "@/components/Image";
 import MemoryPickerModal from "@/components/MemoryPickerModal";
+import { compareMemorySkillCards } from "@/utils/sort";
 
 const MemoryImporterModal = dynamic(
   () => import("@/components/MemoryImporterModal"),
@@ -50,6 +52,8 @@ function LoadoutSkillCardGroup({
     insertSkillCardIdGroup,
     deleteSkillCardIdGroup,
     swapSkillCardIdGroups,
+    setSkillCardIdGroups,
+    setCustomizationGroups,
   } = useContext(LoadoutContext);
   const { setTargetSkillCardIds, setAcquiredSkillCardIds } = useContext(
     MemoryCalculatorContext,
@@ -130,6 +134,40 @@ function LoadoutSkillCardGroup({
           data-export-hide="true"
         >
           <button
+            className={styles.sortButton}
+            onClick={() => {
+              const skillAndCustomizations = skillCardIds.map(
+                (id, i) => ({
+                  card: SkillCards.getById(id),
+                  skillCardId: id,
+                  customizations: customizations?.[i],
+                }),
+              );
+              skillAndCustomizations.sort((a, b) => {
+                if (!a.card) return 1;
+                if (!b.card) return -1;
+                return compareMemorySkillCards(a.card, b.card);
+              });
+              setSkillCardIdGroups((groups) => {
+                const newGroups = [...groups];
+                newGroups[groupIndex] = skillAndCustomizations.map(
+                  (sc) => sc.skillCardId
+                );
+                return newGroups;
+              });
+              setCustomizationGroups((groups) => {
+                const newGroups = [...groups];
+                newGroups[groupIndex] = skillAndCustomizations.map(
+                  (sc) => sc.customizations
+                );
+                return newGroups;
+              });
+            }}
+          >
+            <FaSort title={t("sort")} />
+          </button>
+
+          <button
             className={styles.memoryCalculatorButton}
             onClick={() => {
               const nonPidolSkillCardIds = skillCardIds.filter(
@@ -158,22 +196,22 @@ function LoadoutSkillCardGroup({
                 </button>
               )}
 
-          <button
-            className={styles.importButton}
-            onClick={() =>
-              setModal(
-                <MemoryImporterModal
-                  multiple={false}
-                  onSuccess={(memories) => {
-                    setMemory(memories[0], groupIndex);
-                    closeModal();
-                  }}
-                />,
-              )
-            }
-          >
-            <FaImage title={t("importMemory")} />
-          </button>
+              <button
+                className={styles.importButton}
+                onClick={() =>
+                  setModal(
+                    <MemoryImporterModal
+                      multiple={false}
+                      onSuccess={(memories) => {
+                        setMemory(memories[0], groupIndex);
+                        closeModal();
+                      }}
+                    />,
+                  )
+                }
+              >
+                <FaImage title={t("importMemory")} />
+              </button>
 
               <button
                 className={styles.addButton}

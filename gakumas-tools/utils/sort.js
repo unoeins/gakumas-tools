@@ -147,3 +147,54 @@ export function compareUnfilteredMemories(a, b) {
     return b.contestPower - a.contestPower;
   }
 }
+
+export const MEMORY_RARITY_VALUES = {
+  N: 0,
+  R: 1,
+  SR: 2,
+  SSR: 3,
+  L: 4,
+  T: 5,
+};
+
+const MEMORY_SOURCE_TYPE_VALUES = {
+  pIdol: 0,
+  support: 1,
+  default: 2,
+  produce: 3,
+};
+
+const MEMORY_PLAN_VALUES = {
+  free: 0,
+  sense: 1,
+  logic: 2,
+  anomaly: 3,
+};
+
+const MEMORY_TYPE_VALUES = {
+  active: 0,
+  mental: 1,
+  trouble: 2,
+};
+
+export function compareMemorySkillCards(a, b) {
+  if (a.sourceType != b.sourceType) {
+    return MEMORY_SOURCE_TYPE_VALUES[a.sourceType] - MEMORY_SOURCE_TYPE_VALUES[b.sourceType];
+  }
+  if (a.rarity != b.rarity) {
+    return MEMORY_RARITY_VALUES[a.rarity] - MEMORY_RARITY_VALUES[b.rarity];
+  }
+  if (a.type != b.type) {
+    return MEMORY_TYPE_VALUES[a.type] - MEMORY_TYPE_VALUES[b.type];
+  }
+  if (a.plan != b.plan) {
+    return MEMORY_PLAN_VALUES[a.plan] - MEMORY_PLAN_VALUES[b.plan];
+  }
+  if (a.unlockPlv != b.unlockPlv) {
+    return a.unlockPlv - b.unlockPlv;
+  }
+  if (a.pIdolId != b.pIdolId) {
+    return a.pIdolId - b.pIdolId;
+  }
+  return a.id - b.id;
+}

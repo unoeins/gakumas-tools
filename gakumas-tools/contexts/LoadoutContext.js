@@ -813,6 +813,8 @@ export function LoadoutContextProvider({ children }) {
         setLoadouts,
         currentLoadoutIndex,
         setCurrentLoadoutIndex,
+        setSkillCardIdGroups,
+        setCustomizationGroups,
       }}
     >
       {children}
