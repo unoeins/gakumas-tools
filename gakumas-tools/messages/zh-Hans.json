@@ -360,6 +360,8 @@
   "SimulatorSubTools": {
     "costRanges": "容量范围",
     "defaultCards": "基本卡组",
+    "initialCards": "初始卡组",
+    "addCards": "添加技能卡",
     "extensions": "扩展功能"
   },
   "CostRanges": {

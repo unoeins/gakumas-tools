@@ -25,6 +25,24 @@ const IDOL_ROAD_DEFAULT_CARD_IDS_BY_RECOMMENDED_EFFECT = {
   fullPower: [660, 376],
 };
 
+const HAJIME_NIA_INITIAL_CARD_IDS_BY_RECOMMENDED_EFFECT = {
+  goodConditionTurns: [15, 15, 5, 1, 1, 3, 13, 13],
+  concentration: [17, 17, 7, 1, 1, 3, 13, 13],
+  goodImpressionTurns: [19, 19, 9, 1, 1, 3, 13, 13],
+  motivation: [21, 21, 11, 1, 1, 3, 13, 13],
+  strength: [376, 376, 370, 1, 1, 368, 13, 13],
+  fullPower: [374, 374, 372, 1, 1, 376, 13, 13],
+};
+
+const HAJIME_LEGEND_INITIAL_CARD_IDS_BY_RECOMMENDED_EFFECT = {
+  goodConditionTurns: [642, 644, 644, 664, 666, 670],
+  concentration: [648, 646, 646, 666, 668, 670],
+  goodImpressionTurns: [674, 650, 650, 672, 672, 676],
+  motivation: [652, 654, 678, 678, 678, 680],
+  strength: [656, 658, 658, 682, 682, 684],
+  fullPower: [660, 662, 662, 686, 686, 688],
+};
+
 export default class IdolStageConfig {
   constructor(idolConfig, stageConfig, enterPercents, simulatorConfig = {}) {
     this.idol = idolConfig;
@@ -36,6 +54,7 @@ export default class IdolStageConfig {
       enterPercents
     );
     this.defaultCardIds = this.getDefaultCardIds(idolConfig, stageConfig);
+    this.initialCardIds = this.getInitialCardIds(idolConfig, stageConfig);
   }
 
   calculateTypeMultipliers(idolConfig, stageConfig, enterPercents) {
@@ -70,6 +89,21 @@ export default class IdolStageConfig {
       return CONTEST_DEFAULT_CARD_IDS_BY_PLAN[stageConfig.plan];
     } else {
       return CONTEST_DEFAULT_CARD_IDS_BY_PLAN.sense;
+    }
+  }
+
+  getInitialCardIds(idolConfig, stageConfig) {
+    if (stageConfig.type !== "exam") {
+      return null;
+    }
+    const recommendedEffect = 
+      RECOMMENDED_EFFECT_MAPPINGS[idolConfig.pIdolId] ||
+      idolConfig.recommendedEffect ||
+      "goodConditionTurns";
+    if (stageConfig.season < 6) { // Hajime (not Legend) and NIA
+      return HAJIME_NIA_INITIAL_CARD_IDS_BY_RECOMMENDED_EFFECT[recommendedEffect];
+    } else { // Hajime Legend
+      return HAJIME_LEGEND_INITIAL_CARD_IDS_BY_RECOMMENDED_EFFECT[recommendedEffect];
     }
   }
 }

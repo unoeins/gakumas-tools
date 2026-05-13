@@ -360,6 +360,8 @@
   "SimulatorSubTools": {
     "costRanges": "Cost ranges",
     "defaultCards": "Default cards",
+    "initialCards": "Initial cards",
+    "addCards": "Add skill cards",
     "extensions": "Extensions"
   },
   "CostRanges": {

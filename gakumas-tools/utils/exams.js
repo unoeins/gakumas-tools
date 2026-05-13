@@ -752,7 +752,7 @@ export function getExamStage(stageId, pIdolId) {
       examStage.criteria = { vocal: criteria[0], dance: criteria[1], visual: criteria[2] };
       const firstTurns = FIRST_TURNS_NIA_BY_TERM_IDOL[stage.stage == 1 ? 1 : 2][pIdol.idolId];
       examStage.firstTurns = { vocal: firstTurns[0], dance: firstTurns[1], visual: firstTurns[2] };
-      if (stage.season < 7) { // NIA
+      if (stage.season < 6) { // NIA
         const turnCounts = TURN_COUNTS_NIA_BY_TERM_IDOL[stage.stage == 1 ? 1 : 2][pIdol.idolId];
         examStage.turnCounts = { vocal: turnCounts[0], dance: turnCounts[1], visual: turnCounts[2] };
       } else { // Hajime Legend

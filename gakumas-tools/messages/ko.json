@@ -360,6 +360,8 @@
   "SimulatorSubTools": {
     "costRanges": "코스트 범위",
     "defaultCards": "기본 카드",
+    "initialCards": "초기 카드",
+    "addCards": "스킬 카드 추가",
     "extensions": "확장 기능"
   },
   "CostRanges": {

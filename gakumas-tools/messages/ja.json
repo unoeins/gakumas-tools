@@ -360,6 +360,8 @@
   "SimulatorSubTools": {
     "costRanges": "コスト範囲",
     "defaultCards": "基本カード",
+    "initialCards": "初期カード",
+    "addCards": "スキルカードを追加",
     "extensions": "拡張機能"
   },
   "CostRanges": {
