@@ -176,13 +176,16 @@ export default class CardManager extends EngineComponent {
     return null;
   }
 
-  pickRandomCardIndex(state, cards, isRawId = false) {
-    if (cards.length === 1) return 0;
+  pickRandomCardIndex(state, cards, size, isRawId = false) {
+    if (size === 1) return 0;
     if (this.getConfig(state).simulator.enableSelectRandomCards &&
         !state[S.nullifySelect]) {
+      if (typeof cards === "function") {
+        cards = cards(state);
+      }
       return this.engine.strategy.pickRandomCard(state, cards, isRawId);
     } else {
-      return Math.floor(getRand(state) * cards.length);
+      return Math.floor(getRand(state) * size);
     }
   }
 
@@ -750,7 +753,8 @@ export default class CardManager extends EngineComponent {
       }
     }
     if (!unupgradedCards.length) return;
-    const randomCard = unupgradedCards[this.pickRandomCardIndex(state, unupgradedCards)];
+    const randomCard = unupgradedCards[
+      this.pickRandomCardIndex(state, unupgradedCards, unupgradedCards.length)];
     this.upgrade(state, randomCard);
     this.logger.log(state, "upgradeRandomCardInHand", {
       type: "skillCard",
@@ -766,9 +770,12 @@ export default class CardManager extends EngineComponent {
       plans: [this.getConfig(state).idol.plan, "free"],
       sourceTypes: ["produce"],
     }).filter((card) => card.upgraded);
-    const skillCard = validSkillCards[
-      this.pickRandomCardIndex(state, validSkillCards.map((c) => c.id), true)
-    ];
+    const skillCard = validSkillCards[this.pickRandomCardIndex(
+      state,
+      () => validSkillCards.map((c) => c.id),
+      validSkillCards.length,
+      true,
+    )];
     state[S.cardMap].push({
       id: skillCard.id,
       baseId: getBaseId(skillCard),
@@ -852,7 +859,11 @@ export default class CardManager extends EngineComponent {
 
     if (!matchingCards.length) return;
 
-    const pick = matchingCards[this.pickRandomCardIndex(state, matchingCards.map((c) => c.cardIdx))];
+    const pick = matchingCards[this.pickRandomCardIndex(
+      state,
+      () => matchingCards.map((c) => c.cardIdx),
+      matchingCards.length,
+    )];
     state[pick.pile].splice(pick.index, 1);
     state[S.handCards].push(pick.cardIdx);
 
@@ -883,7 +894,11 @@ export default class CardManager extends EngineComponent {
 
     if (!matchingCards.length) return;
 
-    const pick = matchingCards[this.pickRandomCardIndex(state, matchingCards.map((c) => c.cardIdx))];
+    const pick = matchingCards[this.pickRandomCardIndex(
+      state,
+      () => matchingCards.map((c) => c.cardIdx),
+      matchingCards.length,
+    )];
     state[pick.pile].splice(pick.index, 1);
     state[S.handCards].push(pick.cardIdx);
 
@@ -1070,7 +1085,7 @@ export default class CardManager extends EngineComponent {
     const targetCards = this.getTargetRuleCards(state, targetRule);
     if (!targetCards.size) return;
     const cards = Array.from(targetCards);
-    const card = cards[this.pickRandomCardIndex(state, cards)];
+    const card = cards[this.pickRandomCardIndex(state, cards, cards.length)];
     const pile = this.findCardPile(state, card);
     if (!pile) return;
     state[S.freeCardUses]++;
@@ -1132,7 +1147,11 @@ export default class CardManager extends EngineComponent {
     }
 
     if (!candidates.length) return;
-    const pick = candidates[this.pickRandomCardIndex(state, candidates.map((c) => c.cardIdx))];
+    const pick = candidates[this.pickRandomCardIndex(
+      state,
+      () => candidates.map((c) => c.cardIdx),
+      candidates.length,
+    )];
     state[pick.pile].splice(pick.index, 1);
     state[S.removedCards].push(pick.cardIdx);
     this.logger.log(state, "removeCard", {
@@ -1198,7 +1217,7 @@ export default class CardManager extends EngineComponent {
     const cards = Array.from(targetCards);
     if (!cards.length) return;
     for (let j = 0; j < num && cards.length > 0; j++) {
-      const pickIndex = this.pickRandomCardIndex(state, cards);
+      const pickIndex = this.pickRandomCardIndex(state, cards, cards.length);
       const cardIdx = cards.splice(pickIndex, 1)[0];
       for (let i = 0; i < CARD_PILES.length; i++) {
         const pileIdx = state[CARD_PILES[i]].indexOf(cardIdx);
@@ -1278,7 +1297,11 @@ export default class CardManager extends EngineComponent {
     for (let j = 0; j < num && candidates.length; j++) {
       if (state[S.handCards].length >= 5) break;
 
-      const pickIndex = this.pickRandomCardIndex(state, candidates.map((c) => c.cardIdx));
+      const pickIndex = this.pickRandomCardIndex(
+        state,
+        () => candidates.map((c) => c.cardIdx),
+        candidates.length,
+      );
       const pick = candidates.splice(pickIndex, 1)[0];
       this.moveCardBetweenPiles(state, pick, S.handCards, candidates);
 
@@ -1311,7 +1334,11 @@ export default class CardManager extends EngineComponent {
 
     if (!matchingCards.length) return;
 
-    const pick = matchingCards[this.pickRandomCardIndex(state, matchingCards.map((c) => c.cardIdx))];
+    const pick = matchingCards[this.pickRandomCardIndex(
+      state,
+      () => matchingCards.map((c) => c.cardIdx),
+      matchingCards.length,
+    )];
     state[pick.pile].splice(pick.index, 1);
     state[S.deckCards].push(pick.cardIdx);
 
@@ -1331,7 +1358,11 @@ export default class CardManager extends EngineComponent {
     ]);
 
     for (let j = 0; j < num && candidates.length; j++) {
-      const pickIndex = this.pickRandomCardIndex(state, candidates.map((c) => c.cardIdx));
+      const pickIndex = this.pickRandomCardIndex(
+        state,
+        () => candidates.map((c) => c.cardIdx),
+        candidates.length,
+      );
       const pick = candidates.splice(pickIndex, 1)[0];
       this.moveCardBetweenPiles(state, pick, S.deckCards, candidates);
       state[S.movedCard] = pick.cardIdx;
