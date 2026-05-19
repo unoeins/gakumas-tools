@@ -85,6 +85,7 @@ export default class CardManager extends EngineComponent {
         this.addCardToTopOfDeck(state, cardId),
       addCardToDeck: (state, cardId) => this.addCardToDeck(state, cardId),
       addCardToHand: (state, cardId) => this.addCardToHand(state, cardId),
+      addCardToDiscarded: (state, cardId) => this.addCardToDiscarded(state, cardId),
       moveCardToTopOfDeck: (state, cardId, exact) =>
         this.moveCardToTopOfDeck(state, cardId, parseInt(exact, 10)),
       moveCardToHand: (state, cardId, exact) =>
@@ -127,6 +128,8 @@ export default class CardManager extends EngineComponent {
         this.moveToTopOfDeckByTarget(state, targetRule, parseInt(num, 10)),
       moveAllToTopOfDeck: (state, targetRule) =>
         this.moveAllToTopOfDeckByTarget(state, targetRule),
+      moveAllToBottomOfDeck: (state, targetRule) =>
+        this.moveAllToBottomOfDeckByTarget(state, targetRule),
       moveAllToDeck: (state, targetRule) =>
         this.moveToDeckByTarget(state, targetRule),
       holdRandom: (state, targetRule, num = 1) =>
@@ -141,6 +144,8 @@ export default class CardManager extends EngineComponent {
         this.useAllCardsFree(state, targetRule),
       removeRandom: (state, targetRule) =>
         this.removeCardByTarget(state, targetRule),
+      removeAll: (state, targetRule) =>
+        this.removeAllCardsByTarget(state, targetRule),
       copySelectedToBottomOfDeck: (state, targetRule, num = 1) =>
         this.copySelectedToBottomOfDeckByTarget(state, targetRule, parseInt(num, 10)),
       copySelectedToBottomOfDeckUpto: (state, targetRule, num = 1) =>
@@ -416,6 +421,20 @@ export default class CardManager extends EngineComponent {
     if (state[S.noCardUseTurns]) return false;
     if (state[S.noActiveTurns] && skillCard.type == "active") return false;
     if (state[S.noMentalTurns] && skillCard.type == "mental") return false;
+
+    const noUseEffects = [
+      {debuff: "noGoodConditionTurnsTurns", effect: "goodConditionTurns"},
+      {debuff: "noConcentrationTurns", effect: "concentration"},
+      {debuff: "noGoodImpressionTurnsTurns", effect: "goodImpressionTurns"},
+      {debuff: "noMotivationTurns", effect: "motivation"},
+      {debuff: "noStrengthTurns", effect: "strength"},
+      {debuff: "noFullPowerChargeTurns", effect: "fullPowerCharge"},
+    ];
+    for (const { debuff, effect } of noUseEffects) {
+      if (state[S[debuff]] && this.getCardEffects(state, card).has(effect)) {
+        return false;
+      }
+    }
 
     const conditions = this.getLines(state, card, "conditions")
       .map((c) => c.conditions)
@@ -841,6 +860,20 @@ export default class CardManager extends EngineComponent {
     });
   }
 
+  addCardToDiscarded(state, cardId) {
+    const skillCard = SkillCards.getById(cardId);
+
+    state[S.cardMap].push({
+      id: skillCard.id,
+      baseId: getBaseId(skillCard),
+    });
+    state[S.discardedCards].push(state[S.cardMap].length - 1);
+    this.logger.log(state, "addCardToDiscarded", {
+      type: "skillCard",
+      id: skillCard.id,
+    });
+  }
+
   moveCardToHand(state, cardId, exact) {
     if (state[S.handCards].length >= 5) return;
 
@@ -1160,6 +1193,31 @@ export default class CardManager extends EngineComponent {
     });
   }
 
+  removeAllCardsByTarget(state, targetRule) {
+    const targetCards = this.getTargetRuleCards(state, targetRule, null);
+    const piles = [S.deckCards, S.discardedCards, S.handCards];
+
+    let candidates = [];
+    for (let pile of piles) {
+      for (let i = 0; i < state[pile].length; i++) {
+        const cardIdx = state[pile][i];
+        if (targetCards.has(cardIdx)) {
+          candidates.push({ pile, index: i, cardIdx });
+        }
+      }
+    }
+    // Move in reverse-pile-index order to keep splicing indices valid.
+    candidates.sort((a, b) => (a.pile === b.pile ? b.index - a.index : 0));
+    for (const pick of candidates) {
+      state[pick.pile].splice(pick.index, 1);
+      state[S.removedCards].push(pick.cardIdx);
+      this.logger.log(state, "removeCard", {
+        type: "skillCard",
+        id: state[S.cardMap][pick.cardIdx].id,
+      });
+    }
+  }
+
   moveAllToHandByTarget(state, targetRule) {
     const targetCards = this.getTargetRuleCards(state, targetRule, null);
     const piles = [S.deckCards, S.discardedCards, S.removedCards];
@@ -1191,7 +1249,7 @@ export default class CardManager extends EngineComponent {
 
   moveAllToTopOfDeckByTarget(state, targetRule) {
     const targetCards = this.getTargetRuleCards(state, targetRule, null);
-    const piles = [S.deckCards, S.discardedCards, S.removedCards];
+    const piles = [S.handCards, S.deckCards, S.discardedCards, S.removedCards];
     let candidates = [];
     for (let pile of piles) {
       for (let i = 0; i < state[pile].length; i++) {
@@ -1206,6 +1264,29 @@ export default class CardManager extends EngineComponent {
       state[S.deckCards].push(pick.cardIdx);
       state[S.movedCard] = pick.cardIdx;
       this.logger.log(state, "moveCardToTopOfDeck", {
+        type: "skillCard",
+        id: state[S.cardMap][pick.cardIdx].id,
+      });
+    }
+  }
+
+  moveAllToBottomOfDeckByTarget(state, targetRule) {
+    const targetCards = this.getTargetRuleCards(state, targetRule, null);
+    const piles = [S.handCards, S.deckCards, S.discardedCards, S.removedCards];
+    let candidates = [];
+    for (let pile of piles) {
+      for (let i = 0; i < state[pile].length; i++) {
+        const cardIdx = state[pile][i];
+        if (targetCards.has(cardIdx))
+          candidates.push({ pile, index: i, cardIdx });
+      }
+    }
+    candidates.sort((a, b) => (a.pile === b.pile ? b.index - a.index : 0));
+    for (const pick of candidates) {
+      state[pick.pile].splice(pick.index, 1);
+      state[S.deckCards].unshift(pick.cardIdx);
+      state[S.movedCard] = pick.cardIdx;
+      this.logger.log(state, "moveCardToBottomOfDeck", {
         type: "skillCard",
         id: state[S.cardMap][pick.cardIdx].id,
       });

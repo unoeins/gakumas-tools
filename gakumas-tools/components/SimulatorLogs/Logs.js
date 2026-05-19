@@ -33,11 +33,13 @@ const TILE_LOG_TYPES = {
   upgradeHand: "upgradedHand",
   exchangeHand: "exchangedHand",
   linkPhaseChange: "linkPhaseChange",
+  incrementPIdolPItemLimit: "incrementPIdolPItemLimit",
 };
 
 const ADD_CARD_LOG_TYPES = {
   drawCard: "cardDrawn",
   addCardToHand: "addedCardToHand",
+  addCardToDiscarded: "addedCardToDiscarded",
   addCardToTopOfDeck: "addedCardToTopOfDeck",
   addCardToBottomOfDeck: "addedCardToBottomOfDeck",
   addCardToDeckAtRandom: "addedCardToDeckAtRandom",
@@ -47,6 +49,7 @@ const ADD_CARD_LOG_TYPES = {
   discardCard: "discardedCard",
   moveCardToHand: "movedCardToHand",
   moveCardToTopOfDeck: "movedCardToTopOfDeck",
+  moveCardToBottomOfDeck: "movedCardToBottomOfDeck",
   moveCardToDeckAtRandom: "movedCardToDeckAtRandom",
   removeCard: "removedCard",
 };

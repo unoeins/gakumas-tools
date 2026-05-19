@@ -58,6 +58,12 @@ function StateViewer({ state, idolId, plan }) {
     {name: "cardUsesRemaining", type: "number"},
     {name: "noActiveTurns", type: "number", style: "debuff"},
     {name: "noMentalTurns", type: "number", style: "debuff"},
+    {name: "noGoodConditionTurnsTurns", type: "number", style: "debuff"},
+    {name: "noConcentrationTurns", type: "number", style: "debuff"},
+    {name: "noGoodImpressionTurnsTurns", type: "number", style: "debuff"},
+    {name: "noMotivationTurns", type: "number", style: "debuff"},
+    {name: "noStrengthTurns", type: "number", style: "debuff"},
+    {name: "noFullPowerChargeTurns", type: "number", style: "debuff"},
     {name: "uneaseTurns", type: "number", style: "debuff"},
     {name: "slumpTurns", type: "number", style: "debuff"},
   ];

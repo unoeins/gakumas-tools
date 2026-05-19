@@ -49,6 +49,21 @@ const FIRST_TURNS_BY_IDOL = {
 };
 
 const TURN_COUNTS_BY_TURNS_IDOL = {
+  17: { // STAGE 22
+    1: [5, 5, 7],
+    2: [8, 5, 4],
+    3: [3, 8, 6],
+    4: [8, 3, 7],
+    5: [5, 5, 7],
+    6: [4, 8, 5],
+    7: [4, 8, 5],
+    8: [7, 5, 5],
+    9: [5, 5, 7],
+    10: [5, 7, 5],
+    11: [5, 5, 7],
+    12: [8, 4, 5],
+    13: [5, 9, 3],
+  },
   18: { // STAGE 24
     1: [5, 6, 7],
     2: [8, 6, 4],
@@ -74,6 +89,75 @@ function addSupportEffectSource(effect) {
 }
 
 const SUPPORT_EFFECTS_BY_STAGE_EFFECT = {
+  22: {
+    goodConditionTurns: [
+      "at:goodConditionTurnsIncreased { if:isDirectEffect { addCardToDiscarded(23) } }",
+      "at:startOfTurn { if:countCards[T & (deck | discarded)]>=7 { incrementPIdolPItemLimit; removeAll[T]; limit:10 } }",
+
+      "at:startOfTurn { if:turnsElapsed==1 & goodConditionTurns<1 { noGoodConditionTurnsTurns+=3 }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==3 & goodConditionTurns>=3 { cardUsesRemaining+=1 }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==6 & goodConditionTurns>=6 { cardUsesRemaining+=1 }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==8 & goodConditionTurns>=8 { moveAllToBottomOfDeck[removed & (SR | SSR)] }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==11 & goodConditionTurns>=15 { setScoreBuff(2) }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==14 & goodConditionTurns>=18 { at:endOfTurn { score+=30 } }; limit:1 }",
+    ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
+    concentration: [
+      "at:concentrationIncreased { if:isDirectEffect { addCardToDiscarded(23) } }",
+      "at:startOfTurn { if:countCards[T & (deck | discarded)]>=7 { incrementPIdolPItemLimit; removeAll[T]; limit:10 } }",
+
+      "at:startOfTurn { if:turnsElapsed==1 & concentration<1 { noConcentrationTurns+=3 }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==3 & concentration>=3 { cardUsesRemaining+=1 }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==6 & concentration>=7 { cardUsesRemaining+=1 }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==8 & concentration>=10 { moveAllToBottomOfDeck[removed & (SR | SSR)] }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==11 & concentration>=17 { setScoreBuff(2) }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==14 & concentration>=21 { at:endOfTurn { score+=10; score+=10 } }; limit:1 }",
+    ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
+    goodImpressionTurns: [
+      "at:goodImpressionTurnsIncreased { if:isDirectEffect { addCardToDiscarded(23) } }",
+      "at:startOfTurn { if:countCards[T & (deck | discarded)]>=7 { incrementPIdolPItemLimit; removeAll[T]; limit:10 } }",
+
+      "at:startOfTurn { if:turnsElapsed==1 & goodImpressionTurns<=1 { noGoodImpressionTurnsTurns+=3 }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==3 & goodImpressionTurns>=4 { cardUsesRemaining+=1 }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==6 & goodImpressionTurns>=8 { cardUsesRemaining+=1 }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==8 & goodImpressionTurns>=12 { moveAllToBottomOfDeck[removed & (SR | SSR)] }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==11 & goodImpressionTurns>=21 { setScoreBuff(2) }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==14 & goodImpressionTurns>=25 { at:endOfTurn { score+=goodImpressionTurns } }; limit:1 }",
+    ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
+    motivation: [
+      "at:motivationIncreased { if:isDirectEffect { addCardToDiscarded(23) } }",
+      "at:startOfTurn { if:countCards[T & (deck | discarded)]>=7 { incrementPIdolPItemLimit; removeAll[T]; limit:10 } }",
+
+      "at:startOfTurn { if:turnsElapsed==1 & motivation<=1 { noMotivationTurns+=3 }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==3 & motivation>=5 { cardUsesRemaining+=1 }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==6 & motivation>=11 { cardUsesRemaining+=1 }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==8 & motivation>=19 { moveAllToBottomOfDeck[removed & (SR | SSR)] }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==11 & motivation>=25 { setScoreBuff(2) }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==14 & motivation>=31 { at:endOfTurn { score+=genki*1.2 } }; limit:1 }",
+    ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
+    strength: [
+      "at:stanceChanged { if:isDirectEffect { addCardToDiscarded(23) } }",
+      "at:startOfTurn { if:countCards[T & (deck | discarded)]>=7 { incrementPIdolPItemLimit; removeAll[T]; limit:10 } }",
+
+      "at:startOfTurn { if:turnsElapsed==1 & !isPreservation { noStrengthTurns+=3 }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==3 & stanceChangedTimes>=2 { cardUsesRemaining+=1 }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==6 & stanceChangedTimes>=5 { cardUsesRemaining+=1 }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==8 & stanceChangedTimes>=7 { moveAllToBottomOfDeck[removed & (SR | SSR)] }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==11 & stanceChangedTimes>=11 { setScoreBuff(2) }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==14 & stanceChangedTimes>=14 { target:all { g.scoreTimes+=1 } }; limit:1 }",
+    ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
+    fullPower: [
+      "at:fullPowerChargeIncreased { if:isDirectEffect { addCardToDiscarded(23) } }",
+      "at:startOfTurn { if:countCards[T & (deck | discarded)]>=7 { incrementPIdolPItemLimit; removeAll[T]; limit:10 } }",
+
+      "at:startOfTurn { if:turnsElapsed==1 & !isPreservation { noFullPowerChargeTurns+=3 }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==3 & cumulativeFullPowerCharge>=2 { cardUsesRemaining+=1 }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==6 & cumulativeFullPowerCharge>=5 { cardUsesRemaining+=1 }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==8 & cumulativeFullPowerCharge>=7 { moveAllToBottomOfDeck[removed & (SR | SSR)] }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==11 & cumulativeFullPowerCharge>=14 { setScoreBuff(2) }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==12 & stanceChangedTimes>=9 { at:endOfTurn { if:isFullPower { score+=100 }; limit:3 } }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==14 & cumulativeFullPowerCharge>=18 { target:all { g.scoreTimes+=1 } }; limit:1 }",
+    ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
+  },
   24: {
     goodConditionTurns: [
       "at:cardUsed[active] { copySelectedToBottomOfDeckUpto[hand]; limit:5 }",

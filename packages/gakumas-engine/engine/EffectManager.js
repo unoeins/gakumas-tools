@@ -104,7 +104,13 @@ export default class EffectManager extends EngineComponent {
 
   clearExpiredEffects(state) {
     state[S.effects] = state[S.effects].map((effect) => {
-      if (effect.limit != null && effect.limit < 1) return {};
+      // keey primary pItem effects for idol road staee 22 (incrementPIdolPItemLimit)
+      if (effect.limit != null && effect.limit < 1 && (
+        !effect.source || (
+          effect.source?.type !== "pItem" &&
+          !effect.source?.primary
+        ))
+      ) return {};
       if (effect.ttl != null && effect.ttl < 0) return {};
       return effect;
     });

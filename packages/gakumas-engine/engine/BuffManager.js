@@ -1,3 +1,4 @@
+import { PItems } from "gakumas-data";
 import {
   DEBUFF_FIELDS,
   EOT_DECREMENT_FIELDS,
@@ -78,6 +79,8 @@ export default class BuffManager extends EngineComponent {
           state[S.fullPowerCharge] - parseInt(amount, 10),
         );
       },
+      incrementPIdolPItemLimit: (state, amount = 1) => 
+        this.incrementPIdolPItemLimit(state, parseInt(amount, 10)),
     };
 
     // Generate buff methods and special actions
@@ -106,6 +109,12 @@ export default class BuffManager extends EngineComponent {
     state[S.doubleCardEffectCards] = 0;
     state[S.noActiveTurns] = 0;
     state[S.noMentalTurns] = 0;
+    state[S.noGoodConditionTurnsTurns] = 0;
+    state[S.noConcentrationTurns] = 0;
+    state[S.noGoodImpressionTurnsTurns] = 0;
+    state[S.noMotivationTurns] = 0;
+    state[S.noStrengthTurns] = 0;
+    state[S.noFullPowerChargeTurns] = 0;
     state[S.noCardUseTurns] = 0;
     state[S.poorConditionTurns] = 0;
     state[S.uneaseTurns] = 0;
@@ -292,5 +301,20 @@ export default class BuffManager extends EngineComponent {
   resetStance(state) {
     state[S.prevStance] = state[S.stance];
     state[S.stance] = "none";
+  }
+
+  incrementPIdolPItemLimit(state, amount) {
+    for (let i = 0; i < state[S.effects].length; i++) {
+      const e = state[S.effects][i];
+      if (e.limit != null && e.source?.type === "pItem" && e.source?.primary) {
+        const pItem = PItems.getById(e.source?.id);
+        if (pItem?.sourceType === "pIdol") {
+          // Replace the effect with a incremented copy; effects are
+          // shared across states via cloneValue's ref-share fast path.
+          state[S.effects][i] = { ...e, limit: e.limit + amount };
+          this.logger.log(state, "incrementPIdolPItemLimit");
+        }
+      }
+    }
   }
 }
