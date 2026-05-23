@@ -54,7 +54,7 @@ export function formatStageName(stage, t) {
 export function formatStageShortName(stage, t) {
   let stageName = "";
   if (stage.id == "custom") {
-    stageName = t("custom");
+    stageName = t ? t("custom") : "Custom";
   } else if (stage.type == "contest") {
     stageName = `${stage.season} - ${stage.stage}`;
   } else if (stage.type == "linkContest") {

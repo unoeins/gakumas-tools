@@ -84,6 +84,11 @@ const styles = {
     height: "22px",
     marginTop: "4px",
   },
+  cardCount: {
+    display: "flex",
+    alignItems: "center",
+    height: "22px",
+  },
   costPill: {
     display: "flex",
     alignItems: "center",

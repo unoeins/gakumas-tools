@@ -8,6 +8,7 @@ export default function PreviewSkillCardGroup({
   idolId,
   isEmpty,
   imageMap,
+  showCost,
 }) {
   return (
     <div style={styles.cardGroup}>
@@ -25,7 +26,7 @@ export default function PreviewSkillCardGroup({
             />
           ))}
       </div>
-      {!isEmpty && (
+      {!isEmpty && showCost && (
         <div style={styles.cardCost}>
           <span style={styles.costPill}>
             Cost:{" "}

@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 import sharp from "sharp";
 import { IdolConfig } from "gakumas-engine";
 import gkImg from "gakumas-images";
-import { PItems, SkillCards } from "gakumas-data";
+import { PItems, SkillCards, Stages, PDrinks } from "gakumas-data";
 import Preview from "@/components/Preview";
 import { loadoutFromSearchParams } from "@/utils/simulator";
 
@@ -59,6 +59,12 @@ function collectIcons(loadout, idolId, origin) {
       if (card) add(gkImg(card, idolId).icon);
     }
   }
+  if (loadout.pDrinkIds) {
+    for (const id of loadout.pDrinkIds) {
+      const drink = PDrinks.getById(id);
+      if (drink) add(gkImg(drink).icon);
+    }
+  }
   return map;
 }
 
@@ -66,14 +72,21 @@ export async function GET(request) {
   const url = new URL(request.url);
   const loadout = loadoutFromSearchParams(url.searchParams);
   const idolConfig = new IdolConfig(loadout);
-  const { pItemIds, skillCardIdGroups, customizationGroups } = loadout;
+  const { stageId, pItemIds, skillCardIdGroups, customizationGroups, pDrinkIds } = loadout;
 
+  const stage = Stages.getById(stageId);
   const isEmpty = skillCardIdGroups.every((g) => g.every((c) => c == 0));
 
-  const height =
+  const height = stage?.type !== "exam" ?
     32 + // Padding
     48 + // P-Items
-    (8 + 68 + (isEmpty ? 0 : 26)) * Math.min(skillCardIdGroups.length, 4); // Gap + cards + cost row
+    (8 + 68 + (isEmpty ? 0 : 26)) * Math.min(skillCardIdGroups.length, 4) // Gap + cards + cost row
+    :
+    40 + // Padding
+    48 + // P-Items
+    48 + // P-Drinks
+    26 + // Card count row
+    (8 + 68) * Math.min(Math.ceil(skillCardIdGroups[0].length / 6), 4); // Gap + cards
 
   const icons = collectIcons(loadout, idolConfig.idolId, url.origin);
   const entries = await Promise.all(
@@ -84,9 +97,11 @@ export async function GET(request) {
   return new ImageResponse(
     (
       <Preview
+        stage={stage}
         itemIds={pItemIds}
         skillCardIdGroups={skillCardIdGroups}
         customizationGroups={customizationGroups}
+        drinkIds={pDrinkIds}
         idolId={idolConfig.idolId}
         isEmpty={isEmpty}
         imageMap={imageMap}

@@ -1,6 +1,6 @@
 import { routing } from "@/i18n/routing";
 
-export const SITE_URL = "https://gktools.ris.moe";
+export const SITE_URL = "https://gktools.unoeins.org";
 
 export function localePath(locale, path = "", { absolute = false } = {}) {
   const prefix = locale === routing.defaultLocale ? "" : `/${locale}`;
