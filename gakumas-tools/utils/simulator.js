@@ -16,7 +16,8 @@ export const DEFAULTS = {
   pItemIds: "0-0-0-0",
   skillCardIdGroups: "0-0-0-0-0-0_0-0-0-0-0-0",
   customizationGroups: "-----_-----",
-  pDrinkIds: "0-0-0",
+  pDrinkIds: "0-0-0-0",
+  hifAbilityIds: "0-0-0-0",
   startingEffects: "0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0",
   skillCardIdOrderGroups: "0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0",
   customizationOrderGroups: "-------------------",
@@ -56,6 +57,7 @@ export function loadoutFromSearchParams(searchParams, suffix = "") {
   let skillCardIdGroups = searchParams.get("cards" + suffix);
   let customizationGroups = searchParams.get("customizations" + suffix);
   let pDrinkIds = searchParams.get("drinks" + suffix);
+  let hifAbilityIds = searchParams.get("hif_abilities" + suffix);
   let startingEffects = searchParams.get("effects" + suffix);
   let skillCardIdOrderGroups = searchParams.get("order_cards" + suffix);
   let customizationOrderGroups = searchParams.get("order_customs" + suffix);
@@ -63,7 +65,7 @@ export function loadoutFromSearchParams(searchParams, suffix = "") {
   let turnTypeOrder = searchParams.get("order_turns");
   const hasDataFromParams =
     stageId || params || pItemIds || skillCardIdGroups || customizationGroups || 
-    pDrinkIds || startingEffects || 
+    pDrinkIds || hifAbilityIds || startingEffects || 
     skillCardIdOrderGroups || customizationOrderGroups || turnTypeOrder;
   const enableSkillCardOrder = 
     skillCardIdOrderGroups || customizationOrderGroups || removedCardOrder || turnTypeOrder;
@@ -75,6 +77,7 @@ export function loadoutFromSearchParams(searchParams, suffix = "") {
   skillCardIdGroups = skillCardIdGroups || DEFAULTS.skillCardIdGroups;
   customizationGroups = customizationGroups || DEFAULTS.customizationGroups;
   pDrinkIds = pDrinkIds || DEFAULTS.pDrinkIds;
+  hifAbilityIds = hifAbilityIds || DEFAULTS.hifAbilityIds;
   startingEffects = startingEffects || DEFAULTS.startingEffects;
   // skillCardIdOrderGroups = skillCardIdOrderGroups || DEFAULTS.skillCardIdOrderGroups;
   // customizationOrderGroups = customizationOrderGroups || DEFAULTS.customizationOrderGroups;
@@ -89,6 +92,7 @@ export function loadoutFromSearchParams(searchParams, suffix = "") {
     .split("_")
     .map(deserializeCustomizations);
   pDrinkIds = deserializeIds(pDrinkIds);
+  hifAbilityIds = deserializeIds(hifAbilityIds);
   startingEffects = deserializeIds(startingEffects);
   removedCardOrder = removedCardOrder == "1" ? "skip" : "random";
 
@@ -156,6 +160,7 @@ export function loadoutFromSearchParams(searchParams, suffix = "") {
     skillCardIdGroups,
     customizationGroups,
     pDrinkIds,
+    hifAbilityIds,
     startingEffects,
     hasDataFromParams,
     enableSkillCardOrder,
@@ -183,6 +188,7 @@ export function loadoutToSearchParams(loadout) {
     skillCardIdGroups,
     customizationGroups,
     pDrinkIds,
+    hifAbilityIds,
     startingEffects,
     enableSkillCardOrder,
     skillCardIdOrderGroups,
@@ -205,6 +211,7 @@ export function loadoutToSearchParams(loadout) {
   if (Stages.getById(stageId).type === "exam") {
     searchParams.set("drinks", serializeIds(pDrinkIds));
     searchParams.set("effects", serializeIds(startingEffects));
+    searchParams.set("hif_abilities", serializeIds(hifAbilityIds));
   }
   if (enableSkillCardOrder) {
     searchParams.set("order_cards", skillCardIdOrderGroups.map(serializeIds).join("_"));

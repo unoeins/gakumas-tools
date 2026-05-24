@@ -567,6 +567,7 @@
     "skillCard": "Skill card",
     "pItem": "P-item",
     "pDrink": "P-drink",
+    "hifAbility": "H.I.F Special Ability",
     "numTurns": "{num} {num, plural, =1 {turn} other {turns}}",
     "hand": "Hand",
     "turnN": "Turn {n}",
@@ -732,6 +733,9 @@
     "preservation": "Preservation",
     "nullifyGenkiTurns": "Nullify Genki",
     "slumpTurns": "Slump"
+  },
+  "StageHifAbilities": {
+    "hifAbilities": "H.I.F Special Abilities"
   },
   "ParameterEstimator": {
     "note": "※Input data can be imported from simulation results (recommended)",

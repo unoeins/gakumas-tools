@@ -48,71 +48,58 @@ const CRITERIA_NIA_BY_IDOL = {
   13: [0.31, 0.5, 0.19],
 };
 
-const FIRST_TURNS_HAJIME_BY_TERM_IDOL = {
-  1: { // Midterm exam
-    1: [0, 0.15, 0.85], 
-    2: [1, 0, 0],
-    3: [0, 1, 0],
-    4: [1, 0, 0],
-    5: [0, 0.15, 0.85],
-    6: [0, 1, 0],
-    7: [0, 1, 0],
-    8: [0.85, 0.15, 0],
-    9: [0, 0.15, 0.85],
-    10: [0.15, 0.85, 0],
-    11: [0.15, 0, 0.85],
-    12: [1, 0, 0],
-    13: [0, 1, 0],
-  },
-  2: { // Final exam
-    1: [0, 0.1, 0.9], 
-    2: [1, 0, 0],
-    3: [0, 1, 0],
-    4: [1, 0, 0],
-    5: [0, 0.1, 0.9],
-    6: [0, 1, 0],
-    7: [0, 1, 0],
-    8: [0.9, 0.1, 0],
-    9: [0, 0.1, 0.9],
-    10: [0.1, 0.9, 0],
-    11: [0.1, 0, 0.9],
-    12: [1, 0, 0],
-    13: [0, 1, 0],
-  },
-};
+const FIRST_TURNS_10 = {
+  1: [0, 0.1, 0.9], 
+  2: [1, 0, 0],
+  3: [0, 1, 0],
+  4: [1, 0, 0],
+  5: [0, 0.1, 0.9],
+  6: [0, 1, 0],
+  7: [0, 1, 0],
+  8: [0.9, 0.1, 0],
+  9: [0, 0.1, 0.9],
+  10: [0.1, 0.9, 0],
+  11: [0.1, 0, 0.9],
+  12: [1, 0, 0],
+  13: [0, 1, 0],
+}
 
-const FIRST_TURNS_NIA_BY_TERM_IDOL = {
-  1: { // First audition
-    1: [0, 0.15, 0.85], 
-    2: [1, 0, 0],
-    3: [0, 1, 0],
-    4: [1, 0, 0],
-    5: [0, 0.15, 0.85],
-    6: [0, 1, 0],
-    7: [0, 1, 0],
-    8: [0.85, 0.15, 0],
-    9: [0, 0.15, 0.85],
-    10: [0.15, 0.85, 0],
-    11: [0.15, 0, 0.85],
-    12: [1, 0, 0],
-    13: [0, 1, 0],
-        
-  },
-  2: { // Second and final audition
-    1: [0, 0.1, 0.9], 
-    2: [1, 0, 0],
-    3: [0, 1, 0],
-    4: [1, 0, 0],
-    5: [0, 0.1, 0.9],
-    6: [0, 1, 0],
-    7: [0, 1, 0],
-    8: [0.9, 0.1, 0],
-    9: [0, 0.1, 0.9],
-    10: [0.1, 0.9, 0],
-    11: [0.1, 0, 0.9],
-    12: [1, 0, 0],
-    13: [0, 1, 0],
-  },
+const FIRST_TURNS_12 = {
+  1: [0, 0.12, 0.88], 
+  2: [1, 0, 0],
+  3: [0, 1, 0],
+  4: [1, 0, 0],
+  5: [0, 0.12, 0.88],
+  6: [0, 1, 0],
+  7: [0, 1, 0],
+  8: [0.88, 0.12, 0],
+  9: [0, 0.12, 0.88],
+  10: [0.12, 0.88, 0],
+  11: [0.12, 0, 0.88],
+  12: [1, 0, 0],
+  13: [0, 1, 0],
+}
+
+const FIRST_TURNS_15 = {
+  1: [0, 0.15, 0.85], 
+  2: [1, 0, 0],
+  3: [0, 1, 0],
+  4: [1, 0, 0],
+  5: [0, 0.15, 0.85],
+  6: [0, 1, 0],
+  7: [0, 1, 0],
+  8: [0.85, 0.15, 0],
+  9: [0, 0.15, 0.85],
+  10: [0.15, 0.85, 0],
+  11: [0.15, 0, 0.85],
+  12: [1, 0, 0],
+  13: [0, 1, 0],
+}
+
+const FIRST_TURNS_BY_TURN_IDOL = {
+  9: FIRST_TURNS_15,
+  10: FIRST_TURNS_12,
+  12: FIRST_TURNS_10,
 };
 
 const TURN_COUNTS_HAJIME_BY_TERM_PLAN_IDOL = {
@@ -182,8 +169,8 @@ const TURN_COUNTS_HAJIME_BY_TERM_PLAN_IDOL = {
   },
 };
 
-const TURN_COUNTS_NIA_BY_TERM_IDOL = {
-  1: { // First exam
+const TURN_COUNTS_BY_TURN_IDOL = {
+  9: {
     1: [2, 3, 4],
     2: [4, 3, 2],
     3: [2, 4, 3],
@@ -198,25 +185,7 @@ const TURN_COUNTS_NIA_BY_TERM_IDOL = {
     12: [4, 2, 3],
     13: [3, 4, 2],
   },
-  2: { // Second and final exam
-    1: [3, 4, 5],
-    2: [6, 3, 3],
-    3: [3, 6, 3],
-    4: [6, 3, 3],
-    5: [3, 4, 5],
-    6: [3, 6, 3],
-    7: [3, 6, 3],
-    8: [5, 4, 3],
-    9: [3, 4, 5],
-    10: [4, 5, 3],
-    11: [4, 3, 5],
-    12: [6, 3, 3],
-    13: [3, 6, 3],
-  },
-};
-
-const TURN_COUNTS_HAJIME_LEGEND_BY_TERM_IDOL = {
-  1: { // Midterm exam
+  10: {
     1: [2, 3, 5],
     2: [5, 3, 2],
     3: [2, 5, 3],
@@ -231,7 +200,22 @@ const TURN_COUNTS_HAJIME_LEGEND_BY_TERM_IDOL = {
     12: [5, 2, 3],
     13: [3, 5, 2],
   },
-  2: { // Final exam
+  11: {
+    1: [3, 3, 5],
+    2: [5, 3, 3],
+    3: [2, 5, 4],
+    4: [5, 2, 4],
+    5: [3, 3, 5],
+    6: [3, 5, 3],
+    7: [2, 6, 3],
+    8: [5, 3, 3],
+    9: [3, 3, 5],
+    10: [3, 5, 3],
+    11: [3, 3, 5],
+    12: [5, 3, 3],
+    13: [3, 5, 3],
+  },
+  12: {
     1: [3, 4, 5],
     2: [6, 3, 3],
     3: [3, 6, 3],
@@ -738,27 +722,21 @@ export function getExamStage(stageId, pIdolId) {
     if (!pIdol) return stage;
     const examStage = deepCopy(stage);
     examStage.plan = pIdol.plan;
+    const totalTurns = examStage.turnCounts.vocal + examStage.turnCounts.dance + examStage.turnCounts.visual;
+    const firstTurns = FIRST_TURNS_BY_TURN_IDOL[totalTurns][pIdol.idolId];
+    examStage.firstTurns = { vocal: firstTurns[0], dance: firstTurns[1], visual: firstTurns[2] };
     const recommendedEffect = RECOMMENDED_EFFECT_MAPPINGS[pIdol.id] || pIdol.recommendedEffect;
-    examStage.effects = SUPPORT_EFFECTS_BY_SEASON_STAGE_EFFECT[stage.season][stage.stage][recommendedEffect];
+    examStage.effects = SUPPORT_EFFECTS_BY_SEASON_STAGE_EFFECT[stage.season]?.[stage.stage]?.[recommendedEffect] || [];
     if (stage.season < 4) { // Hajime
       const criteria = CRITERIA_HAJIME_BY_IDOL[pIdol.idolId];
       examStage.criteria = { vocal: criteria[0], dance: criteria[1], visual: criteria[2] };
       const turnCounts = TURN_COUNTS_HAJIME_BY_TERM_PLAN_IDOL[stage.stage][pIdol.plan == "logic" ? "logic" : "other"][pIdol.idolId];
       examStage.turnCounts = { vocal: turnCounts[0], dance: turnCounts[1], visual: turnCounts[2] };
-      const firstTurns = FIRST_TURNS_HAJIME_BY_TERM_IDOL[stage.stage][pIdol.idolId];
-      examStage.firstTurns = { vocal: firstTurns[0], dance: firstTurns[1], visual: firstTurns[2] };
     } else { // NIA and later
       const criteria = CRITERIA_NIA_BY_IDOL[pIdol.idolId];
       examStage.criteria = { vocal: criteria[0], dance: criteria[1], visual: criteria[2] };
-      const firstTurns = FIRST_TURNS_NIA_BY_TERM_IDOL[stage.stage == 1 ? 1 : 2][pIdol.idolId];
-      examStage.firstTurns = { vocal: firstTurns[0], dance: firstTurns[1], visual: firstTurns[2] };
-      if (stage.season < 6) { // NIA
-        const turnCounts = TURN_COUNTS_NIA_BY_TERM_IDOL[stage.stage == 1 ? 1 : 2][pIdol.idolId];
-        examStage.turnCounts = { vocal: turnCounts[0], dance: turnCounts[1], visual: turnCounts[2] };
-      } else { // Hajime Legend
-        const turnCounts = TURN_COUNTS_HAJIME_LEGEND_BY_TERM_IDOL[stage.stage][pIdol.idolId];
-        examStage.turnCounts = { vocal: turnCounts[0], dance: turnCounts[1], visual: turnCounts[2] };
-      }
+      const turnCounts = TURN_COUNTS_BY_TURN_IDOL[totalTurns][pIdol.idolId];
+      examStage.turnCounts = { vocal: turnCounts[0], dance: turnCounts[1], visual: turnCounts[2] };
     }
     // console.log("examStage:", examStage);
     return examStage;

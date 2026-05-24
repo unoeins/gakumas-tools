@@ -36,6 +36,7 @@ export function LoadoutContextProvider({ children }) {
     initialLoadout.customizationGroups
   );
   const [pDrinkIds, setPDrinkIds] = useState(initialLoadout.pDrinkIds);
+  const [hifAbilityIds, setHifAbilityIds] = useState(initialLoadout.hifAbilityIds);
   const [startingEffects, setStartingEffects] = useState(
     initialLoadout.startingEffects
   );
@@ -81,6 +82,7 @@ export function LoadoutContextProvider({ children }) {
       skillCardIdGroups,
       customizationGroups,
       pDrinkIds,
+      hifAbilityIds,
       startingEffects,
       enableSkillCardOrder,
       skillCardIdOrderGroups,
@@ -97,6 +99,7 @@ export function LoadoutContextProvider({ children }) {
       skillCardIdGroups,
       customizationGroups,
       pDrinkIds,
+      hifAbilityIds,
       startingEffects,
       enableSkillCardOrder,
       skillCardIdOrderGroups,
@@ -130,6 +133,7 @@ export function LoadoutContextProvider({ children }) {
     setParams(loadout.params);
     setPItemIds(loadout.pItemIds);
     setPDrinkIds(loadout.pDrinkIds || deserializeIds(DEFAULTS.pDrinkIds));
+    setHifAbilityIds(loadout.hifAbilityIds || deserializeIds(DEFAULTS.hifAbilityIds));
     setStartingEffects(loadout.startingEffects || deserializeIds(DEFAULTS.startingEffects));
     setSkillCardIdGroups(loadout.skillCardIdGroups);
     if (loadout.customizationGroups) {
@@ -244,7 +248,11 @@ export function LoadoutContextProvider({ children }) {
     if (pItemIds.length < 4) {
       setPItemIds((cur) => cur.concat(new Array(4 - cur.length).fill(0)));
     }
-  }, [pItemIds]);
+    // If fewer than 4 pDrinkIds, pad with 0s
+    if (pDrinkIds.length < 4) {
+      setPDrinkIds((cur) => cur.concat(new Array(4 - cur.length).fill(0)));
+    }
+  }, [pItemIds, pDrinkIds]);
 
   useEffect(() => {
     const size = STARTING_EFFECTS.length;
@@ -271,6 +279,7 @@ export function LoadoutContextProvider({ children }) {
       ]);
     }
     setPDrinkIds(new Array(pDrinkIds.length).fill(0));
+    setHifAbilityIds(new Array(hifAbilityIds.length).fill(0));
     setStartingEffects(new Array(startingEffects.length).fill(0));
     const size = stage.type === "linkContest" ? 12 : stage.type === "exam" ? 1 : 20;
     setSkillCardIdOrderGroups([new Array(size).fill(0)]);
@@ -314,6 +323,22 @@ export function LoadoutContextProvider({ children }) {
 
   function swapPDrinkIds(indexA, indexB) {
     setPDrinkIds((cur) => {
+      const next = [...cur];
+      [next[indexA], next[indexB]] = [next[indexB], next[indexA]];
+      return next;
+    });
+  }
+
+  function replaceHifAbilityId(index, abilityId) {
+    setHifAbilityIds((cur) => {
+      const next = [...cur];
+      next[index] = abilityId;
+      return next;
+    });
+  }
+
+  function swapHifAbilityIds(indexA, indexB) {
+    setHifAbilityIds((cur) => {
       const next = [...cur];
       [next[indexA], next[indexB]] = [next[indexB], next[indexA]];
       return next;
@@ -790,6 +815,8 @@ export function LoadoutContextProvider({ children }) {
         swapPItemIds,
         replacePDrinkId,
         swapPDrinkIds,
+        replaceHifAbilityId,
+        swapHifAbilityIds,
         replaceStartingEffect,
         replaceSkillCardId,
         swapSkillCardIds,

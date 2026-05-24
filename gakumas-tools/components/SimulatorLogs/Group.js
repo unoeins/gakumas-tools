@@ -10,7 +10,8 @@ function Group({ entity, childLogs, idolId, pendingDecision, onDecision }) {
   const t = useTranslations("stage");
 
   let resolvedEntity = null;
-  if (entity.type == "skillCard" || entity.type == "skillCardEffect") {
+  if (entity.type == "skillCard" || entity.type == "skillCardEffect" ||
+      entity.type == "hifAbility") {
     resolvedEntity = SkillCards.getById(entity.id);
   } else if (entity.type == "pItem" || entity.type == "pItemEffect") {
     resolvedEntity = PItems.getById(entity.id);
@@ -41,6 +42,12 @@ function Group({ entity, childLogs, idolId, pendingDecision, onDecision }) {
               <Image src={icon} width={24} height={24} alt="" />
             </div>
             {entity.effectType === "reservation" ? t("reservation") : t("effect")}「{resolvedEntity.name}」
+          </>
+        )}
+        {entity.type == "hifAbility" && (
+          <>
+            <Image src={icon} width={24} height={24} alt="" />
+            {t("hifAbility")}「{resolvedEntity.name}」
           </>
         )}
         {entity.type == "pItem" && (

@@ -25,7 +25,8 @@ export default function HoldModal({ decision, onDecision, idolId }) {
     resolvedEntity = SkillCards.getById(state[S.cardMap][state[S.usedCard]].id);
   } else if (state[S.phase] == "processDrink") {
     resolvedEntity = PDrinks.getById(state[S.usedDrink]);
-  } else if (["skillCard", "skillCardEffect"].includes(state[S.triggeredEffect]?.source?.type)) {
+  } else if (["skillCard", "skillCardEffect", "hifAbility"]
+      .includes(state[S.triggeredEffect]?.source?.type)) {
     resolvedEntity = SkillCards.getById(state[S.triggeredEffect].source?.id);
   } else if (["pItem", "pItemEffect"].includes(state[S.triggeredEffect]?.source?.type)) {
     resolvedEntity = PItems.getById(state[S.triggeredEffect].source?.id);

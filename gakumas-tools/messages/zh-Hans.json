@@ -535,6 +535,7 @@
     "skillCard": "技能卡",
     "pItem": "P 道具",
     "pDrink": "P 饮料",
+    "hifAbility": "H.I.F Special Ability",
     "numTurns": "第 {num} 回合",
     "hand": "持有技能卡",
     "turnN": "回合 {n}",
@@ -702,6 +703,9 @@
     "preservation": "温存",
     "nullifyGenkiTurns": "元气增加无效",
     "slumpTurns": "斯兰普"
+  },
+  "StageHifAbilities": {
+    "hifAbilities": "H.I.F Special Abilities"
   },
   "ParameterEstimator": {
     "note": "※输入数据可以从模拟结果中获取(推荐使用平均值)。",

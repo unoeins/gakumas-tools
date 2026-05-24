@@ -1,9 +1,10 @@
-import { Customizations, PIdols, PItems, SkillCards } from "gakumas-data";
+import { Customizations, PIdols, PItems, SkillCards, Stages } from "gakumas-data";
 import { getBaseId } from "../utils";
 
 export default class IdolConfig {
   constructor(loadout) {
     const {
+      stageId,
       params,
       supportBonus,
       pItemIds,
@@ -14,6 +15,7 @@ export default class IdolConfig {
       customizationOrderGroups,
       removedCardOrder,
       turnTypeOrder,
+      hifAbilityIds,
     } = loadout;
 
     let skillCardIds = [];
@@ -63,7 +65,13 @@ export default class IdolConfig {
 
     // P-items, P-drinks, and skill cards
     this.pItemIds = [...new Set(pItemIds.filter((id) => id))];
-    this.pDrinkIds = [...pDrinkIds.filter((id) => id)];
+    const stage = Stages.getById(stageId);
+    this.pDrinkIds = stage.type === "exam" ? [...pDrinkIds.filter((id) => id)] : [];
+    this.hifAbilityIds = 
+      stage.type === "exam" &&
+      (stage.season === 7 || stage.season === 8) ?
+      [...new Set(hifAbilityIds.filter((id) => id))] :
+      [];
     const { dedupedCards, dupeIndices } = this.getDedupedCards(cards);
     dedupedCards.forEach((c) => {
       delete c.index;

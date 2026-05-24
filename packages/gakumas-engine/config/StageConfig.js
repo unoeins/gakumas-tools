@@ -26,7 +26,9 @@ export default class StageConfig {
     this.linkTurnCounts = linkTurnCounts;
     this.linkPhaseChangeTurns = this.calculateLinkPhaseChangeTurns();
     if (stage.type === "exam") {
-      this.effects = effects.concat(this.getStartingEffects(startingEffects, plan).map(deserializeEffectSequence)).flat();
+      this.effects = effects.concat(
+        this.getStartingEffects(startingEffects, plan).map(deserializeEffectSequence)
+      ).flat();
     }
   }
 

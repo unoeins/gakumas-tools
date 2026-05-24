@@ -43,6 +43,15 @@ const HAJIME_LEGEND_INITIAL_CARD_IDS_BY_RECOMMENDED_EFFECT = {
   fullPower: [660, 662, 662, 686, 686, 688],
 };
 
+const HIF_INITIAL_CARD_IDS_BY_RECOMMENDED_EFFECT = {
+  goodConditionTurns: [642, 644, 644, 664, 664, 666, 670],
+  concentration: [648, 646, 646, 666, 668, 668, 670],
+  goodImpressionTurns: [674, 650, 650, 672, 672, 672, 676],
+  motivation: [652, 654, 678, 678, 678, 678, 680],
+  strength: [656, 658, 658, 658, 682, 682, 684],
+  fullPower: [660, 662, 662, 686, 686, 688, 688],
+};
+
 export default class IdolStageConfig {
   constructor(idolConfig, stageConfig, enterPercents, simulatorConfig = {}) {
     this.idol = idolConfig;
@@ -102,8 +111,10 @@ export default class IdolStageConfig {
       "goodConditionTurns";
     if (stageConfig.season < 6) { // Hajime (not Legend) and NIA
       return HAJIME_NIA_INITIAL_CARD_IDS_BY_RECOMMENDED_EFFECT[recommendedEffect];
-    } else { // Hajime Legend
+    } else if (stageConfig.season === 6) { // Hajime Legend
       return HAJIME_LEGEND_INITIAL_CARD_IDS_BY_RECOMMENDED_EFFECT[recommendedEffect];
+    } else { // HIF
+      return HIF_INITIAL_CARD_IDS_BY_RECOMMENDED_EFFECT[recommendedEffect];
     }
   }
 }

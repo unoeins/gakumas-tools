@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import LoadoutParams from "@/components/LoadoutParams";
 import StagePItems from "@/components/StagePItems";
 import StagePDrinks from "@/components/StagePDrinks";
+import StageHifAbilities from "@/components/StageHifAbilities";
 import StageStartingEffects from "@/components/StageStartingEffects";
 import LoadoutSkillCardGroup from "@/components/LoadoutSkillCardGroup";
 import LoadoutContext from "@/contexts/LoadoutContext";
@@ -22,13 +23,15 @@ export default function LoadoutEditor({ config, idolId }) {
     swapPItemIds,
     replacePDrinkId,
     swapPDrinkIds,
+    replaceHifAbilityId,
+    swapHifAbilityIds,
     replaceStartingEffect
   } = useContext(LoadoutContext);
 
   const {
     pItemIndications,
     skillCardIndicationGroups,
-    pDrinkIndications
+    pDrinkIndications,
   } = getIndications(
     config,
     loadout
@@ -78,6 +81,18 @@ export default function LoadoutEditor({ config, idolId }) {
               />
             </div>
           </div>
+          {(stage.season === 7 || stage.season === 8) && (
+            <div className={styles.hifAbilitiesRow}>
+              <div className={styles.hifAbilities}>
+                <StageHifAbilities
+                  hifAbilityIds={loadout.hifAbilityIds}
+                  replaceHifAbilityId={replaceHifAbilityId}
+                  swapHifAbilityIds={swapHifAbilityIds}
+                  size="medium"
+                />
+              </div>
+            </div>
+          )}
           <div className={styles.startingEffectsRow}>
             <StageStartingEffects
               startingEffects={loadout.startingEffects}

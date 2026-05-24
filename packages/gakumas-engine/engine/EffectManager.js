@@ -20,12 +20,11 @@ export default class EffectManager extends EngineComponent {
 
     // Set default effects
     this.logger.debug("Setting default effects", DEFAULT_EFFECTS);
-    state[S.effectInstanceId]++;
     this.setEffects(state, DEFAULT_EFFECTS);
+    state[S.effectInstanceId]++;
 
     // Set stage effects
     this.logger.debug("Setting stage effects", config.stage.effects);
-    state[S.effectInstanceId]++;
     this.setEffects(state, config.stage.effects, {
       type: "stage",
       primary: true,
@@ -43,10 +42,24 @@ export default class EffectManager extends EngineComponent {
       for (let i = 0; i < pItemIds.length; i++) {
         const pItem = PItems.getById(pItemIds[i]);
         this.logger.debug("Setting p-item effects", pItem.name, pItem.effects);
-        state[S.effectInstanceId]++;
         this.setEffects(state, pItem.effects, {
           type: "pItem",
           id: pItemIds[i],
+          primary: true,
+        });
+        state[S.effectInstanceId]++;
+      }
+    }
+
+    // Set HIF ability effects
+    for (let c = 0; c < configs.length; c++) {
+      const { hifAbilityIds } = configs[c].idol;
+      for (let i = 0; i < hifAbilityIds.length; i++) {
+        const skillCard = SkillCards.getById(hifAbilityIds[i]);
+        this.logger.debug("Setting HIF ability effects", skillCard.name, skillCard.hifAbility);
+        this.setEffects(state, skillCard.hifAbility, {
+          type: "hifAbility",
+          id: hifAbilityIds[i],
           primary: true,
         });
         state[S.effectInstanceId]++;
@@ -65,7 +78,6 @@ export default class EffectManager extends EngineComponent {
       const cardEffects = this.engine.cardManager.getLines(state, i, "effects");
       if (cardEffects.length) {
         this.logger.debug("Setting card effects", skillCard.name, cardEffects);
-        state[S.effectInstanceId]++;
         this.setEffects(state, cardEffects, {
           type: "skillCard",
           id: skillCardId,

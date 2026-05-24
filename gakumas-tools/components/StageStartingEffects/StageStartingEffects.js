@@ -1,4 +1,4 @@
-import { memo, use } from "react";
+import { memo } from "react";
 import { useTranslations } from "next-intl";
 import { STARTING_EFFECTS } from "gakumas-engine/constants";
 import Input from "@/components/Input";

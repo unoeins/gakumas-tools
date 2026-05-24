@@ -535,6 +535,7 @@
     "skillCard": "스킬 카드",
     "pItem": "P 아이템",
     "pDrink": "P 드링크",
+    "hifAbility": "H.I.F Special Ability",
     "numTurns": "{num} 턴",
     "hand": "손패",
     "turnN": "{n} 턴",
@@ -702,6 +703,9 @@
     "preservation": "온존",
     "nullifyGenkiTurns": "원기 증가 무효",
     "slumpTurns": "슬럼프"
+  },
+  "StageHifAbilities": {
+    "hifAbilities": "H.I.F Special Abilities"
   },
   "ParameterEstimator": {
     "note": "※입력 데이터는 시뮬레이션 결과에서 가져올 수 있습니다(권장)",

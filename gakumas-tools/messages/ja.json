@@ -567,6 +567,7 @@
     "skillCard": "スキルカード",
     "pItem": "Pアイテム",
     "pDrink": "Pドリンク",
+    "hifAbility": "H.I.F専用アビリティ",
     "numTurns": "{num}ターン",
     "hand": "手札",
     "turnN": "{n}ターン目",
@@ -735,6 +736,9 @@
     "preservation": "温存",
     "nullifyGenkiTurns": "元気増加無効",
     "slumpTurns": "スランプ"
+  },
+  "StageHifAbilities": {
+    "hifAbilities": "H.I.F専用アビリティ"
   },
   "ParameterEstimator": {
     "note": "※入力データはシミュレーション結果から取り込むことができます。(クリックで使い方を表示)",

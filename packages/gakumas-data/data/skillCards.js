@@ -14,6 +14,7 @@ SKILL_CARDS.forEach((skillCard) => {
   skillCard.effects = deserializeEffectSequence(skillCard.effects);
   skillCard.pIdolId = skillCard.pIdolId || null;
   skillCard.contestPower = getSkillCardContestPower(skillCard);
+  skillCard.hifAbility = deserializeEffectSequence(skillCard.hifAbility);
 });
 
 const SKILL_CARDS_BY_ID = SKILL_CARDS.reduce((acc, cur) => {

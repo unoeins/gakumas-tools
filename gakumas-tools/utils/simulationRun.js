@@ -11,6 +11,7 @@ const LOADOUT_FIELDS = [
   "skillCardIdGroups",
   "customizationGroups",
   "pDrinkIds",
+  "hifAbilityIds",
   "startingEffects",
   "enableSkillCardOrder",
   "skillCardIdOrderGroups",
