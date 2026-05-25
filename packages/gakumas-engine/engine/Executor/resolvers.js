@@ -233,6 +233,11 @@ export function resolveGoodConditionTurns(state, goodConditionTurns) {
 }
 
 export function resolveConcentration(state, concentration) {
+  // Apply concentration addition buffs
+  concentration += state[S.concentrationAdditionBuffs].reduce(
+    (acc, cur) => acc + cur.amount,
+    0,
+  );
   // Apply concentration buffs
   concentration *= state[S.concentrationBuffs].reduce(
     (acc, cur) => acc + cur.amount,
