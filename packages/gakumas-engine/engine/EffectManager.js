@@ -103,6 +103,9 @@ export default class EffectManager extends EngineComponent {
       if (effect.phase == "turn" && effect.limit == 1) {
         effect.type = "reservation";
       }
+      if (effect.ttl != null && !state[S.unfreshPhase]) {
+        effect.fresh = true;
+      }
       // Nested effects are now explicit in the AST - no more fallthrough
       state[S.effects].push(effect);
     }
@@ -274,7 +277,7 @@ export default class EffectManager extends EngineComponent {
       }
 
       // Check ttl
-      if (effect.ttl != null && effect.ttl < 0) {
+      if (effect.ttl != null && effect.ttl < 1) {
         this.logger.debug("Effect ttl reached", effect.ttl);
         continue;
       }
@@ -399,8 +402,14 @@ export default class EffectManager extends EngineComponent {
     const effects = state[S.effects];
     for (let i = 0; i < effects.length; i++) {
       const eff = effects[i];
-      if (eff.ttl == null || eff.ttl == -1) continue;
-      effects[i] = { ...eff, ttl: eff.ttl - 1 };
+      if (eff.ttl == null || eff.ttl == 0) continue;
+      if (eff.fresh) {
+        // Fresh effects skip the ttl decrement on the turn they are set, so
+        // we just mark them as no longer fresh here.
+        effects[i] = { ...eff, fresh: false };
+      } else {
+        effects[i] = { ...eff, ttl: eff.ttl - 1 };
+      }
     }
   }
 

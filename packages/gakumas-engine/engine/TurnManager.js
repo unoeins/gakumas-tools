@@ -18,6 +18,7 @@ export default class TurnManager extends EngineComponent {
     state[S.turnsRemaining] = this.getConfig(state).stage.turnCount;
     state[S.turnTypes] = this.generateTurnTypes();
     state[S.linkPhase] = 0;
+    state[S.unfreshPhase] = false;
   }
 
   getTurnType(state) {
@@ -142,6 +143,7 @@ export default class TurnManager extends EngineComponent {
     });
 
     state[S.cardUsesRemaining] = 1;
+    state[S.unfreshPhase] = true;
 
     state[S.prevStance] = "none";
     this.engine.effectManager.triggerEffects(state, FULL_POWER_EFFECTS);
@@ -172,6 +174,7 @@ export default class TurnManager extends EngineComponent {
     this.engine.effectManager.triggerEffectsForPhase(state, "afterStartOfTurn");
     this.engine.effectManager.triggerEffectsForPhase(state, "turn");
     this.engine.effectManager.triggerEffectsForPhase(state, "everyTurn");
+    state[S.unfreshPhase] = false;
   }
 
   endTurn(state) {

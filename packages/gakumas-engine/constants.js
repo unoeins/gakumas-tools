@@ -74,13 +74,6 @@ export const STANCE_CHANGED_EFFECTS = [
   ),
 ];
 
-export const UNFRESH_PHASES = [
-  "beforeStartOfTurn",
-  "startOfTurn",
-  "afterStartOfTurn",
-  "turn",
-  "everyTurn",
-];
 export const CHANGE_TRIGGER_PHASES = ["processCard", "processCost", "processDrink"];
 export const PHASES = [
   "activeCardUsed",
@@ -223,6 +216,7 @@ export const ALL_FIELDS = [
   "effectCounters",
   "currentEffectInstanceId",
   "triggeredEffect",
+  "unfreshPhase",
 
   // Special
   "nullifySelect",
