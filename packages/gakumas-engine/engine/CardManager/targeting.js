@@ -13,6 +13,7 @@ import { S } from "../../constants";
  * @param {Object|string} targetRule - Target rule (AST node or string)
  * @param {Object} source - Source context for 'this' target
  * @param {Function} getCardEffects - Function to get card effects
+ * @param {Function} getCardCosts - Function to get card costs
  * @param {Function} getCardRarity - Function to get card rarity
  * @returns {Set} Set of matching card indices
  */
@@ -64,7 +65,7 @@ function evaluateTargetAST(state, node, source, getCardEffects, getCardCosts, ge
     case "unary": {
       if (node.op === "!") {
         // Complement (relative to all cards)
-        const operand = evaluateTargetAST(state, node.operand, source, getCardEffects, getCardRarity);
+        const operand = evaluateTargetAST(state, node.operand, source, getCardEffects, getCardCosts, getCardRarity);
         const result = new Set();
         for (let k = 0; k < state[S.cardMap].length; k++) {
           if (!operand.has(k)) result.add(k);
