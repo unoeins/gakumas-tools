@@ -21,11 +21,12 @@ export function getTargetRuleCards(
   targetRule,
   source,
   getCardEffects,
+  getCardCosts,
   getCardRarity
 ) {
   // Handle AST nodes
   if (targetRule && typeof targetRule === "object") {
-    return evaluateTargetAST(state, targetRule, source, getCardEffects, getCardRarity);
+    return evaluateTargetAST(state, targetRule, source, getCardEffects, getCardCosts, getCardRarity);
   }
 
   // Handle simple string identifier (fallback for direct calls)
@@ -39,11 +40,11 @@ export function getTargetRuleCards(
 /**
  * Evaluate a target expression AST node
  */
-function evaluateTargetAST(state, node, source, getCardEffects, getCardRarity) {
+function evaluateTargetAST(state, node, source, getCardEffects, getCardCosts, getCardRarity) {
   switch (node.type) {
     case "binary": {
-      const left = evaluateTargetAST(state, node.left, source, getCardEffects, getCardRarity);
-      const right = evaluateTargetAST(state, node.right, source, getCardEffects, getCardRarity);
+      const left = evaluateTargetAST(state, node.left, source, getCardEffects, getCardCosts, getCardRarity);
+      const right = evaluateTargetAST(state, node.right, source, getCardEffects, getCardCosts, getCardRarity);
       if (node.op === "&") {
         // Intersection
         const result = new Set();
@@ -82,6 +83,17 @@ function evaluateTargetAST(state, node, source, getCardEffects, getCardRarity) {
         const result = new Set();
         for (let k = 0; k < state[S.cardMap].length; k++) {
           if (getCardEffects(state, k).has(effectName)) {
+            result.add(k);
+          }
+        }
+        return result;
+      }
+      if (name === "cost" && args.length > 0) {
+        const costName =
+          args[0].type === "identifier" ? args[0].name : String(args[0].value);
+        const result = new Set();
+        for (let k = 0; k < state[S.cardMap].length; k++) {
+          if (getCardCosts(state, k).has(costName)) {
             result.add(k);
           }
         }
