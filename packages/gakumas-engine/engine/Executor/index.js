@@ -137,6 +137,8 @@ export default class Executor extends EngineComponent {
         phase === "processCard" ||
         phase === "processCost" ||
         phase === "processDrink" ||
+        phase === "cardMovedToHand" ||
+        phase === "cardMovedToHeld" ||
         (state[S.triggeredEffect]?.type === "reservation" &&
           (state[S.triggeredEffect]?.source?.type === "skillCardEffect" ||
             state[S.triggeredEffect]?.source?.type === "pDrinkEffect"));
