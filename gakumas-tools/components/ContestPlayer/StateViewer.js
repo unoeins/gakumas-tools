@@ -31,6 +31,7 @@ function StateViewer({ state, idolId, plan }) {
     {name: "goodImpressionTurnsEffectBuffs", type: "buffs"},
     {name: "goodImpressionTurnsTimesBuffs", type: "buffs_flat"},
     {name: "motivationBuffs", type: "buffs"},
+    {name: "motivationAdditionBuffs", type: "buffs_flat"},
   ];
 
   const ANOMALY_FIELDS = [

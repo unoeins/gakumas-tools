@@ -169,6 +169,7 @@ export const ALL_FIELDS = [
   "motivation",
   "motivationMultiplier",
   "motivationBuffs",
+  "motivationAdditionBuffs",
   "prideTurns",
   "stance",
   "prevStance",
