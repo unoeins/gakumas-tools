@@ -23,9 +23,13 @@ export function extractScores(result) {
     const line = lines[i];
     if (line.confidence < 60) continue;
 
-    let words = line.words
-      .map((word) => word.text)
-      .filter((word) => /^((\d+[,\.])?\d+|[—\-]+)$/.test(word));
+    if (!/^[\d\s,\.—\-]+$/.test(line.text)) continue;
+    let words = [];
+    const pattern = /(\d{1,3}(?:[,\.]\d{3})*|[—\-]+)\s*/y;
+    let match = null;
+    while ((match = pattern.exec(line.text)) !== null) {
+      words.push(match[1]);
+    }
     if (words.length != 3) continue;
 
     const stageScores = words.map(
