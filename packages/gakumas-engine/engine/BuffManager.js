@@ -289,7 +289,8 @@ export default class BuffManager extends EngineComponent {
         state[S.leisureTimes]++;
       }
       // Mirror the isDirectEffect resolver's definition of "direct":
-      // card actions, card cost, or a scheduled card-sourced reservation.
+      // card actions, card cost, a card moved to hand/held, or a scheduled
+      // card-sourced reservation.
       if (
         state[S.phase] === "processCard" ||
         state[S.phase] === "processCost" ||

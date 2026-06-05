@@ -1,15 +1,23 @@
 import { extractLines, getWhiteCanvas, loadImageFromFile } from "./common";
 
+const NUMERIC_LINE_REGEX = /^[\d\s,.—-]+$/;
+const SCORE_TOKEN_REGEX = /(\d{1,3}(?:[,\.]\d{3})*|[—\-]+)\s*/y;
+const OCR_MIN_WIDTH = 1200;
+
+function getOcrScale(img) {
+  return img.width < OCR_MIN_WIDTH ? 2 : 1;
+}
+
 export async function getScoresFromFile(file, worker) {
   const img = await loadImageFromFile(file);
-  const whiteCanvas = getWhiteCanvas(img, 190);
+  const whiteCanvas = getWhiteCanvas(img, 190, getOcrScale(img));
   const engWhitePromise = worker.recognize(whiteCanvas, {}, { blocks: true });
   const scores = extractScores(await engWhitePromise);
   return scores;
 }
 
 export async function getScoresFromImage(img, worker) {
-  const whiteCanvas = getWhiteCanvas(img, 160);
+  const whiteCanvas = getWhiteCanvas(img, 160, getOcrScale(img));
   const result = await worker.recognize(whiteCanvas, {}, { blocks: true });
   const scores = extractScores(result);
   return scores;
@@ -23,17 +31,16 @@ export function extractScores(result) {
     const line = lines[i];
     if (line.confidence < 60) continue;
 
-    if (!/^[\d\s,\.—\-]+$/.test(line.text)) continue;
+    if (!NUMERIC_LINE_REGEX.test(line.text)) continue;
     let words = [];
-    const pattern = /(\d{1,3}(?:[,\.]\d{3})*|[—\-]+)\s*/y;
     let match = null;
-    while ((match = pattern.exec(line.text)) !== null) {
+    while ((match = SCORE_TOKEN_REGEX.exec(line.text)) !== null) {
       words.push(match[1]);
     }
     if (words.length != 3) continue;
 
     const stageScores = words.map(
-      (word) => parseInt(word.replaceAll(/[^\d]/g, ""), 10) || ""
+      (word) => parseInt(word.replaceAll(/[^\d]/g, ""), 10) || "",
     );
 
     scores.push(stageScores);
