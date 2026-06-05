@@ -1474,6 +1474,7 @@ export default class CardManager extends EngineComponent {
 
   moveToTopOfDeckByTarget(state, targetRule, num = 1) {
     const candidates = this.findCardsMatchingTargetInPiles(state, targetRule, [
+      S.handCards,
       S.deckCards,
       S.discardedCards,
       S.removedCards,
