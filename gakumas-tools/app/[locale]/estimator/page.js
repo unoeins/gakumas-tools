@@ -5,7 +5,7 @@ import { generateMetadataForTool } from "@/utils/metadata";
 export async function generateMetadata({ params }) {
   const { locale } = await params;
 
-  return await generateMetadataForTool("estimator", locale);
+  return await generateMetadataForTool("estimator", locale, "/estimator");
 }
 
 export default async function ParameterEstimatorPage({ params }) {
