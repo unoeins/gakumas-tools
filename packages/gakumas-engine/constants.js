@@ -68,6 +68,9 @@ export const STANCE_CHANGED_EFFECTS = [
     "if:prevStance==leisure & stance!=fullPower { do:enthusiasm+=10 }",
     { type: "default", id: "のんびり" },
   ),
+];
+
+export const FULL_POWER_CHANGED_EFFECTS = [
   ...parseEffect(
     "if:stance==fullPower { do:cardUsesRemaining+=1; do:moveHeldCardsToHand }",
     { type: "default", id: "全力" },
@@ -82,6 +85,7 @@ export const PHASES = [
   "afterMentalCardUsed",
   "afterStartOfStage",
   "afterStartOfTurn",
+  "beforeCardUsed",
   "beforeStartOfTurn",
   "buffCostConsumed",
   "cardUsed",
@@ -222,6 +226,7 @@ export const ALL_FIELDS = [
   // Special
   "nullifySelect",
   "freeCardUses",
+  "paidCardUses",
 
   // Delta
   "goodImpressionTurnsDelta",
