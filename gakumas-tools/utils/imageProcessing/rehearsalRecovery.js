@@ -470,5 +470,21 @@ export function recoverStage(rowText, raw, cleanThree, totalLine) {
     totalIsReliable(totalLine.text, total);
   if (cleanThree && !reliableTotal) return fixed.slice();
 
-  return [0, 0, 0];
+  return extractScoreFallback(rowText);
+}
+
+const SCORE_TOKEN_REGEX_FALLBACK = /(\d{1,3}(?:[,\.]\d{3})*|[—\-]+)\s*/y;
+function extractScoreFallback(text) {
+  let words = [];
+  let match = null;
+  while ((match = SCORE_TOKEN_REGEX_FALLBACK.exec(text)) !== null) {
+    words.push(match[1]);
+  }
+  if (words.length !== 3) return [0, 0, 0];
+
+  const stageScores = words.map(
+    (word) => parseInt(word.replaceAll(/[^\d]/g, ""), 10) || 0,
+  );
+
+  return stageScores;
 }
