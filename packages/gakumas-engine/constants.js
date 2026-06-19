@@ -227,6 +227,7 @@ export const ALL_FIELDS = [
   "nullifySelect",
   "freeCardUses",
   "paidCardUses",
+  "unfreshPhase",
 
   // Delta
   "goodImpressionTurnsDelta",

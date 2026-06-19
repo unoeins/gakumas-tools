@@ -1,7 +1,12 @@
 import { extractLines, getWhiteCanvas, loadImageFromFile } from "./common";
+import {
+  allTokens,
+  parseScoreToken,
+  pairTotalLine,
+  recoverStage,
+} from "./rehearsalRecovery";
 
 const NUMERIC_LINE_REGEX = /^[\d\s,.—-]+$/;
-const SCORE_TOKEN_REGEX = /(\d{1,3}(?:[,\.]\d{3})*|[—\-]+)\s*/y;
 const OCR_MIN_WIDTH = 1200;
 
 function getOcrScale(img) {
@@ -23,30 +28,60 @@ export async function getScoresFromImage(img, worker) {
   return scores;
 }
 
+// The rehearsal result screen always has exactly three stages. extractScores
+// always returns three [c1, c2, c3] rows in stage order, using 0 for any value
+// it could not read (a whole unreadable stage becomes [0, 0, 0]). This keeps the
+// columns aligned so the user can fix any 0 cell manually in the table.
+const NUM_STAGES = 3;
+
 export function extractScores(result) {
-  let scores = [];
-
   const lines = extractLines(result);
-  for (let i in lines) {
-    const line = lines[i];
-    if (line.confidence < 60) continue;
 
-    if (!NUMERIC_LINE_REGEX.test(line.text)) continue;
-    let words = [];
-    let match = null;
-    while ((match = SCORE_TOKEN_REGEX.exec(line.text)) !== null) {
-      words.push(match[1]);
-    }
-    if (words.length != 3) continue;
+  // Identify the three breakdown rows WITHOUT any score-magnitude assumption (a
+  // per-character score may be anywhere in [0, 3,000,000)). The discriminators
+  // are purely structural:
+  //  - a breakdown row has >= 2 numeric tokens (the total / 総合力 overall-power
+  //    lines have a single number);
+  //  - it has no "+" (the stage label "+ ステージ N +" and the bonus "+NNNNNN"
+  //    carry a "+"; breakdown rows never do);
+  //  - of the remaining candidates, the three score rows carry by far the most
+  //    digits (three numbers each) versus stray noise lines, so the three richest
+  //    candidates are the stages.
+  const candidates = [];
+  for (const line of lines) {
+    if (line.text.includes("+")) continue;
+    const toks = allTokens(line.text);
+    const nums = toks.map(parseScoreToken);
+    const numericCount = nums.filter((v) => v > 0).length;
+    if (numericCount < 2) continue;
 
-    const stageScores = words.map(
-      (word) => parseInt(word.replaceAll(/[^\d]/g, ""), 10) || "",
-    );
-
-    scores.push(stageScores);
-
-    if (scores.length == 3) break;
+    const raw = [0, 0, 0];
+    for (let i = 0; i < Math.min(3, nums.length); i++) raw[i] = nums[i];
+    candidates.push({
+      line,
+      raw,
+      cleanThree:
+        line.confidence >= 60 &&
+        NUMERIC_LINE_REGEX.test(line.text) &&
+        toks.length === 3,
+      digitCount: (line.text.match(/\d/g) || []).length,
+    });
   }
 
+  // The three score rows are the richest candidates; order them top-to-bottom.
+  const stageRows = candidates
+    .sort((a, b) => b.digitCount - a.digitCount)
+    .slice(0, NUM_STAGES)
+    .sort((a, b) => a.line.bbox.y0 - b.line.bbox.y0);
+  const chosen = new Set(stageRows.map((s) => s.line));
+
+  const scores = [];
+  for (const { line, raw, cleanThree } of stageRows) {
+    const totalLine = pairTotalLine(line, lines, chosen);
+    scores.push(recoverStage(line.text, raw, cleanThree, totalLine));
+  }
+
+  // Always return three aligned stages, padding any not found with zeros.
+  while (scores.length < NUM_STAGES) scores.push([0, 0, 0]);
   return scores;
 }
