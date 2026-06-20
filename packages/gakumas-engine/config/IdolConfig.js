@@ -66,9 +66,9 @@ export default class IdolConfig {
     // P-items, P-drinks, and skill cards
     this.pItemIds = [...new Set(pItemIds.filter((id) => id))];
     const stage = Stages.getById(stageId);
-    this.pDrinkIds = stage.type === "exam" ? [...pDrinkIds.filter((id) => id)] : [];
+    this.pDrinkIds = stage?.type === "exam" ? [...pDrinkIds.filter((id) => id)] : [];
     this.hifAbilityIds = 
-      stage.type === "exam" &&
+      stage?.type === "exam" &&
       (stage.season === 7 || stage.season === 8) ?
       [...new Set(hifAbilityIds.filter((id) => id))] :
       [];
