@@ -38,6 +38,7 @@ function StateViewer({ state, idolId, plan }) {
     {name: "stance", type: "string"},
     {name: "fullPowerCharge", type: "number"},
     {name: "fullPowerChargeBuffs", type: "buffs"},
+    {name: "fullPowerEffectBuffs", type: "buffs"},
     {name: "enthusiasm", type: "number"},
     {name: "enthusiasmBonusBuffs", type: "buffs_flat"},
     {name: "enthusiasmBuffs", type: "buffs"},
