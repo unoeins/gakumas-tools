@@ -140,6 +140,7 @@ export default class BuffManager extends EngineComponent {
     state[S.enthusiasmBonusBuffs] = [];
     state[S.fullPowerChargeBuffs] = [];
     state[S.fullPowerEffectBuffs] = [];
+
     // Sense
     state[S.goodConditionTurns] = 0;
     state[S.perfectConditionTurns] = 0;

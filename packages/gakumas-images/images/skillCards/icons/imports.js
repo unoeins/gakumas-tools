@@ -3368,6 +3368,12 @@ import image_835 from "./835.png";
 import image_836 from "./836.png";
 import image_837 from "./837.png";
 import image_838 from "./838.png";
+import image_839 from "./839.png";
+import image_840 from "./840.png";
+import image_841 from "./841.png";
+import image_842 from "./842.png";
+import image_843 from "./843.png";
+import image_844 from "./844.png";
 
 const IMAGES = {
   '1': image_1,
@@ -6740,6 +6746,12 @@ const IMAGES = {
   '836': image_836,
   '837': image_837,
   '838': image_838,
+  '839': image_839,
+  '840': image_840,
+  '841': image_841,
+  '842': image_842,
+  '843': image_843,
+  '844': image_844,
 };
 
 export default IMAGES;

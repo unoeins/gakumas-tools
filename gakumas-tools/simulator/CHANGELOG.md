@@ -3,6 +3,17 @@
 All notable changes to the contest simulator will be documented in this file.
 Dates are based on Eastern Time Zone.
 
+
+
+## 2026-06-26
+
+- Update GO MY WAY!! Kotone
+- Add GO MY WAY!! Saki
+
+## 2026-06-25
+
+- Add preview of GO MY WAY!! Kotone
+
 ## 2026-06-15
 
 - Add p-idol legend cards
