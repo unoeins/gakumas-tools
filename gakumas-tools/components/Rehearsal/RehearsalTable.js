@@ -1,6 +1,6 @@
 import React, { useMemo, useRef, useState } from "react";
 import { AiOutlineBarChart, AiOutlineBoxPlot } from "react-icons/ai";
-import { FaRegCircleXmark, FaRegImage } from "react-icons/fa6";
+import { FaCheck, FaRegCircleXmark, FaRegImage } from "react-icons/fa6";
 import c from "@/utils/classNames";
 import styles from "./Rehearsal.module.scss";
 
@@ -10,6 +10,7 @@ export default function RehearsalTable({
   onChartClick,
   onRowDelete,
   onCellEdit,
+  onVerifyRow,
 }) {
   // [rowIndex, stageIndex, scoreIndex] of the cell being edited, or null.
   const [editing, setEditing] = useState(null);
@@ -132,6 +133,7 @@ export default function RehearsalTable({
       <tbody>
         {data.map((row, i) => {
           const showPreview = row.src && previewRow === i;
+          const rowFlagged = row.flags?.some((f) => f === "flagged");
           return (
             <React.Fragment key={i}>
               <tr>
@@ -167,6 +169,7 @@ export default function RehearsalTable({
                             styles.score,
                             k === 0 && styles.stageStart,
                             isEditing && styles.editing,
+                            row.flags?.[j] === "flagged" && styles.flagged,
                           )}
                           style={getCellColor(score)}
                           onMouseDown={(e) => {
@@ -213,6 +216,15 @@ export default function RehearsalTable({
                   className={c(styles.action, styles.stageStart)}
                   onMouseDown={(e) => e.preventDefault()}
                 >
+                  {rowFlagged && (
+                    <button
+                      className={styles.verify}
+                      title="Confirm this row's values are correct"
+                      onClick={() => onVerifyRow(i)}
+                    >
+                      <FaCheck />
+                    </button>
+                  )}
                   {row.src && (
                     <button
                       className={previewRow === i ? styles.active : null}
