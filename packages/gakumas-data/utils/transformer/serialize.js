@@ -73,9 +73,8 @@ export function serializeExpr(node, parentPrecedence = 0) {
     case "assignment":
       if (node.lhsName) {
         return `${node.lhs}(${node.lhsName})${node.op}${serializeExpr(node.rhs, 0)}`;
-      } else {
-        return `${node.lhs}${node.op}${serializeExpr(node.rhs, 0)}`;
       }
+      return `${node.lhs}${node.op}${serializeExpr(node.rhs, 0)}`;
 
     default:
       console.warn("Unknown node type in serialization:", node.type);
