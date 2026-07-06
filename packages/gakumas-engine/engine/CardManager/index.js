@@ -28,12 +28,31 @@ function mergePatch(original, delta) {
   return merged;
 }
 
+const ACTION_EFFECT_NAMES = {
+  setGoodImpressionTurnsBuff: "goodImpressionTurns",
+  setGoodImpressionTurnsEffectBuff: "goodImpressionTurns",
+  setGoodImpressionTurnsTimesBuff: "goodImpressionTurns",
+  setMotivationBuff: "motivation",
+  setMotivationAdditionBuff: "motivation",
+  setGoodConditionTurnsBuff: "goodConditionTurns",
+  setConcentrationBuff: "concentration",
+  setConcentrationAdditionBuff: "concentration",
+  setConcentrationEffectBuff: "concentration",
+  setEnthusiasmBuff: "preservation",
+  setEnthusiasmBonus: "preservation",
+  setFullPowerChargeBuff: "fullPowerCharge",
+  setFullPowerEffectBuff: "fullPowerCharge",
+};
+
 // Extract the "effect name" for a single action — what a cardEffects
 // membership check (e.g. `if:cardHasEffect(X)`) would match against.
 function actionEffectName(action) {
   if (!action) return null;
-  if (action.type === "assignment") return action.lhs;
+  if (action.type === "assignment" && 
+    (action.op === "+=" || action.op === "*=")) return action.lhs;
   if (action.type === "call") {
+    const name = ACTION_EFFECT_NAMES[action.name];
+    if (name) return name;
     if (action.name === "setStance" && action.args.length > 0) {
       const arg = action.args[0];
       return arg.type === "identifier"
