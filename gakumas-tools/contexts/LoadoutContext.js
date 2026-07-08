@@ -53,8 +53,39 @@ export function LoadoutContextProvider({ children }) {
   const [removedCardOrder, setRemovedCardOrder] = useState(initialLoadout.removedCardOrder);
   const [turnTypeOrder, setTurnTypeOrder] = useState(initialLoadout.turnTypeOrder);
 
-  // console.log("skillCardIdOrderGroups", skillCardIdOrderGroups);
-  // console.log("customizationOrderGroups", customizationOrderGroups);
+  const [enableStrategyCustomization, setEnableStrategyCustomization] = useState(
+    initialLoadout.enableStrategyCustomization || false
+  );
+  const [maxDepth, setMaxDepth] = useState(initialLoadout.maxDepth || 3);
+  const [nextDepth, setNextDepth] = useState(initialLoadout.nextDepth || 3);
+  const [scoreMultiplier, setScoreMultiplier] = useState(
+    initialLoadout.scoreMultiplier || 100
+  );
+  const [goodConditionTurnsMultiplier, setGoodConditionTurnsMultiplier] = useState(
+    initialLoadout.goodConditionTurnsMultiplier || 100
+  );
+  const [concentrationMultiplier, setConcentrationMultiplier] = useState(
+    initialLoadout.concentrationMultiplier || 100
+  );
+  const [goodImpressionTurnsMultiplier, setGoodImpressionTurnsMultiplier] = useState(
+    initialLoadout.goodImpressionTurnsMultiplier || 100
+  );
+  const [motivationMultiplier, setMotivationMultiplier] = useState(
+    initialLoadout.motivationMultiplier || 100
+  );
+  const [fullPowerMultiplier, setFullPowerMultiplier] = useState(
+    initialLoadout.fullPowerMultiplier || 100
+  );
+  const [enableEffectScore, setEnableEffectScore] = useState(
+    initialLoadout.enableEffectScore || false
+  );
+  const [effectScoreMultiplier, setEffectScoreMultiplier] = useState(
+    initialLoadout.effectScoreMultiplier || 100
+  );
+  const [enableNewHoldStrategy, setEnableNewHoldStrategy] = useState(
+    initialLoadout.enableNewHoldStrategy || false
+  );
+
   const pIdolId = inferPIdolId(pItemIds, skillCardIdGroups);
 
   const stage = useMemo(() => {
@@ -89,6 +120,18 @@ export function LoadoutContextProvider({ children }) {
       customizationOrderGroups,
       removedCardOrder,
       turnTypeOrder,
+      enableStrategyCustomization,
+      maxDepth,
+      nextDepth,
+      scoreMultiplier,
+      goodConditionTurnsMultiplier,
+      concentrationMultiplier,
+      goodImpressionTurnsMultiplier,
+      motivationMultiplier,
+      fullPowerMultiplier,
+      enableEffectScore,
+      effectScoreMultiplier,
+      enableNewHoldStrategy,
     }),
     [
       stageId,
@@ -106,6 +149,18 @@ export function LoadoutContextProvider({ children }) {
       customizationOrderGroups,
       removedCardOrder,
       turnTypeOrder,
+      enableStrategyCustomization,
+      maxDepth,
+      nextDepth,
+      scoreMultiplier,
+      goodConditionTurnsMultiplier,
+      concentrationMultiplier,
+      goodImpressionTurnsMultiplier,
+      motivationMultiplier,
+      fullPowerMultiplier,
+      enableEffectScore,
+      effectScoreMultiplier,
+      enableNewHoldStrategy,
     ]
   );
 
@@ -842,6 +897,18 @@ export function LoadoutContextProvider({ children }) {
         setCurrentLoadoutIndex,
         setSkillCardIdGroups,
         setCustomizationGroups,
+        setEnableStrategyCustomization,
+        setMaxDepth,
+        setNextDepth,
+        setScoreMultiplier,
+        setGoodConditionTurnsMultiplier,
+        setConcentrationMultiplier,
+        setGoodImpressionTurnsMultiplier,
+        setMotivationMultiplier,
+        setFullPowerMultiplier,
+        setEnableEffectScore,
+        setEffectScoreMultiplier,
+        setEnableNewHoldStrategy,
       }}
     >
       {children}

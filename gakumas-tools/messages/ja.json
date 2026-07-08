@@ -692,7 +692,19 @@
     "enableConditionalUseStats": "特定のスキルカードを引いた時の条件付き使用回数を集計する",
     "enablePriorityStats": "スキルカード優先使用回数を集計する",
     "enableScoreStats": "スコア統計を集計する",
-    "enableSelectRandomCards": "スキルカードをランダムに選ぶ効果を手動で選択する"
+    "enableSelectRandomCards": "スキルカードをランダムに選ぶ効果を手動で選択する",
+    "enableStrategyCustomization": "シミュレーターのカスタマイズを有効にする",
+    "maxDepth": "先読み手数",
+    "nextDepth": "再評価手数",
+    "scoreMultiplier": "スコア評価倍率%",
+    "goodConditionTurnsMultiplier": "好調評価倍率%",
+    "concentrationMultiplier": "集中評価倍率%",
+    "goodImpressionTurnsMultiplier": "好印象評価倍率%",
+    "motivationMultiplier": "やる気評価倍率%",
+    "fullPowerMultiplier": "全力値評価倍率%",
+    "enableEffectScore": "持続効果スコアを評価する",
+    "effectScoreMultiplier": "持続効果スコア評価倍率%",
+    "enableNewHoldStrategy": "保留戦略を変更する"
   },
   "SkillCardOrderGroups": {
     "Nth_order": "{n}週目のカード順",

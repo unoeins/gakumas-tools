@@ -2,7 +2,7 @@ import { G, S } from "../constants";
 import { deepCopy, getRand } from "../utils";
 import BaseStrategy from "./BaseStrategy";
 
-const MAX_DEPTH = 3;
+const DEFAULT_MAX_DEPTH = 3;
 
 // Shared "sum amount × (turns || turnsRemaining)" for the buff-weighting
 // used across getStateScore. A tight for-loop is notably faster than
@@ -46,6 +46,36 @@ export default class HeuristicStrategy extends BaseStrategy {
     // getStateScore doesn't rebuild them on every call (it fires several
     // times per useCard speculation, thousands of times per run).
     this._configCache = new Map();
+
+    if (engine.config.simulator.enableStrategyCustomization) {
+      this.maxDepth = engine.config.simulator.maxDepth;
+      this.nextDepth = engine.config.simulator.nextDepth;
+
+      this.customScoreMultiplier = engine.config.simulator.scoreMultiplier;
+      this.customGoodConditionTurnsMultiplier = engine.config.simulator.goodConditionTurnsMultiplier;
+      this.customConcentrationMultiplier = engine.config.simulator.concentrationMultiplier;
+      this.customGoodImpressionTurnsMultiplier = engine.config.simulator.goodImpressionTurnsMultiplier;
+      this.customMotivationMultiplier = engine.config.simulator.motivationMultiplier;
+      this.customFullPowerMultiplier = engine.config.simulator.fullPowerMultiplier;
+
+      this.enableEffectScore = engine.config.simulator.enableEffectScore;
+      this.effectScoreMultiplier = engine.config.simulator.effectScoreMultiplier;
+      this.enableNewHoldStrategy = engine.config.simulator.enableNewHoldStrategy;
+    } else {
+      this.maxDepth = DEFAULT_MAX_DEPTH;
+      this.nextDepth = DEFAULT_MAX_DEPTH;
+
+      this.customScoreMultiplier = 1;
+      this.customGoodConditionTurnsMultiplier = 1;
+      this.customConcentrationMultiplier = 1;
+      this.customGoodImpressionTurnsMultiplier = 1;
+      this.customMotivationMultiplier = 1;
+      this.customFullPowerMultiplier = 1;
+
+      this.enableEffectScore = false;
+      this.effectScoreMultiplier = 1;
+      this.enableNewHoldStrategy = false;
+    }
   }
 
   _getScoringConfig(state) {
@@ -59,6 +89,20 @@ export default class HeuristicStrategy extends BaseStrategy {
     let goodConditionTurnsMultiplier =
       recommendedEffect == "goodConditionTurns" ? 1.75 : 1;
     if (pIdolId == 114) goodConditionTurnsMultiplier = 8;
+    goodConditionTurnsMultiplier *= this.customGoodConditionTurnsMultiplier;
+
+    let concentrationMultiplier = recommendedEffect == "concentration" ? 3 : 1;
+    concentrationMultiplier *= this.customConcentrationMultiplier;
+
+    let goodImpressionTurnsMultiplier =
+      recommendedEffect == "goodImpressionTurns" ? 3.5 : 1;
+    goodImpressionTurnsMultiplier *= this.customGoodImpressionTurnsMultiplier;
+
+    let motivationMultiplier = recommendedEffect == "motivation" ? 5.5 : 1;
+    motivationMultiplier *= this.customMotivationMultiplier;
+
+    let fullPowerMultiplier = recommendedEffect == "fullPower" ? 5 : 1;
+    fullPowerMultiplier *= this.customFullPowerMultiplier;
 
     // Average type multiplier: weighted by each turn type's share of the
     // stage's turn count. Pure function of config.
@@ -75,11 +119,10 @@ export default class HeuristicStrategy extends BaseStrategy {
       pIdolId,
       plan,
       goodConditionTurnsMultiplier,
-      concentrationMultiplier: recommendedEffect == "concentration" ? 3 : 1,
-      goodImpressionTurnsMultiplier:
-        recommendedEffect == "goodImpressionTurns" ? 3.5 : 1,
-      motivationMultiplier: recommendedEffect == "motivation" ? 5.5 : 1,
-      fullPowerMultiplier: recommendedEffect == "fullPower" ? 5 : 1,
+      concentrationMultiplier,
+      goodImpressionTurnsMultiplier,
+      motivationMultiplier,
+      fullPowerMultiplier,
       averageTypeMultiplier,
     };
     this._configCache.set(linkPhase, cache);
@@ -87,58 +130,74 @@ export default class HeuristicStrategy extends BaseStrategy {
   }
 
   evaluate(state) {
+    const result = this.evaluateInternal(state, state);
+    return { score: result.score, state: result.nextState };
+  }
+
+  evaluateInternal(state, nextState) {
     if (this.depth == 0) {
       this.rootEffectCount = state[S.effects].length;
     }
 
-    const logIndex = this.engine.logger.log(state, "hand", null);
+    let logIndex = null;
+    if (this.depth < this.nextDepth) {
+      logIndex = this.engine.logger.log(state, "hand", null);
+    }
 
     const futures = state[S.handCards].map((card) =>
-      this.getFuture(state, card)
+      this.getFuture(state, nextState, card)
     );
-
-    let nextState;
 
     const scores = futures.map((f) => (f ? f.score : -Infinity));
     let maxScore = Math.max(...scores);
     let selectedIndex = null;
     if (maxScore > 0) {
       selectedIndex = scores.indexOf(maxScore);
-      nextState = futures[selectedIndex].state;
+      if (this.depth < this.nextDepth) {
+        nextState = futures[selectedIndex].nextState;
+      }
     } else {
-      nextState = this.engine.endTurn(state);
-      maxScore = this.getStateScore(nextState);
+      const endTurnState = this.engine.endTurn(state);
+      if (this.depth < this.nextDepth) {
+        nextState = endTurnState;
+      }
+      maxScore = this.getStateScore(endTurnState);
     }
 
-    this.engine.logger.logs[logIndex].data = {
-      handCards: state[S.handCards].map((card) => ({
-        id: state[S.cardMap][card].id,
-        c: state[S.cardMap][card].c11n,
-      })),
-      scores,
-      selectedIndex,
-      state: this.engine.logger.getHandStateForLogging(state),
-    };
+    if (logIndex !== null) {
+      this.engine.logger.logs[logIndex].data = {
+        handCards: state[S.handCards].map((card) => ({
+          id: state[S.cardMap][card].id,
+          c: state[S.cardMap][card].c11n,
+        })),
+        scores,
+        selectedIndex,
+        state: this.engine.logger.getHandStateForLogging(state),
+      };
+    }
 
-    return { score: maxScore, state: nextState };
+    return { score: maxScore, state: nextState, nextState: nextState };
   }
 
-  getFuture(state, card) {
+  getFuture(state, nextState, card) {
     if (!this.engine.isCardUsable(state, card)) {
       return null;
     }
 
     const previewState = this.engine.useCard(state, card);
+    if (this.depth < this.nextDepth) {
+      nextState = previewState;
+    }
     this.depth++;
 
     // Additional actions
     if (
       previewState[S.turnsRemaining] >= state[S.turnsRemaining] &&
-      this.depth < MAX_DEPTH
+      this.depth < this.maxDepth
     ) {
-      const future = this.evaluate(previewState);
+      const future = this.evaluateInternal(previewState, nextState);
       this.depth--;
-      return { score: future.score, state: future.state };
+      return { score: future.score, state: future.state, nextState: future.nextState };
     }
 
     let score = 0;
@@ -187,7 +246,7 @@ export default class HeuristicStrategy extends BaseStrategy {
     score += this.getStateScore(previewState);
 
     this.depth--;
-    return { score: Math.round(score), state: previewState };
+    return { score: Math.round(score), state: previewState, nextState: nextState };
   }
 
   getAverageTypeMultiplier(state) {
@@ -373,26 +432,32 @@ export default class HeuristicStrategy extends BaseStrategy {
     // Turn cards upgraded
     score += state[S.turnCardsUpgraded] * 20;
 
+    // Effect score
+    if (this.enableEffectScore) {
+      score += this.getEffectScore(state) * this.effectScoreMultiplier;
+    }
+
     // Scale score
     score = Math.ceil(score * sc.averageTypeMultiplier);
 
+    const baseScore = state[S.score] * this.customScoreMultiplier;
     const recommendedEffect = sc.recommendedEffect;
     if (recommendedEffect == "goodConditionTurns") {
-      score += state[S.score] * 0.4;
+      score += baseScore * 0.4;
     } else if (recommendedEffect == "concentration") {
-      score += state[S.score] * 0.6;
+      score += baseScore * 0.6;
     } else if (recommendedEffect == "goodImpressionTurns") {
-      score += state[S.score] * 1.1;
+      score += baseScore * 1.1;
     } else if (recommendedEffect == "motivation") {
-      score += state[S.score] * 0.6;
+      score += baseScore * 0.6;
     } else if (recommendedEffect == "strength") {
-      score += state[S.score] * 0.65;
+      score += baseScore * 0.65;
     } else if (recommendedEffect == "preservation") {
-      score += state[S.score] * 0.65;
+      score += baseScore * 0.65;
     } else if (recommendedEffect == "fullPower") {
-      score += state[S.score] * 0.8;
+      score += baseScore * 0.8;
     } else {
-      score += state[S.score];
+      score += baseScore;
     }
 
     return Math.round(score);
@@ -411,15 +476,60 @@ export default class HeuristicStrategy extends BaseStrategy {
     return growthScore;
   }
 
+  getEffectScore(state) {
+    let score = 0;
+    const effectState = deepCopy(state);
+    effectState[S.stance] = "none";
+    const effects = effectState[S.effects].filter(
+      (e) => e.actions && e.actions.some(a => a.type === "assignment" && a.lhs === "score")
+    );
+    let preEffectScore = effectState[S.score];
+    for (let i = 0; i < effects.length; i++) {
+      const effect = effects[i];
+      let limit = effectState[S.turnsRemaining];
+      if (
+        effect.limit != null &&
+        effect.limit < limit
+      ) {
+        limit = effect.limit;
+      }
+      if (limit <= 0) continue;
+      this.engine.effectManager.triggerEffects(
+        effectState,
+        [
+          {
+            ...effect,
+            phase: null,
+            delay: effect.delay - effectState[S.turnsRemaining],
+          },
+        ],
+        null,
+        null,
+        true
+      );
+      const effectScore = (effectState[S.score] - preEffectScore) * limit;
+      score += effectScore / this.engine.turnManager.getTurnMultiplier(effectState);
+      preEffectScore = effectState[S.score];
+    }
+    return score;
+  }
+
   evaluateForHold(state, card) {
     let previewState = this.engine.getInitialState(true);
     previewState[S.cardMap] = deepCopy(state[S.cardMap]);
     previewState[S.nullifySelect] = 1;
     this.engine.buffManager.setStance(previewState, "fullPower");
-    previewState = this.engine.useCard(previewState, card);
-    return Math.round(previewState[S.score]);
-    // return Math.round(previewState[S.score] + 
-    //   previewState[S.fullPowerCharge] * this.engine.turnManager.getTurnMultiplier(state));
+    if (this.enableNewHoldStrategy) {
+      previewState[S.paidCardUses] = 1;
+      const getTurnMultiplierBackup = this.engine.turnManager.getTurnMultiplier;
+      this.engine.turnManager.getTurnMultiplier = () => 10;
+      previewState = this.engine.useCard(previewState, card);
+      this.engine.turnManager.getTurnMultiplier = getTurnMultiplierBackup;
+      return Math.round(previewState[S.score] + previewState[S.fullPowerCharge]);
+    } else {
+      previewState = this.engine.useCard(previewState, card);
+      return Math.round(previewState[S.score]);
+    }
   }
 
   pickCardsToHold(state, cards, num = 1, optional = false) {
