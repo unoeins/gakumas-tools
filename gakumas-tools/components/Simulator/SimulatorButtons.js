@@ -117,10 +117,11 @@ function SimulatorButtons() {
 
       <Button
         style="blue-secondary"
+        size="sm"
         onClick={() => readLoadoutFromUrl()}
       >
         <FaRegPaste />
-        {t("readLoadoutFromUrl")}
+        <span className={styles.buttonText}>{t("readLoadoutFromUrl")}</span>
       </Button>
 
     </div>

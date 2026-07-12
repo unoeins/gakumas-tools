@@ -25,7 +25,7 @@ export default function LoadoutEditor({ config, idolId }) {
     swapPDrinkIds,
     replaceHifAbilityId,
     swapHifAbilityIds,
-    replaceStartingEffect
+    replaceStartingEffect,
   } = useContext(LoadoutContext);
 
   const {
@@ -56,7 +56,7 @@ export default function LoadoutEditor({ config, idolId }) {
             size="medium"
           />
         </div>
-        <span>{formatStageShortName(stage, t)}</span>
+        <span>{formatStageShortName(stage, t) + (loadout.enableStrategyCustomizations ? "*" : "")}</span>
       </div>
       {loadout.skillCardIdGroups.map((skillCardIdGroup, i) => (
         <LoadoutSkillCardGroup

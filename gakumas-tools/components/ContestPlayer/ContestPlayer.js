@@ -85,18 +85,8 @@ export default function ContestPlayer() {
     const stageConfig = new StageConfig(stage, loadout.startingEffects);
     const simulatorConfig = new SimulatorConfig({
       enableSkillCardOrder: loadout.enableSkillCardOrder,
-      enableStrategyCustomization: loadout.enableStrategyCustomization,
-      maxDepth: loadout.maxDepth,
-      nextDepth: loadout.nextDepth,
-      scoreMultiplier: loadout.scoreMultiplier,
-      goodConditionTurnsMultiplier: loadout.goodConditionTurnsMultiplier,
-      concentrationMultiplier: loadout.concentrationMultiplier,
-      goodImpressionTurnsMultiplier: loadout.goodImpressionTurnsMultiplier,
-      motivationMultiplier: loadout.motivationMultiplier,
-      fullPowerMultiplier: loadout.fullPowerMultiplier,
-      enableEffectScore: loadout.enableEffectScore,
-      effectScoreMultiplier: loadout.effectScoreMultiplier,
-      enableNewHoldStrategy: loadout.enableNewHoldStrategy,
+      enableStrategyCustomizations: loadout.enableStrategyCustomizations,
+      strategyCustomizations: loadout.strategyCustomizations,
       ...listenerConfig,
     });
     return new IdolStageConfig(idolConfig, stageConfig, enterPercents, simulatorConfig);
@@ -109,18 +99,8 @@ export default function ContestPlayer() {
       const stageConfig = new StageConfig(stage, ld.startingEffects);
       const simulatorConfig = new SimulatorConfig({
         enableSkillCardOrder: ld.enableSkillCardOrder,
-        enableStrategyCustomization: ld.enableStrategyCustomization,
-        maxDepth: ld.maxDepth,
-        nextDepth: ld.nextDepth,
-        scoreMultiplier: ld.scoreMultiplier,
-        goodConditionTurnsMultiplier: ld.goodConditionTurnsMultiplier,
-        concentrationMultiplier: ld.concentrationMultiplier,
-        goodImpressionTurnsMultiplier: ld.goodImpressionTurnsMultiplier,
-        motivationMultiplier: ld.motivationMultiplier,
-        fullPowerMultiplier: ld.fullPowerMultiplier,
-        enableEffectScore: ld.enableEffectScore,
-        effectScoreMultiplier: ld.effectScoreMultiplier,
-        enableNewHoldStrategy: ld.enableNewHoldStrategy,
+        enableStrategyCustomizations: ld.enableStrategyCustomizations,
+        strategyCustomizations: ld.strategyCustomizations,
         ...listenerConfig,
       });
       return new IdolStageConfig(idolConfig, stageConfig, enterPercents, simulatorConfig);

@@ -1,4 +1,13 @@
-import { PIdols, PItems, PDrinks, SkillCards, Stages } from "gakumas-data";
+import {
+  PIdols,
+  PItems,
+  PDrinks,
+  SkillCards,
+  Stages,
+  StrategyCustomizations,
+  deserializeStrategyCustomizations,
+  serializeStrategyCustomizations,
+} from "gakumas-data";
 import { GRAPHED_FIELDS, S } from "gakumas-engine";
 import { LISTENER_KEYS } from "gakumas-engine/constants";
 import { MIN_BUCKET_SIZE } from "@/simulator/constants";
@@ -23,11 +32,12 @@ export const DEFAULTS = {
   customizationOrderGroups: "-------------------",
   turnTypeOrder: "0-0-0-0-0-0-0-0-0-0-0-0",
   removedCardOrder: "0",
+  strategyCustomizations: "",
 };
 
 const SIMULATOR_BASE_URL = "https://gktools.unoeins.org/simulator";
 
-export function getSimulatorUrl(loadout, loadouts) {
+export function getSimulatorUrl(loadout, loadouts, pathname) {
   if (loadout.stageId === "custom") return null;
   const stage = Stages.getById(loadout.stageId);
   let searchParams;
@@ -39,9 +49,9 @@ export function getSimulatorUrl(loadout, loadouts) {
   try {
     const protocol = window.location.protocol;
     const host = window.location.host;
-    const pathname = window.location.pathname;
-    if(protocol && host && pathname) {
-      return `${protocol}//${host}${pathname}?${searchParams.toString()}`;
+    const realPathname = pathname || window.location.pathname;
+    if(protocol && host && realPathname) {
+      return `${protocol}//${host}${realPathname}?${searchParams.toString()}`;
     }
   } catch(e) {
     // ignore
@@ -63,12 +73,14 @@ export function loadoutFromSearchParams(searchParams, suffix = "") {
   let customizationOrderGroups = searchParams.get("order_customs" + suffix);
   let removedCardOrder = searchParams.get("order_removed");
   let turnTypeOrder = searchParams.get("order_turns");
+  let strategyCustomizations = searchParams.get("strategy_customs" + suffix);
   const hasDataFromParams =
     stageId || params || pItemIds || skillCardIdGroups || customizationGroups || 
     pDrinkIds || hifAbilityIds || startingEffects || 
     skillCardIdOrderGroups || customizationOrderGroups || turnTypeOrder;
   const enableSkillCardOrder = 
     skillCardIdOrderGroups || customizationOrderGroups || removedCardOrder || turnTypeOrder;
+  const enableStrategyCustomizations = strategyCustomizations != null;
 
   stageId = stageId || DEFAULTS.stageId;
   supportBonus = supportBonus || DEFAULTS.supportBonus;
@@ -79,9 +91,8 @@ export function loadoutFromSearchParams(searchParams, suffix = "") {
   pDrinkIds = pDrinkIds || DEFAULTS.pDrinkIds;
   hifAbilityIds = hifAbilityIds || DEFAULTS.hifAbilityIds;
   startingEffects = startingEffects || DEFAULTS.startingEffects;
-  // skillCardIdOrderGroups = skillCardIdOrderGroups || DEFAULTS.skillCardIdOrderGroups;
-  // customizationOrderGroups = customizationOrderGroups || DEFAULTS.customizationOrderGroups;
   removedCardOrder = removedCardOrder || DEFAULTS.removedCardOrder;
+  strategyCustomizations = strategyCustomizations || DEFAULTS.strategyCustomizations;
 
   stageId = parseInt(stageId, 10) || null;
   supportBonus = parseFloat(supportBonus) || null;
@@ -95,6 +106,10 @@ export function loadoutFromSearchParams(searchParams, suffix = "") {
   hifAbilityIds = deserializeIds(hifAbilityIds);
   startingEffects = deserializeIds(startingEffects);
   removedCardOrder = removedCardOrder == "1" ? "skip" : "random";
+  strategyCustomizations = {
+    ...StrategyCustomizations.getDefaults(),
+    ...deserializeStrategyCustomizations(strategyCustomizations)
+  };
 
   if (skillCardIdOrderGroups) {
     skillCardIdOrderGroups = skillCardIdOrderGroups
@@ -168,6 +183,8 @@ export function loadoutFromSearchParams(searchParams, suffix = "") {
     customizationOrderGroups,
     removedCardOrder,
     turnTypeOrder,
+    enableStrategyCustomizations,
+    strategyCustomizations,
   };
 }
 
@@ -195,6 +212,8 @@ export function loadoutToSearchParams(loadout) {
     customizationOrderGroups,
     removedCardOrder,
     turnTypeOrder,
+    enableStrategyCustomizations,
+    strategyCustomizations,
   } = loadout;
   const searchParams = new URLSearchParams();
   searchParams.set("stage", stageId);
@@ -228,6 +247,9 @@ export function loadoutToSearchParams(loadout) {
         turnTypeOrder.map((t) => ["none", "vocal", "dance", "visual"].indexOf(t)).join("-")
       );
     }
+  }
+  if (enableStrategyCustomizations) {
+    searchParams.set("strategy_customs", serializeStrategyCustomizations(strategyCustomizations));
   }
   return searchParams;
 }

@@ -1,28 +1,70 @@
-import { memo, useContext } from "react";
+import { memo, useMemo, useContext, useEffect, useState, useRef } from "react";
 import { useTranslations } from "next-intl";
+import {
+  FaCheck,
+  FaRegCopy,
+  FaRegPaste,
+  FaRegTrashCan,
+} from "react-icons/fa6";
+import { StrategyCustomizations } from "gakumas-data";
+import Button from "@/components/Button";
+import ConfirmModal from "@/components/ConfirmModal";
 import Input from "@/components/Input";
 import SkillCardAndTurnTypeOrder from "@/components/SkillCardOrderGroups/SkillCardAndTurnTypeOrder";
 import LoadoutContext from "@/contexts/LoadoutContext";
+import ModalContext from "@/contexts/ModalContext";
+import { loadoutFromSearchParams, loadoutsFromSearchParams } from "@/utils/simulator";
 import styles from "./SimulatorExtensions.module.scss";
 
 function SimulatorExtensions({ mode, config, idolId, listenerConfig, setListenerConfig }) {
   const t = useTranslations("SimulatorExtensions");
   const {
     loadout,
+    simulatorUrl,
     setEnableSkillCardOrder,
-    setEnableStrategyCustomization,
-    setMaxDepth,
-    setNextDepth,
-    setScoreMultiplier,
-    setGoodConditionTurnsMultiplier,
-    setConcentrationMultiplier,
-    setGoodImpressionTurnsMultiplier,
-    setMotivationMultiplier,
-    setFullPowerMultiplier,
-    setEnableEffectScore,
-    setEffectScoreMultiplier,
-    setEnableNewHoldStrategy,
+    setEnableStrategyCustomizations,
+    setStrategyCustomizations,
   } = useContext(LoadoutContext);
+  const { setModal } = useContext(ModalContext);
+
+  const [linkCopied, setLinkCopied] = useState(false);
+  const copiedTimerRef = useRef(null);
+
+  useEffect(
+    () => () => {
+      if (copiedTimerRef.current) clearTimeout(copiedTimerRef.current);
+    },
+    [],
+  );
+
+  const strategyCustomizations = useMemo(
+    () => new StrategyCustomizations(loadout.strategyCustomizations, setStrategyCustomizations),
+    [loadout.strategyCustomizations]
+  );
+
+  async function readStrategyCustomizationsFromUrl() {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (!/^https?:\/\/.+/i.test(text)) {
+        setModal(<ConfirmModal message={t("invalidUrl")} showCancel={false} />);
+        return;
+      }
+      const url = new URL(text);
+      const loadouts = loadoutsFromSearchParams(url.searchParams);
+      const loadout = loadouts[0] || loadoutFromSearchParams(url.searchParams);
+      if (loadout.enableStrategyCustomizations && loadout.strategyCustomizations) {
+        setModal(<ConfirmModal message={t("confirmSetLoadout")} onConfirm={() => {
+          setStrategyCustomizations(loadout.strategyCustomizations);
+        }} />);
+      } else {
+        setModal(<ConfirmModal message={t("invalidLoadout")} showCancel={false} />);
+      }
+    } catch (err) {
+      console.error("Clipboard error:", err);
+      setModal(<ConfirmModal message={t("clipboardError")} showCancel={false} />);
+    }
+  }
+
   return (
     <div className={styles.simulatorExtensions}>
       <div className={styles.skillCardOrderToggle}>
@@ -92,150 +134,86 @@ function SimulatorExtensions({ mode, config, idolId, listenerConfig, setListener
             <input
               type="checkbox"
               id="enableStrategyCustomization"
-              checked={loadout.enableStrategyCustomization}
-              onChange={(e) => setEnableStrategyCustomization(e.target.checked)}
+              checked={loadout.enableStrategyCustomizations}
+              onChange={(e) => setEnableStrategyCustomizations(e.target.checked)}
             />
             <label htmlFor="enableStrategyCustomization">{t("enableStrategyCustomization")}</label>
           </div>
-          {loadout.enableStrategyCustomization && (
-            <div className={styles.strategyCustomizationInputs}>
-              <div className={styles.customizationGroup}>
-                <div>
-                  <label htmlFor="maxDepth">{t("maxDepth")}</label>
-                  <Input
-                    type="number"
-                    id="maxDepth"
-                    round={true}
-                    min={1}
-                    max={10}
-                    value={loadout.maxDepth}
-                    onChange={(value) => setMaxDepth(parseInt(value))}
-                  />
+          {loadout.enableStrategyCustomizations && (
+            <>
+            <div className={styles.strategyCustomizations}>
+              {StrategyCustomizations.getAll().map((customization) => (
+                <div key={customization.id} className={styles.strategyCustomizationInput}>
+                  {customization.type === "boolean" && (
+                    <input
+                      type="checkbox"
+                      id={customization.name}
+                      checked={strategyCustomizations.get(customization.id)}
+                      onChange={(e) => strategyCustomizations.set(customization.id, e.target.checked)}
+                    />
+                  )}
+                  <label htmlFor={customization.name}>{t(customization.name)}</label>
+                  {customization.type === "integer" && (
+                    <Input
+                      type="number"
+                      id={customization.name}
+                      round={true}
+                      min={customization.min}
+                      max={customization.max}
+                      value={strategyCustomizations.get(customization.id)}
+                      onChange={(value) => strategyCustomizations.set(customization.id, parseInt(value))}
+                    />
+                  )}
                 </div>
-                <div>
-                  <label htmlFor="nextDepth">{t("nextDepth")}</label>
-                  <Input
-                    type="number"
-                    id="nextDepth"
-                    round={true}
-                    min={1}
-                    max={10}
-                    value={loadout.nextDepth}
-                    onChange={(value) => setNextDepth(parseInt(value))}
-                  />
-                </div>
-              </div>
-              <div className={styles.customizationGroup}>
-                <div>
-                  <label htmlFor="scoreMultiplier">{t("scoreMultiplier")}</label>
-                  <Input
-                    type="number"
-                    id="scoreMultiplier"
-                    round={true}
-                    min={1}
-                    max={10000}
-                    value={loadout.scoreMultiplier}
-                    onChange={(value) => setScoreMultiplier(parseInt(value))}
-                  />
-                </div>
-                <div>
-                  <input
-                    type="checkbox"
-                    id="enableEffectScore"
-                    checked={loadout.enableEffectScore}
-                    onChange={(e) => setEnableEffectScore(e.target.checked)}
-                  />
-                  <label htmlFor="enableEffectScore">{t("enableEffectScore")}</label>
-                </div>
-                <div>
-                  <label htmlFor="effectScoreMultiplier">{t("effectScoreMultiplier")}</label>
-                  <Input
-                    type="number"
-                    id="effectScoreMultiplier"
-                    round={true}
-                    min={1}
-                    max={10000}
-                    value={loadout.effectScoreMultiplier}
-                    onChange={(value) => setEffectScoreMultiplier(parseInt(value))}
-                  />
-                </div>
-              </div>
-              <div className={styles.customizationGroup}>
-                <div>
-                  <label htmlFor="goodConditionTurnsMultiplier">{t("goodConditionTurnsMultiplier")}</label>
-                  <Input
-                    type="number"
-                    id="goodConditionTurnsMultiplier"
-                    round={true}
-                    min={1}
-                    max={10000}
-                    value={loadout.goodConditionTurnsMultiplier}
-                    onChange={(value) => setGoodConditionTurnsMultiplier(parseInt(value))}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="concentrationMultiplier">{t("concentrationMultiplier")}</label>
-                  <Input
-                    type="number"
-                    id="concentrationMultiplier"
-                    round={true}
-                    min={1}
-                    max={10000}
-                    value={loadout.concentrationMultiplier}
-                    onChange={(value) => setConcentrationMultiplier(parseInt(value))}
-                  />
-                </div>
-              </div>
-              <div className={styles.customizationGroup}>
-                <div>
-                  <label htmlFor="goodImpressionTurnsMultiplier">{t("goodImpressionTurnsMultiplier")}</label>
-                  <Input
-                    type="number"
-                    id="goodImpressionTurnsMultiplier"
-                    round={true}
-                    min={1}
-                    max={10000}
-                    value={loadout.goodImpressionTurnsMultiplier}
-                    onChange={(value) => setGoodImpressionTurnsMultiplier(parseInt(value))}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="motivationMultiplier">{t("motivationMultiplier")}</label>
-                  <Input
-                    type="number"
-                    id="motivationMultiplier"
-                    round={true}
-                    min={1}
-                    max={10000}
-                    value={loadout.motivationMultiplier}
-                    onChange={(value) => setMotivationMultiplier(parseInt(value))}
-                  />
-                </div>
-              </div>
-              <div className={styles.customizationGroup}>
-                <div>
-                  <label htmlFor="fullPowerMultiplier">{t("fullPowerMultiplier")}</label>
-                  <Input
-                    type="number"
-                    id="fullPowerMultiplier"
-                    round={true}
-                    min={1}
-                    max={10000}
-                    value={loadout.fullPowerMultiplier}
-                    onChange={(value) => setFullPowerMultiplier(parseInt(value))}
-                  />
-                </div>
-                <div>
-                  <input
-                    type="checkbox"
-                    id="enableNewHoldStrategy"
-                    checked={loadout.enableNewHoldStrategy}
-                    onChange={(e) => setEnableNewHoldStrategy(e.target.checked)}
-                  />
-                  <label htmlFor="enableNewHoldStrategy">{t("enableNewHoldStrategy")}</label>
-                </div>
-              </div>
+              ))}
             </div>
+            <div className={styles.buttons}>
+              <Button
+                style="red-secondary"
+                size="sm"
+                onClick={() =>
+                  setModal(
+                    <ConfirmModal message={t("confirm")} onConfirm={() => 
+                       strategyCustomizations.resetAll()
+                    }/>
+                  )
+                }
+              >
+                <FaRegTrashCan />
+                <span className={styles.buttonText}>{t("reset")}</span>
+              </Button>
+              {!!simulatorUrl && (
+                <>
+                  <Button
+                    style="blue-secondary"
+                    size="sm"
+                    onClick={() => {
+                      navigator.clipboard.writeText(simulatorUrl);
+                      setLinkCopied(true);
+                      if (copiedTimerRef.current) {
+                        clearTimeout(copiedTimerRef.current);
+                      }
+                      copiedTimerRef.current = setTimeout(
+                        () => setLinkCopied(false),
+                        3000,
+                      );
+                    }}
+                  >
+                    {linkCopied ? <FaCheck /> : <FaRegCopy />}
+                    <span className={styles.buttonText}>URL</span>
+                  </Button>
+                </>
+              )}
+              <Button
+                style="blue-secondary"
+                size="sm"
+                onClick={() => readStrategyCustomizationsFromUrl()}
+              >
+                <FaRegPaste />
+                <span className={styles.buttonText}>{t("readFromUrl")}</span>
+              </Button>
+            </div>
+            </>
           )}
         </>
       )}

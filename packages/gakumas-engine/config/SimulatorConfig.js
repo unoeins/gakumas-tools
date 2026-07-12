@@ -1,3 +1,4 @@
+import { StrategyCustomizations } from "gakumas-data";
 
 export default class SimulatorConfig {
   constructor({
@@ -7,18 +8,8 @@ export default class SimulatorConfig {
       enablePriorityStats,
       enableScoreStats,
       enableSelectRandomCards,
-      enableStrategyCustomization,
-      maxDepth,
-      nextDepth,
-      scoreMultiplier,
-      goodConditionTurnsMultiplier,
-      concentrationMultiplier,
-      goodImpressionTurnsMultiplier,
-      motivationMultiplier,
-      fullPowerMultiplier,
-      enableEffectScore,
-      effectScoreMultiplier,
-      enableNewHoldStrategy,
+      enableStrategyCustomizations,
+      strategyCustomizations,
     }) {
     this.enableSkillCardOrder = enableSkillCardOrder;
     this.enableUseStats = enableUseStats;
@@ -26,18 +17,20 @@ export default class SimulatorConfig {
     this.enablePriorityStats = enablePriorityStats;
     this.enableScoreStats = enableScoreStats;
     this.enableSelectRandomCards = enableSelectRandomCards;
-    this.enableStrategyCustomization = enableStrategyCustomization || false;
-    this.maxDepth = maxDepth || 3;
-    this.nextDepth = nextDepth || 3;
-    this.scoreMultiplier = (scoreMultiplier || 100) / 100;
-    this.goodConditionTurnsMultiplier = (goodConditionTurnsMultiplier || 100) / 100;
-    this.concentrationMultiplier = (concentrationMultiplier || 100) / 100;
-    this.goodImpressionTurnsMultiplier = (goodImpressionTurnsMultiplier || 100) / 100;
-    this.motivationMultiplier = (motivationMultiplier || 100) / 100;
-    this.fullPowerMultiplier = (fullPowerMultiplier || 100) / 100;
-    this.enableEffectScore = enableEffectScore || false;
-    this.effectScoreMultiplier = (effectScoreMultiplier || 100) / 100;
-    this.enableNewHoldStrategy = enableNewHoldStrategy || false;
+    this.enableStrategyCustomizations = enableStrategyCustomizations || false;
+    if (this.enableStrategyCustomizations) {
+      const strategyCustomizationsHelper = new StrategyCustomizations(strategyCustomizations);
+      this.maxDepth = strategyCustomizationsHelper.getMaxDepth();
+      this.nextDepth = strategyCustomizationsHelper.getNextDepth();
+      this.scoreMultiplier = strategyCustomizationsHelper.getScoreMultiplier() / 100;
+      this.goodConditionTurnsMultiplier = strategyCustomizationsHelper.getGoodConditionTurnsMultiplier() / 100;
+      this.concentrationMultiplier = strategyCustomizationsHelper.getConcentrationMultiplier() / 100;
+      this.goodImpressionTurnsMultiplier = strategyCustomizationsHelper.getGoodImpressionTurnsMultiplier() / 100;
+      this.motivationMultiplier = strategyCustomizationsHelper.getMotivationMultiplier() / 100;
+      this.fullPowerMultiplier = strategyCustomizationsHelper.getFullPowerMultiplier() / 100;
+      this.enableEffectScore = strategyCustomizationsHelper.isEffectScoreEnabled();
+      this.effectScoreMultiplier = strategyCustomizationsHelper.getEffectScoreMultiplier() / 100;
+      this.fixScoreBonusOnHolding = strategyCustomizationsHelper.isFixScoreBonusOnHoldingEnabled();
+    }
   }
-
 }

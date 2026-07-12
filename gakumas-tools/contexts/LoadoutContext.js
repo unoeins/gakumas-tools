@@ -1,7 +1,7 @@
 "use client";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { STARTING_EFFECTS } from "gakumas-engine/constants";
-import { Stages } from "gakumas-data";
+import { Stages, StrategyCustomizations } from "gakumas-data";
 import { usePathname } from "@/i18n/routing";
 import LoadoutUrlContext from "@/contexts/LoadoutUrlContext";
 import WorkspaceContext from "@/contexts/WorkspaceContext";
@@ -53,37 +53,11 @@ export function LoadoutContextProvider({ children }) {
   const [removedCardOrder, setRemovedCardOrder] = useState(initialLoadout.removedCardOrder);
   const [turnTypeOrder, setTurnTypeOrder] = useState(initialLoadout.turnTypeOrder);
 
-  const [enableStrategyCustomization, setEnableStrategyCustomization] = useState(
-    initialLoadout.enableStrategyCustomization || false
+  const [enableStrategyCustomizations, setEnableStrategyCustomizations] = useState(
+    initialLoadout.enableStrategyCustomizations || false
   );
-  const [maxDepth, setMaxDepth] = useState(initialLoadout.maxDepth || 3);
-  const [nextDepth, setNextDepth] = useState(initialLoadout.nextDepth || 3);
-  const [scoreMultiplier, setScoreMultiplier] = useState(
-    initialLoadout.scoreMultiplier || 100
-  );
-  const [goodConditionTurnsMultiplier, setGoodConditionTurnsMultiplier] = useState(
-    initialLoadout.goodConditionTurnsMultiplier || 100
-  );
-  const [concentrationMultiplier, setConcentrationMultiplier] = useState(
-    initialLoadout.concentrationMultiplier || 100
-  );
-  const [goodImpressionTurnsMultiplier, setGoodImpressionTurnsMultiplier] = useState(
-    initialLoadout.goodImpressionTurnsMultiplier || 100
-  );
-  const [motivationMultiplier, setMotivationMultiplier] = useState(
-    initialLoadout.motivationMultiplier || 100
-  );
-  const [fullPowerMultiplier, setFullPowerMultiplier] = useState(
-    initialLoadout.fullPowerMultiplier || 100
-  );
-  const [enableEffectScore, setEnableEffectScore] = useState(
-    initialLoadout.enableEffectScore || false
-  );
-  const [effectScoreMultiplier, setEffectScoreMultiplier] = useState(
-    initialLoadout.effectScoreMultiplier || 100
-  );
-  const [enableNewHoldStrategy, setEnableNewHoldStrategy] = useState(
-    initialLoadout.enableNewHoldStrategy || false
+  const [strategyCustomizations, setStrategyCustomizations] = useState(
+    initialLoadout.strategyCustomizations || {}
   );
 
   const pIdolId = inferPIdolId(pItemIds, skillCardIdGroups);
@@ -120,18 +94,8 @@ export function LoadoutContextProvider({ children }) {
       customizationOrderGroups,
       removedCardOrder,
       turnTypeOrder,
-      enableStrategyCustomization,
-      maxDepth,
-      nextDepth,
-      scoreMultiplier,
-      goodConditionTurnsMultiplier,
-      concentrationMultiplier,
-      goodImpressionTurnsMultiplier,
-      motivationMultiplier,
-      fullPowerMultiplier,
-      enableEffectScore,
-      effectScoreMultiplier,
-      enableNewHoldStrategy,
+      enableStrategyCustomizations,
+      strategyCustomizations,
     }),
     [
       stageId,
@@ -149,18 +113,8 @@ export function LoadoutContextProvider({ children }) {
       customizationOrderGroups,
       removedCardOrder,
       turnTypeOrder,
-      enableStrategyCustomization,
-      maxDepth,
-      nextDepth,
-      scoreMultiplier,
-      goodConditionTurnsMultiplier,
-      concentrationMultiplier,
-      goodImpressionTurnsMultiplier,
-      motivationMultiplier,
-      fullPowerMultiplier,
-      enableEffectScore,
-      effectScoreMultiplier,
-      enableNewHoldStrategy,
+      enableStrategyCustomizations,
+      strategyCustomizations,
     ]
   );
 
@@ -169,7 +123,7 @@ export function LoadoutContextProvider({ children }) {
     loadoutsFromUrl.length ? loadoutsFromUrl : [loadout]
   );
 
-  const simulatorUrl = getSimulatorUrl(loadout, loadouts);
+  const simulatorUrl = getSimulatorUrl(loadout, loadouts, pathname);
 
   const setLoadout = (loadout) => {
     setStageId(loadout.stageId);
@@ -233,6 +187,8 @@ export function LoadoutContextProvider({ children }) {
         Stages.getById(loadout.stageId).turnCounts; 
       setTurnTypeOrder(new Array(turnCounts.vocal + turnCounts.dance + turnCounts.visual).fill("none"));
     }
+    setEnableStrategyCustomizations(!!loadout.enableStrategyCustomizations);
+    setStrategyCustomizations(loadout.strategyCustomizations || StrategyCustomizations.getDefaults());
   };
 
   useEffect(() => {
@@ -341,6 +297,8 @@ export function LoadoutContextProvider({ children }) {
     setCustomizationOrderGroups([new Array(size).fill({})]);
     setRemovedCardOrder("random");
     setTurnTypeOrder(new Array(turnTypeOrder.length).fill("none"));
+    setEnableStrategyCustomizations(false);
+    setStrategyCustomizations(StrategyCustomizations.getDefaults());
   }
 
   function clearOrders() {
@@ -897,18 +855,8 @@ export function LoadoutContextProvider({ children }) {
         setCurrentLoadoutIndex,
         setSkillCardIdGroups,
         setCustomizationGroups,
-        setEnableStrategyCustomization,
-        setMaxDepth,
-        setNextDepth,
-        setScoreMultiplier,
-        setGoodConditionTurnsMultiplier,
-        setConcentrationMultiplier,
-        setGoodImpressionTurnsMultiplier,
-        setMotivationMultiplier,
-        setFullPowerMultiplier,
-        setEnableEffectScore,
-        setEffectScoreMultiplier,
-        setEnableNewHoldStrategy,
+        setEnableStrategyCustomizations,
+        setStrategyCustomizations,
       }}
     >
       {children}

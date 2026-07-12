@@ -18,6 +18,8 @@ const LOADOUT_FIELDS = [
   "customizationOrderGroups",
   "removedCardOrder",
   "turnTypeOrder",
+  "enableStrategyCustomizations",
+  "strategyCustomizations",
 ];
 
 export function extractLoadoutFields(loadout) {

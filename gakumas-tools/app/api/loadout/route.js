@@ -29,6 +29,8 @@ export async function POST(request) {
     customizationOrderGroups,
     removedCardOrder,
     turnTypeOrder,
+    enableStrategyCustomizations,
+    strategyCustomizations,
   } = await request.json();
 
   const { db } = await connect();
@@ -52,6 +54,8 @@ export async function POST(request) {
     customizationOrderGroups,
     removedCardOrder,
     turnTypeOrder,
+    enableStrategyCustomizations,
+    strategyCustomizations,
     userId,
     createdAt: new Date(),
   });

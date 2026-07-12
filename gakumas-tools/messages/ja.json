@@ -704,7 +704,14 @@
     "fullPowerMultiplier": "全力値評価倍率%",
     "enableEffectScore": "持続効果スコアを評価する",
     "effectScoreMultiplier": "持続効果スコア評価倍率%",
-    "enableNewHoldStrategy": "保留戦略を変更する"
+    "fixScoreBonusOnHolding": "保留選択時のスコアボーナスを固定",
+    "reset": "リセット",
+    "confirm": "シミュレーターのカスタマイズをリセットしますか？",
+    "readFromUrl": "URL読み込み",
+    "invalidUrl": "有効なURLではありません。",
+    "invalidLoadout": "URLから編成を読み込めません。",
+    "clipboardError": "クリップボードを読み込めません。",
+    "confirmSetLoadout": "クリップボードのURLからシミュレーターのカスタマイズを設定しますか？"
   },
   "SkillCardOrderGroups": {
     "Nth_order": "{n}週目のカード順",

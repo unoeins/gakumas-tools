@@ -47,7 +47,7 @@ export default class HeuristicStrategy extends BaseStrategy {
     // times per useCard speculation, thousands of times per run).
     this._configCache = new Map();
 
-    if (engine.config.simulator.enableStrategyCustomization) {
+    if (engine.config.simulator.enableStrategyCustomizations) {
       this.maxDepth = engine.config.simulator.maxDepth;
       this.nextDepth = engine.config.simulator.nextDepth;
 
@@ -60,7 +60,7 @@ export default class HeuristicStrategy extends BaseStrategy {
 
       this.enableEffectScore = engine.config.simulator.enableEffectScore;
       this.effectScoreMultiplier = engine.config.simulator.effectScoreMultiplier;
-      this.enableNewHoldStrategy = engine.config.simulator.enableNewHoldStrategy;
+      this.fixScoreBonusOnHolding = engine.config.simulator.fixScoreBonusOnHolding;
     } else {
       this.maxDepth = DEFAULT_MAX_DEPTH;
       this.nextDepth = DEFAULT_MAX_DEPTH;
@@ -74,7 +74,7 @@ export default class HeuristicStrategy extends BaseStrategy {
 
       this.enableEffectScore = false;
       this.effectScoreMultiplier = 1;
-      this.enableNewHoldStrategy = false;
+      this.fixScoreBonusOnHolding = false;
     }
   }
 
@@ -519,13 +519,12 @@ export default class HeuristicStrategy extends BaseStrategy {
     previewState[S.cardMap] = deepCopy(state[S.cardMap]);
     previewState[S.nullifySelect] = 1;
     this.engine.buffManager.setStance(previewState, "fullPower");
-    if (this.enableNewHoldStrategy) {
-      previewState[S.paidCardUses] = 1;
+    if (this.fixScoreBonusOnHolding) {
       const getTurnMultiplierBackup = this.engine.turnManager.getTurnMultiplier;
       this.engine.turnManager.getTurnMultiplier = () => 10;
       previewState = this.engine.useCard(previewState, card);
       this.engine.turnManager.getTurnMultiplier = getTurnMultiplierBackup;
-      return Math.round(previewState[S.score] + previewState[S.fullPowerCharge]);
+      return Math.round(previewState[S.score]);
     } else {
       previewState = this.engine.useCard(previewState, card);
       return Math.round(previewState[S.score]);
