@@ -58,6 +58,27 @@ export function candidates(value) {
       bases.push({ value: restored, kind: "prepend" });
     }
   }
+  // Append
+  for (let i = 0; i <= 9; i++) {
+    const restoreTrailing = value * 10 + i;
+    bases.push({ value: restoreTrailing, kind: "prepend" });
+    if (restoreTrailing >= 1000 && restoreTrailing < 1_000_000) {
+      for (let d = 1; d <= 2; d++) {
+        const restored = restoreTrailing + d * 1_000_000;
+        if (restored >= MAX_SCORE) break;
+        bases.push({ value: restored, kind: "million" });
+      }
+    }
+    // Prepend, e.g. 52,517 -> 852,517 (no junction needed).
+    if (restoreTrailing >= 1000 && restoreTrailing < 100_000) {
+      const place = 10 ** String(restoreTrailing).length;
+      for (let d = 1; d <= 9; d++) {
+        const restored = d * place + restoreTrailing;
+        if (restored >= MAX_SCORE) break;
+        bases.push({ value: restored, kind: "prepend" });
+      }
+    }
+  }
   // Impossible >= 3,000,000 raw (a leading "1," misread as another glyph, e.g.
   // 4,177,174 for a true 1,177,174 / 2,177,174): restore the plausible million.
   if (value >= MAX_SCORE && value < 10_000_000) {

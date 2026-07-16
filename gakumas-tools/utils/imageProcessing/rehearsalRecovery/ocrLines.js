@@ -11,7 +11,7 @@ const DASH = "\\-\\u2014\\u2013\\u2015\\u2500\\u30FC\\u4E00";
 // (leading [1-9], so a clean 2,XXX,XXX isn't mis-split), a sub-million
 // `DDD,DDD`/bare `\d{1,3}`, or a run of dashes.
 const SCORE_TOKEN_REGEX = new RegExp(
-  `[1-9][,.]\\d{3}[,.]\\d{3}|\\d{1,3}(?:[,.]\\d{3})?|[${DASH}]+`,
+  `[1-9][,.]\\d{3}[,.]\\d{2,3}|\\d{1,3}(?:[,.]\\d{2,3})?|[${DASH}]+`,
   "g",
 );
 const DASH_ONLY = new RegExp(`^[${DASH}]+$`);
