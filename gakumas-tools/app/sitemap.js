@@ -11,7 +11,9 @@ const PATHS = [
   "/dex",
   "/memories",
   "/simulator",
+  "/contest-player",
   "/rehearsal",
+  "/estimator",
 ];
 
 export default function sitemap() {
