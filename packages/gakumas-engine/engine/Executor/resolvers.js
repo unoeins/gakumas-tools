@@ -133,7 +133,7 @@ export function resolveScore(state, score, growth, rhsNode, getTurnMultiplier) {
       concentrationEffectBuff;
 
     // Apply enthusiasm
-    score += state[S.enthusiasm];
+    score += state[S.enthusiasm] * state[S.enthusiasmMultiplier];
 
     // Round
     score = safeCeil(score);
