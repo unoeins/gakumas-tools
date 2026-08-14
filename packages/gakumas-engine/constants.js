@@ -186,6 +186,7 @@ export const ALL_FIELDS = [
   "enthusiasmMultiplier",
   "enthusiasmBonusBuffs",
   "enthusiasmBuffs",
+  "strengthEffectBuffs",
   "strengthTimes",
   "preservationTimes",
   "leisureTimes",

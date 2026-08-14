@@ -333,6 +333,10 @@ export default class HeuristicStrategy extends BaseStrategy {
       // Enthusiasm buffs
       score += sumBuffWeight(state[S.enthusiasmBuffs], turnsRemaining) * 5;
 
+      // Strength effect buffs
+      score +=
+        sumBuffWeight(state[S.strengthEffectBuffs], turnsRemaining) * 5;
+
       // Full power charge buffs
       score +=
         sumBuffWeight(state[S.fullPowerChargeBuffs], turnsRemaining) *

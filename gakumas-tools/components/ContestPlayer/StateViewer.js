@@ -42,6 +42,7 @@ function StateViewer({ state, idolId, plan }) {
     {name: "enthusiasm", type: "number"},
     {name: "enthusiasmBonusBuffs", type: "buffs_flat"},
     {name: "enthusiasmBuffs", type: "buffs"},
+    {name: "strengthEffectBuffs", type: "buffs"},
     {name: "lockStanceTurns", type: "number", style: "debuff"},
   ];
   

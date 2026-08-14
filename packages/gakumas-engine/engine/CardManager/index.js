@@ -42,6 +42,7 @@ const ACTION_EFFECT_NAMES = {
   setEnthusiasmBonus: "preservation",
   setFullPowerChargeBuff: "fullPowerCharge",
   setFullPowerEffectBuff: "fullPowerCharge",
+  setStrengthEffectBuff: "strength",
 };
 
 // Extract the "effect name" for a single action — what a cardEffects
