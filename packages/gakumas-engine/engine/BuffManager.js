@@ -309,6 +309,16 @@ export default class BuffManager extends EngineComponent {
         state[S.stanceChangedByDirectEffectTimes]++;
       }
     }
+
+    // Unlike stanceChanged, this also fires on same-stance upgrades
+    // (e.g. strength -> strength2), which don't count as stance changes
+    // in game.
+    if (state[S.stance] != state[S.prevStance]) {
+      this.engine.effectManager.triggerEffectsForPhase(
+        state,
+        "stanceValueChanged",
+      );
+    }
   }
 
   resetStance(state) {
