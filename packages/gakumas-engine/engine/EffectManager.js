@@ -378,15 +378,37 @@ export default class EffectManager extends EngineComponent {
         // conditional wrapper; mirror the top-level delayed-effect branch
         // so card-scheduled reservations still count as direct effects
         // when they fire.
-        if (!inheritedSource && card != null) {
-          inheritedSource = {
-            type: "skillCardEffect",
-            id: state[S.cardMap][card].id,
-            idx: card,
-          };
+        if (!inheritedSource && source != null) {
+          switch (sourceType) {
+            case EFFECT_SOURCES.SKILL_CARD:
+              inheritedSource = {
+                type: "skillCardEffect",
+                id: state[S.cardMap][source].id,
+                idx: source,
+              };
+              break;
+            case EFFECT_SOURCES.P_ITEM:
+              inheritedSource = {
+                type: "pItemEffect",
+                id: source,
+              };
+              break;
+            case EFFECT_SOURCES.P_DRINK:
+              inheritedSource = {
+                type: "pDrinkEffect",
+                id: source,
+              };
+              break;
+          }
         }
         this.setEffects(state, toSet, inheritedSource);
-        this.logger.log(state, "setEffect");
+        for (const e of toSet) {
+          if (e.limit == 1 && e.phase == "turn") {
+            this.logger.log(state, "setReservation");
+          } else {
+            this.logger.log(state, "setEffect");
+          }
+        }
       }
 
       state[S.triggeredEffect] = prevTriggeredEffect;
