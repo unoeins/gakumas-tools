@@ -226,13 +226,13 @@ export const ALL_FIELDS = [
   "effectCounters",
   "currentEffectInstanceId",
   "triggeredEffect",
-  "unfreshPhase",
 
   // Special
   "nullifySelect",
   "freeCardUses",
   "paidCardUses",
   "unfreshPhase",
+  "buffCostConsumed",
 
   // Delta
   "goodImpressionTurnsDelta",
