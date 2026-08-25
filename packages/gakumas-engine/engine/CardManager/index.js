@@ -615,6 +615,7 @@ export default class CardManager extends EngineComponent {
       state[S.activeCardsUsed]++;
     }
 
+    const beforeCardUsedState = conditionState;
     conditionState = shallowCopy(state);
 
     if (state[S.thisCardHeld]) {
@@ -641,6 +642,7 @@ export default class CardManager extends EngineComponent {
       this.engine.effectManager.triggerEffectsForPhase(
         state,
         "buffCostConsumed",
+        beforeCardUsedState,
       );
       state[S.buffCostConsumed] = false;
     }
