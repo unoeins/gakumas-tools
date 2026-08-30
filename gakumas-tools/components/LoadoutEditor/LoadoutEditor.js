@@ -2,6 +2,7 @@
 import { useContext } from "react";
 import { useTranslations } from "next-intl";
 import LoadoutParams from "@/components/LoadoutParams";
+import StaminaCalculator from "@/components/StaminaCalculator";
 import StagePItems from "@/components/StagePItems";
 import StagePDrinks from "@/components/StagePDrinks";
 import StageHifAbilities from "@/components/StageHifAbilities";
@@ -37,12 +38,33 @@ export default function LoadoutEditor({ config, idolId }) {
     loadout
   );
 
+  const staminaMemorySlots = loadout.skillCardIdGroups
+    .slice(0, 2)
+    .map((skillCardIds, index) => ({
+      index,
+      multiplier: stage.type !== "linkContest" && index ? 0.2 : 1,
+      pIdolId: config.idol.inferPIdolId(
+        index ? [] : loadout.pItemIds,
+        skillCardIds,
+      ),
+      hasCards: skillCardIds.some((id) => id),
+    }))
+    .filter(({ index, pIdolId, hasCards }) => index === 0 || pIdolId || hasCards);
+
   return (
     <div className={styles.loadoutEditor}>
       <LoadoutParams
         params={loadout.params}
         onChange={setParams}
         withStamina
+        staminaAction={
+          <StaminaCalculator
+            memorySlots={staminaMemorySlots}
+            onApply={(stamina) =>
+              setParams([...loadout.params.slice(0, 3), stamina])
+            }
+          />
+        }
         typeMultipliers={config.typeMultipliers}
       />
       <div className={styles.pItemsRow}>
