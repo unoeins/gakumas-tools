@@ -6,10 +6,8 @@ import {
   AiOutlineBoxPlot,
   AiOutlineTool,
 } from "react-icons/ai";
-import AreaPlot from "@/components/AreaPlot";
-import BoxPlot from "@/components/BoxPlot";
 import ButtonGroup from "@/components/ButtonGroup";
-import DistributionPlot from "@/components/DistributionPlot";
+import { AreaPlot, BoxPlot, DistributionPlot } from "@/components/Charts";
 import SimulatorResultTools from "./SimulatorResultTools";
 import styles from "./SimulatorResult.module.scss";
 

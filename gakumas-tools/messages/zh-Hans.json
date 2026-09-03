@@ -340,15 +340,23 @@
   "MemorySave": {
     "save": "保存",
     "saveAsNew": "作为新回忆卡保存",
-    "signInToSave": "登入 Discord 以同步保存"
+    "signInToSave": "登入 Discord 以同步保存",
+    "saveFailed": "保存失败"
   },
   "MemoriesNudge": {
     "create": "创建回忆卡",
     "import": "从截图导入回忆卡"
   },
   "MemoriesHeader": {
+    "confirmDelete": "删除 {num} 个回忆卡？",
     "selected": "{num} 个回忆卡被选中",
     "delete": "删除"
+  },
+  "Memories": {
+    "loadError": "回忆卡加载失败",
+    "uploadError": "回忆卡保存失败",
+    "deleteError": "回忆卡删除失败",
+    "retry": "重试"
   },
   "MemoryImporterModal": {
     "importMemories": "从截图中导入回忆卡",
@@ -462,12 +470,44 @@
     "max": "最高分",
     "logs": "记录",
     "stats": "统计",
+    "compare": "比较",
     "downloadScores": "分数",
     "optimizeParams": "优化参数",
     "useStats": "使用次数",
     "conditionalUseStats": "条件使用次数",
     "priorityStats": "优先度比较",
     "scoreStats": "分数统计"
+  },
+  "CompareTab": {
+    "saved": "已保存",
+    "history": "历史",
+    "current": "当前",
+    "noScores": "无分数",
+    "mean": "平均",
+    "median": "中位数",
+    "load": "载入",
+    "save": "保存",
+    "edit": "重命名",
+    "cancel": "取消",
+    "delete": "删除",
+    "confirmDelete": "确定要删除吗？",
+    "signInPrompt": "保存需要登录。前往 Discord 登录？",
+    "signInToView": "登录后可查看已保存的编组。",
+    "savePrompt": "名称",
+    "emptyHistory": "运行模拟后将显示在这里。",
+    "emptySaved": "还没有已保存的编组。",
+    "loading": "加载中…",
+    "fifoHint": "{count} / {max} — 较早的历史会被自动删除",
+    "fifoAtLimit": "已达上限 {max} 条 — 最早的历史将被替换。请保存以保留。",
+    "hiddenByFilters": "{count} 条被筛选隐藏",
+    "allHiddenByFilters": "全部 {count} 条被筛选隐藏",
+    "clearFilters": "清除筛选",
+    "showDetails": "显示详情",
+    "hideDetails": "隐藏详情",
+    "season": "赛季",
+    "allSeasons": "全部赛季",
+    "allIdols": "全部偶像",
+    "allStages": "全部舞台"
   },
   "SimulatorStats": {
     "total": "合计",
