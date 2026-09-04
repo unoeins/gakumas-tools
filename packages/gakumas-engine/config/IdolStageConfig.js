@@ -83,6 +83,9 @@ export default class IdolStageConfig {
     }
     const defaultCardSet = stageConfig.defaultCardSet || stageConfig.type;
     if (defaultCardSet == "event" && idolConfig.recommendedEffect) {
+      if (stageConfig.season >= 4) {
+        return [];
+      }
       return EVENT_DEFAULT_CARD_IDS_BY_RECOMMENDED_EFFECT[
         RECOMMENDED_EFFECT_MAPPINGS[idolConfig.pIdolId] ||
         idolConfig.recommendedEffect
