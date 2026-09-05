@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { cookies } from "next/headers";
 import { Inter } from "next/font/google";
 import { GoogleAnalytics } from "@next/third-parties/google";
@@ -70,21 +69,19 @@ export default async function RootLayout({ params, children }) {
                   <MemoryContextProvider>
                     <ParameterEstimatorContextProvider>
                       <SearchContextProvider>
-                        <Suspense>
-                          <LoadoutUrlContextProvider>
-                            <LoadoutContextProvider>
-                              <SimulationRunsContextProvider>
-                                <ModalContextProvider>
-                                  <div className={styles.tools}>
-                                    <PinnedTools />
-                                    <main>{children}</main>
-                                  </div>
-                                  <Tooltips />
-                                </ModalContextProvider>
-                              </SimulationRunsContextProvider>
-                            </LoadoutContextProvider>
-                          </LoadoutUrlContextProvider>
-                        </Suspense>
+                        <LoadoutUrlContextProvider>
+                          <LoadoutContextProvider>
+                            <SimulationRunsContextProvider>
+                              <ModalContextProvider>
+                                <div className={styles.tools}>
+                                  <PinnedTools />
+                                  <main>{children}</main>
+                                </div>
+                                <Tooltips />
+                              </ModalContextProvider>
+                            </SimulationRunsContextProvider>
+                          </LoadoutContextProvider>
+                        </LoadoutUrlContextProvider>
                       </SearchContextProvider>
                     </ParameterEstimatorContextProvider>
                   </MemoryContextProvider>
