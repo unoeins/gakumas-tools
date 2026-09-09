@@ -43,6 +43,7 @@ export default class StageEngine {
     state[S.genki] = 0;
     state[S.consumedGenki] = 0;
     state[S.score] = 0;
+    state[S.consumedGoodImpressionTurns] = 0;
 
     // Turns
     this.turnManager.initializeState(state);

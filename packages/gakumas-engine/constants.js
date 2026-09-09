@@ -161,6 +161,7 @@ export const ALL_FIELDS = [
   "goodImpressionTurnsBuffs",
   "goodImpressionTurnsEffectBuffs",
   "goodImpressionTurnsTimesBuffs",
+  "consumedGoodImpressionTurns",
   "concentrationBuffs",
   "concentrationAdditionBuffs",
   "concentrationEffectBuffs",

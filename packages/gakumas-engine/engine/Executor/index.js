@@ -169,6 +169,7 @@ export default class Executor extends EngineComponent {
               state[S.triggeredEffect]?.source?.type === "pDrinkEffect"));
         const actionPrev = needsChangeTrigger ? state.slice() : null;
         const prevGenki = state[S.genki];
+        const prevGoodImpressionTurns = state[S.goodImpressionTurns];
 
         this.executeAction(state, actions[i], card);
 
@@ -199,6 +200,11 @@ export default class Executor extends EngineComponent {
         // Consumed genki
         if (state[S.genki] < prevGenki) {
           state[S.consumedGenki] += prevGenki - state[S.genki];
+        }
+
+        // Consumed good impression turns
+        if (state[S.goodImpressionTurns] < prevGoodImpressionTurns) {
+          state[S.consumedGoodImpressionTurns] += prevGoodImpressionTurns - state[S.goodImpressionTurns];
         }
 
         // Fire increase/decrease triggers after each action

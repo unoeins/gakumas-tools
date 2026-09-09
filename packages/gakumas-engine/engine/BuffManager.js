@@ -227,6 +227,9 @@ export default class BuffManager extends EngineComponent {
         delete state[S.freshBuffs][field];
       } else if (state[field]) {
         state[field]--;
+        if (field === S.goodImpressionTurns) {
+          state[S.consumedGoodImpressionTurns]++;
+        }
       }
     }
 
