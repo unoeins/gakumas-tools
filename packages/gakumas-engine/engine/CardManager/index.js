@@ -153,6 +153,8 @@ export default class CardManager extends EngineComponent {
         this.moveAllToHandByTarget(state, targetRule),
       moveRandomToTopOfDeck: (state, targetRule, num = 1) =>
         this.moveToTopOfDeckByTarget(state, targetRule, parseInt(num, 10)),
+      moveSelectedToTopOfDeck: (state, targetRule, num = 1) =>
+        this.moveSelectedToTopOfDeckByTarget(state, targetRule, parseInt(num, 10)),
       moveAllToTopOfDeck: (state, targetRule) =>
         this.moveAllToTopOfDeckByTarget(state, targetRule),
       moveAllToBottomOfDeck: (state, targetRule) =>
@@ -1150,6 +1152,37 @@ export default class CardManager extends EngineComponent {
             "cardMovedToHand",
           );
           this.logger.log(state, "moveCardToHand", {
+            type: "skillCard",
+            id: state[S.cardMap][cardIdx].id,
+          });
+          break;
+        }
+      }
+    }
+  }
+
+  moveSelectedToTopOfDeckByTarget(state, targetRule, num = 1) {
+    if (state[S.nullifySelect]) return;
+
+    const targetCards = this.getTargetRuleCards(state, targetRule, null);
+    const cards = Array.from(targetCards);
+    if (!cards.length) return;
+
+    const indicesToMove = this.engine.strategy.pickCardsToMoveToTopOfDeck(
+      state,
+      cards,
+      num,
+    );
+    if (indicesToMove.length === 0) return;
+
+    for (let j = 0; j < indicesToMove.length; j++) {
+      const cardIdx = cards[indicesToMove[j]];
+      for (let i = 0; i < CARD_PILES.length; i++) {
+        const pileIndex = state[CARD_PILES[i]].indexOf(cardIdx);
+        if (pileIndex !== -1) {
+          state[CARD_PILES[i]].splice(pileIndex, 1);
+          state[S.deckCards].push(cardIdx);
+          this.logger.log(state, "moveCardToTopOfDeck", {
             type: "skillCard",
             id: state[S.cardMap][cardIdx].id,
           });

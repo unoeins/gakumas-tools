@@ -552,6 +552,10 @@ export default class HeuristicStrategy extends BaseStrategy {
     return this.pickCardsToHold(state, cards, num, optional);
   }
 
+  pickCardsToMoveToTopOfDeck(state, cards, num = 1, optional = false) {
+    return this.pickCardsToHold(state, cards, num, optional);
+  }
+
   pickCardsToUseFree(state, cards, num = 1) {
     return this.pickCardsToHold(state, cards, num);
   }
