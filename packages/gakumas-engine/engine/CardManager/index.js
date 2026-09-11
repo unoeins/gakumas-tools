@@ -1,9 +1,8 @@
 import { Customizations, SkillCards, PDrinks } from "gakumas-data";
 import { CARD_PILES, COST_FIELDS, EFFECT_SOURCES, S } from "../../constants";
 import EngineComponent from "../EngineComponent";
-import { getBaseId, getRand, shallowCopy, shuffle } from "../../utils";
+import { getBaseId, getRand, shallowCopy, shuffle, equalCustomizations } from "../../utils";
 import { getTargetRuleCards } from "./targeting";
-import deepEqual from 'fast-deep-equal';
 
 const PATCHABLE_FIELDS = [
   "phase",
@@ -258,7 +257,7 @@ export default class CardManager extends EngineComponent {
         let restCards = cardMap.map((card, i) => ({ id: card.id, c11n: card.c11n, index: i }));
         return cardOrderGroup.map((cardOrder) => {
           const index = restCards.findIndex((card) => card.id === cardOrder.id &&
-            (card.c11n ? deepEqual(card.c11n, cardOrder.customizations) :
+            (card.c11n ? equalCustomizations(card.c11n, cardOrder.customizations) :
                         !cardOrder.customizations || Object.keys(cardOrder.customizations).length === 0));
           if(index >= 0) {
             const foundCard = restCards[index];

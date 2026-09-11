@@ -209,6 +209,16 @@ export function getBaseId(entity) {
   return entity.id;
 }
 
+export function equalCustomizations(a, b) {
+  if (a === b) return true;
+  if (!a || !b) return false;
+  if (a.length !== b.length) return false;
+  for (const key in a) {
+    if (a[key] !== b[key]) return false;
+  }
+  return true;
+}
+
 export const RECOMMENDED_EFFECT_MAPPINGS = {
   91: "fullPower",
   92: "strength",

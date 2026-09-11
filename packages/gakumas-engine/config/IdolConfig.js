@@ -11,11 +11,11 @@ export default class IdolConfig {
       pDrinkIds,
       skillCardIdGroups,
       customizationGroups,
-      skillCardIdOrderGroups,
-      customizationOrderGroups,
-      removedCardOrder,
-      turnTypeOrder,
-      hifAbilityIds,
+      skillCardIdOrderGroups = [],
+      customizationOrderGroups = [],
+      removedCardOrder = "random",
+      turnTypeOrder = [],
+      hifAbilityIds = [],
     } = loadout;
 
     let skillCardIds = [];
