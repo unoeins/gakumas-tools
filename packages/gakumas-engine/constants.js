@@ -190,12 +190,15 @@ export const ALL_FIELDS = [
   "enthusiasmBonusBuffs",
   "enthusiasmBuffs",
   "strengthEffectBuffs",
+  "handDecreases",
   "strengthTimes",
   "preservationTimes",
   "leisureTimes",
   "fullPowerTimes",
   "stanceChangedByDirectEffectTimes",
   "freshBuffs",
+  "buffInstanceId",
+  "debuffOrder",
 
   // Cards
   "scoreTimes",
@@ -358,6 +361,7 @@ export const DEBUFF_FIELDS = [
 export const DEBUFF_SPECIAL_ACTIONS = [
   "setScoreDebuff",
   "decreaseFullPowerCharge",
+  "setHandDecrease",
 ];
 
 export const INCREASE_TRIGGER_FIELDS = [

@@ -26,6 +26,7 @@ const LOGGED_BUFFS_FIELDS = [
   S.fullPowerChargeBuffs,
   S.fullPowerEffectBuffs,
   S.strengthEffectBuffs,
+  S.handDecreases,
 ];
 
 export default class StageLogger {

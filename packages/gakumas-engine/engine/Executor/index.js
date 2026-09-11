@@ -458,6 +458,13 @@ export default class Executor extends EngineComponent {
       }
     } else {
       state[S[lhs]] = intermediate;
+      if (DEBUFF_FIELDS.includes(S[lhs])) {
+        if (intermediate > 0 && !state[S.debuffOrder].includes(S[lhs])) {
+          state[S.debuffOrder].push(S[lhs]);
+        } else if (intermediate <= 0 && state[S.debuffOrder].includes(S[lhs])) {
+          state[S.debuffOrder].splice(state[S.debuffOrder].lastIndexOf(S[lhs]), 1);
+        }
+      }
     }
 
     // Round whole fields — skip ones already integer to avoid the

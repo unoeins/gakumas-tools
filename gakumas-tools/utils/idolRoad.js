@@ -49,11 +49,26 @@ const FIRST_TURNS_BY_IDOL = {
 };
 
 const TURN_COUNTS_BY_TURNS_IDOL = {
+  16: { // STAGE 26
+    1: [4, 5, 7],
+    2: [7, 5, 4],
+    3: [3, 7, 6],
+    4: [7, 3, 6],
+    5: [4, 5, 7],
+    6: [4, 7, 5],
+    7: [4, 7, 5],
+    8: [7, 5, 4],
+    9: [4, 5, 7],
+    10: [5, 7, 4],
+    11: [5, 4, 7],
+    12: [7, 4, 5],
+    13: [5, 8, 3],
+  },
   17: { // STAGE 22
     1: [5, 5, 7],
     2: [8, 5, 4],
     3: [3, 8, 6],
-    4: [8, 3, 7],
+    4: [8, 3, 6],
     5: [5, 5, 7],
     6: [4, 8, 5],
     7: [4, 8, 5],
@@ -218,6 +233,62 @@ const SUPPORT_EFFECTS_BY_STAGE_EFFECT = {
       "at:startOfTurn { if:turnsElapsed==9 & cumulativeFullPowerCharge>=19 { target:effect(fullPowerCharge) { g.scoreTimes+=1 } }; limit:1 }",
       "at:startOfTurn { if:turnsElapsed==12 & cumulativeFullPowerCharge>=26 { target:effect(fullPowerCharge) { g.scoreTimes+=1 } }; limit:1 }",
       "at:startOfTurn { if:turnsElapsed==15 & cumulativeFullPowerCharge>=34 { setScoreBuff(0.8) }; limit:1 }",
+    ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
+  },
+  26: {
+    goodConditionTurns: [
+      "at:startOfStage { setScoreDebuff(0.2); uneaseTurns+=99; costIncrease+=2; setHandDecrease(1,99); limit:1 }",
+      "at:turnSkipped { removeDebuffs(1); limit:1 }",
+
+      "at:startOfTurn { if:turnsElapsed==1 & concentration<=3 { removeDebuffs(1) }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==5 & score<2000 { removeDebuffs(1) }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==9 & goodConditionTurns>=27 { setGoodConditionTurnsBuff(1) }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==13 & countDebuffs>=4 { setScoreBuff(1) }; limit:1 }",
+    ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
+    concentration: [
+      "at:startOfStage { setScoreDebuff(0.2); uneaseTurns+=99; costIncrease+=2; setHandDecrease(1,99); limit:1 }",
+      "at:turnSkipped { removeDebuffs(1); limit:1 }",
+
+      "at:startOfTurn { if:turnsElapsed==1 & goodConditionTurns<=3 { removeDebuffs(1) }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==5 & score<2000 { removeDebuffs(1) }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==8 & concentration>=35 { setConcentrationBuff(1) }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==12 & countDebuffs>=4 { setScoreBuff(1) }; limit:1 }",
+    ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
+    goodImpressionTurns: [
+      "at:startOfStage { setScoreDebuff(0.2); uneaseTurns+=99; costIncrease+=2; setHandDecrease(1,99); limit:1 }",
+      "at:turnSkipped { removeDebuffs(1); limit:1 }",
+
+      "at:startOfTurn { if:turnsElapsed==1 & motivation<=3 { removeDebuffs(1) }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==5 & score<2000 { removeDebuffs(1) }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==8 & goodImpressionTurns>=35 { setGoodImpressionTurnsBuff(1) }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==13 & countDebuffs>=4 { setScoreBuff(1) }; limit:1 }",
+    ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
+    motivation: [
+      "at:startOfStage { setScoreDebuff(0.2); uneaseTurns+=99; costIncrease+=2; setHandDecrease(1,99); limit:1 }",
+      "at:turnSkipped { removeDebuffs(1); limit:1 }",
+
+      "at:startOfTurn { if:turnsElapsed==1 & goodImpressionTurns<=3 { removeDebuffs(1) }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==5 & score<2000 { removeDebuffs(1) }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==10 & motivation>=35 { motivationMultiplier=3; genki+=10 }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==13 & countDebuffs>=4 { setScoreBuff(1) }; limit:1 }",
+    ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
+    strength: [
+      "at:startOfStage { setScoreDebuff(0.2); uneaseTurns+=99; costIncrease+=2; setHandDecrease(1,99); limit:1 }",
+      "at:turnSkipped { removeDebuffs(1); limit:1 }",
+
+      "at:startOfTurn { if:turnsElapsed==1 & cumulativeFullPowerCharge<=3 { removeDebuffs(1) }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==5 & score<2000 { removeDebuffs(1) }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==8 & strengthTimes>=5 { target:effect(strength) { g.scoreTimes+=3 } }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==13 & countDebuffs>=4 { setScoreBuff(1) }; limit:1 }",
+    ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
+    fullPower: [
+      "at:startOfStage { setScoreDebuff(0.2); uneaseTurns+=99; costIncrease+=2; setHandDecrease(1,99); limit:1 }",
+      "at:turnSkipped { removeDebuffs(1); limit:1 }",
+
+      "at:startOfTurn { if:turnsElapsed==1 & strengthTimes<=1 { removeDebuffs(1) }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==5 & score<2000 { removeDebuffs(1) }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==8 & cumulativeFullPowerCharge>=20 { setFullPowerChargeBuff(1) }; limit:1 }",
+      "at:startOfTurn { if:turnsElapsed==13 & countDebuffs>=4 { setScoreBuff(1) }; limit:1 }",
     ].map(deserializeEffectSequence).flat().map(addSupportEffectSource),
   },
 };

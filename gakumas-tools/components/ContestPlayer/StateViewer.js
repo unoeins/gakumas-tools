@@ -70,6 +70,7 @@ function StateViewer({ state, idolId, plan }) {
     {name: "noFullPowerChargeTurns", type: "number", style: "debuff"},
     {name: "uneaseTurns", type: "number", style: "debuff"},
     {name: "slumpTurns", type: "number", style: "debuff"},
+    {name: "handDecreases", type: "buffs_flat", style: "debuff"},
   ];
 
   const REQUIRED_FIELDS = [

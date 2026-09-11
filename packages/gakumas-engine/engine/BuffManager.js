@@ -30,7 +30,10 @@ const BUFF_TYPES = [
   { action: "setFullPowerChargeBuff", field: S.fullPowerChargeBuffs },
   { action: "setFullPowerEffectBuff", field: S.fullPowerEffectBuffs },
   { action: "setStrengthEffectBuff", field: S.strengthEffectBuffs },
+  { action: "setHandDecrease", field: S.handDecreases },
 ];
+
+const DEBUFF_ACTION_FIELDS = [S.scoreDebuffs, S.handDecreases];
 
 export default class BuffManager extends EngineComponent {
   constructor(engine) {
@@ -72,6 +75,7 @@ export default class BuffManager extends EngineComponent {
           (acc, buff) => acc + buff.amount,
           1,
         ),
+      countDebuffs: (state) => state[S.debuffOrder].length,
     };
 
     this.specialActions = {
@@ -142,6 +146,7 @@ export default class BuffManager extends EngineComponent {
     state[S.fullPowerChargeBuffs] = [];
     state[S.fullPowerEffectBuffs] = [];
     state[S.strengthEffectBuffs] = [];
+    state[S.handDecreases] = [];
 
     // Sense
     state[S.goodConditionTurns] = 0;
@@ -182,6 +187,8 @@ export default class BuffManager extends EngineComponent {
     state[S.paidCardUses] = 0;
     state[S.scoreTimes] = 0;
     state[S.buffCostConsumed] = false;
+    state[S.buffInstanceId] = 0;
+    state[S.debuffOrder] = [];
   }
 
   setBuff(state, field, amount, turns, logLabel) {
@@ -194,11 +201,16 @@ export default class BuffManager extends EngineComponent {
       const old = arr[buffIndex];
       arr[buffIndex] = { ...old, amount: old.amount + amount };
     } else {
+      const instanceId = state[S.buffInstanceId]++;
       arr.push({
         amount,
         turns,
         fresh: !state[S.unfreshPhase],
+        instanceId,
       });
+      if (DEBUFF_ACTION_FIELDS.includes(field)) {
+        state[S.debuffOrder].push({field, instanceId});
+      }
     }
     this.logger.log(state, logLabel, {
       amount,
@@ -207,14 +219,17 @@ export default class BuffManager extends EngineComponent {
   }
 
   removeDebuffs(state, amount) {
-    for (let i = 0; i < DEBUFF_FIELDS.length; i++) {
-      const field = DEBUFF_FIELDS[i];
-      if (state[field] > 0) {
-        state[field] = 0;
-        amount--;
-        if (amount <= 0) {
-          break;
-        }
+    for (const debuff of state[S.debuffOrder].toReversed()) {
+      if (DEBUFF_FIELDS.includes(debuff) && state[debuff] > 0) {
+        state[debuff] = 0;
+        state[S.debuffOrder].splice(state[S.debuffOrder].lastIndexOf(debuff), 1);
+      } else if (DEBUFF_ACTION_FIELDS.includes(debuff.field)) {
+        state[debuff.field] = state[debuff.field].filter((b) => b.instanceId !== debuff.instanceId);
+        state[S.debuffOrder] = state[S.debuffOrder].filter((d) => d.instanceId !== debuff.instanceId);
+      }
+      amount--;
+      if (amount <= 0) {
+        break;
       }
     }
   }
@@ -229,6 +244,9 @@ export default class BuffManager extends EngineComponent {
         state[field]--;
         if (field === S.goodImpressionTurns) {
           state[S.consumedGoodImpressionTurns]++;
+        }
+        if (state[field] === 0 && DEBUFF_FIELDS.includes(field) && state[S.debuffOrder].includes(field)) {
+          state[S.debuffOrder].splice(state[S.debuffOrder].lastIndexOf(field), 1);
         }
       }
     }
@@ -245,7 +263,10 @@ export default class BuffManager extends EngineComponent {
         if (b.fresh) nb = { ...b, fresh: false };
         else if (b.turns) nb = { ...b, turns: b.turns - 1 };
         else nb = b;
-        if (nb.turns != 0) next.push(nb);
+        if (nb.turns !== 0) next.push(nb);
+        if (nb.turns === 0 && DEBUFF_ACTION_FIELDS.includes(field)) {
+          state[S.debuffOrder] = state[S.debuffOrder].filter((d) => d.instanceId !== nb.instanceId);
+        }
       }
       state[field] = next;
     }
