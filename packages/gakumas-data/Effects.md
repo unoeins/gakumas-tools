@@ -156,6 +156,7 @@ Assignment operators: `=`, `+=`, `-=`, `*=`, `/=`, `%=`.
 | 特定カードを手札に移動 (選択)             | `moveSelectedToHand[targetExpr](, num)`                                  |
 | 特定カードを手札に移動 (全部)             | `moveAllToHand[targetExpr]`                                              |
 | 特定カードを山札上に移動 (ランダム)       | `moveRandomToTopOfDeck[...](, num)`                                      |
+| 特定カードを山札上に移動 (選択)           | `moveSelectedToTopOfDeck[...](, num)`                                    |
 | 特定カードを山札上に移動 (全部)           | `moveAllToTopOfDeck[...]`                                                |
 | 特定カードを山札に戻す                    | `moveAllToDeck[...]`                                                     |
 | 特定カードを保留 (ランダム)               | `holdRandom[...](, num)`                                                 |
@@ -369,6 +370,7 @@ They are also valid as assignment LHS unless marked read-only.
 | 絶好調                         | `perfectConditionTurns`        |
 | 集中                           | `concentration`                |
 | 好印象                         | `goodImpressionTurns`          |
+| ステージ中に消費した好印象     | `consumedGoodImpressionTurns`  |
 | やる気                         | `motivation`                   |
 | 誇り                           | `prideTurns`                   |
 | 指針                           | `stance`                       |

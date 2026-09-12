@@ -1,5 +1,12 @@
 "use client";
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { STARTING_EFFECTS } from "gakumas-engine/constants";
 import { Stages, StrategyCustomizations } from "gakumas-data";
 import { usePathname } from "@/i18n/routing";
@@ -124,9 +131,12 @@ export function LoadoutContextProvider({ children }) {
     loadoutsFromUrl.length ? loadoutsFromUrl : [loadout]
   );
 
-  const simulatorUrl = getSimulatorUrl(loadout, loadouts, pathname);
+  const simulatorUrl = useMemo(
+    () => getSimulatorUrl(loadout, loadouts, pathname),
+    [loadout, loadouts, pathname]
+  );
 
-  const setLoadout = (loadout) => {
+  const setLoadout = useCallback((loadout) => {
     setStageId(loadout.stageId);
     if (loadout.stageId == "custom") {
       let custom = loadout.customStage;
@@ -190,7 +200,7 @@ export function LoadoutContextProvider({ children }) {
     }
     setEnableStrategyCustomizations(!!loadout.enableStrategyCustomizations);
     setStrategyCustomizations(loadout.strategyCustomizations || StrategyCustomizations.getDefaults());
-  };
+  }, []);
 
   useEffect(() => {
     if (["sense", "logic", "anomaly"].includes(stage.plan)) {
@@ -273,10 +283,10 @@ export function LoadoutContextProvider({ children }) {
     }
   }, [startingEffects]);
 
-  function clear() {
+  const clear = useCallback(() => {
     setMemoryParams([null, null]);
     setParams([null, null, null, null]);
-    setPItemIds(new Array(pItemIds.length).fill(0));
+    setPItemIds((cur) => new Array(cur.length).fill(0));
     if (stage.type === "exam") {
       setSkillCardIdGroups([[0]]);
       setCustomizationGroups([[{}]]);
@@ -290,84 +300,98 @@ export function LoadoutContextProvider({ children }) {
         [{}, {}, {}, {}, {}, {}],
       ]);
     }
-    setPDrinkIds(new Array(pDrinkIds.length).fill(0));
-    setHifAbilityIds(new Array(hifAbilityIds.length).fill(0));
-    setStartingEffects(new Array(startingEffects.length).fill(0));
+    setPDrinkIds((cur) => new Array(cur.length).fill(0));
+    setHifAbilityIds((cur) => new Array(cur.length).fill(0));
+    setStartingEffects((cur) => new Array(cur.length).fill(0));
     const size = stage.type === "linkContest" ? 12 : stage.type === "exam" ? 1 : 20;
     setSkillCardIdOrderGroups([new Array(size).fill(0)]);
     setCustomizationOrderGroups([new Array(size).fill({})]);
     setRemovedCardOrder("random");
-    setTurnTypeOrder(new Array(turnTypeOrder.length).fill("none"));
+    setTurnTypeOrder((cur) => new Array(cur.length).fill("none"));
     setEnableStrategyCustomizations(false);
     setStrategyCustomizations(StrategyCustomizations.getDefaults());
-  }
+  }, [stage]);
 
-  function clearOrders() {
+  const clearOrders = useCallback(() => {
     const size = stage.type === "exam" ? skillCardIdGroups[0].length : 
       skillCardIdGroups.length * 6 + (stage.type !== "linkContest" ? 8 : 0);
     setSkillCardIdOrderGroups([new Array(size).fill(0)]);
     setCustomizationOrderGroups([new Array(size).fill({})]);
     setRemovedCardOrder("random");
-    setTurnTypeOrder(new Array(turnTypeOrder.length).fill("none"));
-  }
+    setTurnTypeOrder((cur) => new Array(cur.length).fill("none"));
+  }, [stage]);
 
-  function replacePItemId(index, itemId) {
+  const replacePItemId = useCallback((index, itemId) => {
     setPItemIds((cur) => {
       const next = [...cur];
       next[index] = itemId;
       return next;
     });
-  }
+  }, []);
 
-  function swapPItemIds(indexA, indexB) {
+  const swapPItemIds = useCallback((indexA, indexB) => {
     setPItemIds((cur) => {
       const next = [...cur];
       [next[indexA], next[indexB]] = [next[indexB], next[indexA]];
       return next;
     });
-  }
+  }, []);
 
-  function replacePDrinkId(index, drinkId) {
+  const replacePDrinkId = useCallback((index, drinkId) => {
     setPDrinkIds((cur) => {
       const next = [...cur];
       next[index] = drinkId;
       return next;
     });
-  }
+  }, []);
 
-  function swapPDrinkIds(indexA, indexB) {
+  const swapPDrinkIds = useCallback((indexA, indexB) => {
     setPDrinkIds((cur) => {
       const next = [...cur];
       [next[indexA], next[indexB]] = [next[indexB], next[indexA]];
       return next;
     });
-  }
+  }, []);
 
-  function replaceHifAbilityId(index, abilityId) {
+  const replaceHifAbilityId = useCallback((index, abilityId) => {
     setHifAbilityIds((cur) => {
       const next = [...cur];
       next[index] = abilityId;
       return next;
     });
-  }
+  }, []);
 
-  function swapHifAbilityIds(indexA, indexB) {
+  const swapHifAbilityIds = useCallback((indexA, indexB) => {
     setHifAbilityIds((cur) => {
       const next = [...cur];
       [next[indexA], next[indexB]] = [next[indexB], next[indexA]];
       return next;
     });
-  }
+  }, []);
 
-  function replaceStartingEffect(index, value) {
+  const replaceStartingEffect = useCallback((index, value) => {
     setStartingEffects((cur) => {
       const next = [...cur];
       next[index] = value;
       return next;
     });
-  }
+  }, []);
 
-  function replaceSkillCardId(index, cardId) {
+  const replaceCustomizations = useCallback((index, customizations) => {
+    setCustomizationGroups((cur) => {
+      const curCustomizations = [].concat(...cur);
+      const updatedCustomizations = [...curCustomizations];
+      updatedCustomizations[index] = customizations;
+      let chunks = [];
+      const chunkSize = stage.type === "exam" ? updatedCustomizations.length : 6;
+      for (let i = 0; i < updatedCustomizations.length; i += chunkSize) {
+        chunks.push(updatedCustomizations.slice(i, i + chunkSize));
+      }
+      return chunks;
+    });
+  }, [stage]);
+
+  const replaceSkillCardId = useCallback((index, cardId) => {
     let changed = false;
     setSkillCardIdGroups((cur) => {
       const skillCardIds = [].concat(...cur);
@@ -420,9 +444,9 @@ export function LoadoutContextProvider({ children }) {
     if (changed) {
       replaceCustomizations(index, []);
     }
-  }
+  }, [stage, replaceCustomizations]);
 
-  function swapSkillCardIds(indexA, indexB) {
+  const swapSkillCardIds = useCallback((indexA, indexB) => {
     setSkillCardIdGroups((cur) => {
       const skillCardIds = [].concat(...cur);
       const temp = skillCardIds[indexA];
@@ -448,23 +472,9 @@ export function LoadoutContextProvider({ children }) {
       }
       return chunks;
     });
-  }
+  }, [stage]);
 
-  function replaceCustomizations(index, customizations) {
-    setCustomizationGroups((cur) => {
-      const curCustomizations = [].concat(...cur);
-      const updatedCustomizations = [...curCustomizations];
-      updatedCustomizations[index] = customizations;
-      let chunks = [];
-      const chunkSize = stage.type === "exam" ? updatedCustomizations.length : 6;
-      for (let i = 0; i < updatedCustomizations.length; i += chunkSize) {
-        chunks.push(updatedCustomizations.slice(i, i + chunkSize));
-      }
-      return chunks;
-    });
-  }
-
-  function replaceSkillCardOrder(groupIndex, index, cardId, customizations) {
+  const replaceSkillCardOrder = useCallback((groupIndex, index, cardId, customizations) => {
     setSkillCardIdOrderGroups((cur) => {
       const updatedSkillCardIdOrderGroups = [...cur];
       updatedSkillCardIdOrderGroups[groupIndex][index] = cardId;
@@ -475,9 +485,9 @@ export function LoadoutContextProvider({ children }) {
       updatedCustomizationOrderGroups[groupIndex][index] = customizations;
       return updatedCustomizationOrderGroups;
     });
-  }
+  }, []);
 
-  function swapSkillCardOrder(indexA, indexB) {
+  const swapSkillCardOrder = useCallback((indexA, indexB) => {
     const groupIndexA = Math.floor(indexA / skillCardIdOrderGroups[0].length);
     const groupIndexB = Math.floor(indexB / skillCardIdOrderGroups[0].length);
     const arrayIndexA = indexA % skillCardIdOrderGroups[0].length;
@@ -496,9 +506,9 @@ export function LoadoutContextProvider({ children }) {
       updated[groupIndexB][arrayIndexB] = temp;
       return updated;
     });
-  }
+  }, [skillCardIdOrderGroups]);
 
-  const insertSkillCardIdGroup = (groupIndex) => {
+  const insertSkillCardIdGroup = useCallback((groupIndex) => {
     setSkillCardIdGroups((cur) => {
       const updatedSkillCardIds = [...cur];
       updatedSkillCardIds.splice(groupIndex, 0, [0, 0, 0, 0, 0, 0]);
@@ -523,9 +533,9 @@ export function LoadoutContextProvider({ children }) {
       });
       return updatedCustomizationOrderGroups;
     });
-  };
+  }, []);
 
-  const deleteSkillCardIdGroup = (groupIndex) => {
+  const deleteSkillCardIdGroup = useCallback((groupIndex) => {
     setSkillCardIdGroups((cur) => {
       const updatedSkillCardIds = [...cur];
       updatedSkillCardIds.splice(groupIndex, 1);
@@ -552,9 +562,9 @@ export function LoadoutContextProvider({ children }) {
       });
       return updatedCustomizationOrderGroups;
     });
-  };
+  }, []);
 
-  const swapSkillCardIdGroups = (groupIndexA, groupIndexB) => {
+  const swapSkillCardIdGroups = useCallback((groupIndexA, groupIndexB) => {
     setSkillCardIdGroups((cur) => {
       const updatedSkillCardIds = [...cur];
       const temp = updatedSkillCardIds[groupIndexA];
@@ -569,24 +579,24 @@ export function LoadoutContextProvider({ children }) {
       updatedCustomizations[groupIndexB] = temp;
       return updatedCustomizations;
     });
-  };
+  }, []);
 
-  const insertSkillCardOrderGroup = (groupIndex) => {
+  const insertSkillCardOrderGroup = useCallback((groupIndex) => {
     setSkillCardIdOrderGroups((cur) => {
-      const size = cur[0].length; //skillCardIdGroups.length * 6 + 8;
+      const size = cur[0].length;
       const updatedSkillCardIdOrderGroups = [...cur];
       updatedSkillCardIdOrderGroups.splice(groupIndex, 0, new Array(size).fill(0));
       return updatedSkillCardIdOrderGroups;
     });
     setCustomizationOrderGroups((cur) => {
-      const size = cur[0].length; //skillCardIdGroups.length * 6 + 8;
+      const size = cur[0].length;
       const updatedCustomizationOrderGroups = [...cur];
       updatedCustomizationOrderGroups.splice(groupIndex, 0, new Array(size).fill({}));
       return updatedCustomizationOrderGroups;
     });
-  };
+  }, []);
 
-  const deleteSkillCardOrderGroup = (groupIndex) => {
+  const deleteSkillCardOrderGroup = useCallback((groupIndex) => {
     setSkillCardIdOrderGroups((cur) => {
       const updatedSkillCardIdOrderGroups = [...cur];
       updatedSkillCardIdOrderGroups.splice(groupIndex, 1);
@@ -597,9 +607,9 @@ export function LoadoutContextProvider({ children }) {
       updatedCustomizationOrderGroups.splice(groupIndex, 1);
       return updatedCustomizationOrderGroups;
     });
-  };
+  }, []);
 
-  const updateStage = (stageId, customStage) => {
+  const updateStage = useCallback((stageId, customStage) => {
     setStageId(stageId);
     setCustomStage(customStage);
     let updatedStage = stageId === "custom" ? customStage : Stages.getById(stageId);
@@ -632,7 +642,6 @@ export function LoadoutContextProvider({ children }) {
               return true;
             }
           });
-          // console.log("updateStage skillCardIds", skillCardIds);
           setCustomizationGroups((curCustomizations) => {
             let customizations = [].concat(...curCustomizations);
             if (appendLast) {
@@ -641,7 +650,6 @@ export function LoadoutContextProvider({ children }) {
             customizations = customizations.filter((c, i) => {
               return !removedIndices.includes(i);
             });
-            // console.log("updateStage customizations", customizations);
             return [customizations];
           });
           setSkillCardIdOrderGroups((curGroups) => {
@@ -754,17 +762,17 @@ export function LoadoutContextProvider({ children }) {
       }
       return updatedTurnTypeOrder;
     });
-  };
+  }, [stage, skillCardIdGroups, pIdolId]);
 
-  const replaceTurnTypeOrder = (index, turnType) => {
+  const replaceTurnTypeOrder = useCallback((index, turnType) => {
     setTurnTypeOrder((cur) => {
       const updatedTurnTypeOrder = [...cur];
       updatedTurnTypeOrder[index] = turnType;
       return updatedTurnTypeOrder;
     });
-  };
+  }, []);
 
-  const swapTurnTypeOrder = (indexA, indexB) => {
+  const swapTurnTypeOrder = useCallback((indexA, indexB) => {
     setTurnTypeOrder((cur) => {
       const updatedTurnTypeOrder = [...cur];
       const temp = updatedTurnTypeOrder[indexA];
@@ -772,9 +780,9 @@ export function LoadoutContextProvider({ children }) {
       updatedTurnTypeOrder[indexB] = temp;
       return updatedTurnTypeOrder;
     });
-  };
+  }, []);
 
-  function setMemory(memory, index) {
+  const setMemory = useCallback((memory, index) => {
     const multiplier = stage.type !== "linkContest" && index ? 0.2 : 1;
 
     if (!memoryParams.some((p) => p)) {
@@ -815,56 +823,93 @@ export function LoadoutContextProvider({ children }) {
       next[index] = memory.customizations || [];
       return next;
     });
-  }
+  }, [stage, memoryParams]);
+
+  const value = useMemo(
+    () => ({
+      loadout,
+      setLoadout,
+      setMemory,
+      setStageId,
+      setCustomStage,
+      updateStage,
+      setSupportBonus,
+      setParams,
+      replacePItemId,
+      swapPItemIds,
+      replacePDrinkId,
+      swapPDrinkIds,
+      replaceHifAbilityId,
+      swapHifAbilityIds,
+      replaceStartingEffect,
+      replaceSkillCardId,
+      swapSkillCardIds,
+      replaceCustomizations,
+      clear,
+      setEnableSkillCardOrder,
+      replaceSkillCardOrder,
+      swapSkillCardOrder,
+      insertSkillCardIdGroup,
+      deleteSkillCardIdGroup,
+      swapSkillCardIdGroups,
+      insertSkillCardOrderGroup,
+      deleteSkillCardOrderGroup,
+      setRemovedCardOrder,
+      replaceTurnTypeOrder,
+      swapTurnTypeOrder,
+      clearOrders,
+      stage,
+      simulatorUrl,
+      loadouts,
+      setLoadouts,
+      currentLoadoutIndex,
+      setCurrentLoadoutIndex,
+      setSkillCardIdGroups,
+      setCustomizationGroups,
+      setEnableStrategyCustomizations,
+      setStrategyCustomizations,
+    }),
+    [
+      loadout,
+      setLoadout,
+      setMemory,
+      updateStage,
+      replacePItemId,
+      swapPItemIds,
+      replacePDrinkId,
+      swapPDrinkIds,
+      replaceHifAbilityId,
+      swapHifAbilityIds,
+      replaceStartingEffect,
+      replaceSkillCardId,
+      swapSkillCardIds,
+      replaceCustomizations,
+      clear,
+      setEnableSkillCardOrder,
+      replaceSkillCardOrder,
+      swapSkillCardOrder,
+      insertSkillCardIdGroup,
+      deleteSkillCardIdGroup,
+      swapSkillCardIdGroups,
+      insertSkillCardOrderGroup,
+      deleteSkillCardOrderGroup,
+      setRemovedCardOrder,
+      replaceTurnTypeOrder,
+      swapTurnTypeOrder,
+      clearOrders,
+      stage,
+      simulatorUrl,
+      loadouts,
+      currentLoadoutIndex,
+      setSkillCardIdGroups,
+      setCustomizationGroups,
+      setEnableStrategyCustomizations,
+      setStrategyCustomizations,
+    ]
+  );
 
   return (
-    <LoadoutContext.Provider
-      value={{
-        loadout,
-        setLoadout,
-        setMemory,
-        setStageId,
-        setCustomStage,
-        updateStage,
-        setSupportBonus,
-        setParams,
-        replacePItemId,
-        swapPItemIds,
-        replacePDrinkId,
-        swapPDrinkIds,
-        replaceHifAbilityId,
-        swapHifAbilityIds,
-        replaceStartingEffect,
-        replaceSkillCardId,
-        swapSkillCardIds,
-        replaceCustomizations,
-        clear,
-        setEnableSkillCardOrder,
-        replaceSkillCardOrder,
-        swapSkillCardOrder,
-        insertSkillCardIdGroup,
-        deleteSkillCardIdGroup,
-        swapSkillCardIdGroups,
-        insertSkillCardOrderGroup,
-        deleteSkillCardOrderGroup,
-        setRemovedCardOrder,
-        replaceTurnTypeOrder,
-        swapTurnTypeOrder,
-        clearOrders,
-        stage,
-        simulatorUrl,
-        loadouts,
-        setLoadouts,
-        currentLoadoutIndex,
-        setCurrentLoadoutIndex,
-        setSkillCardIdGroups,
-        setCustomizationGroups,
-        setEnableStrategyCustomizations,
-        setStrategyCustomizations,
-      }}
-    >
-      {children}
-    </LoadoutContext.Provider>
+    <LoadoutContext.Provider value={value}>{children}</LoadoutContext.Provider>
   );
 }
 

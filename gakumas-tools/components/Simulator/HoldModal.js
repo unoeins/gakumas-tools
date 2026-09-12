@@ -16,10 +16,6 @@ export default function HoldModal({ decision, onDecision, idolId }) {
   const { state, cards, num, optional = false, isRawId = false } = decision;
   const [selectedIndices, setSelectedIndices] = useState([]);
 
-  // console.log("HoldModal phase", state[S.phase], "parentPhase", state[S.parentPhase]);
-  // console.log("HoldModal usedCard", state[S.usedCard], "usedDrink", state[S.usedDrink]);
-  // console.log("HoldModal triggeredEffect", state[S.triggeredEffect]);
-
   let resolvedEntity = null;
   if (state[S.phase] == "processCard") {
     resolvedEntity = SkillCards.getById(state[S.cardMap][state[S.usedCard]].id);
@@ -33,8 +29,13 @@ export default function HoldModal({ decision, onDecision, idolId }) {
   } else if (["pDrink", "pDrinkEffect"].includes(state[S.triggeredEffect]?.source?.type)) {
     resolvedEntity = PDrinks.getById(state[S.triggeredEffect].source?.id);
   }
-
   const { icon } = gkImg(resolvedEntity, idolId);
+
+  const promptKey =
+    {
+      HOLD_SELECTION: "selectCardsToHold",
+      MOVE_TO_TOP_OF_DECK_SELECTION: "selectCardsToMoveToTopOfDeck",
+    }[decision.type] ?? "selectCardsToMoveToHand";
 
   const toggleCard = (arrayIndex) => {
     setSelectedIndices((prev) => {
@@ -68,12 +69,7 @@ export default function HoldModal({ decision, onDecision, idolId }) {
         </div>
       )}
       <h3>
-        {t(
-          decision.type == "HOLD_SELECTION"
-            ? optional ? "selectCardsToHoldOptional" : "selectCardsToHold"
-            : "selectCardsToMoveToHand",
-          { num }
-        )}
+        {t(promptKey, { num })}
       </h3>
       <div className={styles.cardGrid}>
         {cards.map((cardIndex, arrayIndex) => {

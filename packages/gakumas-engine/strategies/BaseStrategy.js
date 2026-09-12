@@ -22,7 +22,7 @@ export default class BaseStrategy {
   }
 
   /**
-   * Given a state and list of cards, selects a card to move to the top of the deck.
+   * Given a state and list of cards, selects cards to move to the top of deck.
    * Returns the indices of the cards to move.
    * Can be async for strategies that need to await user input (ManualStrategy).
    */
