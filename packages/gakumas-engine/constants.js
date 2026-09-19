@@ -139,6 +139,7 @@ export const ALL_FIELDS = [
   // Buffs
   "halfCostTurns",
   "doubleCostTurns",
+  "doubleBuffCostTurns",
   "costReduction",
   "costIncrease",
   "nullifyCostCards",
@@ -314,6 +315,7 @@ export const EOT_DECREMENT_FIELDS = [
   S.lockStanceTurns,
   S.halfCostTurns,
   S.doubleCostTurns,
+  S.doubleBuffCostTurns,
   S.nullifyGenkiTurns,
   S.poorConditionTurns,
   S.noActiveTurns,
@@ -341,6 +343,7 @@ export const BUFF_FIELDS = [
 
 export const DEBUFF_FIELDS = [
   S.doubleCostTurns,
+  S.doubleBuffCostTurns,
   S.costIncrease,
   S.nullifyGenkiTurns,
   S.noActiveTurns,
@@ -427,6 +430,7 @@ export const LOGGED_FIELDS = [
   S.lockStanceTurns,
   S.halfCostTurns,
   S.doubleCostTurns,
+  S.doubleBuffCostTurns,
   S.costReduction,
   S.costIncrease,
   S.doubleCardEffectCards,

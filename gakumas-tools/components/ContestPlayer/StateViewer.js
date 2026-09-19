@@ -51,6 +51,7 @@ function StateViewer({ state, idolId, plan }) {
     {name: "scoreDebuffs", type: "buffs", style: "debuff"},
     {name: "halfCostTurns", type: "number"},
     {name: "doubleCostTurns", type: "number", style: "debuff"},
+    {name: "doubleBuffCostTurns", type: "number", style: "debuff"},
     {name: "costReduction", type: "number"},
     {name: "costIncrease", type: "number", style: "debuff"},
     {name: "doubleCardEffectCards", type: "number"},
