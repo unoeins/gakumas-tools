@@ -51,6 +51,11 @@ export default function LoadoutEditor({ config, idolId }) {
     }))
     .filter(({ index, pIdolId, hasCards }) => index === 0 || pIdolId || hasCards);
 
+  const simulatorCustomized = 
+    loadout.enableSkillCardOrder ||
+    loadout.enableStrategyCustomizations ||
+    loadout.enableCardPriorities;
+
   return (
     <div className={styles.loadoutEditor}>
       <LoadoutParams
@@ -78,7 +83,7 @@ export default function LoadoutEditor({ config, idolId }) {
             size="medium"
           />
         </div>
-        <span>{formatStageShortName(stage, t) + (loadout.enableStrategyCustomizations ? "*" : "")}</span>
+        <span>{formatStageShortName(stage, t) + (simulatorCustomized ? "*" : "")}</span>
       </div>
       {loadout.skillCardIdGroups.map((skillCardIdGroup, i) => (
         <LoadoutSkillCardGroup

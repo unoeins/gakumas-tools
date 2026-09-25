@@ -1,16 +1,23 @@
 import { StrategyCustomizations } from "gakumas-data";
 
 export default class SimulatorConfig {
-  constructor({
+  constructor(loadout, listenerConfig) {
+    const {
       enableSkillCardOrder,
+      enableStrategyCustomizations,
+      strategyCustomizations,
+      enableCardPriorities,
+      prioritySkillCardIds,
+      priorityCustomizations,
+      priorityValues,
+    } = loadout;
+    const {
       enableUseStats,
       enableConditionalUseStats,
       enablePriorityStats,
       enableScoreStats,
       enableSelectRandomCards,
-      enableStrategyCustomizations,
-      strategyCustomizations,
-    }) {
+    } = listenerConfig;
     this.enableSkillCardOrder = enableSkillCardOrder;
     this.enableUseStats = enableUseStats;
     this.enableConditionalUseStats = enableConditionalUseStats;
@@ -31,6 +38,12 @@ export default class SimulatorConfig {
       this.enableEffectScore = strategyCustomizationsHelper.isEffectScoreEnabled();
       this.effectScoreMultiplier = strategyCustomizationsHelper.getEffectScoreMultiplier() / 100;
       this.fixScoreBonusOnHolding = strategyCustomizationsHelper.isFixScoreBonusOnHoldingEnabled();
+    }
+    this.enableCardPriorities = enableCardPriorities || false;
+    if (this.enableCardPriorities) {
+      this.prioritySkillCardIds = prioritySkillCardIds;
+      this.priorityCustomizations = priorityCustomizations;
+      this.priorityValues = priorityValues;
     }
   }
 }

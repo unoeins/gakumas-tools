@@ -83,12 +83,7 @@ export default function ContestPlayer() {
   const config = useMemo(() => {
     const idolConfig = new IdolConfig(loadout);
     const stageConfig = new StageConfig(stage, loadout.startingEffects);
-    const simulatorConfig = new SimulatorConfig({
-      enableSkillCardOrder: loadout.enableSkillCardOrder,
-      enableStrategyCustomizations: loadout.enableStrategyCustomizations,
-      strategyCustomizations: loadout.strategyCustomizations,
-      ...listenerConfig,
-    });
+    const simulatorConfig = new SimulatorConfig(loadout, listenerConfig);
     return new IdolStageConfig(idolConfig, stageConfig, enterPercents, simulatorConfig);
   }, [loadout, stage, enterPercents, listenerConfig]);
 
@@ -97,12 +92,7 @@ export default function ContestPlayer() {
     return loadouts.map((ld) => {
       const idolConfig = new IdolConfig(ld);
       const stageConfig = new StageConfig(stage, ld.startingEffects);
-      const simulatorConfig = new SimulatorConfig({
-        enableSkillCardOrder: ld.enableSkillCardOrder,
-        enableStrategyCustomizations: ld.enableStrategyCustomizations,
-        strategyCustomizations: ld.strategyCustomizations,
-        ...listenerConfig,
-      });
+      const simulatorConfig = new SimulatorConfig(ld, listenerConfig);
       return new IdolStageConfig(idolConfig, stageConfig, enterPercents, simulatorConfig);
     });
   }, [loadouts, stage, enterPercents, listenerConfig]);

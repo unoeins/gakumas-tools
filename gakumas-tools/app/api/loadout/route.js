@@ -31,6 +31,10 @@ export async function POST(request) {
     turnTypeOrder,
     enableStrategyCustomizations,
     strategyCustomizations,
+    enableCardPriorities,
+    prioritySkillCardIds,
+    priorityCustomizations,
+    priorityValues,
   } = await request.json();
 
   const { db } = await connect();
@@ -56,6 +60,10 @@ export async function POST(request) {
     turnTypeOrder,
     enableStrategyCustomizations,
     strategyCustomizations,
+    enableCardPriorities,
+    prioritySkillCardIds,
+    priorityCustomizations,
+    priorityValues,
     userId,
     createdAt: new Date(),
   });

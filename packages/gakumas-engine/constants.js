@@ -254,6 +254,10 @@ export const ALL_FIELDS = [
   "cardOrderGroups",
   "shuffleCount",
 
+  // Card Priority
+  "cardPriorities",
+  "usedCardIds",
+
   // Random
   "runId",
   "randomBuffer",

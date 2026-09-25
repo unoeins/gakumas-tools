@@ -749,13 +749,16 @@
     "enableEffectScore": "Evaluate effect scores",
     "effectScoreMultiplier": "Effect score evaluation multiplier%",
     "fixScoreBonusOnHolding": "Fix score bonus on holding",
+    "enableCardPriorities": "Change skill card priorities (%)",
     "reset": "Reset",
-    "confirm": "Are you sure you want to reset the simulator customizations?",
+    "confirmResetCustomizations": "Are you sure you want to reset the simulator customizations?",
+    "confirmResetPriorities": "Are you sure you want to reset the skill card priorities?",
     "readFromUrl": "Read URL",
     "invalidUrl": "Invalid URL.",
     "invalidLoadout": "Cannot load loadout from URL.",
     "clipboardError": "Cannot read from clipboard.",
-    "confirmSetLoadout": "Are you sure you want to set the simulator customizations from clipboard URL?"
+    "confirmSetCustomizations": "Are you sure you want to set the simulator customizations from clipboard URL?",
+    "confirmSetPriorities": "Are you sure you want to set the skill card priorities from clipboard URL?"
   },
   "SkillCardOrderGroups": {
     "Nth_order": "{n}th Card Order",

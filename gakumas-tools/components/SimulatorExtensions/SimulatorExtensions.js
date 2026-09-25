@@ -9,11 +9,14 @@ import {
 import { StrategyCustomizations } from "gakumas-data";
 import Button from "@/components/Button";
 import ConfirmModal from "@/components/ConfirmModal";
+import EntityIcon from "@/components/EntityIcon";
 import Input from "@/components/Input";
 import SkillCardAndTurnTypeOrder from "@/components/SkillCardOrderGroups/SkillCardAndTurnTypeOrder";
 import LoadoutContext from "@/contexts/LoadoutContext";
 import ModalContext from "@/contexts/ModalContext";
+import { EntityTypes } from "@/utils/entities";
 import { loadoutFromSearchParams, loadoutsFromSearchParams } from "@/utils/simulator";
+import EntityPickerModal from "../EntityPickerModal";
 import styles from "./SimulatorExtensions.module.scss";
 
 function SimulatorExtensions({ mode, config, idolId, listenerConfig, setListenerConfig }) {
@@ -24,6 +27,14 @@ function SimulatorExtensions({ mode, config, idolId, listenerConfig, setListener
     setEnableSkillCardOrder,
     setEnableStrategyCustomizations,
     setStrategyCustomizations,
+    replacePrioritySkillCardId,
+    replacePriorityCustomizations,
+    replacePriorityValues,
+    swapPrioritySkillCardIds,
+    setEnableCardPriorities,
+    setPrioritySkillCardIds,
+    setPriorityCustomizations,
+    setPriorityValues,
   } = useContext(LoadoutContext);
   const { setModal } = useContext(ModalContext);
 
@@ -53,8 +64,33 @@ function SimulatorExtensions({ mode, config, idolId, listenerConfig, setListener
       const loadouts = loadoutsFromSearchParams(url.searchParams);
       const loadout = loadouts[0] || loadoutFromSearchParams(url.searchParams);
       if (loadout.enableStrategyCustomizations && loadout.strategyCustomizations) {
-        setModal(<ConfirmModal message={t("confirmSetLoadout")} onConfirm={() => {
+        setModal(<ConfirmModal message={t("confirmSetCustomizations")} onConfirm={() => {
           setStrategyCustomizations(loadout.strategyCustomizations);
+        }} />);
+      } else {
+        setModal(<ConfirmModal message={t("invalidLoadout")} showCancel={false} />);
+      }
+    } catch (err) {
+      console.error("Clipboard error:", err);
+      setModal(<ConfirmModal message={t("clipboardError")} showCancel={false} />);
+    }
+  }
+
+  async function readPrioritiesFromUrl() {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (!/^https?:\/\/.+/i.test(text)) {
+        setModal(<ConfirmModal message={t("invalidUrl")} showCancel={false} />);
+        return;
+      }
+      const url = new URL(text);
+      const loadouts = loadoutsFromSearchParams(url.searchParams);
+      const loadout = loadouts[0] || loadoutFromSearchParams(url.searchParams);
+      if (loadout.enableCardPriorities && loadout.prioritySkillCardIds) {
+        setModal(<ConfirmModal message={t("confirmSetPriorities")} onConfirm={() => {
+          setPrioritySkillCardIds(loadout.prioritySkillCardIds);
+          setPriorityCustomizations(loadout.priorityCustomizations);
+          setPriorityValues(loadout.priorityValues);
         }} />);
       } else {
         setModal(<ConfirmModal message={t("invalidLoadout")} showCancel={false} />);
@@ -160,6 +196,7 @@ function SimulatorExtensions({ mode, config, idolId, listenerConfig, setListener
                       round={true}
                       min={customization.min}
                       max={customization.max}
+                      placeholder={customization.default}
                       value={strategyCustomizations.get(customization.id)}
                       onChange={(value) => strategyCustomizations.set(customization.id, parseInt(value))}
                     />
@@ -173,7 +210,7 @@ function SimulatorExtensions({ mode, config, idolId, listenerConfig, setListener
                 size="sm"
                 onClick={() =>
                   setModal(
-                    <ConfirmModal message={t("confirm")} onConfirm={() => 
+                    <ConfirmModal message={t("confirmResetCustomizations")} onConfirm={() => 
                        strategyCustomizations.resetAll()
                     }/>
                   )
@@ -208,6 +245,110 @@ function SimulatorExtensions({ mode, config, idolId, listenerConfig, setListener
                 style="blue-secondary"
                 size="sm"
                 onClick={() => readStrategyCustomizationsFromUrl()}
+              >
+                <FaRegPaste />
+                <span className={styles.buttonText}>{t("readFromUrl")}</span>
+              </Button>
+            </div>
+            </>
+          )}
+          <div className={styles.cardPrioritiesToggle}>
+            <input
+              type="checkbox"
+              id="enableCardPriorities"
+              checked={loadout.enableCardPriorities}
+              onChange={(e) => setEnableCardPriorities(e.target.checked)}
+            />
+            <label htmlFor="enableCardPriorities">{t("enableCardPriorities")}</label>
+          </div>
+          {loadout.enableCardPriorities && (
+            <>
+            <div className={styles.prioritySkillCardIds}>
+              {loadout.prioritySkillCardIds.map((cardId, index) => (
+                <div key={index} className={styles.prioritySkillCardId}>
+                  <EntityIcon
+                    type={EntityTypes.SKILL_CARD}
+                    id={cardId}
+                    index={index}
+                    customizations={loadout.priorityCustomizations?.[index]}
+                    onClick={() =>
+                      setModal(
+                        <EntityPickerModal
+                          type={EntityTypes.SKILL_CARD}
+                          id={cardId}
+                          customizations={loadout.priorityCustomizations?.[index]}
+                          onPick={(card) =>
+                            replacePrioritySkillCardId(index, card.id)
+                          }
+                          onCustomize={
+                            replacePriorityCustomizations
+                              ? (customs) =>
+                                  replacePriorityCustomizations(index, customs)
+                              : null
+                          }
+                        />
+                      )
+                    }
+                    onSwap={swapPrioritySkillCardIds}
+                    dndType="PRIORITY_CARD"
+                    size={"fill"}
+                  />
+                  <Input
+                    type="number"
+                    id={cardId}
+                    round={true}
+                    min={0}
+                    max={1000000}
+                    placeholder={100}
+                    value={loadout.priorityValues[index]}
+                    onChange={(value) => replacePriorityValues(index, value)}
+                  />
+                </div>
+              ))}
+            </div>
+            <div className={styles.buttons}>
+              <Button
+                style="red-secondary"
+                size="sm"
+                onClick={() =>
+                  setModal(
+                    <ConfirmModal message={t("confirmResetPriorities")} onConfirm={() => {
+                      setPrioritySkillCardIds([0]);
+                      setPriorityCustomizations([{}]);
+                      setPriorityValues(["100"]);
+                    }}/>
+                  )
+                }
+              >
+                <FaRegTrashCan />
+                <span className={styles.buttonText}>{t("reset")}</span>
+              </Button>
+              {!!simulatorUrl && (
+                <>
+                  <Button
+                    style="blue-secondary"
+                    size="sm"
+                    onClick={() => {
+                      navigator.clipboard.writeText(simulatorUrl);
+                      setLinkCopied(true);
+                      if (copiedTimerRef.current) {
+                        clearTimeout(copiedTimerRef.current);
+                      }
+                      copiedTimerRef.current = setTimeout(
+                        () => setLinkCopied(false),
+                        3000,
+                      );
+                    }}
+                  >
+                    {linkCopied ? <FaCheck /> : <FaRegCopy />}
+                    <span className={styles.buttonText}>URL</span>
+                  </Button>
+                </>
+              )}
+              <Button
+                style="blue-secondary"
+                size="sm"
+                onClick={() => readPrioritiesFromUrl()}
               >
                 <FaRegPaste />
                 <span className={styles.buttonText}>{t("readFromUrl")}</span>

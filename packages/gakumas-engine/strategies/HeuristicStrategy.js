@@ -137,6 +137,11 @@ export default class HeuristicStrategy extends BaseStrategy {
   evaluateInternal(state, nextState) {
     if (this.depth == 0) {
       this.rootEffectCount = state[S.effects].length;
+      state[S.usedCardIds] = [];
+      if (state[S.cardPriorities]) {
+        const endTurnState = this.engine.endTurn(state);
+        this.rootScore = this.getStateScore(endTurnState);
+      }
     }
 
     let logIndex = null;
@@ -188,6 +193,7 @@ export default class HeuristicStrategy extends BaseStrategy {
     if (this.depth < this.nextDepth) {
       nextState = previewState;
     }
+    previewState[S.usedCardIds].push(card);
     this.depth++;
 
     // Additional actions
@@ -245,6 +251,16 @@ export default class HeuristicStrategy extends BaseStrategy {
 
     score += this.getStateScore(previewState);
 
+    if (previewState[S.cardPriorities]) {
+      let scoreDelta = score - this.rootScore;
+      for (const cardId of previewState[S.usedCardIds]) {
+        const priority = previewState[S.cardPriorities][cardId];
+        if (priority != null) {
+          scoreDelta *= priority;
+        }
+      }
+      score = this.rootScore + scoreDelta;
+    }
     this.depth--;
     return { score: Math.round(score), state: previewState, nextState: nextState };
   }

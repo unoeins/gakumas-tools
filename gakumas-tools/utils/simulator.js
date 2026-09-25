@@ -33,6 +33,9 @@ export const DEFAULTS = {
   turnTypeOrder: "0-0-0-0-0-0-0-0-0-0-0-0",
   removedCardOrder: "0",
   strategyCustomizations: "",
+  prioritySkillCardIds: "0",
+  priorityCustomizations: "",
+  priorityValues: "100",
 };
 
 const SIMULATOR_BASE_URL = "https://gktools.unoeins.org/simulator";
@@ -74,13 +77,17 @@ export function loadoutFromSearchParams(searchParams, suffix = "") {
   let removedCardOrder = searchParams.get("order_removed");
   let turnTypeOrder = searchParams.get("order_turns");
   let strategyCustomizations = searchParams.get("strategy_customs" + suffix);
+  let prioritySkillCardIds = searchParams.get("pri_cards" + suffix);
+  let priorityCustomizations = searchParams.get("pri_customs" + suffix);
+  let priorityValues = searchParams.get("pri_values" + suffix);
   const hasDataFromParams =
     stageId || params || pItemIds || skillCardIdGroups || customizationGroups || 
     pDrinkIds || hifAbilityIds || startingEffects || 
     skillCardIdOrderGroups || customizationOrderGroups || turnTypeOrder;
   const enableSkillCardOrder = 
-    skillCardIdOrderGroups || customizationOrderGroups || removedCardOrder || turnTypeOrder;
+    !!(skillCardIdOrderGroups || customizationOrderGroups || removedCardOrder || turnTypeOrder);
   const enableStrategyCustomizations = strategyCustomizations != null;
+  const enableCardPriorities = !!(prioritySkillCardIds || priorityCustomizations || priorityValues);
 
   stageId = stageId || DEFAULTS.stageId;
   supportBonus = supportBonus || DEFAULTS.supportBonus;
@@ -93,6 +100,9 @@ export function loadoutFromSearchParams(searchParams, suffix = "") {
   startingEffects = startingEffects || DEFAULTS.startingEffects;
   removedCardOrder = removedCardOrder || DEFAULTS.removedCardOrder;
   strategyCustomizations = strategyCustomizations || DEFAULTS.strategyCustomizations;
+  prioritySkillCardIds = prioritySkillCardIds || DEFAULTS.prioritySkillCardIds;
+  priorityCustomizations = priorityCustomizations || DEFAULTS.priorityCustomizations;
+  priorityValues = priorityValues || DEFAULTS.priorityValues;
 
   stageId = parseInt(stageId, 10) || null;
   supportBonus = parseFloat(supportBonus) || null;
@@ -110,6 +120,9 @@ export function loadoutFromSearchParams(searchParams, suffix = "") {
     ...StrategyCustomizations.getDefaults(),
     ...deserializeStrategyCustomizations(strategyCustomizations)
   };
+  prioritySkillCardIds = deserializeIds(prioritySkillCardIds);
+  priorityCustomizations = deserializeCustomizations(priorityCustomizations);
+  priorityValues = deserializeIds(priorityValues);
 
   if (skillCardIdOrderGroups) {
     skillCardIdOrderGroups = skillCardIdOrderGroups
@@ -185,6 +198,10 @@ export function loadoutFromSearchParams(searchParams, suffix = "") {
     turnTypeOrder,
     enableStrategyCustomizations,
     strategyCustomizations,
+    enableCardPriorities,
+    prioritySkillCardIds,
+    priorityCustomizations,
+    priorityValues,
   };
 }
 
@@ -214,6 +231,10 @@ export function loadoutToSearchParams(loadout) {
     turnTypeOrder,
     enableStrategyCustomizations,
     strategyCustomizations,
+    enableCardPriorities,
+    prioritySkillCardIds,
+    priorityCustomizations,
+    priorityValues,
   } = loadout;
   const searchParams = new URLSearchParams();
   searchParams.set("stage", stageId);
@@ -250,6 +271,11 @@ export function loadoutToSearchParams(loadout) {
   }
   if (enableStrategyCustomizations) {
     searchParams.set("strategy_customs", serializeStrategyCustomizations(strategyCustomizations));
+  }
+  if (enableCardPriorities) {
+    searchParams.set("pri_cards", serializeIds(prioritySkillCardIds));
+    searchParams.set("pri_customs", serializeCustomizations(priorityCustomizations));
+    searchParams.set("pri_values", serializeIds(priorityValues.map((v) => v || 100)));
   }
   return searchParams;
 }

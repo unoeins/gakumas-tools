@@ -278,6 +278,24 @@ export default class CardManager extends EngineComponent {
       cardOrderGroupsArray.push(cardOrderGroups);
     }
     const cardMap = cardMaps.flat();
+    if (config.simulator.enableCardPriorities) {
+      const cardPriorities = {};
+      for (let i = 0; i < cardMap.length; i++) {
+        const card = cardMap[i];
+        for (let j = 0; j < config.simulator.prioritySkillCardIds.length; j++) {
+          if (card.id === config.simulator.prioritySkillCardIds[j] &&
+            (card.c11n ? equalCustomizations(card.c11n, config.simulator.priorityCustomizations[j]) :
+                        !config.simulator.priorityCustomizations[j] || Object.keys(config.simulator.priorityCustomizations[j]).length === 0)
+          ) {
+            cardPriorities[i] = (config.simulator.priorityValues[j] || 100) / 100;
+            break;
+          }
+        }
+      }
+      if (Object.keys(cardPriorities).length > 0) {
+        state[S.cardPriorities] = cardPriorities;
+      }
+    }
     state[S.cardMap] = cardMap;
     state[S.cardOrderGroups] = cardOrderGroupsArray;
 

@@ -758,13 +758,16 @@
     "enableEffectScore": "持続効果スコアを評価する",
     "effectScoreMultiplier": "持続効果スコア評価倍率%",
     "fixScoreBonusOnHolding": "保留選択時のスコアボーナスを固定",
+    "enableCardPriorities": "スキルカードの優先度を変更する(%)",
     "reset": "リセット",
-    "confirm": "シミュレーターのカスタマイズをリセットしますか？",
+    "confirmResetCustomizations": "シミュレーターのカスタマイズをリセットしますか？",
+    "confirmResetPriorities": "スキルカードの優先度をリセットしますか？",
     "readFromUrl": "URL読み込み",
     "invalidUrl": "有効なURLではありません。",
     "invalidLoadout": "URLから編成を読み込めません。",
     "clipboardError": "クリップボードを読み込めません。",
-    "confirmSetLoadout": "クリップボードのURLからシミュレーターのカスタマイズを設定しますか？"
+    "confirmSetCustomizations": "クリップボードのURLからシミュレーターのカスタマイズを設定しますか？",
+    "confirmSetPriorities": "クリップボードのURLからスキルカードの優先度を設定しますか？"
   },
   "SkillCardOrderGroups": {
     "Nth_order": "{n}週目のカード順",

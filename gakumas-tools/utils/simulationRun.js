@@ -20,6 +20,10 @@ const LOADOUT_FIELDS = [
   "turnTypeOrder",
   "enableStrategyCustomizations",
   "strategyCustomizations",
+  "enableCardPriorities",
+  "prioritySkillCardIds",
+  "priorityCustomizations",
+  "priorityValues",
 ];
 
 export function extractLoadoutFields(loadout) {

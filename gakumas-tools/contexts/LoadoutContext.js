@@ -67,6 +67,18 @@ export function LoadoutContextProvider({ children }) {
   const [strategyCustomizations, setStrategyCustomizations] = useState(
     initialLoadout.strategyCustomizations || {}
   );
+  const [enableCardPriorities, setEnableCardPriorities] = useState(
+    initialLoadout.enableCardPriorities || false
+  );
+  const [prioritySkillCardIds, setPrioritySkillCardIds] = useState(
+    initialLoadout.prioritySkillCardIds || [0]
+  );
+  const [priorityCustomizations, setPriorityCustomizations] = useState(
+    initialLoadout.priorityCustomizations || [{}]
+  );
+  const [priorityValues, setPriorityValues] = useState(
+    initialLoadout.priorityValues || ["100"]
+  );
 
   const pIdolId = inferPIdolId(pItemIds, skillCardIdGroups);
 
@@ -104,6 +116,10 @@ export function LoadoutContextProvider({ children }) {
       turnTypeOrder,
       enableStrategyCustomizations,
       strategyCustomizations,
+      enableCardPriorities,
+      prioritySkillCardIds,
+      priorityCustomizations,
+      priorityValues,
     }),
     [
       stageId,
@@ -123,6 +139,10 @@ export function LoadoutContextProvider({ children }) {
       turnTypeOrder,
       enableStrategyCustomizations,
       strategyCustomizations,
+      enableCardPriorities,
+      prioritySkillCardIds,
+      priorityCustomizations,
+      priorityValues,
     ]
   );
 
@@ -200,6 +220,10 @@ export function LoadoutContextProvider({ children }) {
     }
     setEnableStrategyCustomizations(!!loadout.enableStrategyCustomizations);
     setStrategyCustomizations(loadout.strategyCustomizations || StrategyCustomizations.getDefaults());
+    setEnableCardPriorities(!!loadout.enableCardPriorities);
+    setPrioritySkillCardIds(loadout.prioritySkillCardIds || [0]);
+    setPriorityCustomizations(loadout.priorityCustomizations || [{}]);
+    setPriorityValues(loadout.priorityValues || ["100"]);
   }, []);
 
   useEffect(() => {
@@ -304,12 +328,17 @@ export function LoadoutContextProvider({ children }) {
     setHifAbilityIds((cur) => new Array(cur.length).fill(0));
     setStartingEffects((cur) => new Array(cur.length).fill(0));
     const size = stage.type === "linkContest" ? 12 : stage.type === "exam" ? 1 : 20;
+    setEnableSkillCardOrder(false);
     setSkillCardIdOrderGroups([new Array(size).fill(0)]);
     setCustomizationOrderGroups([new Array(size).fill({})]);
     setRemovedCardOrder("random");
     setTurnTypeOrder((cur) => new Array(cur.length).fill("none"));
     setEnableStrategyCustomizations(false);
     setStrategyCustomizations(StrategyCustomizations.getDefaults());
+    setEnableCardPriorities(false);
+    setPrioritySkillCardIds([0]);
+    setPriorityCustomizations([{}]);
+    setPriorityValues(["100"]);
   }, [stage]);
 
   const clearOrders = useCallback(() => {
@@ -609,6 +638,68 @@ export function LoadoutContextProvider({ children }) {
     });
   }, []);
 
+  const replacePriorityCustomizations = useCallback((index, customization) => {
+    setPriorityCustomizations((cur) => {
+      const next = [...cur];
+      next[index] = customization;
+      return next;
+    });
+  }, []);
+
+  const replacePriorityValues = useCallback((index, value) => {
+    setPriorityValues((cur) => {
+      const next = [...cur];
+      next[index] = value;
+      return next;
+    });
+  }, []);
+
+  const replacePrioritySkillCardId = useCallback((index, cardId) => {
+    const next = [...prioritySkillCardIds];
+    let changed = cardId != next[index];
+    next[index] = cardId;
+    if (index === next.length - 1 && !!cardId) {
+      next.push(0);
+      setPriorityCustomizations((cur) => {
+        return [...cur, {}];
+      });
+      setPriorityValues((cur) => {
+        return [...cur, "100"];
+      });
+    } else if (index !== next.length - 1 && !cardId) {
+      next.splice(index, 1);
+      changed = false;
+      setPriorityCustomizations((cur) => {
+        return cur.toSpliced(index, 1);
+      });
+      setPriorityValues((cur) => {
+        return cur.toSpliced(index, 1);
+      });
+    }
+    setPrioritySkillCardIds(next);
+    if (changed) {
+      replacePriorityCustomizations(index, {});
+    }
+  }, [prioritySkillCardIds, replacePriorityCustomizations]);
+
+  const swapPrioritySkillCardIds = useCallback((indexA, indexB) => {
+    setPrioritySkillCardIds((cur) => {
+      const next = [...cur];
+      [next[indexA], next[indexB]] = [next[indexB], next[indexA]];
+      return next;
+    });
+    setPriorityCustomizations((cur) => {
+      const next = [...cur];
+      [next[indexA], next[indexB]] = [next[indexB], next[indexA]];
+      return next;
+    });
+    setPriorityValues((cur) => {
+      const next = [...cur];
+      [next[indexA], next[indexB]] = [next[indexB], next[indexA]];
+      return next;
+    });
+  }, []);
+
   const updateStage = useCallback((stageId, customStage) => {
     setStageId(stageId);
     setCustomStage(customStage);
@@ -868,6 +959,14 @@ export function LoadoutContextProvider({ children }) {
       setCustomizationGroups,
       setEnableStrategyCustomizations,
       setStrategyCustomizations,
+      replacePrioritySkillCardId,
+      swapPrioritySkillCardIds,
+      replacePriorityCustomizations,
+      replacePriorityValues,
+      setEnableCardPriorities,
+      setPrioritySkillCardIds,
+      setPriorityCustomizations,
+      setPriorityValues,
     }),
     [
       loadout,
@@ -901,10 +1000,10 @@ export function LoadoutContextProvider({ children }) {
       simulatorUrl,
       loadouts,
       currentLoadoutIndex,
-      setSkillCardIdGroups,
-      setCustomizationGroups,
-      setEnableStrategyCustomizations,
-      setStrategyCustomizations,
+      replacePrioritySkillCardId,
+      swapPrioritySkillCardIds,
+      replacePriorityCustomizations,
+      replacePriorityValues,
     ]
   );
 
