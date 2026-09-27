@@ -5,6 +5,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { STARTING_EFFECTS } from "gakumas-engine/constants";
@@ -12,7 +13,7 @@ import { Stages, StrategyCustomizations } from "gakumas-data";
 import { usePathname } from "@/i18n/routing";
 import LoadoutUrlContext from "@/contexts/LoadoutUrlContext";
 import WorkspaceContext from "@/contexts/WorkspaceContext";
-import { getSimulatorUrl } from "@/utils/simulator";
+import { getDefaultParams, getSimulatorUrl } from "@/utils/simulator";
 import { getMemoryParamContribution } from "@/utils/stamina";
 import { FALLBACK_STAGE } from "@/simulator/constants";
 import { fixCustomizations } from "@/utils/customizations";
@@ -22,6 +23,8 @@ import { inferPIdolId, getExamStage } from "@/utils/exams";
 import { getIdolRoadStage } from "@/utils/idolRoad";
 
 const LoadoutContext = createContext();
+
+export const LoadoutActionsContext = createContext();
 
 export function LoadoutContextProvider({ children }) {
   const pathname = usePathname();
@@ -307,9 +310,16 @@ export function LoadoutContextProvider({ children }) {
     }
   }, [startingEffects]);
 
+  const stageRef = useRef(stage);
+  stageRef.current = stage;
+  const memoryParamsRef = useRef(memoryParams);
+  memoryParamsRef.current = memoryParams;
+  const paramsRef = useRef(params);
+  paramsRef.current = params;
+
   const clear = useCallback(() => {
     setMemoryParams([null, null]);
-    setParams([null, null, null, null]);
+    setParams(getDefaultParams(stageRef.current));
     setPItemIds((cur) => new Array(cur.length).fill(0));
     if (stage.type === "exam") {
       setSkillCardIdGroups([[0]]);
@@ -429,7 +439,6 @@ export function LoadoutContextProvider({ children }) {
         changed = true;
       }
       updatedSkillCardIds[index] = cardId;
-      // console.log("replaceSkillCardId", index, cardId, stage, updatedSkillCardIds);
       if (stage.type === "exam" && index === updatedSkillCardIds.length - 1 && !!cardId) {
         updatedSkillCardIds.push(0);
         setCustomizationGroups((cur) => {
@@ -505,12 +514,12 @@ export function LoadoutContextProvider({ children }) {
 
   const replaceSkillCardOrder = useCallback((groupIndex, index, cardId, customizations) => {
     setSkillCardIdOrderGroups((cur) => {
-      const updatedSkillCardIdOrderGroups = [...cur];
+      const updatedSkillCardIdOrderGroups = cur.map((group) => [...group]);
       updatedSkillCardIdOrderGroups[groupIndex][index] = cardId;
       return updatedSkillCardIdOrderGroups;
     });
     setCustomizationOrderGroups((cur) => {
-      const updatedCustomizationOrderGroups = [...cur];
+      const updatedCustomizationOrderGroups = cur.map((group) => [...group]);
       updatedCustomizationOrderGroups[groupIndex][index] = customizations;
       return updatedCustomizationOrderGroups;
     });
@@ -522,14 +531,14 @@ export function LoadoutContextProvider({ children }) {
     const arrayIndexA = indexA % skillCardIdOrderGroups[0].length;
     const arrayIndexB = indexB % skillCardIdOrderGroups[0].length;
     setSkillCardIdOrderGroups((cur) => {
-      const updated = [...cur];
+      const updated = cur.map((group) => [...group]);
       const temp = updated[groupIndexA][arrayIndexA];
       updated[groupIndexA][arrayIndexA] = updated[groupIndexB][arrayIndexB];
       updated[groupIndexB][arrayIndexB] = temp;
       return updated;
     });
     setCustomizationOrderGroups((cur) => {
-      const updated = [...cur];
+      const updated = cur.map((group) => [...group]);
       const temp = updated[groupIndexA][arrayIndexA];
       updated[groupIndexA][arrayIndexA] = updated[groupIndexB][arrayIndexB];
       updated[groupIndexB][arrayIndexB] = temp;
@@ -610,102 +619,18 @@ export function LoadoutContextProvider({ children }) {
     });
   }, []);
 
-  const insertSkillCardOrderGroup = useCallback((groupIndex) => {
-    setSkillCardIdOrderGroups((cur) => {
-      const size = cur[0].length;
-      const updatedSkillCardIdOrderGroups = [...cur];
-      updatedSkillCardIdOrderGroups.splice(groupIndex, 0, new Array(size).fill(0));
-      return updatedSkillCardIdOrderGroups;
-    });
-    setCustomizationOrderGroups((cur) => {
-      const size = cur[0].length;
-      const updatedCustomizationOrderGroups = [...cur];
-      updatedCustomizationOrderGroups.splice(groupIndex, 0, new Array(size).fill({}));
-      return updatedCustomizationOrderGroups;
-    });
-  }, []);
-
-  const deleteSkillCardOrderGroup = useCallback((groupIndex) => {
-    setSkillCardIdOrderGroups((cur) => {
-      const updatedSkillCardIdOrderGroups = [...cur];
-      updatedSkillCardIdOrderGroups.splice(groupIndex, 1);
-      return updatedSkillCardIdOrderGroups;
-    });
-    setCustomizationOrderGroups((cur) => {
-      const updatedCustomizationOrderGroups = [...cur];
-      updatedCustomizationOrderGroups.splice(groupIndex, 1);
-      return updatedCustomizationOrderGroups;
-    });
-  }, []);
-
-  const replacePriorityCustomizations = useCallback((index, customization) => {
-    setPriorityCustomizations((cur) => {
-      const next = [...cur];
-      next[index] = customization;
-      return next;
-    });
-  }, []);
-
-  const replacePriorityValues = useCallback((index, value) => {
-    setPriorityValues((cur) => {
-      const next = [...cur];
-      next[index] = value;
-      return next;
-    });
-  }, []);
-
-  const replacePrioritySkillCardId = useCallback((index, cardId) => {
-    const next = [...prioritySkillCardIds];
-    let changed = cardId != next[index];
-    next[index] = cardId;
-    if (index === next.length - 1 && !!cardId) {
-      next.push(0);
-      setPriorityCustomizations((cur) => {
-        return [...cur, {}];
-      });
-      setPriorityValues((cur) => {
-        return [...cur, "100"];
-      });
-    } else if (index !== next.length - 1 && !cardId) {
-      next.splice(index, 1);
-      changed = false;
-      setPriorityCustomizations((cur) => {
-        return cur.toSpliced(index, 1);
-      });
-      setPriorityValues((cur) => {
-        return cur.toSpliced(index, 1);
-      });
-    }
-    setPrioritySkillCardIds(next);
-    if (changed) {
-      replacePriorityCustomizations(index, {});
-    }
-  }, [prioritySkillCardIds, replacePriorityCustomizations]);
-
-  const swapPrioritySkillCardIds = useCallback((indexA, indexB) => {
-    setPrioritySkillCardIds((cur) => {
-      const next = [...cur];
-      [next[indexA], next[indexB]] = [next[indexB], next[indexA]];
-      return next;
-    });
-    setPriorityCustomizations((cur) => {
-      const next = [...cur];
-      [next[indexA], next[indexB]] = [next[indexB], next[indexA]];
-      return next;
-    });
-    setPriorityValues((cur) => {
-      const next = [...cur];
-      [next[indexA], next[indexB]] = [next[indexB], next[indexA]];
-      return next;
-    });
-  }, []);
-
-  const updateStage = useCallback((stageId, customStage) => {
+  const selectStage = useCallback((stageId, customStage) => {
+    const hasDefaultParams = getDefaultParams(stageRef.current).every(
+      (p, i) => p == paramsRef.current[i],
+    );
     setStageId(stageId);
     setCustomStage(customStage);
-    let updatedStage = stageId === "custom" ? customStage : Stages.getById(stageId);
-    if (updatedStage.type === "exam") {
-      updatedStage = getExamStage(stageId, pIdolId);
+    const nextStage =
+      stageId == "custom" ? customStage : Stages.getById(stageId);
+    if (hasDefaultParams) {
+      setParams(getDefaultParams(nextStage));
+    }
+    if (nextStage.type === "exam") {
       if (stage.type !== "exam") {
         const MAX_P_ITEMS = 9;
         setPItemIds((cur) => {
@@ -797,7 +722,7 @@ export function LoadoutContextProvider({ children }) {
           }
           return chunks;
         });
-        const deckSize = size + (updatedStage.type !== "linkContest" ? 8 : 0);
+        const deckSize = size + (nextStage.type !== "linkContest" ? 8 : 0);
         setSkillCardIdOrderGroups((curGroups) => {
           let updatedGroups = curGroups.map((group) => {
             return group.concat(new Array(deckSize - group.length).fill(0));
@@ -813,10 +738,9 @@ export function LoadoutContextProvider({ children }) {
         return chunks;
       });
     }
-
     setSkillCardIdOrderGroups((cur) => {
-      const size = updatedStage.type === "exam" ? skillCardIdGroups[0].length : 
-        skillCardIdGroups.length * 6 + (updatedStage.type !== "linkContest" ? 8 : 0);
+      const size = nextStage.type === "exam" ? skillCardIdGroups[0].length : 
+        skillCardIdGroups.length * 6 + (nextStage.type !== "linkContest" ? 8 : 0);
       let updatedSkillCardIdOrderGroups = [...cur];
       updatedSkillCardIdOrderGroups = updatedSkillCardIdOrderGroups.map((group) => {
         if (group.length < size) {
@@ -829,8 +753,8 @@ export function LoadoutContextProvider({ children }) {
       return updatedSkillCardIdOrderGroups;
     });
     setCustomizationOrderGroups((cur) => {
-      const size = updatedStage.type === "exam" ? skillCardIdGroups[0].length : 
-        skillCardIdGroups.length * 6 + (updatedStage.type !== "linkContest" ? 8 : 0);
+      const size = nextStage.type === "exam" ? skillCardIdGroups[0].length : 
+        skillCardIdGroups.length * 6 + (nextStage.type !== "linkContest" ? 8 : 0);
       let updatedCustomizationOrderGroups = [...cur];
       updatedCustomizationOrderGroups = updatedCustomizationOrderGroups.map((group) => {
          if (group.length < size) {
@@ -844,7 +768,7 @@ export function LoadoutContextProvider({ children }) {
     });
     setTurnTypeOrder((cur) => {
       const updatedTurnTypeOrder = [...cur];
-      const turnCounts = updatedStage.turnCounts;
+      const turnCounts = nextStage.turnCounts;
       const totalTurns = turnCounts.vocal + turnCounts.dance + turnCounts.visual;
       if (updatedTurnTypeOrder.length < totalTurns) {
         updatedTurnTypeOrder.push(...Array(totalTurns - updatedTurnTypeOrder.length).fill("none"));
@@ -854,6 +778,96 @@ export function LoadoutContextProvider({ children }) {
       return updatedTurnTypeOrder;
     });
   }, [stage, skillCardIdGroups, pIdolId]);
+
+  const insertSkillCardOrderGroup = useCallback((groupIndex) => {
+    setSkillCardIdOrderGroups((cur) => {
+      const size = cur[0].length;
+      const updatedSkillCardIdOrderGroups = [...cur];
+      updatedSkillCardIdOrderGroups.splice(groupIndex, 0, new Array(size).fill(0));
+      return updatedSkillCardIdOrderGroups;
+    });
+    setCustomizationOrderGroups((cur) => {
+      const size = cur[0].length;
+      const updatedCustomizationOrderGroups = [...cur];
+      updatedCustomizationOrderGroups.splice(groupIndex, 0, new Array(size).fill({}));
+      return updatedCustomizationOrderGroups;
+    });
+  }, []);
+
+  const deleteSkillCardOrderGroup = useCallback((groupIndex) => {
+    setSkillCardIdOrderGroups((cur) => {
+      const updatedSkillCardIdOrderGroups = [...cur];
+      updatedSkillCardIdOrderGroups.splice(groupIndex, 1);
+      return updatedSkillCardIdOrderGroups;
+    });
+    setCustomizationOrderGroups((cur) => {
+      const updatedCustomizationOrderGroups = [...cur];
+      updatedCustomizationOrderGroups.splice(groupIndex, 1);
+      return updatedCustomizationOrderGroups;
+    });
+  }, []);
+
+  const replacePriorityCustomizations = useCallback((index, customization) => {
+    setPriorityCustomizations((cur) => {
+      const next = [...cur];
+      next[index] = customization;
+      return next;
+    });
+  }, []);
+
+  const replacePriorityValues = useCallback((index, value) => {
+    setPriorityValues((cur) => {
+      const next = [...cur];
+      next[index] = value;
+      return next;
+    });
+  }, []);
+
+  const replacePrioritySkillCardId = useCallback((index, cardId) => {
+    const next = [...prioritySkillCardIds];
+    let changed = cardId != next[index];
+    next[index] = cardId;
+    if (index === next.length - 1 && !!cardId) {
+      next.push(0);
+      setPriorityCustomizations((cur) => {
+        return [...cur, {}];
+      });
+      setPriorityValues((cur) => {
+        return [...cur, "100"];
+      });
+    } else if (index !== next.length - 1 && !cardId) {
+      next.splice(index, 1);
+      changed = false;
+      setPriorityCustomizations((cur) => {
+        return cur.toSpliced(index, 1);
+      });
+      setPriorityValues((cur) => {
+        return cur.toSpliced(index, 1);
+      });
+    }
+    setPrioritySkillCardIds(next);
+    if (changed) {
+      replacePriorityCustomizations(index, {});
+    }
+  }, [prioritySkillCardIds, replacePriorityCustomizations]);
+
+  const swapPrioritySkillCardIds = useCallback((indexA, indexB) => {
+    setPrioritySkillCardIds((cur) => {
+      const next = [...cur];
+      [next[indexA], next[indexB]] = [next[indexB], next[indexA]];
+      return next;
+    });
+    setPriorityCustomizations((cur) => {
+      const next = [...cur];
+      [next[indexA], next[indexB]] = [next[indexB], next[indexA]];
+      return next;
+    });
+    setPriorityValues((cur) => {
+      const next = [...cur];
+      [next[indexA], next[indexB]] = [next[indexB], next[indexA]];
+      return next;
+    });
+  }, []);
 
   const replaceTurnTypeOrder = useCallback((index, turnType) => {
     setTurnTypeOrder((cur) => {
@@ -874,6 +888,8 @@ export function LoadoutContextProvider({ children }) {
   }, []);
 
   const setMemory = useCallback((memory, index) => {
+    const stage = stageRef.current;
+    const memoryParams = memoryParamsRef.current;
     const multiplier = stage.type !== "linkContest" && index ? 0.2 : 1;
 
     if (!memoryParams.some((p) => p)) {
@@ -914,16 +930,13 @@ export function LoadoutContextProvider({ children }) {
       next[index] = memory.customizations || [];
       return next;
     });
-  }, [stage, memoryParams]);
+  }, []);
 
-  const value = useMemo(
+  const actions = useMemo(
     () => ({
-      loadout,
       setLoadout,
       setMemory,
-      setStageId,
-      setCustomStage,
-      updateStage,
+      selectStage,
       setSupportBonus,
       setParams,
       replacePItemId,
@@ -949,11 +962,7 @@ export function LoadoutContextProvider({ children }) {
       replaceTurnTypeOrder,
       swapTurnTypeOrder,
       clearOrders,
-      stage,
-      simulatorUrl,
-      loadouts,
       setLoadouts,
-      currentLoadoutIndex,
       setCurrentLoadoutIndex,
       setSkillCardIdGroups,
       setCustomizationGroups,
@@ -969,10 +978,9 @@ export function LoadoutContextProvider({ children }) {
       setPriorityValues,
     }),
     [
-      loadout,
       setLoadout,
       setMemory,
-      updateStage,
+      selectStage,
       replacePItemId,
       swapPItemIds,
       replacePDrinkId,
@@ -996,10 +1004,6 @@ export function LoadoutContextProvider({ children }) {
       replaceTurnTypeOrder,
       swapTurnTypeOrder,
       clearOrders,
-      stage,
-      simulatorUrl,
-      loadouts,
-      currentLoadoutIndex,
       replacePrioritySkillCardId,
       swapPrioritySkillCardIds,
       replacePriorityCustomizations,
@@ -1007,8 +1011,24 @@ export function LoadoutContextProvider({ children }) {
     ]
   );
 
+  const value = useMemo(
+    () => ({
+      ...actions,
+      loadout,
+      stage,
+      simulatorUrl,
+      loadouts,
+      currentLoadoutIndex,
+    }),
+    [actions, loadout, stage, simulatorUrl, loadouts, currentLoadoutIndex]
+  );
+
   return (
-    <LoadoutContext.Provider value={value}>{children}</LoadoutContext.Provider>
+    <LoadoutActionsContext.Provider value={actions}>
+      <LoadoutContext.Provider value={value}>
+        {children}
+      </LoadoutContext.Provider>
+    </LoadoutActionsContext.Provider>
   );
 }
 

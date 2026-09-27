@@ -10,25 +10,28 @@ function TurnTypePickerModal({
 }) {
   const { closeModal } = useContext(ModalContext);
 
-  let turnTypes = ["vocal", "dance", "visual"]
+  let turnTypes = ["vocal", "dance", "visual"];
+  let labels = ["Vo", "Da", "Vi"];
   if(includeNull) {
     turnTypes.unshift("none");
+    labels.unshift("");
   }
 
   return (
     <Modal>
       <div className={styles.turnTypes}>
-      {turnTypes.map((turnType, index) => (
+        {turnTypes.map((turnType, index) => (
           <TurnTypeIcon
             key={`${turnType}_${index}`}
             turnType={turnType}
+            label={labels[index]}
             onClick={(turnType) => {
               onPick(turnType);
               closeModal();
             }}
             size="fill"
           />
-      ))}
+        ))}
       </div>
     </Modal>
   );

@@ -1,3 +1,4 @@
+import { ViewTransition } from "react";
 import { cookies } from "next/headers";
 import { Inter } from "next/font/google";
 import { GoogleAnalytics } from "@next/third-parties/google";
@@ -23,11 +24,15 @@ import { routing } from "@/i18n/routing";
 import { authOptions } from "@/utils/auth";
 import { GA_ID } from "@/utils/logging";
 import { generateDefaultMetadata } from "@/utils/metadata";
+import { activeOshiProps } from "@/utils/oshi";
+import { getCachedOshiSettings } from "@/utils/oshiStore";
 import { parseWorkspace, WORKSPACE_COOKIE_KEY } from "@/utils/workspace";
 import styles from "./layout.module.scss";
 import "../globals.scss";
 
 const inter = Inter({ subsets: ["latin"] });
+
+const TOOL_SWITCH = { "nav-tool": "tool-switch", default: "none" };
 
 export const viewport = {
   width: "device-width",
@@ -56,6 +61,7 @@ export default async function RootLayout({ params, children }) {
   const initialWorkspace = workspaceCookie
     ? parseWorkspace(workspaceCookie.value)
     : null;
+  const oshi = activeOshiProps(await getCachedOshiSettings(), locale);
 
   return (
     <html lang={locale}>
@@ -63,7 +69,7 @@ export default async function RootLayout({ params, children }) {
         <SessionContextProvider session={session}>
           <NextIntlClientProvider messages={messages}>
             <WorkspaceContextProvider initialWorkspace={initialWorkspace}>
-              <Navbar />
+              <Navbar oshi={oshi} />
               <DataContextProvider>
                 <MemoryCalculatorContextProvider>
                   <MemoryContextProvider>
@@ -75,7 +81,12 @@ export default async function RootLayout({ params, children }) {
                               <ModalContextProvider>
                                 <div className={styles.tools}>
                                   <PinnedTools />
-                                  <main>{children}</main>
+                                  <ViewTransition
+                                    update={TOOL_SWITCH}
+                                    default="none"
+                                  >
+                                      <main>{children}</main>
+                                  </ViewTransition>
                                 </div>
                                 <Tooltips />
                               </ModalContextProvider>

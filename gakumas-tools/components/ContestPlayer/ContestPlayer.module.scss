@@ -1,11 +1,19 @@
-@use "sass:color";
 @use "../../styles/colors";
+@use "../../styles/mixins";
 @use "../../styles/tokens";
 
 .loadoutEditor {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  align-items: flex-start;
+  gap: tokens.$space-3;
+  padding: tokens.$space-3;
+
+  @media (max-width: 480px) {
+    gap: tokens.$space-2;
+    padding: tokens.$space-2;
+  }
 }
 
 .configurator {
@@ -13,12 +21,12 @@
   display: flex;
   flex-direction: column;
   gap: tokens.$space-2;
-  padding: tokens.$space-2 tokens.$space-4;
+  padding: tokens.$space-3;
   overflow: auto;
+  @include mixins.card;
 
   @media (max-width: 480px) {
     padding: tokens.$space-2;
-    padding-bottom: 0;
     gap: tokens.$space-1;
   }
 }
@@ -33,31 +41,54 @@
 .loadoutTabs {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: tokens.$space-2;
 }
 
 .loadoutTab {
   display: flex;
-  gap: 4px;
+  gap: tokens.$space-1;
+
+  & > :not(.selectButton) {
+    flex: 1;
+    min-width: 0;
+  }
 }
 
 .selectButton {
-  padding: 8px 2px;
-  border-radius: 100px;
-  color: colors.$gray;
-  border: 1px solid colors.$gray;
+  flex-shrink: 0;
+  width: 28px;
+  padding: tokens.$space-3 0;
+  border-radius: tokens.$radius-pill;
+  background-color: tokens.$fill-muted;
+  color: tokens.$surface-ink-subtle;
+  font-size: tokens.$text-xs;
+  font-weight: tokens.$weight-heavy;
+  letter-spacing: 0.06em;
   writing-mode: vertical-lr;
-  font-weight: 600;
-  transition: all 0.2s;
+  @include mixins.raised;
 
   &:hover {
-    box-shadow: 0 0 8px color.adjust(colors.$black, $alpha: -0.5);
+    background-color: tokens.$fill-muted-hover;
+    color: tokens.$surface-ink;
+  }
+
+  &.selectedTab {
+    @include mixins.chip-selected;
   }
 }
 
 .loadoutSummary {
-  flex: 1;
-  padding: 0 4px;
+  padding: tokens.$space-1;
+  border-radius: tokens.$radius-lg;
+  cursor: pointer;
+  transition:
+    background-color tokens.$duration-fast,
+    scale tokens.$duration-spring tokens.$ease-spring;
+  @include mixins.pressable(tokens.$press-scale-wide);
+
+  &:hover {
+    background-color: tokens.$fill-subtle;
+  }
 }
 
 .supportBonusInput {
@@ -65,9 +96,92 @@
   gap: tokens.$space-2;
   align-items: baseline;
 
-
   input {
     width: 80px;
+  }
+}
+
+.simControls {
+  display: flex;
+  align-items: center;
+  gap: tokens.$space-1 tokens.$space-2;
+  flex-wrap: wrap;
+}
+
+.strategyPicker {
+  flex: 0 0 auto;
+  min-width: 160px;
+
+  button {
+    padding: tokens.$space-1 tokens.$space-3;
+  }
+
+  @media (max-width: 500px) {
+    flex: 1 1 100%;
+  }
+}
+
+.numRunsRow {
+  display: flex;
+  align-items: center;
+  gap: tokens.$space-2;
+  flex: 1;
+  min-width: 220px;
+
+  label {
+    margin: 0;
+    flex-shrink: 0;
+  }
+
+  span {
+    min-width: 42px;
+    color: tokens.$surface-ink;
+    font-size: tokens.$text-base;
+    font-weight: tokens.$weight-bold;
+    text-align: right;
+    @include mixins.numeric;
+  }
+}
+
+.numRunsSlider {
+  flex: 1;
+  min-width: 0;
+  height: 8px;
+  margin: 0;
+  border-radius: 4px;
+  background: linear-gradient(
+    90deg,
+    tokens.$primary var(--fill),
+    tokens.$surface-border var(--fill)
+  );
+  appearance: none;
+  outline-offset: 6px;
+
+  &::-webkit-slider-thumb {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: tokens.$surface-panel;
+    box-shadow:
+      tokens.$thumb-edge,
+      0 1px 4px rgba(20, 20, 40, 0.14);
+    appearance: none;
+    transition: scale tokens.$duration-spring tokens.$ease-spring;
+  }
+
+  &:active::-webkit-slider-thumb {
+    scale: 1.15;
+  }
+
+  &::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+    border: 0;
+    border-radius: 50%;
+    background-color: tokens.$surface-panel;
+    box-shadow:
+      tokens.$thumb-edge,
+      0 1px 4px rgba(20, 20, 40, 0.14);
   }
 }
 
@@ -76,59 +190,67 @@
   flex-wrap: wrap;
   gap: tokens.$space-1;
 
-  & + * {
-    margin-top: tokens.$space-2;
-  }
-
   button {
     display: inline-flex;
     align-items: center;
-    gap: tokens.$space-1;
-    padding: 2px 8px;
-    border-radius: 999px;
-    background-color: tokens.$surface-muted;
+    gap: 3px;
+    height: 20px;
+    padding: 0 8px 0 10px;
+    border-radius: tokens.$radius-pill;
+    background-color: tokens.$fill-muted;
     color: tokens.$surface-ink-muted;
     font-size: tokens.$text-xs;
-    font-weight: 600;
-    transition:
-      background-color 0.15s ease,
-      color 0.15s ease;
+    font-weight: tokens.$weight-bold;
+    white-space: nowrap;
+    @include mixins.raised;
 
     svg {
-      font-size: 10px;
-      transition: transform 0.15s ease;
+      font-size: 9px;
+      @include mixins.caret;
     }
 
-    &:not(.disabled):hover {
+    &:hover:not(:disabled) {
+      background-color: tokens.$fill-muted-hover;
       color: tokens.$surface-ink;
     }
 
     &.expanded {
-      background-color: colors.$gk-orange-extra-light;
-      color: colors.$gk-red-orange;
+      @include mixins.chip-selected;
 
       svg {
-        transform: rotate(180deg);
+        @include mixins.caret-open;
       }
     }
 
-    &.disabled {
-      opacity: 0.5;
-      cursor: default;
+    &:disabled {
+      opacity: 0.45;
+      box-shadow: none;
+      cursor: not-allowed;
     }
   }
+}
+
+.subTool {
+  padding-top: tokens.$space-2;
 }
 
 .subLinks {
   display: flex;
   justify-content: space-between;
-  color: colors.$blue;
-  font-size: 12px;
-}
+  align-items: center;
+  color: tokens.$link;
+  font-size: tokens.$text-xs;
+  font-weight: tokens.$weight-semibold;
 
-.url {
-  font-size: 10px;
-  word-break: break-all;
+  & > a {
+    padding: 2px tokens.$space-1;
+    border-radius: tokens.$radius-sm;
+    transition: background-color tokens.$duration-fast;
+
+    &:hover {
+      background-color: tokens.$link-hover-bg;
+    }
+  }
 }
 
 .buttons {
@@ -136,6 +258,11 @@
   flex-wrap: wrap;
   align-items: stretch;
   gap: tokens.$space-2;
+}
+
+.copied {
+  color: tokens.$success;
+  @include mixins.pop-in;
 }
 
 .buttonText {
@@ -261,6 +388,31 @@
   flex-direction: column;
   align-items: center;
   gap: 4px;
+}
+
+.result {
+  flex: 1;
+  max-width: Min(100%, 800px);
+  display: flex;
+  flex-direction: column;
+  gap: tokens.$space-3;
+  padding: tokens.$space-3;
+  @include mixins.card;
+  transition: opacity tokens.$duration-base;
+
+  &.pending {
+    opacity: 0.45;
+  }
+
+  .graphSelect button {
+    font-size: 18px;
+    padding: 4px 6px;
+  }
+
+  @media (max-width: 480px) {
+    gap: 10px;
+    padding: 10px tokens.$space-2;
+  }
 }
 
 .logsSection {

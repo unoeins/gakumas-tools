@@ -80,7 +80,7 @@ function Group({ entity, childLogs, idolId, pendingDecision, onDecision }) {
         )}
       </div>
       {!!childLogs.length && (
-        <div className={styles.childLogs}>
+        <div className={styles.groupLogs}>
           <Logs
             logs={childLogs}
             idolId={idolId}

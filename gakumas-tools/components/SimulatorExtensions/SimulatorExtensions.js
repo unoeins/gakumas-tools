@@ -8,10 +8,12 @@ import {
 } from "react-icons/fa6";
 import { StrategyCustomizations } from "gakumas-data";
 import Button from "@/components/Button";
+import Collapse from "@/components/Collapse";
 import ConfirmModal from "@/components/ConfirmModal";
 import EntityIcon from "@/components/EntityIcon";
 import Input from "@/components/Input";
 import SkillCardAndTurnTypeOrder from "@/components/SkillCardOrderGroups/SkillCardAndTurnTypeOrder";
+import SwapDndContext from "@/components/LoadoutEditor/SwapDndContext";
 import LoadoutContext from "@/contexts/LoadoutContext";
 import ModalContext from "@/contexts/ModalContext";
 import { EntityTypes } from "@/utils/entities";
@@ -112,13 +114,13 @@ function SimulatorExtensions({ mode, config, idolId, listenerConfig, setListener
         />
         <label htmlFor="enableSkillCardOrder">{t("enableSkillCardOrder")}</label>
       </div>
-      {loadout.enableSkillCardOrder && (
+      <Collapse open={loadout.enableSkillCardOrder}>
         <SkillCardAndTurnTypeOrder
           config={config}
           idolId={config.idol.idolId || idolId}
           defaultCardIds={config.defaultCardIds}
         />
-      )}
+      </Collapse>
       {mode === "simulator" && (
         <>
           <div className={styles.useStatsToggle}>
@@ -175,7 +177,7 @@ function SimulatorExtensions({ mode, config, idolId, listenerConfig, setListener
             />
             <label htmlFor="enableStrategyCustomization">{t("enableStrategyCustomization")}</label>
           </div>
-          {loadout.enableStrategyCustomizations && (
+          <Collapse open={loadout.enableStrategyCustomizations}>
             <>
             <div className={styles.strategyCustomizations}>
               {StrategyCustomizations.getAll().map((customization) => (
@@ -210,9 +212,11 @@ function SimulatorExtensions({ mode, config, idolId, listenerConfig, setListener
                 size="sm"
                 onClick={() =>
                   setModal(
-                    <ConfirmModal message={t("confirmResetCustomizations")} onConfirm={() => 
-                       strategyCustomizations.resetAll()
-                    }/>
+                    <ConfirmModal
+                      message={t("confirmResetCustomizations")}
+                      onConfirm={() => strategyCustomizations.resetAll()}
+                      danger
+                    />
                   )
                 }
               >
@@ -251,7 +255,7 @@ function SimulatorExtensions({ mode, config, idolId, listenerConfig, setListener
               </Button>
             </div>
             </>
-          )}
+          </Collapse>
           <div className={styles.cardPrioritiesToggle}>
             <input
               type="checkbox"
@@ -261,101 +265,106 @@ function SimulatorExtensions({ mode, config, idolId, listenerConfig, setListener
             />
             <label htmlFor="enableCardPriorities">{t("enableCardPriorities")}</label>
           </div>
-          {loadout.enableCardPriorities && (
-            <>
-            <div className={styles.prioritySkillCardIds}>
-              {loadout.prioritySkillCardIds.map((cardId, index) => (
-                <div key={index} className={styles.prioritySkillCardId}>
-                  <EntityIcon
-                    type={EntityTypes.SKILL_CARD}
-                    id={cardId}
-                    index={index}
-                    customizations={loadout.priorityCustomizations?.[index]}
-                    onClick={() =>
-                      setModal(
-                        <EntityPickerModal
-                          type={EntityTypes.SKILL_CARD}
-                          id={cardId}
-                          customizations={loadout.priorityCustomizations?.[index]}
-                          onPick={(card) =>
-                            replacePrioritySkillCardId(index, card.id)
-                          }
-                          onCustomize={
-                            replacePriorityCustomizations
-                              ? (customs) =>
-                                  replacePriorityCustomizations(index, customs)
-                              : null
-                          }
-                        />
-                      )
-                    }
-                    onSwap={swapPrioritySkillCardIds}
-                    dndType="PRIORITY_CARD"
-                    size={"fill"}
-                  />
-                  <Input
-                    type="number"
-                    id={cardId}
-                    round={true}
-                    min={0}
-                    max={1000000}
-                    placeholder={100}
-                    value={loadout.priorityValues[index]}
-                    onChange={(value) => replacePriorityValues(index, value)}
-                  />
-                </div>
-              ))}
-            </div>
-            <div className={styles.buttons}>
-              <Button
-                style="red-secondary"
-                size="sm"
-                onClick={() =>
-                  setModal(
-                    <ConfirmModal message={t("confirmResetPriorities")} onConfirm={() => {
-                      setPrioritySkillCardIds([0]);
-                      setPriorityCustomizations([{}]);
-                      setPriorityValues(["100"]);
-                    }}/>
-                  )
-                }
-              >
-                <FaRegTrashCan />
-                <span className={styles.buttonText}>{t("reset")}</span>
-              </Button>
-              {!!simulatorUrl && (
-                <>
-                  <Button
-                    style="blue-secondary"
-                    size="sm"
-                    onClick={() => {
-                      navigator.clipboard.writeText(simulatorUrl);
-                      setLinkCopied(true);
-                      if (copiedTimerRef.current) {
-                        clearTimeout(copiedTimerRef.current);
+          <Collapse open={loadout.enableCardPriorities}>
+            <SwapDndContext>
+              <div className={styles.prioritySkillCardIds}>
+                {loadout.prioritySkillCardIds.map((cardId, index) => (
+                  <div key={index} className={styles.prioritySkillCardId}>
+                    <EntityIcon
+                      type={EntityTypes.SKILL_CARD}
+                      id={cardId}
+                      index={index}
+                      customizations={loadout.priorityCustomizations?.[index]}
+                      onClick={() =>
+                        setModal(
+                          <EntityPickerModal
+                            type={EntityTypes.SKILL_CARD}
+                            id={cardId}
+                            customizations={loadout.priorityCustomizations?.[index]}
+                            onPick={(card) =>
+                              replacePrioritySkillCardId(index, card.id)
+                            }
+                            onCustomize={
+                              replacePriorityCustomizations
+                                ? (customs) =>
+                                    replacePriorityCustomizations(index, customs)
+                                : null
+                            }
+                          />
+                        )
                       }
-                      copiedTimerRef.current = setTimeout(
-                        () => setLinkCopied(false),
-                        3000,
-                      );
-                    }}
-                  >
-                    {linkCopied ? <FaCheck /> : <FaRegCopy />}
-                    <span className={styles.buttonText}>URL</span>
-                  </Button>
-                </>
-              )}
-              <Button
-                style="blue-secondary"
-                size="sm"
-                onClick={() => readPrioritiesFromUrl()}
-              >
-                <FaRegPaste />
-                <span className={styles.buttonText}>{t("readFromUrl")}</span>
-              </Button>
-            </div>
-            </>
-          )}
+                      onSwap={swapPrioritySkillCardIds}
+                      dndType="PRIORITY_CARD"
+                      size={"fill"}
+                      showEmptyPlaceholder
+                    />
+                    <Input
+                      type="number"
+                      id={cardId}
+                      round={true}
+                      min={0}
+                      max={1000000}
+                      placeholder={100}
+                      value={loadout.priorityValues[index]}
+                      onChange={(value) => replacePriorityValues(index, value)}
+                    />
+                  </div>
+                ))}
+              </div>
+              <div className={styles.buttons}>
+                <Button
+                  style="red-secondary"
+                  size="sm"
+                  onClick={() =>
+                    setModal(
+                      <ConfirmModal
+                        message={t("confirmResetPriorities")}
+                        onConfirm={() => {
+                          setPrioritySkillCardIds([0]);
+                          setPriorityCustomizations([{}]);
+                          setPriorityValues(["100"]);
+                        }}
+                        danger
+                      />
+                    )
+                  }
+                >
+                  <FaRegTrashCan />
+                  <span className={styles.buttonText}>{t("reset")}</span>
+                </Button>
+                {!!simulatorUrl && (
+                  <>
+                    <Button
+                      style="blue-secondary"
+                      size="sm"
+                      onClick={() => {
+                        navigator.clipboard.writeText(simulatorUrl);
+                        setLinkCopied(true);
+                        if (copiedTimerRef.current) {
+                          clearTimeout(copiedTimerRef.current);
+                        }
+                        copiedTimerRef.current = setTimeout(
+                          () => setLinkCopied(false),
+                          3000,
+                        );
+                      }}
+                    >
+                      {linkCopied ? <FaCheck /> : <FaRegCopy />}
+                      <span className={styles.buttonText}>URL</span>
+                    </Button>
+                  </>
+                )}
+                <Button
+                  style="blue-secondary"
+                  size="sm"
+                  onClick={() => readPrioritiesFromUrl()}
+                >
+                  <FaRegPaste />
+                  <span className={styles.buttonText}>{t("readFromUrl")}</span>
+                </Button>
+              </div>
+            </SwapDndContext>
+          </Collapse>
         </>
       )}
       {mode === "contestPlayer" && (

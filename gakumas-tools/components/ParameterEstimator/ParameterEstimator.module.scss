@@ -1,13 +1,7 @@
 @use "sass:color";
 @use "../../styles/mixins";
 @use "../../styles/colors";
-
-// .parameterEstimator {
-//   display: flex;
-//   flex-direction: column;
-//   flex-wrap: wrap;
-//   justify-content: center;
-// }
+@use "../../styles/tokens";
 
 .parameterEstimator {
   max-width: 600px;
@@ -15,9 +9,10 @@
   flex-direction: column;
   justify-content: center;
   gap: 8px;
-  padding: 8px 16px;
-  margin: 0 auto;
+  margin: tokens.$space-3 auto;
+  padding: tokens.$space-4;
   overflow: auto;
+  @include mixins.card;
 }
 
 .helperButton {

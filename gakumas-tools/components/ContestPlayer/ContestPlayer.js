@@ -8,7 +8,7 @@ import {
   useState,
 } from "react";
 import { useTranslations } from "next-intl";
-import { FaCircleArrowUp, FaArrowsRotate, FaHashtag, FaPercent } from "react-icons/fa6";
+import { FaCircleArrowUp, FaHashtag, FaPercent } from "react-icons/fa6";
 import {
   IdolConfig,
   StageEngine,
@@ -58,7 +58,6 @@ export default function ContestPlayer() {
   const {
     stage,
     loadout,
-    simulatorUrl,
     setSupportBonus,
     loadouts,
     setLoadout,
@@ -368,7 +367,11 @@ export default function ContestPlayer() {
             {loadouts.map((loadout, index) => (
               <div key={index} className={styles.loadoutTab}>
                 <button
-                  className={styles.selectButton}
+                  className={c(
+                    styles.selectButton,
+                    index === currentLoadoutIndex && styles.selectedTab,
+                  )}
+                  aria-pressed={index === currentLoadoutIndex}
                   onClick={() => {
                     setLoadout(loadouts[index]);
                     setCurrentLoadoutIndex(index);
@@ -520,18 +523,20 @@ export default function ContestPlayer() {
       </div>
 
       {logs && (
-        <div className={styles.logsSection}>
-          <div className={styles.content}>
-            <label>{t2("logs")}</label>
-            <Logs
-              logs={structuredLogs}
-              idolId={idolId}
-            />
-  
-            <a className={styles.toTop} href="#simulator_loadout">
-              Top
-              <FaCircleArrowUp />
-            </a>
+        <div className={styles.result}>
+          <div className={styles.logsSection}>
+            <div className={styles.content}>
+              <label>{t2("logs")}</label>
+              <Logs
+                logs={structuredLogs}
+                idolId={idolId}
+              />
+    
+              <a className={styles.toTop} href="#simulator_loadout">
+                Top
+                <FaCircleArrowUp />
+              </a>
+            </div>
           </div>
         </div>
       )}

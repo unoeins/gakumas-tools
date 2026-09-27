@@ -1,1 +1,1 @@
-export { default } from "./ContestPlayerWithDnd";
+export { default } from "./ContestPlayer";

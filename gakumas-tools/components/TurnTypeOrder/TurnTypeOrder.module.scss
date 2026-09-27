@@ -1,6 +1,7 @@
 @use "../../styles/mixins";
 @use "sass:color";
 @use "../../styles/colors";
+@use "../../styles/tokens";
 
 .turnTypeOrder {
   display: flex;
@@ -26,11 +27,23 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  box-shadow: inset 0 0 0 2px colors.$gray-light;
-  border-radius: 8%;
-  background-color: colors.$gray-extra-light;
+  border-radius: tokens.$radius-icon;
+  background-color: #f4f4f7;
   color: colors.$gray-dark;
   
+  img {
+    border-radius: tokens.$radius-icon;
+  }
+
+  &.empty {
+    border: 1.5px dashed #d4d4dc;
+    background-color: tokens.$fill-subtle;
+  }
+
+  &.filled {
+    box-shadow: 0 2px 0 rgba(20, 20, 40, 0.16);
+  }
+
   .dropArea {
     position: relative;
     width: 100%;
@@ -42,12 +55,82 @@
 
 }
 
-button.turnTypeIcon:hover {
-  outline: 3px solid colors.$gk-orange;
+.emptyPlaceholder {
+  width: 36%;
+  height: 36%;
+  color: colors.$gk-orange;
+  opacity: 0;
+  scale: 0.5;
+  transition:
+    opacity tokens.$duration-fast,
+    scale tokens.$duration-spring tokens.$ease-pop;
+}
+
+button.turnTypeIcon {
+  --press-opacity: 1;
+  outline: 2.5px solid transparent;
+  outline-offset: 2px;
+  transition:
+    outline-color tokens.$duration-fast ease,
+    translate tokens.$duration-spring tokens.$ease-spring,
+    scale tokens.$duration-spring tokens.$ease-spring,
+    box-shadow tokens.$duration-base;
+
+  &.filled {
+    box-shadow: tokens.$shadow-icon;
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      translate: 0 -2px;
+    }
+  }
+
+  &:active {
+    translate: 0 2px;
+    scale: 0.95;
+    transition-duration: tokens.$duration-press;
+
+    &.filled {
+      box-shadow: tokens.$shadow-icon-pressed;
+    }
+  }
+}
+
+button.turnTypeIcon:focus-visible {
+  outline-color: colors.$gk-orange;
+}
+
+.swappable {
+  touch-action: manipulation;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+button.swapSource {
+  opacity: 0.35;
+}
+
+button.turnTypeIcon.swapTarget {
+  z-index: tokens.$z-raised;
+  outline-color: colors.$gk-orange;
+  translate: 0 -4px;
+  scale: 1.06;
+}
+
+button.turnTypeIcon:is(:hover, :focus-visible) .emptyPlaceholder {
+  opacity: 1;
+  scale: 1;
+}
+
+button.empty:is(:hover, :focus-visible) {
+  border-color: tokens.$accent-edge;
+  background-color: tokens.$accent-tint;
 }
 
 .fill {
   width: 100%;
+  height: 100%;
 }
 
 .large {

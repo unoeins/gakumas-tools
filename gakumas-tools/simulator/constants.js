@@ -1,11 +1,12 @@
 export const SYNC = false;
-export const DEFAULT_NUM_RUNS = 1;
+export const DEFAULT_NUM_RUNS = 2000;
 export const MIN_BUCKET_SIZE = 1000;
 export const MAX_WORKERS = 8;
 
 export const WORKER_MESSAGE = {
   PROGRESS: "progress",
   RESULT: "result",
+  ERROR: "error",
 };
 
 export const FALLBACK_STAGE = {

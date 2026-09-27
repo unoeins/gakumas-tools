@@ -6,6 +6,7 @@ import Modal from "@/components/Modal";
 import StageCustomizer from "@/components/StageCustomizer";
 import LoadoutContext from "@/contexts/LoadoutContext";
 import ModalContext from "@/contexts/ModalContext";
+import c from "@/utils/classNames";
 import { compareStages } from "@/utils/sort";
 import StageSummary from "./StageSummary";
 import styles from "./StageSelect.module.scss";
@@ -31,12 +32,12 @@ export default function StageSelectModal() {
     { value: "custom", label: t("custom") },
   ];
 
-  const { stage, updateStage } = useContext(LoadoutContext);
+  const { selectStage, stage } = useContext(LoadoutContext);
   const { closeModal } = useContext(ModalContext);
   const [stageType, setStageType] = useState(stage?.type || "contest");
 
   function setStage(stageId, customStage) {
-    updateStage(stageId, customStage);
+    selectStage(stageId, customStage);
     closeModal();
   }
 
@@ -59,14 +60,19 @@ export default function StageSelectModal() {
         </div>
       ) : (
         <div className={styles.stageList}>
-          {stages.map((stage) => (
+          {stages.map((option, i) => (
             <button
-              key={stage.id}
-              className={styles.option}
-              value={stage.id}
-              onClick={() => setStage(stage.id, {})}
+              key={option.id}
+              className={c(
+                styles.option,
+                option.id == stage?.id && styles.selected,
+              )}
+              style={{ "--i": i }}
+              value={option.id}
+              aria-pressed={option.id == stage?.id}
+              onClick={() => setStage(option.id, {})}
             >
-              <StageSummary stage={stage} />
+              <StageSummary stage={option} />
             </button>
           ))}
         </div>

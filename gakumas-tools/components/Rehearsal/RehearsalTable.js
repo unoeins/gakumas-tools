@@ -1,7 +1,8 @@
 import React, { useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { AiOutlineBarChart, AiOutlineBoxPlot } from "react-icons/ai";
-import { FaCheck, FaRegCircleXmark, FaRegImage } from "react-icons/fa6";
+import { FaCheck, FaRegImage, FaXmark } from "react-icons/fa6";
+import Collapse from "@/components/Collapse";
 import c from "@/utils/classNames";
 import styles from "./Rehearsal.module.scss";
 
@@ -82,53 +83,47 @@ export default function RehearsalTable({
     return [Math.min(...allScores), Math.max(...allScores)];
   }, [data]);
 
-  function getCellColor(value) {
-    const percent = (value - minValue) / (maxValue - minValue || 1);
-    const r = Math.round(255 + percent * (68 - 255));
-    const g = Math.round(255 + percent * (187 - 255));
-    const b = Math.round(255 + percent * (255 - 255));
-    return {
-      background: `rgb(${r},${g},${b})`,
-    };
+  function getCellHeat(value) {
+    return { "--heat": (value - minValue) / (maxValue - minValue || 1) };
   }
 
   return (
-    <table>
+    <table className={styles.table}>
       <thead>
         <tr className={styles.chartButtons}>
-          <th>
+          <td>
             <button
+              type="button"
               className={selected == null ? styles.selected : null}
               onClick={() => onChartClick(null)}
+              aria-pressed={selected == null}
             >
               <AiOutlineBoxPlot />
             </button>
-          </th>
-          <th />
+          </td>
+          <td />
           {[...Array(9)].map((_, i) => (
-            <th key={i} className={i % 3 === 0 ? styles.stageStart : null}>
+            <td key={i} className={i % 3 === 0 ? styles.stageStart : null}>
               <button
+                type="button"
                 className={selected == i ? styles.selected : null}
                 onClick={() => onChartClick(i)}
+                aria-pressed={selected == i}
               >
                 <AiOutlineBarChart />
               </button>
-            </th>
+            </td>
           ))}
-          <th className={styles.stageStart} />
+          <td className={styles.stageStart} />
         </tr>
-        <tr>
+        <tr className={styles.stageHeaders}>
           <th />
           <th>No.</th>
-          <th colSpan="3" className={styles.stageStart}>
-            ステージ1
-          </th>
-          <th colSpan="3" className={styles.stageStart}>
-            ステージ2
-          </th>
-          <th colSpan="3" className={styles.stageStart}>
-            ステージ3
-          </th>
+          {[1, 2, 3].map((n) => (
+            <th key={n} colSpan="3" className={styles.stageStart}>
+              {t("stage", { n })}
+            </th>
+          ))}
           <th className={styles.stageStart} />
         </tr>
       </thead>
@@ -146,13 +141,15 @@ export default function RehearsalTable({
                   onMouseDown={(e) => e.preventDefault()}
                 >
                   <button
+                    type="button"
+                    className={styles.remove}
                     onClick={() => {
                       // Indices shift on delete; drop any cell/preview state.
                       cancelEditing();
                       onRowDelete(i);
                     }}
                   >
-                    <FaRegCircleXmark />
+                    <FaXmark />
                   </button>
                 </td>
                 <td>{i + 1}</td>
@@ -173,7 +170,7 @@ export default function RehearsalTable({
                             isEditing && styles.editing,
                             row.flags?.[j] === "flagged" && styles.flagged,
                           )}
-                          style={getCellColor(score)}
+                          style={getCellHeat(score)}
                           onMouseDown={(e) => {
                             if (isEditing) return; // input handles its own clicks
                             e.preventDefault(); // don't blur the active input
@@ -220,6 +217,7 @@ export default function RehearsalTable({
                 >
                   {rowFlagged && (
                     <button
+                      type="button"
                       className={styles.verify}
                       title={t("confirmRow")}
                       onClick={() => onVerifyRow(i)}
@@ -229,22 +227,26 @@ export default function RehearsalTable({
                   )}
                   {row.src && (
                     <button
+                      type="button"
                       className={previewRow === i ? styles.active : null}
                       onClick={() => setPreviewRow(previewRow === i ? null : i)}
+                      aria-expanded={previewRow === i}
                     >
                       <FaRegImage />
                     </button>
                   )}
                 </td>
               </tr>
-              {showPreview && (
+              {row.src && (
                 <tr className={styles.previewRow}>
                   <td colSpan={11}>
-                    {/* Natural resolution in a scrollable box, so the scores
-                        are readable while the row above stays editable. */}
-                    <div>
-                      <img src={row.src} alt="" />
-                    </div>
+                    <Collapse open={showPreview}>
+                      {/* Natural resolution in a scrollable box, so the scores
+                          are readable while the row above stays editable. */}
+                      <div className={styles.preview}>
+                        <img src={row.src} alt="" />
+                      </div>
+                    </Collapse>
                   </td>
                 </tr>
               )}

@@ -1,6 +1,7 @@
 import { memo, useState, useContext } from "react";
 import { useTranslations } from "next-intl";
 import { FaChevronDown } from "react-icons/fa6";
+import Collapse from "@/components/Collapse";
 import CostRanges from "@/components/CostRanges";
 import DefaultCards from "@/components/DefaultCards";
 import SimulatorExtensions from "@/components/SimulatorExtensions";
@@ -28,52 +29,61 @@ function SimulatorSubTools({ config, idolId, mode, listenerConfig, setListenerCo
         <button
           className={c(activeSubTool === "costRanges" && styles.expanded)}
           onClick={() => toggleSubTool("costRanges")}
+          aria-expanded={activeSubTool === "costRanges"}
         >
           {t("costRanges")}
-          <FaChevronDown />
+          <FaChevronDown aria-hidden="true" />
         </button>
 
         {!isExam && (
           <button
             disabled={!config.defaultCardIds.length}
-            className={c(
-              !config.defaultCardIds.length && styles.disabled,
-              activeSubTool === "defaultCards" && styles.expanded
-            )}
+            className={c(activeSubTool === "defaultCards" && styles.expanded)}
             onClick={() => toggleSubTool("defaultCards")}
+            aria-expanded={activeSubTool === "defaultCards"}
           >
             {t("defaultCards")}
-            <FaChevronDown />
+            <FaChevronDown aria-hidden="true" />
           </button>
         )}
         {isExam && (
           <button
-            disabled={!config.initialCardIds}
-            className={c(
-              !config.initialCardIds && styles.disabled,
-              activeSubTool === "initialCards" && styles.expanded
-            )}
+            disabled={!config.initialCardIds.length}
+            className={c(activeSubTool === "initialCards" && styles.expanded)}
             onClick={() => toggleSubTool("initialCards")}
+            aria-expanded={activeSubTool === "initialCards"}
           >
             {t("initialCards")}
-            <FaChevronDown />
+            <FaChevronDown aria-hidden="true" />
           </button>
         )}
 
         <button
           className={c(activeSubTool === "extensions" && styles.expanded)}
           onClick={() => toggleSubTool("extensions")}
+          aria-expanded={activeSubTool === "extensions"}
         >
           {t("extensions")}
-          <FaChevronDown />
+          <FaChevronDown aria-hidden="true" />
         </button>
       </div>
 
-      {activeSubTool == "costRanges" && <CostRanges />}
-      {activeSubTool == "defaultCards" && config.defaultCardIds && (
+      <Collapse
+        open={activeSubTool == "costRanges"}
+        className={styles.subTool}
+      >
+        <CostRanges />
+      </Collapse>
+      <Collapse
+        open={activeSubTool == "defaultCards" && !!config.defaultCardIds.length}
+        className={styles.subTool}
+      >
         <DefaultCards skillCardIds={config.defaultCardIds} />
-      )}
-      {activeSubTool == "initialCards" && config.initialCardIds && (
+      </Collapse>
+      <Collapse
+        open={activeSubTool == "initialCards" && !!config.initialCardIds.length}
+        className={styles.subTool}
+      >
         <DefaultCards
           skillCardIds={config.initialCardIds}
           onClickAddCards={() => {
@@ -83,8 +93,11 @@ function SimulatorSubTools({ config, idolId, mode, listenerConfig, setListenerCo
             });
           }}
         />
-      )}
-      {activeSubTool == "extensions" && (
+      </Collapse>
+      <Collapse
+        open={activeSubTool == "extensions"}
+        className={styles.subTool}
+      >
         <SimulatorExtensions
           mode={mode}
           config={config}
@@ -92,7 +105,7 @@ function SimulatorSubTools({ config, idolId, mode, listenerConfig, setListenerCo
           listenerConfig={listenerConfig}
           setListenerConfig={setListenerConfig}
         />
-      )}
+      </Collapse>
     </>
   );
 }

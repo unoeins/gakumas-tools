@@ -34,6 +34,7 @@ function StageHifAbilities({ hifAbilityIds, replaceHifAbilityId, swapHifAbilityI
             onSwap={swapHifAbilityIds}
             dndType="HIF_ABILITY"
             size={size}
+            showEmptyPlaceholder
           />
         ))}
       </div>

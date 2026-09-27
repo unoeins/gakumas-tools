@@ -27,6 +27,7 @@ function StagePDrinks({ pDrinkIds, replacePDrinkId, swapPDrinkIds, indications, 
           }
           onSwap={swapPDrinkIds}
           size={size}
+          showEmptyPlaceholder
         />
       ))}
     </div>

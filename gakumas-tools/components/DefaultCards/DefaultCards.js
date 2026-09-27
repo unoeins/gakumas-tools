@@ -19,6 +19,7 @@ function DefaultCards({ skillCardIds, onClickAddCards }) {
           alt={skillCard.name}
           width={60}
           height={60}
+          style={{ "--i": index }}
         />
       ))}
       {onClickAddCards && (

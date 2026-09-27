@@ -1,5 +1,6 @@
 import { memo, useContext } from "react";
 import { useTranslations } from "next-intl";
+import { FaRegTrashCan } from "react-icons/fa6";
 import LoadoutContext from "@/contexts/LoadoutContext";
 import TurnTypeOrder from "@/components/TurnTypeOrder";
 import Button from "@/components/Button";
@@ -93,10 +94,18 @@ function SkillCardAndTurnTypeOrder({
       <div className={styles.buttons}>
         <Button
           style="red-secondary"
+          size="sm"
           onClick={() =>
-            setModal(<ConfirmModal message={t("confirmClearOrders")} onConfirm={clearOrders} />)
+            setModal(
+              <ConfirmModal
+                message={t("confirmClearOrders")}
+                onConfirm={clearOrders}
+                danger
+              />
+            )
           }
         >
+          <FaRegTrashCan />
           {t("clearOrders")}
         </Button>
       </div>

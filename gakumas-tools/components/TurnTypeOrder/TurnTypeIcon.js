@@ -1,5 +1,5 @@
-import { memo } from "react";
-import { useDrag, useDrop } from "@/utils/safeDnd";
+import { memo, useContext } from "react";
+import SwapButtonContext from "@/components/EntityIcon/SwapButtonContext";
 import c from "@/utils/classNames";
 import styles from "./TurnTypeOrder.module.scss";
 
@@ -11,20 +11,7 @@ function TurnTypeIcon({
   onClick,
   onSwap,
 }) {
-  
-  const [{ isDragging }, dragRef] = useDrag({
-    type: "TURN_TYPE_ICON",
-    item: { index },
-  });
-
-  const [, dropRef] = useDrop({
-    accept: "TURN_TYPE_ICON",
-    drop: (item) => {
-      if (onSwap) {
-        onSwap(item.index, index);
-      }
-    },
-  });
+  const SwapButton = useContext(SwapButtonContext);
   
   let unwrappedElement = null;
   if (label != null) {
@@ -34,21 +21,40 @@ function TurnTypeIcon({
   }
   const className = c(
     styles.turnTypeIcon,
+    turnType && turnType != "none" ? styles.filled : styles.empty,
     styles[size],
     turnType && styles[turnType]
   );
 
-  if (onClick) {
-    return (
-      <button ref={dragRef} className={className} onClick={() => onClick(turnType)}>
-        <div ref={dropRef} className={styles.dropArea}>
-          {unwrappedElement}
-        </div>
-      </button>
-    );
-  } else {
+  if (!onClick) {
     return <div className={className}>{unwrappedElement}</div>;
   }
+  
+  const contents = (
+    <div className={styles.dropArea}>
+      {unwrappedElement}
+    </div>
+  );
+  const buttonProps = {
+    className,
+    onClick: () => onClick(turnType),
+  };
+
+  if (onSwap && SwapButton) {
+    const swap = {
+      type: "TURN_TYPE",
+      dndType: "TURN_TYPE_ICON",
+      index,
+      id: turnType === "none" ? 0 : turnType,
+      onSwap
+    };
+    return (
+      <SwapButton swap={swap} {...buttonProps}>
+        {contents}
+      </SwapButton>
+    );
+  }
+  return <button {...buttonProps}>{contents}</button>;
 }
 
 export default memo(TurnTypeIcon);

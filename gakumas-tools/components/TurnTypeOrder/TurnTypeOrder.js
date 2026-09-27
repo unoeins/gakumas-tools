@@ -2,6 +2,7 @@ import { memo, useContext } from "react";
 import { useTranslations } from "next-intl";
 import LoadoutContext from "@/contexts/LoadoutContext";
 import ModalContext from "@/contexts/ModalContext";
+import SwapDndContext from "@/components/LoadoutEditor/SwapDndContext";
 import TurnTypePickerModal from "./TurnTypePickerModal";
 import TurnTypeIcon from "./TurnTypeIcon";
 import styles from "./TurnTypeOrder.module.scss";
@@ -16,7 +17,8 @@ function TurnTypeOrder({
   } = useContext(LoadoutContext);
   const { setModal } = useContext(ModalContext);
   return (
-    <div id="turnTypeOrder" className={styles.turnTypeOrder}>
+    <SwapDndContext type="turnType">
+      <div id="turnTypeOrder" className={styles.turnTypeOrder}>
         {turnTypeOrder.map((turnType, i) => (
           <TurnTypeIcon
             key={i}
@@ -36,7 +38,8 @@ function TurnTypeOrder({
             size="fill"
           />
         ))}
-    </div>
+      </div>
+    </SwapDndContext>
   );
 }
 
