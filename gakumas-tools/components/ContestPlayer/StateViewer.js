@@ -18,6 +18,7 @@ function StateViewer({ state, idolId, plan }) {
     {name: "perfectConditionTurns", type: "number"},
     {name: "concentration", type: "number"},
     {name: "goodConditionTurnsBuffs", type: "buffs"},
+    {name: "goodConditionTurnsAdditionBuffs", type: "buffs"},
     {name: "concentrationBuffs", type: "buffs"},
     {name: "concentrationAdditionBuffs", type: "buffs_flat"},
     {name: "concentrationEffectBuffs", type: "buffs"},

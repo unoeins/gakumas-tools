@@ -12,6 +12,7 @@ const BUFFS_MAP = {
   [S.motivationBuffs]: "motivationBuff",
   [S.motivationAdditionBuffs]: "motivationAdditionBuff",
   [S.goodConditionTurnsBuffs]: "goodConditionTurnsBuff",
+  [S.goodConditionTurnsAdditionBuffs]: "goodConditionTurnsAdditionBuff",
   [S.concentrationBuffs]: "concentrationBuff",
   [S.concentrationAdditionBuffs]: "concentrationAdditionBuff",
   [S.concentrationEffectBuffs]: "concentrationEffectBuff",

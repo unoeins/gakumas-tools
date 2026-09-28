@@ -35,6 +35,7 @@ const ACTION_EFFECT_NAMES = {
   setMotivationBuff: "motivation",
   setMotivationAdditionBuff: "motivation",
   setGoodConditionTurnsBuff: "goodConditionTurns",
+  setGoodConditionTurnsAdditionBuff: "goodConditionTurns",
   setConcentrationBuff: "concentration",
   setConcentrationAdditionBuff: "concentration",
   setConcentrationEffectBuff: "concentration",
