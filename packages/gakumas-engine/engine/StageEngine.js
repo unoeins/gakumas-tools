@@ -1,4 +1,4 @@
-import { S, EVENTS } from "../constants";
+import { ALL_FIELDS, S, EVENTS } from "../constants";
 import BuffManager from "./BuffManager";
 import CardManager from "./CardManager";
 import EffectManager from "./EffectManager";
@@ -31,7 +31,9 @@ export default class StageEngine {
   }
 
   getInitialState(skipEffects = false) {
+    // Every slot is present so the array stays packed (no holes).
     const state = [];
+    for (let i = 0; i < ALL_FIELDS.length; i++) state.push(undefined);
 
     // Logs
     this.logger.initializeState(state);

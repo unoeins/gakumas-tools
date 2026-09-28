@@ -98,7 +98,7 @@ export default function ContestPlayer() {
 
   const { setModal, closeModal } = useContext(ModalContext);
 
-  const logs = getState() ? engine?.logger.peekLogs(getState()) : null;
+  const logs = getState() ? engine?.logger.getLogs(getState()) : null;
   const structuredLogs = useMemo(() => structureLogs(logs), [logs]);
   // if (logs) {
   //   console.log("logs:", logs);
@@ -211,11 +211,11 @@ export default function ContestPlayer() {
     if (!engine.isCardUsable(state, card)) {
       return;
     }
-    const logIndex = engine.logger.log(state, "hand", null);
+    const handLog = engine.logger.log(state, "hand", null);
     const decision = { card };
     const nextState = await executeDecision(engine, state, decision);
 
-    engine.logger.logs[logIndex].data = {
+    handLog.data = {
       handCards: state[S.handCards].map((card) => ({
         id: state[S.cardMap][card].id,
         c: state[S.cardMap][card].c11n,

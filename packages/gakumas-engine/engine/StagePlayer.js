@@ -32,13 +32,13 @@ export default class StagePlayer {
       }
     }
 
-    const logs = this.engine.logger.pickLogs(state);
+    const logs = this.engine.logger.getLogs(state);
     this.engine.listenerManager.triggerEvent(EVENTS.STAGE_ENDED, state, logs);
 
     return {
       score: state[S.score],
       logs: logs,
-      graphData: state[S.graphData],
+      graphData: this.engine.logger.getGraphData(state),
     };
   }
 }
