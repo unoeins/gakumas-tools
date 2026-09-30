@@ -1,5 +1,5 @@
 import { PItems, PIdols, SkillCards, Stages, deserializeEffectSequence } from "gakumas-data";
-import { deepCopy, RECOMMENDED_EFFECT_MAPPINGS } from "gakumas-engine/utils";
+import { RECOMMENDED_EFFECT_MAPPINGS } from "gakumas-engine/utils";
 
 export function inferPIdolId(pItemIds, skillCardIdGroups) {
   const signatureSkillCardId = skillCardIdGroups.flat().find(
@@ -720,7 +720,7 @@ export function getExamStage(stageId, pIdolId) {
   if (stage?.type === "exam") {
     const pIdol = PIdols.getById(pIdolId);
     if (!pIdol) return stage;
-    const examStage = deepCopy(stage);
+    const examStage = {...stage};
     examStage.plan = pIdol.plan;
     const totalTurns = examStage.turnCounts.vocal + examStage.turnCounts.dance + examStage.turnCounts.visual;
     const firstTurns = FIRST_TURNS_BY_TURN_IDOL[totalTurns][pIdol.idolId];

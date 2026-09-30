@@ -1,5 +1,5 @@
 import { PItems, PIdols, SkillCards, Stages, deserializeEffectSequence } from "gakumas-data";
-import { deepCopy, RECOMMENDED_EFFECT_MAPPINGS } from "gakumas-engine/utils";
+import { RECOMMENDED_EFFECT_MAPPINGS } from "gakumas-engine/utils";
 
 export function inferPIdolId(pItemIds, skillCardIdGroups) {
   const signatureSkillCardId = skillCardIdGroups.flat().find(
@@ -298,7 +298,7 @@ export function getIdolRoadStage(stageId, pIdolId) {
   if (stage?.type === "idolRoad") {
     const pIdol = PIdols.getById(pIdolId);
     if (!pIdol) return stage;
-    const idolRoadStage = deepCopy(stage);
+    const idolRoadStage = {...stage};
     idolRoadStage.plan = pIdol.plan;
     const recommendedEffect = RECOMMENDED_EFFECT_MAPPINGS[pIdol.id] || pIdol.recommendedEffect;
     idolRoadStage.effects = SUPPORT_EFFECTS_BY_STAGE_EFFECT[stage.stage][recommendedEffect];
