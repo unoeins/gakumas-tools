@@ -958,6 +958,30 @@ export default class CardManager extends EngineComponent {
     });
   }
 
+  createCard(state, skillCard, copy = false) {
+    const card = copy ? {...skillCard} :
+    {
+      id: skillCard.id,
+      baseId: getBaseId(skillCard),
+    };
+    state[S.cardMap].push(card);
+    const cardIdx = state[S.cardMap].length - 1;
+    
+    if (state[S.cardPriorities]) {
+      const config = this.getConfig(state);
+      for (let j = 0; j < config.simulator.prioritySkillCardIds.length; j++) {
+        if (card.id === config.simulator.prioritySkillCardIds[j] &&
+          (card.c11n ? equalCustomizations(card.c11n, config.simulator.priorityCustomizations[j]) :
+                      !config.simulator.priorityCustomizations[j] || Object.keys(config.simulator.priorityCustomizations[j]).length === 0)
+        ) {
+          state[S.cardPriorities][cardIdx] = (config.simulator.priorityValues[j] || 100) / 100;
+          break;
+        }
+      }
+    }
+    return cardIdx;
+  }
+
   addRandomUpgradedCardToHand(state, rarities = ["R", "SR", "SSR"]) {
     if (state[S.handCards].length >= 5) return;
 
@@ -972,19 +996,16 @@ export default class CardManager extends EngineComponent {
       validSkillCards.length,
       true,
     )];
-    state[S.cardMap].push({
-      id: skillCard.id,
-      baseId: getBaseId(skillCard),
-    });
+    const cardIdx = this.createCard(state, skillCard);
     // Hand size limit
     if (state[S.handCards].length < 5) {
-      state[S.handCards].push(state[S.cardMap].length - 1);
+      state[S.handCards].push(cardIdx);
       this.logger.log(state, "addCardToHand", {
         type: "skillCard",
         id: skillCard.id,
       });
     } else {
-      state[S.deckCards].push(state[S.cardMap].length - 1);
+      state[S.deckCards].push(cardIdx);
       this.logger.log(state, "addCardToTopOfDeck", {
         type: "skillCard",
         id: skillCard.id,
@@ -1010,11 +1031,8 @@ export default class CardManager extends EngineComponent {
   addCardToTopOfDeck(state, cardId) {
     const skillCard = SkillCards.getById(cardId);
 
-    state[S.cardMap].push({
-      id: skillCard.id,
-      baseId: getBaseId(skillCard),
-    });
-    state[S.deckCards].push(state[S.cardMap].length - 1);
+    const cardIdx = this.createCard(state, skillCard);
+    state[S.deckCards].push(cardIdx);
     this.logger.log(state, "addCardToTopOfDeck", {
       type: "skillCard",
       id: skillCard.id,
@@ -1024,11 +1042,7 @@ export default class CardManager extends EngineComponent {
   addCardToDeck(state, cardId) {
     const skillCard = SkillCards.getById(cardId);
 
-    state[S.cardMap].push({
-      id: skillCard.id,
-      baseId: getBaseId(skillCard),
-    });
-    const cardIdx = state[S.cardMap].length - 1;
+    const cardIdx = this.createCard(state, skillCard);
     const insertPos = Math.floor(getRand(state) * (state[S.deckCards].length + 1));
     state[S.deckCards].splice(insertPos, 0, cardIdx);
     this.logger.log(state, "addCardToDeckAtRandom", {
@@ -1041,11 +1055,8 @@ export default class CardManager extends EngineComponent {
     if (state[S.handCards].length >= 5) return;
     const skillCard = SkillCards.getById(cardId);
 
-    state[S.cardMap].push({
-      id: skillCard.id,
-      baseId: getBaseId(skillCard),
-    });
-    state[S.handCards].push(state[S.cardMap].length - 1);
+    const cardIdx = this.createCard(state, skillCard);
+    state[S.handCards].push(cardIdx);
     this.logger.log(state, "addCardToHand", {
       type: "skillCard",
       id: skillCard.id,
@@ -1055,11 +1066,8 @@ export default class CardManager extends EngineComponent {
   addCardToDiscarded(state, cardId) {
     const skillCard = SkillCards.getById(cardId);
 
-    state[S.cardMap].push({
-      id: skillCard.id,
-      baseId: getBaseId(skillCard),
-    });
-    state[S.discardedCards].push(state[S.cardMap].length - 1);
+    const cardIdx = this.createCard(state, skillCard);
+    state[S.discardedCards].push(cardIdx);
     this.logger.log(state, "addCardToDiscarded", {
       type: "skillCard",
       id: skillCard.id,
@@ -1758,8 +1766,8 @@ export default class CardManager extends EngineComponent {
     for (let j = 0; j < indicesToCopy.length; j++) {
       const skillCard = state[S.cardMap][cards[indicesToCopy[j]]];
       
-      state[S.cardMap].push({...skillCard});
-      state[S.deckCards].unshift(state[S.cardMap].length - 1);
+      const cardIdx = this.createCard(state, skillCard, true);
+      state[S.deckCards].unshift(cardIdx);
       this.logger.log(state, "addCardToBottomOfDeck", {
         type: "skillCard",
         id: skillCard.id,
