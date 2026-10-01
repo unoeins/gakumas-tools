@@ -24,7 +24,14 @@ const BUFFS_MAP = {
   [S.handDecreases]: "handDecrease",
 };
 
-const FLAT_BUFFS = { [S.enthusiasmBonusBuffs]: true };
+const FLAT_BUFFS = {
+  [S.enthusiasmBonusBuffs]: true,
+  [S.goodImpressionTurnsTimesBuffs]: true,
+  [S.motivationAdditionBuffs]: true,
+  [S.goodConditionTurnsAdditionBuffs]: true,
+  [S.concentrationAdditionBuffs]: true,
+  [S.handDecreases]: true,
+};
 
 function HandStateLine({ k, state }) {
   const t = useTranslations("stage");
