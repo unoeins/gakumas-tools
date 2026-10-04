@@ -38,6 +38,7 @@ export const viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
+  colorScheme: "light dark",
 };
 
 export async function generateMetadata({ params }) {
