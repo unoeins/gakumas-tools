@@ -63,7 +63,7 @@ function EntityIcon({
         {!!indications && <Indications indications={indications} />}
       </>
     );
-  } else if(label) {
+  } else if(label != null) {
     unwrappedElement = (<span className={styles.label}>{label}</span>);
   }
 

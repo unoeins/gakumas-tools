@@ -686,10 +686,15 @@
     "unplayable": "使用不可",
     "linkPhaseChange": "アイドル交代",
     "skip": "スキップ",
-    "selectCardsToHold": "{num}枚のカードを選択",
-    "selectCardsToHoldOptional": "最大{num}枚のカードを選択",
-    "selectCardsToMoveToHand": "{num}枚のカードを選択",
+    "selectCardsToHold": "保留するカードを{num}枚選択",
+    "selectCardsToHoldOptional": "保留するカードを最大{num}枚選択",
+    "selectCardsToMoveToHand": "手札に加えるカードを{num}枚選択",
     "selectCardsToMoveToTopOfDeck": "山札の一番上に移動するカードを{num}枚選択",
+    "selectCardsToUseFree": "コストを消費せず使用するカードを{num}枚選択",
+    "selectCardsToUse": "コストを消費して使用するカードを{num}枚選択",
+    "selectCardsToCopy": "コピーするカードを{num}枚選択",
+    "selectRandomCards": "{num}枚のカードを選択",
+    "selectPositionToInsertCard": "カードを挿入する箇所を選択",
     "confirm": "確認"
   },
   "BoxPlot": {

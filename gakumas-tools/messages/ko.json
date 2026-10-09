@@ -681,6 +681,11 @@
     "selectCardsToHold": "{num}장의 카드 선택",
     "selectCardsToMoveToHand": "{num}장의 카드 선택",
     "selectCardsToMoveToTopOfDeck": "덱 맨 위로 이동할 카드 {num}장 선택",
+    "selectCardsToUseFree": "{num}장의 카드 선택",
+    "selectCardsToUse": "{num}장의 카드 선택",
+    "selectCardsToCopy": "{num}장의 카드 선택",
+    "selectRandomCards": "{num}장의 카드 선택",
+    "selectPositionToInsertCard": "카드를 삽입할 위치를 선택",
     "confirm": "확인"
   },
   "BoxPlot": {

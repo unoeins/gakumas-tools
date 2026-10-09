@@ -592,11 +592,19 @@ export default class HeuristicStrategy extends BaseStrategy {
     return this.pickCardsToHold(state, cards, num);
   }
 
+  pickCardsToUse(state, cards, num = 1) {
+    return this.pickCardsToHold(state, cards, num);
+  }
+
   pickCardsToCopy(state, cards, num = 1, optional = false) {
     return this.pickCardsToHold(state, cards, num, optional);
   }
 
   pickRandomCard(state, cards, isRawId = false) {
     return Math.floor(getRand(state) * cards.length);
+  }
+
+  selectRandomInsertIndex(state, cards) {
+    return Math.floor(getRand(state) * (cards.length + 1));
   }
 }

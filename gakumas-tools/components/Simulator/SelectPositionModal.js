@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, Fragment } from "react";
 import { useTranslations } from "next-intl";
 import { SkillCards, PDrinks, PItems } from "gakumas-data";
 import { S } from "gakumas-engine";
@@ -11,10 +11,12 @@ import c from "@/utils/classNames";
 import { EntityTypes } from "@/utils/entities";
 import styles from "./ManualPlay.module.scss";
 
-export default function HoldModal({ decision, onDecision, idolId }) {
+export default function SelectPositionModal({ decision, onDecision, idolId }) {
   const t = useTranslations("stage");
-  const { state, cards, num, optional = false, isRawId = false } = decision;
+  const { state, cards, reverse, num, optional = false, isRawId = false } = decision;
   const [selectedIndices, setSelectedIndices] = useState([]);
+
+  const cardsToShow = reverse ? cards.toReversed() : cards;
 
   let resolvedEntity = null;
   if (state[S.phase] == "processCard") {
@@ -31,16 +33,7 @@ export default function HoldModal({ decision, onDecision, idolId }) {
   }
   const { icon } = gkImg(resolvedEntity, idolId);
 
-  const promptKey =
-    {
-      HOLD_SELECTION: "selectCardsToHold",
-      MOVE_TO_HAND_SELECTION: "selectCardsToMoveToHand",
-      MOVE_TO_TOP_OF_DECK_SELECTION: "selectCardsToMoveToTopOfDeck",
-      USE_CARD_FREE_SELECTION: "selectCardsToUseFree",
-      USE_CARD_SELECTION: "selectCardsToUse",
-      COPY_SELECTION: "selectCardsToCopy",
-      RANDOM_SELECTION: "selectRandomCards",
-    }[decision.type] ?? "selectCardsToMoveToHand";
+  const promptKey = "selectPositionToInsertCard";
 
   const toggleCard = (arrayIndex) => {
     setSelectedIndices((prev) => {
@@ -77,26 +70,53 @@ export default function HoldModal({ decision, onDecision, idolId }) {
         {t(promptKey, { num })}
       </h3>
       <div className={styles.cardGrid}>
-        {cards.map((cardIndex, arrayIndex) => {
+          <button
+            className={c(styles.holdCard, selectedIndices.includes(reverse ? cards.length : 0) && styles.selected)}
+            onClick={() => toggleCard(reverse ? cards.length : 0)}
+          >
+            <div className={styles.imgWrapper}>
+              <EntityIcon
+                type={EntityTypes.SKILL_CARD}
+                id={0}
+                label={0}
+                idolId={idolId}
+                size="fill"
+              />
+            </div>
+          </button>
+        {cardsToShow.map((cardIndex, arrayIndex) => {
           const card = isRawId ? { id: cardIndex } : state[S.cardMap][cardIndex];
-          const isSelected = selectedIndices.includes(arrayIndex);
+          const selectIndex = reverse ? cards.length - arrayIndex - 1 : arrayIndex + 1;
+          const isSelected = selectedIndices.includes(selectIndex);
           return (
-            <button
-              key={arrayIndex}
-              className={c(styles.holdCard, isSelected && styles.selected)}
-              onClick={() => toggleCard(arrayIndex)}
-            >
-              <div className={styles.imgWrapper}>
-                <EntityIcon
-                  type={EntityTypes.SKILL_CARD}
-                  id={card.id}
-                  customizations={card.c11n}
-                  idolId={idolId}
-                  size="fill"
-                />
-              </div>
-              {SkillCards.getById(card.id).name}
-            </button>
+            <Fragment key={arrayIndex}>
+              <button className={c(styles.holdCard)}>
+                <div className={styles.imgWrapper}>
+                  <EntityIcon
+                    type={EntityTypes.SKILL_CARD}
+                    id={card.id}
+                    customizations={card.c11n}
+                    idolId={idolId}
+                    size="fill"
+                  />
+                </div>
+                {SkillCards.getById(card.id).name}
+              </button>
+              <button
+                className={c(styles.holdCard, isSelected && styles.selected)}
+                onClick={() => toggleCard(selectIndex)}
+              >
+                <div className={styles.imgWrapper}>
+                  <EntityIcon
+                    type={EntityTypes.SKILL_CARD}
+                    id={0}
+                    label={arrayIndex + 1}
+                    idolId={idolId}
+                    size="fill"
+                  />
+                </div>
+              </button>
+            </Fragment>
           );
         })}
       </div>

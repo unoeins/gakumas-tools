@@ -16,7 +16,10 @@ import {
   SimulatorConfig,
   IdolStageConfig,
 } from "gakumas-engine";
-import PlayerStrategy from "gakumas-engine/strategies/PlayerStrategy";
+import PlayerStrategy, {
+  CardSelectionRequest,
+  PositionSelectionRequest
+} from "gakumas-engine/strategies/PlayerStrategy";
 import { S } from "gakumas-engine/constants";
 import {
   deepCopy,
@@ -44,6 +47,7 @@ import SimulatorButtons from "@/components/Simulator/SimulatorButtons";
 import SimulatorSubTools from "@/components/Simulator/SimulatorSubTools";
 import EntityIcon from "@/components/EntityIcon";
 import HoldModal from "@/components/Simulator/HoldModal";
+import SelectPositionModal from "@/components/Simulator/SelectPositionModal";
 import { EntityTypes } from "@/utils/entities";
 import StateViewer from "./StateViewer";
 import EntitiesViewer from "./EntitiesViewer";
@@ -125,7 +129,7 @@ export default function ContestPlayer() {
     return state;
   }
 
-  async function pickCardsToHold(state, cards, num = 1, optional = false, isRawId = false) {
+  async function pickCardsToHold(type, state, cards, num = 1, optional = false, isRawId = false) {
     let selectedIndices = [];
     const promise = new Promise((resolve) => {
       setModal(
@@ -136,7 +140,35 @@ export default function ContestPlayer() {
             num,
             optional,
             isRawId,
-            type: "HOLD_SELECTION",
+            type,
+          }}
+          idolId={idolId}
+          onDecision={(indices) => {
+            resolve(indices);
+            closeModal();
+          }}
+        />
+      );
+    }).then((indices) => {
+      selectedIndices.push(...indices);
+    });
+    await promise;
+    return selectedIndices;
+  }
+
+  async function selectPosition(type, state, cards, reverse = true) {
+    let selectedIndices = [];
+    const promise = new Promise((resolve) => {
+      setModal(
+        <SelectPositionModal
+          decision={{
+            state,
+            cards,
+            reverse,
+            num: 1,
+            optional: false,
+            isRawId: false,
+            type,
           }}
           idolId={idolId}
           onDecision={(indices) => {
@@ -162,9 +194,16 @@ export default function ContestPlayer() {
       try {
         nextState = engine.executeDecision(state, decision);
       } catch (e) {
-        if (e.message === "not picked") {
+        if (e instanceof CardSelectionRequest) {
           const selectedIndices = await pickCardsToHold(
-            e.args.state, e.args.cards, e.args.num, e.args.optional, e.args.isRawId
+            e.type, e.state, e.cards, e.num, e.optional, e.isRawId
+          );
+          pickCardsToHoldIndices.push(selectedIndices);
+          engine.strategy.pickCardsToHoldIndices = [...pickCardsToHoldIndices];
+          flipRandomBuffer(state);
+        } else if (e instanceof PositionSelectionRequest) {
+          const selectedIndices = await selectPosition(
+            e.type, e.state, e.cards, e.reverse
           );
           pickCardsToHoldIndices.push(selectedIndices);
           engine.strategy.pickCardsToHoldIndices = [...pickCardsToHoldIndices];
@@ -190,7 +229,7 @@ export default function ContestPlayer() {
     });
 
     const engine = new StageEngine(config, linkConfigs);
-    engine.strategy = new PlayerStrategy(engine, pickCardsToHold);
+    engine.strategy = new PlayerStrategy(engine);
   
     setEngine(engine);
 

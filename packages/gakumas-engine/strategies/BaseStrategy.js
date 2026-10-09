@@ -49,6 +49,15 @@ export default class BaseStrategy {
   }
 
   /**
+   * Given a state and list of cards, selects a card to use.
+   * Returns the indices of the cards to use.
+   * Can be async for strategies that need to await user input (ManualStrategy).
+   */
+  pickCardsToUse(state, cards, num = 1) {
+    throw new Error("pickCardsToUse is not implemented!");
+  }
+
+  /**
    * Handles exceptions that occur while executing a decision.
    * Returns the next state.
    * Can be async for strategies that need to await user input.
@@ -59,5 +68,9 @@ export default class BaseStrategy {
 
   pickRandomCard(state, cards, isRawId = false) {
     throw new Error("pickRandomCard is not implemented!");
+  }
+
+  selectRandomInsertIndex(state, cards) {
+    throw new Error("selectRandomInsertIndex is not implemented!");
   }
 }

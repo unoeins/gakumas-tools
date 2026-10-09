@@ -281,6 +281,19 @@ export default class CardManager extends EngineComponent {
     }
   }
 
+  selectRandomInsertIndex(state, cards, size, reverse = true) {
+    if (size === 0) return 0;
+    if (this.getConfig(state).simulator.enableSelectRandomCards &&
+        !state[S.nullifySelect]) {
+      if (typeof cards === "function") {
+        cards = cards(state);
+      }
+      return this.engine.strategy.selectRandomInsertIndex(state, cards, reverse);
+    } else {
+      return Math.floor(getRand(state) * (size + 1));
+    }
+  }
+
   // State initialization
 
   initializeState(state) {
@@ -1043,7 +1056,9 @@ export default class CardManager extends EngineComponent {
     const skillCard = SkillCards.getById(cardId);
 
     const cardIdx = this.createCard(state, skillCard);
-    const insertPos = Math.floor(getRand(state) * (state[S.deckCards].length + 1));
+    const insertPos = this.selectRandomInsertIndex(
+      state, state[S.deckCards], state[S.deckCards].length
+    );
     state[S.deckCards].splice(insertPos, 0, cardIdx);
     this.logger.log(state, "addCardToDeckAtRandom", {
       type: "skillCard",
@@ -1152,7 +1167,7 @@ export default class CardManager extends EngineComponent {
 
     if (!cards.length) return;
 
-    const card = cards[Math.floor(getRand(state) * cards.length)];
+    const card = this.pickRandomCardIndex(state, cards, cards.length);
 
     const index = state[S.removedCards].indexOf(card);
     if (index != -1) {
@@ -1347,7 +1362,7 @@ export default class CardManager extends EngineComponent {
     const cards = [...targetCards];
     if (!cards.length) return;
 
-    const indicesToUse = this.engine.strategy.pickCardsToUseFree(
+    const indicesToUse = this.engine.strategy.pickCardsToUse(
       state,
       cards,
       num,
@@ -1735,8 +1750,8 @@ export default class CardManager extends EngineComponent {
     candidates.sort((a, b) => b.index - a.index);
     for (let pick of candidates) {
       state[S.removedCards].splice(pick.index, 1);
-      const insertIndex = Math.floor(
-        getRand(state) * (state[S.deckCards].length + 1),
+      const insertIndex = this.selectRandomInsertIndex(
+        state, state[S.deckCards], state[S.deckCards].length
       );
       state[S.deckCards].splice(insertIndex, 0, pick.cardIdx);
 
