@@ -369,7 +369,7 @@ export default function Simulator() {
             href="https://github.com/gakumas-tools/gakumas-tools/blob/master/gakumas-tools/simulator/CHANGELOG.md"
             target="_blank"
           >
-            2026-09-26
+            2026-10-09
           </a>
         </div>
       </div>
