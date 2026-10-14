@@ -372,3 +372,9 @@
 .ad {
   margin-top: tokens.$space-4;
 }
+
+.liteModeToggle {
+  display: flex;
+  align-items: center;
+  gap: tokens.$space-1;
+}

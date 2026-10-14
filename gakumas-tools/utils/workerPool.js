@@ -5,14 +5,18 @@
 // collected into the result array in the same order as the input.
 export async function runBatched(items, workers, fn) {
   const results = new Array(items.length);
-  for (let start = 0; start < items.length; start += workers.length) {
-    const batch = items.slice(start, start + workers.length);
-    const batchResults = await Promise.all(
-      batch.map(async (item, j) => fn(item, await workers[j], start + j)),
-    );
-    for (let k = 0; k < batchResults.length; k++) {
-      results[start + k] = batchResults[k];
-    }
+  const batch = [];
+  for (let i = 0; i < workers.length; i++) {
+    batch.push((async () => {
+      const worker = await workers[i];
+      const size = Math.ceil(items.length / workers.length);
+      for (let j = 0; j < size; j ++) {
+        const index = i * size + j;
+        if (index >= items.length) break;
+        results[index] = await fn(items[index], worker, index);
+      }
+    })());
   }
+  await Promise.all(batch);
   return results;
 }

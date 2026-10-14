@@ -54,6 +54,7 @@ function Rehearsal() {
   const [processingStatus, setProcessingStatus] = useState("");
   const [data, setData] = useState([]);
   const [selected, setSelected] = useState(null);
+  const [liteMode, setLiteMode] = useState(false);
   const workersRef = useRef([]);
 
   // Each Tesseract worker fetches its script, core wasm and traineddata, so
@@ -63,13 +64,13 @@ function Rehearsal() {
     const target = Math.min(
       count,
       navigator.hardwareConcurrency || 1,
-      MAX_WORKERS,
+      liteMode ? MAX_WORKERS / 2 : MAX_WORKERS,
     );
     while (workersRef.current.length < target) {
       workersRef.current.push(createWorker("eng", 1));
     }
     return workersRef.current;
-  }, []);
+  }, [liteMode]);
 
   useEffect(() => {
     return () => {
@@ -114,13 +115,17 @@ function Rehearsal() {
       })) {
         const { scores, flags } = await getScoresFromImage(canvas, worker);
         if (scores && scores.some((stage) => stage.some((v) => v))) {
-          results.push({ scores, flags, src: await canvasToObjectURL(canvas) });
+          results.push({
+            scores,
+            flags,
+            ...(!liteMode && { src: await canvasToObjectURL(canvas) }),
+          });
         }
       }
       setProcessingStatus(t("videoComplete", { count: results.length }));
       return { results, scanStarted };
     },
-    [ensureWorkers, t],
+    [ensureWorkers, t, liteMode],
   );
 
   const processImages = useCallback(async (imageFiles) => {
@@ -131,7 +136,11 @@ function Rehearsal() {
       async (file, worker) => {
         try {
           const { scores, flags } = await getScoresFromFile(file, worker);
-          return scores && { scores, flags, src: URL.createObjectURL(file) };
+          return scores && {
+            scores,
+            flags,
+            ...(!liteMode && { src: URL.createObjectURL(file) }),
+          };
         } catch (err) {
           console.error(`Error parsing ${file.name}:`, err);
           return null;
@@ -142,7 +151,7 @@ function Rehearsal() {
     );
     const results = scored.filter(Boolean);
     return { results, failures: scored.length - results.length };
-  }, [ensureWorkers]);
+  }, [ensureWorkers, liteMode]);
 
   const handleFiles = useCallback(
     async (fileList) => {
@@ -203,8 +212,10 @@ function Rehearsal() {
       await Promise.all([csvPromise, ocrPromise]);
       if (DEBUG) console.timeEnd("All results parsed");
       setData(results);
+      workersRef.current.forEach(async (w) => (await w).terminate());
+      workersRef.current = [];
     },
-    [processVideo, processImages, t],
+    [processVideo, processImages, t, liteMode],
   );
 
   const download = useCallback(() => {
@@ -338,6 +349,15 @@ function Rehearsal() {
           <FaFileCsv />
         </span>
       </FileDropzone>
+      <div className={styles.liteModeToggle}>
+        <input
+          type="checkbox"
+          id="liteMode"
+          checked={liteMode}
+          onChange={(e) => setLiteMode(e.target.checked)}
+        />
+        <label htmlFor="liteMode">{t("liteMode")}</label>
+      </div>
 
       <Collapse open={progress != null}>
         <div className={styles.progress}>
