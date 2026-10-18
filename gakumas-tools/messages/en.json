@@ -522,6 +522,7 @@
     "optimizeGain": "Avg +{gain}",
     "optimizeAlready": "Already optimal",
     "optimizeFailed": "Can't optimize",
+    "rehearsal": "Rehearsal",
     "useStats": "Usage count",
     "conditionalUseStats": "Conditional usage count",
     "priorityStats": "Priority comparison",
@@ -715,6 +716,20 @@
     "confirmRow": "Confirm this row's values are correct",
     "selectFiles": "Select files",
     "addRow": "Add row"
+  },
+  "RehearsalComparison": {
+    "addResults": "Add rehearsal results",
+    "pickCell": "Tap this idol's score",
+    "flaggedExcluded": "{count} result(s) couldn't be verified and were left out",
+    "simulator": "Simulator",
+    "rehearsal": "Rehearsal",
+    "simulatorAverage": "Simulator avg",
+    "rehearsalAverage": "Rehearsal avg",
+    "difference": "Difference",
+    "share": "Share anonymously to help improve the simulator",
+    "shared": "Shared. Thank you!",
+    "undo": "Undo",
+    "shareFailed": "Couldn't share. Tap to try again"
   },
   "KofiAd": {
     "prompt": "Support this project"

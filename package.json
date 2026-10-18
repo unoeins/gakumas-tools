@@ -27,10 +27,15 @@
     "test:rehearsal": "node --loader ./scripts/extensionless-loader.mjs ./tests/rehearsalScores.mjs",
     "test:rehearsal:update": "node --loader ./scripts/extensionless-loader.mjs ./tests/rehearsalScores.mjs --update",
     "test:rehearsal:unit": "node --test tests/rehearsalRecovery.test.mjs",
+    "test:rehearsal-comparison": "node --loader ./scripts/extensionless-loader.mjs --test tests/rehearsalComparison.test.mjs",
+    "test:worker-pool": "node --test tests/workerPool.test.mjs",
     "test:stamina": "node --loader ./scripts/extensionless-loader.mjs --test tests/stamina.test.mjs",
+    "test:card-effects": "node --loader ./scripts/extensionless-loader.mjs --test tests/cardHasEffect.test.mjs",
+    "test:next-turn": "node --loader ./scripts/extensionless-loader.mjs --test tests/nextTurnReservation.test.mjs",
     "regression:add": "node --loader ./scripts/extensionless-loader.mjs ./tests/add.mjs",
     "regression:bootstrap": "node --loader ./scripts/extensionless-loader.mjs ./tests/generate-suite.mjs",
     "regression:coverage": "node --loader ./scripts/extensionless-loader.mjs ./tests/coverage.mjs",
+    "fidelity": "node --no-warnings --loader ./scripts/extensionless-loader.mjs ./tests/fidelity.mjs",
     "bench": "node --loader ./scripts/extensionless-loader.mjs ./tests/bench.mjs",
     "bench:update": "node --loader ./scripts/extensionless-loader.mjs ./tests/bench.mjs --update",
     "validate:data": "node --loader ./scripts/extensionless-loader.mjs ./scripts/validate-data.mjs",
@@ -44,7 +49,7 @@
   },
   "devDependencies": {
     "onnxruntime-node": "1.24",
-    "sharp": "^0.35.4",
+    "sharp": "^0.35.5",
     "tesseract.js": "^7.0.0"
   },
   "packageManager": "pnpm@11.0.6"
