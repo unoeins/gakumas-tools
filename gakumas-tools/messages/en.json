@@ -487,6 +487,8 @@
   "SimulatorLoadoutImporterModal": {
     "title": "Import loadout from screenshot",
     "instructions": "Upload a screenshot of the in-game contest loadout screen. Parameters, P-items and skill cards will be loaded, and the stage and support bonus will be inferred from the type multipliers.",
+    "readLoadoutFromClipboard": "Read loadout from image in clipboard",
+    "noImageInClipboard": "No image in clipboard",
     "processing": "Processing screenshot...",
     "error": "Failed to import",
     "matchingStages": "Matching stages",

@@ -495,6 +495,8 @@
   "SimulatorLoadoutImporterModal": {
     "title": "スクリーンショットから編成を読み込み",
     "instructions": "コンテスト編成画面のスクリーンショットをアップロードしてください。パラメータ、Pアイテム、スキルカードを読み込み、タイプ倍率からステージとサポートボーナスを推定します。",
+    "readLoadoutFromClipboard": "クリップボードの画像から編成を読み込む",
+    "noImageInClipboard": "クリップボードに画像がありません。",
     "processing": "処理中...",
     "error": "読み込みに失敗しました",
     "matchingStages": "一致するステージ",

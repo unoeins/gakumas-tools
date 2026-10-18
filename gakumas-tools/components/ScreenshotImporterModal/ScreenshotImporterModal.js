@@ -1,6 +1,8 @@
 "use client";
 import { useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
+import { FaRegPaste } from "react-icons/fa6";
+import Button from "@/components/Button";
 import Loader from "@/components/Loader";
 import Modal from "@/components/Modal";
 import styles from "./ScreenshotImporterModal.module.scss";
@@ -29,6 +31,44 @@ function ScreenshotImporterModal({ translationNamespace, importFn, onSuccess }) 
     [importFn, onSuccess],
   );
 
+  const readLoadoutFromClipboard = useCallback(
+    async () => {
+      try {
+        const clipboardItems = await navigator.clipboard.read();
+
+        let lastError = null;
+        for (const item of clipboardItems) {
+          const imageType = item.types.find(type => type.startsWith('image/'));
+          if (imageType) {
+            const blob = await item.getType(imageType);
+            setLoading(true);
+            setError(null);
+            try {
+              const result = await importFn(blob);
+              onSuccess(result);
+            } catch (err) {
+              console.error(err);
+              lastError = err;
+              continue;
+            } finally {
+              setLoading(false);
+            }
+            return;
+          }
+        }
+        if (lastError) {
+          setError(lastError.message || String(lastError));
+        } else {
+          setError(t("noImageInClipboard"));
+        }
+      } catch (err) {
+        console.error(err);
+        setError(err.message || String(err));
+      }
+    },
+    [t, importFn, onSuccess],
+  );
+
   return (
     <Modal>
       <h3>{t("title")}</h3>
@@ -41,6 +81,16 @@ function ScreenshotImporterModal({ translationNamespace, importFn, onSuccess }) 
         onChange={handleFile}
         disabled={loading}
       />
+
+      <Button
+        className={styles.pasteButton}
+        style="blue-secondary"
+        size="sm"
+        onClick={readLoadoutFromClipboard}
+      >
+        <FaRegPaste />
+        <span className={styles.buttonText}>{t("readLoadoutFromClipboard")}</span>
+      </Button>
 
       <div className={styles.feedback} aria-live="polite">
         {loading && (

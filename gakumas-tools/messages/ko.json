@@ -487,6 +487,8 @@
   "SimulatorLoadoutImporterModal": {
     "title": "스크린샷에서 편성 불러오기",
     "instructions": "콘테스트 편성 화면의 스크린샷을 업로드하세요. 파라미터, P아이템, 스킬 카드를 불러오고, 타입 배율로 스테이지와 서포트 보너스를 추정합니다.",
+    "readLoadoutFromClipboard": "클립보드의 이미지에서 편성 읽기",
+    "noImageInClipboard": "클립보드에 이미지가 없습니다",
     "processing": "처리 중...",
     "error": "불러오기에 실패했습니다",
     "matchingStages": "일치하는 스테이지",

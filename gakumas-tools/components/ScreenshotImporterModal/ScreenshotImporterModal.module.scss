@@ -63,6 +63,14 @@
   }
 }
 
+.pasteButton {
+  margin-top: tokens.$space-3;
+  padding: tokens.$space-3;
+  border: 1.5px dashed tokens.$surface-border-strong;
+  border-radius: tokens.$radius-lg;
+  background-color: tokens.$fill-subtle;
+}
+
 .feedback {
   min-height: 28px;
   margin-top: tokens.$space-2;

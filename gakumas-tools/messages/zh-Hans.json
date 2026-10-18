@@ -487,6 +487,8 @@
   "SimulatorLoadoutImporterModal": {
     "title": "从截图导入编组",
     "instructions": "请上传游戏内比赛编组画面的截图。将读取属性值、P道具和技能卡，并根据类型倍率推算关卡和支援加成。",
+    "readLoadoutFromClipboard": "从剪贴板图像读取编组",
+    "noImageInClipboard": "剪贴板中没有图像",
     "processing": "正在处理截图...",
     "error": "导入失败",
     "matchingStages": "匹配的关卡",
