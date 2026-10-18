@@ -304,6 +304,8 @@
   "DraftPickImporterModal": {
     "title": "Import draft pick from screenshot",
     "instructions": "Upload a screenshot of the in-game skill card draft screen. The 3 cards shown will be auto-detected and loaded.",
+    "readFromClipboard": "Import draft pick from image in clipboard",
+    "noImageInClipboard": "No image in clipboard",
     "processing": "Processing screenshot...",
     "error": "Failed to import"
   },
@@ -487,7 +489,7 @@
   "SimulatorLoadoutImporterModal": {
     "title": "Import loadout from screenshot",
     "instructions": "Upload a screenshot of the in-game contest loadout screen. Parameters, P-items and skill cards will be loaded, and the stage and support bonus will be inferred from the type multipliers.",
-    "readLoadoutFromClipboard": "Read loadout from image in clipboard",
+    "readFromClipboard": "Read loadout from image in clipboard",
     "noImageInClipboard": "No image in clipboard",
     "processing": "Processing screenshot...",
     "error": "Failed to import",

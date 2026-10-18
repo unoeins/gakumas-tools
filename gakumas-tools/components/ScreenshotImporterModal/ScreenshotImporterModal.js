@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { FaRegPaste } from "react-icons/fa6";
 import Button from "@/components/Button";
@@ -12,14 +12,13 @@ function ScreenshotImporterModal({ translationNamespace, importFn, onSuccess }) 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const handleFile = useCallback(
-    async (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
+  const handleItem = useCallback(
+    async (item) => {
+      if (!item) return;
       setLoading(true);
       setError(null);
       try {
-        const result = await importFn(file);
+        const result = await importFn(item);
         onSuccess(result);
       } catch (err) {
         console.error(err);
@@ -31,43 +30,55 @@ function ScreenshotImporterModal({ translationNamespace, importFn, onSuccess }) 
     [importFn, onSuccess],
   );
 
-  const readLoadoutFromClipboard = useCallback(
+  const handleFile = useCallback(
+    async (e) => {
+      handleItem(e.target.files[0]);
+    },
+    [handleItem],
+  );
+
+  const readFromClipboard = useCallback(
     async () => {
       try {
-        const clipboardItems = await navigator.clipboard.read();
-
-        let lastError = null;
-        for (const item of clipboardItems) {
+        const items = await navigator.clipboard.read();
+        for (const item of items) {
           const imageType = item.types.find(type => type.startsWith('image/'));
           if (imageType) {
             const blob = await item.getType(imageType);
-            setLoading(true);
-            setError(null);
-            try {
-              const result = await importFn(blob);
-              onSuccess(result);
-            } catch (err) {
-              console.error(err);
-              lastError = err;
-              continue;
-            } finally {
-              setLoading(false);
-            }
+            handleItem(blob);
             return;
           }
         }
-        if (lastError) {
-          setError(lastError.message || String(lastError));
-        } else {
-          setError(t("noImageInClipboard"));
-        }
+        setError(t("noImageInClipboard"));
       } catch (err) {
         console.error(err);
-        setError(err.message || String(err));
       }
     },
-    [t, importFn, onSuccess],
+    [handleItem, t],
   );
+
+  useEffect(() => {
+    if (window) {
+      const pasteHandler = async (e) => {
+        try {
+          const items = e.clipboardData.items;
+          for (const item of items) {
+            if (item.type.startsWith('image/')) {
+              handleItem(item.getAsFile());
+              return;
+            }
+          }
+          setError(t("noImageInClipboard"));
+        } catch (err) {
+          console.error(err);
+        }
+      };
+      window.addEventListener('paste', pasteHandler);
+      return () => {
+        window.removeEventListener('paste', pasteHandler);
+      };
+    }
+  }, [handleItem, t]);
 
   return (
     <Modal>
@@ -85,11 +96,10 @@ function ScreenshotImporterModal({ translationNamespace, importFn, onSuccess }) 
       <Button
         className={styles.pasteButton}
         style="blue-secondary"
-        size="sm"
-        onClick={readLoadoutFromClipboard}
+        onClick={readFromClipboard}
       >
         <FaRegPaste />
-        <span className={styles.buttonText}>{t("readLoadoutFromClipboard")}</span>
+        <span className={styles.buttonText}>{t("readFromClipboard")}</span>
       </Button>
 
       <div className={styles.feedback} aria-live="polite">

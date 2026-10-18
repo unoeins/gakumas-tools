@@ -312,6 +312,8 @@
   "DraftPickImporterModal": {
     "title": "スクリーンショットから読み込み",
     "instructions": "スキルカード取得画面のスクリーンショットをアップロードしてください。3枚のカードを自動で検出して読み込みます。",
+    "readFromClipboard": "クリップボードの画像から読み込む",
+    "noImageInClipboard": "クリップボードに画像がありません。",
     "processing": "処理中...",
     "error": "読み込みに失敗しました"
   },
@@ -495,7 +497,7 @@
   "SimulatorLoadoutImporterModal": {
     "title": "スクリーンショットから編成を読み込み",
     "instructions": "コンテスト編成画面のスクリーンショットをアップロードしてください。パラメータ、Pアイテム、スキルカードを読み込み、タイプ倍率からステージとサポートボーナスを推定します。",
-    "readLoadoutFromClipboard": "クリップボードの画像から編成を読み込む",
+    "readFromClipboard": "クリップボードの画像から編成を読み込む",
     "noImageInClipboard": "クリップボードに画像がありません。",
     "processing": "処理中...",
     "error": "読み込みに失敗しました",
