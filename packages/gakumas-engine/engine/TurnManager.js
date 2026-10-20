@@ -225,7 +225,7 @@ export default class TurnManager extends EngineComponent {
     state[S.cardUsesRemaining] = 0;
     state[S.turnCardsUsed] = 0;
     state[S.turnCardsUpgraded] = 0;
-    state[S.enthusiasm] = 0;
+    // state[S.enthusiasm] = 0;
 
     this.engine.effectManager.decrementTtl(state);
     this.engine.effectManager.decrementDelay(state);

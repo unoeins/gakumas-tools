@@ -16,6 +16,7 @@ const BUFFS_MAP = {
   [S.concentrationBuffs]: "concentrationBuff",
   [S.concentrationAdditionBuffs]: "concentrationAdditionBuff",
   [S.concentrationEffectBuffs]: "concentrationEffectBuff",
+  [S.enthusiasms]: "enthusiasm",
   [S.enthusiasmBuffs]: "enthusiasmBuff",
   [S.enthusiasmBonusBuffs]: "enthusiasmBonus",
   [S.fullPowerChargeBuffs]: "fullPowerChargeBuff",
@@ -25,6 +26,7 @@ const BUFFS_MAP = {
 };
 
 const FLAT_BUFFS = {
+  [S.enthusiasms]: true,
   [S.enthusiasmBonusBuffs]: true,
   [S.goodImpressionTurnsTimesBuffs]: true,
   [S.motivationAdditionBuffs]: true,

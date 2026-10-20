@@ -133,7 +133,11 @@ export function resolveScore(state, score, growth, rhsNode, getTurnMultiplier) {
       concentrationEffectBuff;
 
     // Apply enthusiasm
-    score += state[S.enthusiasm] * state[S.enthusiasmMultiplier];
+    const enthusiasm = state[S.enthusiasms].reduce(
+      (acc, cur) => acc + cur.amount,
+      0,
+    );
+    score += enthusiasm * state[S.enthusiasmMultiplier];
 
     // Round
     score = safeCeil(score);
@@ -315,7 +319,7 @@ export function resolveStamina(state, stamina) {
   }
 }
 
-export function resolveEnthusiasm(state, enthusiasm) {
+export function resolveEnthusiasm(state, enthusiasm, engine) {
   enthusiasm += state[S.enthusiasmBonusBuffs].reduce(
     (acc, cur) => acc + cur.amount,
     0,
@@ -324,7 +328,11 @@ export function resolveEnthusiasm(state, enthusiasm) {
     (acc, cur) => acc + cur.amount,
     1,
   );
-  state[S.enthusiasm] += enthusiasm;
+  enthusiasm = Math.ceil(enthusiasm.toFixed(2));
+  const prevUnfreshPhase = state[S.unfreshPhase];
+  state[S.unfreshPhase] = true;
+  engine.buffManager.setEnthusiasm(state, enthusiasm, 1);
+  state[S.unfreshPhase] = prevUnfreshPhase;
 }
 
 export function resolveFullPowerCharge(state, fullPowerCharge) {

@@ -660,6 +660,7 @@
     "cardDrawn": "スキルカードを引いた",
     "upgradedHand": "手札をすべてレッスン中強化",
     "exchangedHand": "手札をすべて入れ替える",
+    "extendEnthusiasmTurns": "熱意延長",
     "incrementPIdolPItemLimit": "アイドル固有Pアイテムの発動回数+1",
     "setEffect": "持続効果付与",
     "setReservation": "発動予約付与",

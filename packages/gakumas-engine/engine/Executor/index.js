@@ -110,7 +110,7 @@ export default class Executor extends EngineComponent {
         resolvers.resolveConcentration(state, value),
       genki: (state, value) => resolvers.resolveGenki(state, value),
       stamina: (state, value) => resolvers.resolveStamina(state, value),
-      enthusiasm: (state, value) => resolvers.resolveEnthusiasm(state, value),
+      enthusiasm: (state, value) => resolvers.resolveEnthusiasm(state, value, this.engine),
       fullPowerCharge: (state, value) =>
         resolvers.resolveFullPowerCharge(state, value),
     };

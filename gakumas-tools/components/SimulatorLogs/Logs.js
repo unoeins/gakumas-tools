@@ -23,21 +23,25 @@ const BUFF_LOG_TYPES = {
   setConcentrationBuff: "concentrationBuff",
   setConcentrationAdditionBuff: "concentrationAdditionBuff",
   setConcentrationEffectBuff: "concentrationEffectBuff",
+  setEnthusiasm: "enthusiasm",
   setEnthusiasmBuff: "enthusiasmBuff",
   setEnthusiasmBonus: "enthusiasmBonus",
   setFullPowerChargeBuff: "fullPowerChargeBuff",
   setFullPowerEffectBuff: "fullPowerEffectBuff",
   setStrengthEffectBuff: "strengthEffectBuff",
   setHandDecrease: "handDecrease",
+  extendEnthusiasmTurns: "extendEnthusiasmTurns",
 };
 
 const FLAT_BUFF_LOG_TYPES = new Set([
+  "setEnthusiasm",
   "setEnthusiasmBonus",
   "setGoodImpressionTurnsTimesBuff",
   "setGoodConditionTurnsAdditionBuff",
   "setConcentrationAdditionBuff",
   "setMotivationAdditionBuff",
   "setHandDecrease",
+  "extendEnthusiasmTurns",
 ]);
 
 const TILE_LOG_TYPES = {

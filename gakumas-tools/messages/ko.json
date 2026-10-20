@@ -652,6 +652,7 @@
     "cardDrawn": "드로우한 카드",
     "upgradedHand": "손패를 모두 레슨 중 강화",
     "exchangedHand": "손패를 모두 변경",
+    "extendEnthusiasmTurns": "열의 연장",
     "incrementPIdolPItemLimit": "아이돌별 P-item 활성화 횟수 +1",
     "setEffect": "지속 효과 부여",
     "setReservation": "발동 예약 부여",

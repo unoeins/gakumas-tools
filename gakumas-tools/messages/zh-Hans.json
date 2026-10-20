@@ -652,6 +652,7 @@
     "cardDrawn": "抽取技能卡",
     "upgradedHand": "在训练中强化技能卡",
     "exchangedHand": "更换持有技能卡",
+    "extendEnthusiasmTurns": "延长热意",
     "incrementPIdolPItemLimit": "偶像特定 P 道具激活次数 +1",
     "setEffect": "赋予持续效果",
     "setReservation": "赋予发动预约",

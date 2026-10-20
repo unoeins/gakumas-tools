@@ -29,6 +29,7 @@ const BUFF_TYPES = [
   { action: "setConcentrationBuff", field: S.concentrationBuffs },
   { action: "setConcentrationAdditionBuff", field: S.concentrationAdditionBuffs },
   { action: "setConcentrationEffectBuff", field: S.concentrationEffectBuffs },
+  { action: "setEnthusiasm", field: S.enthusiasms },
   { action: "setEnthusiasmBuff", field: S.enthusiasmBuffs },
   { action: "setEnthusiasmBonus", field: S.enthusiasmBonusBuffs },
   { action: "setFullPowerChargeBuff", field: S.fullPowerChargeBuffs },
@@ -92,6 +93,8 @@ export default class BuffManager extends EngineComponent {
           state[S.fullPowerCharge] - parseInt(amount, 10),
         );
       },
+      extendEnthusiasmTurns: (state, amount) =>
+        this.extendEnthusiasmTurns(state, parseInt(amount, 10)),
       incrementPIdolPItemLimit: (state, amount = 1) => 
         this.incrementPIdolPItemLimit(state, parseInt(amount, 10)),
     };
@@ -147,6 +150,7 @@ export default class BuffManager extends EngineComponent {
     state[S.concentrationBuffs] = [];
     state[S.concentrationAdditionBuffs] = [];
     state[S.concentrationEffectBuffs] = [];
+    state[S.enthusiasms] = [];
     state[S.enthusiasmBuffs] = [];
     state[S.enthusiasmBonusBuffs] = [];
     state[S.fullPowerChargeBuffs] = [];
@@ -169,7 +173,7 @@ export default class BuffManager extends EngineComponent {
     state[S.lockStanceTurns] = 0;
     state[S.fullPowerCharge] = 0;
     state[S.cumulativeFullPowerCharge] = 0;
-    state[S.enthusiasm] = 0;
+    // state[S.enthusiasm] = 0;
     state[S.strengthTimes] = 0;
     state[S.preservationTimes] = 0;
     state[S.fullPowerTimes] = 0;
@@ -353,6 +357,19 @@ export default class BuffManager extends EngineComponent {
   resetStance(state) {
     state[S.prevStance] = state[S.stance];
     state[S.stance] = "none";
+  }
+
+  extendEnthusiasmTurns(state, amount) {
+    const newBuffs = state[S.enthusiasms].map((b) => ({
+      ...b,
+      ...(b.turns && { turns: b.turns + amount }),
+    }));
+    state[S.enthusiasms] = newBuffs;
+    const enthusiasm = state[S.enthusiasms].reduce((acc, cur) => acc + cur.amount, 0);
+    this.logger.log(state, "extendEnthusiasmTurns", {
+      amount: enthusiasm,
+      turns: amount,
+    });
   }
 
   incrementPIdolPItemLimit(state, amount) {

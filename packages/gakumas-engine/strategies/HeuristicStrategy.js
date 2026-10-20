@@ -345,7 +345,8 @@ export default class HeuristicStrategy extends BaseStrategy {
       score += state[S.fullPowerTimes] * 80 * sc.fullPowerMultiplier;
 
       //Enthusiasm
-      score += state[S.enthusiasm] * 5;
+      // score += state[S.enthusiasm] * 5;
+      score += sumBuffWeight(state[S.enthusiasms], turnsRemaining) * 5;
 
       // Full power charge
       score +=

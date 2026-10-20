@@ -185,7 +185,8 @@ export const ALL_FIELDS = [
   "fullPowerChargeBuffs",
   "fullPowerEffectBuffs",
   "cumulativeFullPowerCharge",
-  "enthusiasm",
+  // "enthusiasm",
+  "enthusiasms",
   "enthusiasmMultiplier",
   "enthusiasmBonusBuffs",
   "enthusiasmBuffs",
@@ -281,6 +282,7 @@ export const BUFF_LIST_FIELDS = [
   S.concentrationBuffs,
   S.concentrationAdditionBuffs,
   S.concentrationEffectBuffs,
+  S.enthusiasms,
   S.enthusiasmBuffs,
   S.enthusiasmBonusBuffs,
   S.fullPowerChargeBuffs,
@@ -433,7 +435,7 @@ export const WHOLE_FIELDS = [
   S.prideTurns,
   S.fullPowerCharge,
   S.cumulativeFullPowerCharge,
-  S.enthusiasm,
+  // S.enthusiasm,
 ];
 
 export const NON_NEGATIVE_FIELDS = [
@@ -458,7 +460,7 @@ export const LOGGED_FIELDS = [
   S.goodImpressionTurns,
   S.motivation,
   S.prideTurns,
-  S.enthusiasm,
+  // S.enthusiasm,
   S.fullPowerCharge,
   S.lockStanceTurns,
   S.halfCostTurns,
