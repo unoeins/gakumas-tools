@@ -5,6 +5,11 @@ All notable changes to the contest simulator will be documented in this file.
 
 
 
+
+## 2026-10-25
+
+- Fix 憧れの標 genki
+
 ## 2026-10-23
 
 - Fix 応えたい気持ち concentration
