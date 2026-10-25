@@ -26,6 +26,7 @@ test("CSP allows the third parties the app loads", async () => {
   assert.match(directive("connect-src"), /cdn\.jsdelivr\.net/);
   assert.match(directive("img-src"), /cdn\.discordapp\.com/);
   assert.match(directive("worker-src"), /blob:/);
+  assert.match(directive("form-action"), /https:\/\/discord\.com/);
   assert.match(directive("frame-src"), /www\.youtube\.com/);
   assert.equal(directive("frame-ancestors"), "frame-ancestors 'none'");
 });

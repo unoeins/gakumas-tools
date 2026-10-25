@@ -20,7 +20,7 @@ const gkImgOrigin = gkImgBaseUrl && new URL(gkImgBaseUrl).origin;
 const isDev = process.env.NODE_ENV !== "production";
 
 const GOOGLE_ANALYTICS = [
-  "https://www.googletagmanager.com",
+  "https://*.googletagmanager.com",
   "https://*.google-analytics.com",
   "https://*.analytics.google.com",
 ];
@@ -34,7 +34,7 @@ const CSP_DIRECTIVES = {
     "'unsafe-inline'",
     "'wasm-unsafe-eval'",
     isDev && "'unsafe-eval'",
-    "https://www.googletagmanager.com",
+    "https://*.googletagmanager.com",
     JSDELIVR,
   ],
   "style-src": ["'self'", "'unsafe-inline'"],
@@ -43,6 +43,7 @@ const CSP_DIRECTIVES = {
     "data:",
     "blob:",
     "https://cdn.discordapp.com",
+    "https://authjs.dev",
     gkImgOrigin,
     ...GOOGLE_ANALYTICS,
   ],
@@ -51,7 +52,6 @@ const CSP_DIRECTIVES = {
     "'self'",
     isDev && "ws:",
     JSDELIVR,
-    gkImgOrigin,
     ...GOOGLE_ANALYTICS,
   ],
   "media-src": ["'self'", "blob:"],
@@ -59,7 +59,8 @@ const CSP_DIRECTIVES = {
   "frame-src": ["https://www.youtube.com"],
   "object-src": ["'none'"],
   "base-uri": ["'self'"],
-  "form-action": ["'self'"],
+  // next-auth's built-in sign-in page posts a form that redirects to Discord.
+  "form-action": ["'self'", "https://discord.com"],
   "frame-ancestors": ["'none'"],
 };
 
