@@ -1,9 +1,9 @@
 import { memo, useMemo } from "react";
 import { useTranslations } from "next-intl";
-import { PItems, SkillCards, Stages } from "gakumas-data";
+import { PItems, SkillCards } from "gakumas-data";
 import gkImg from "gakumas-images";
 import Image from "@/components/Image";
-import { FALLBACK_STAGE } from "@/simulator/constants";
+import { getStage } from "@/utils/simulator";
 import { formatStageName } from "@/utils/stages";
 import styles from "./LoadoutHistory.module.scss";
 
@@ -12,15 +12,10 @@ function LoadoutSummary({ loadout, showStage = true }) {
 
   const { stageId, customStage, pItemIds, skillCardIdGroups } = loadout;
 
-  const stage = useMemo(() => {
-    let stage = FALLBACK_STAGE;
-    if (stageId == "custom") {
-      stage = customStage;
-    } else if (stageId) {
-      stage = Stages.getById(stageId);
-    }
-    return stage;
-  }, [stageId]);
+  const stage = useMemo(
+    () => getStage(stageId, customStage),
+    [stageId]
+  );
 
   return (
     <>

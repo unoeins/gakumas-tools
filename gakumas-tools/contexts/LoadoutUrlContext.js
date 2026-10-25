@@ -25,12 +25,11 @@ export function LoadoutUrlContextProvider({ children }) {
   const updateUrl = useCallback((loadout, loadouts) => {
     const url = new URL(window.location);
 
-    if (loadout.stageId === "custom") {
+    const stage = Stages.getById(loadout.stageId);
+    if (!stage) {
       window.history.replaceState(null, "", url.pathname);
       return;
     }
-
-    const stage = Stages.getById(loadout.stageId);
 
     if (stage.type === "linkContest") {
       url.search = loadoutsToSearchParams(loadouts).toString();
