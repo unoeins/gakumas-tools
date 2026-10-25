@@ -126,6 +126,11 @@ test("validateComparison accepts loadouts shaped like the editor's", () => {
     comparison.loadout.customizationGroups,
     loadout.customizationGroups,
   );
+  const { customizationGroups, ...beforeCustomizations } = loadout;
+  assert.equal(
+    validateComparison({ ...valid, loadout: beforeCustomizations }).error,
+    undefined,
+  );
 });
 
 test("validateComparison rejects malformed loadout fields", () => {
@@ -148,6 +153,7 @@ test("validateComparison rejects malformed loadout fields", () => {
     { customizationGroups: [[{ 3: { deep: 1 } }]] },
     { customizationGroups: [[Object.fromEntries(big(21, 0).map((_, i) => [i, 1]))]] },
     { customizationGroups: big(11, []) },
+    { customizationGroups: [[{ ["x".repeat(1000)]: 1 }]] },
   ];
   for (const fields of bad) {
     const body = { ...valid, loadout: { ...valid.loadout, ...fields } };

@@ -91,7 +91,9 @@ const isCustomization = (c) =>
   c == null ||
   (typeof c == "object" &&
     Object.keys(c).length <= MAX_IDS &&
-    Object.values(c).every(Number.isFinite));
+    Object.entries(c).every(
+      ([id, level]) => /^\d{1,6}$/.test(id) && Number.isFinite(level),
+    ));
 
 function cleanLoadout(loadout) {
   const {
@@ -109,9 +111,10 @@ function cleanLoadout(loadout) {
     !isList(skillCardIdGroups, MAX_GROUPS, (g) =>
       isList(g, MAX_IDS, isOptionalId),
     ) ||
-    !isList(customizationGroups, MAX_GROUPS, (g) =>
-      isList(g, MAX_IDS, isCustomization),
-    )
+    (customizationGroups != null &&
+      !isList(customizationGroups, MAX_GROUPS, (g) =>
+        isList(g, MAX_IDS, isCustomization),
+      ))
   ) {
     return null;
   }
