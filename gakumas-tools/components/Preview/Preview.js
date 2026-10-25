@@ -2,6 +2,7 @@ import { Footer, Page } from "@/components/OgImage/parts";
 import { SITE_HOST } from "@/components/OgImage/theme";
 import PreviewPItems from "./PreviewPItems";
 import PreviewSkillCardGroup from "./PreviewSkillCardGroup";
+import { MAX_GROUPS } from "./previewIcons";
 import styles, { FOOTER_SIZE } from "./Preview.styles";
 
 export default function Preview({
@@ -26,7 +27,7 @@ export default function Preview({
         <div style={styles.card}>
           <PreviewPItems itemIds={itemIds} imageMap={imageMap} />
           <div style={styles.groups}>
-            {skillCardIdGroups.slice(0, 4).map((cards, groupIndex) => (
+            {skillCardIdGroups.slice(0, MAX_GROUPS).map((cards, groupIndex) => (
               <PreviewSkillCardGroup
                 key={groupIndex}
                 cards={cards}
