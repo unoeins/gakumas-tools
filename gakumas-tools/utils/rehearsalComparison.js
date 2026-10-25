@@ -1,5 +1,4 @@
 import { buildBoxPlotData } from "@/components/Rehearsal/rehearsalStats";
-import { extractLoadoutFields } from "@/utils/simulationRun";
 
 export const NUM_STAGES = 3;
 export const NUM_SLOTS = 3;
@@ -80,14 +79,60 @@ const isGrid = (grid) =>
   grid.every(
     (row) => Array.isArray(row) && row.length == NUM_SLOTS && row.every(isCell),
   );
+const MAX_PARAMS = 4;
+const MAX_IDS = 20;
+const MAX_GROUPS = 10;
+
+const isList = (value, max, isEntry) =>
+  Array.isArray(value) && value.length <= max && value.every(isEntry);
+const isOptionalNumber = (n) => n == null || Number.isFinite(n);
+const isOptionalId = (n) => n == null || Number.isInteger(n);
+const isCustomization = (c) =>
+  c == null ||
+  (typeof c == "object" &&
+    Object.keys(c).length <= MAX_IDS &&
+    Object.values(c).every(Number.isFinite));
+
+function cleanLoadout(loadout) {
+  const {
+    stageId,
+    supportBonus,
+    params,
+    pItemIds,
+    skillCardIdGroups,
+    customizationGroups,
+  } = loadout;
+  if (
+    !isOptionalNumber(supportBonus) ||
+    !isList(params, MAX_PARAMS, isOptionalNumber) ||
+    !isList(pItemIds, MAX_IDS, isOptionalId) ||
+    !isList(skillCardIdGroups, MAX_GROUPS, (g) =>
+      isList(g, MAX_IDS, isOptionalId),
+    ) ||
+    !isList(customizationGroups, MAX_GROUPS, (g) =>
+      isList(g, MAX_IDS, isCustomization),
+    )
+  ) {
+    return null;
+  }
+  return {
+    stageId,
+    supportBonus,
+    params,
+    pItemIds,
+    skillCardIdGroups,
+    customizationGroups,
+  };
+}
+
 const isId = (s) => typeof s == "string" && /^[0-9a-f-]{36}$/.test(s);
 
 export function validateComparison(body) {
   const { id, loadout, enterPercents, simStats, rehearsal } = body || {};
   if (!isId(id)) return { error: "Invalid id" };
-  if (!loadout?.stageId || loadout.stageId == "custom") {
-    return { error: "Invalid stage" };
-  }
+  if (!Number.isInteger(loadout?.stageId)) return { error: "Invalid stage" };
+  const cleanedLoadout = cleanLoadout(loadout);
+  if (!cleanedLoadout) return { error: "Invalid loadout" };
   const { stage, slot, grid } = rehearsal || {};
   if (
     !Number.isInteger(stage) ||
@@ -106,7 +151,7 @@ export function validateComparison(body) {
   return {
     comparison: {
       _id: id,
-      loadout: extractLoadoutFields(loadout),
+      loadout: cleanedLoadout,
       enterPercents: !!enterPercents,
       simStats: cleanStats,
       rehearsal: { stage, slot, scores: grid[stage - 1][slot - 1], grid },

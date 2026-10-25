@@ -37,7 +37,14 @@ test("compareScores has no margin from a single rehearsal", () => {
 
 const valid = {
   id: "0b6c7f6e-8a4f-4c55-9a43-6f1f3f1f2a10",
-  loadout: { stageId: 148, params: [1, 2, 3, 4], extra: "dropped" },
+  loadout: {
+    stageId: 148,
+    params: [1, 2, 3, 4],
+    pItemIds: [0],
+    skillCardIdGroups: [[0]],
+    customizationGroups: [[{}]],
+    extra: "dropped",
+  },
   enterPercents: false,
   simStats: {
     count: 2000,
@@ -97,6 +104,55 @@ test("validateComparison rejects bad input", () => {
     { ...valid, simStats: { ...valid.simStats, buckets: [{}] } },
   ];
   for (const body of bad) assert.ok(validateComparison(body).error);
+});
+
+test("validateComparison accepts loadouts shaped like the editor's", () => {
+  const loadout = {
+    stageId: 148,
+    customStage: {},
+    supportBonus: 0.042,
+    params: [1500, null, 900, 50],
+    pItemIds: [1, 0, 0, 0],
+    skillCardIdGroups: [
+      [10, 20, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0],
+    ],
+    customizationGroups: [[{ 3: 1 }, null, [], {}, {}, {}], []],
+  };
+  const { comparison, error } = validateComparison({ ...valid, loadout });
+  assert.equal(error, undefined);
+  assert.deepEqual(comparison.loadout.params, loadout.params);
+  assert.deepEqual(
+    comparison.loadout.customizationGroups,
+    loadout.customizationGroups,
+  );
+});
+
+test("validateComparison rejects malformed loadout fields", () => {
+  const big = (n, v) => new Array(n).fill(v);
+  const bad = [
+    { stageId: "148" },
+    { supportBonus: "0.1" },
+    { params: ["1500", 0, 0, 0] },
+    { params: [{ nested: "x" }] },
+    { params: big(5, 0) },
+    { pItemIds: "0-0-0-0" },
+    { pItemIds: [1.5] },
+    { pItemIds: big(21, 0) },
+    { skillCardIdGroups: [1, 2, 3] },
+    { skillCardIdGroups: { 0: [1] } },
+    { skillCardIdGroups: big(11, [0]) },
+    { skillCardIdGroups: [big(21, 0)] },
+    { customizationGroups: [{ 3: 1 }] },
+    { customizationGroups: [[{ 3: "x".repeat(1000) }]] },
+    { customizationGroups: [[{ 3: { deep: 1 } }]] },
+    { customizationGroups: [[Object.fromEntries(big(21, 0).map((_, i) => [i, 1]))]] },
+    { customizationGroups: big(11, []) },
+  ];
+  for (const fields of bad) {
+    const body = { ...valid, loadout: { ...valid.loadout, ...fields } };
+    assert.ok(validateComparison(body).error, JSON.stringify(fields).slice(0, 80));
+  }
 });
 
 test("bucketShares puts both groups on shared buckets as percentages", () => {
