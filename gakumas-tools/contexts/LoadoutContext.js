@@ -8,13 +8,16 @@ import {
   useRef,
   useState,
 } from "react";
-import { Stages } from "gakumas-data";
 import { usePathname } from "@/i18n/routing";
 import LoadoutUrlContext from "@/contexts/LoadoutUrlContext";
 import WorkspaceContext from "@/contexts/WorkspaceContext";
-import { getDefaultParams, getSimulatorUrl } from "@/utils/simulator";
+import {
+  getDefaultParams,
+  getSimulatorUrl,
+  getStage,
+  knownStageId,
+} from "@/utils/simulator";
 import { getMemoryParamContribution } from "@/utils/stamina";
-import { FALLBACK_STAGE } from "@/simulator/constants";
 import { fixCustomizations } from "@/utils/customizations";
 
 const LoadoutContext = createContext();
@@ -42,12 +45,7 @@ export function LoadoutContextProvider({ children }) {
     initialLoadout.customizationGroups
   );
 
-  let stage = FALLBACK_STAGE;
-  if (stageId == "custom") {
-    stage = customStage;
-  } else if (stageId) {
-    stage = Stages.getById(stageId);
-  }
+  const stage = getStage(stageId, customStage);
 
   const loadout = useMemo(
     () => ({
@@ -81,7 +79,7 @@ export function LoadoutContextProvider({ children }) {
   );
 
   const setLoadout = useCallback((loadout) => {
-    setStageId(loadout.stageId);
+    setStageId(knownStageId(loadout.stageId));
     if (loadout.stageId == "custom") {
       let custom = loadout.customStage;
       if (Array.isArray(custom.firstTurns)) {
@@ -299,9 +297,7 @@ export function LoadoutContextProvider({ children }) {
     setStageId(stageId);
     setCustomStage(customStage);
     if (hasDefaultParams) {
-      const nextStage =
-        stageId == "custom" ? customStage : Stages.getById(stageId);
-      setParams(getDefaultParams(nextStage));
+      setParams(getDefaultParams(getStage(stageId, customStage)));
     }
   }, []);
 

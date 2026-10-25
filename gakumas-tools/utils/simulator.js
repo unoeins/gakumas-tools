@@ -33,11 +33,23 @@ export function getDefaultParams(stage) {
   return [...params, DEFAULT_STAMINA];
 }
 
+export function getStage(stageId, customStage) {
+  if (stageId == "custom") return customStage;
+  return (stageId && Stages.getById(stageId)) || FALLBACK_STAGE;
+}
+
+export function knownStageId(stageId) {
+  if (stageId == "custom" || (stageId && Stages.getById(stageId))) {
+    return stageId;
+  }
+  return null;
+}
+
 const SIMULATOR_BASE_URL = "https://gktools.ris.moe/simulator";
 
 export function getSimulatorUrl(loadout, loadouts) {
-  if (loadout.stageId === "custom") return null;
   const stage = Stages.getById(loadout.stageId);
+  if (!stage) return null;
   if (stage.type === "linkContest") {
     const searchParams = loadoutsToSearchParams(loadouts);
     return `${SIMULATOR_BASE_URL}/?${searchParams.toString()}`;
@@ -63,11 +75,9 @@ export function loadoutFromSearchParams(searchParams) {
   skillCardIdGroups = skillCardIdGroups || DEFAULTS.skillCardIdGroups;
   customizationGroups = customizationGroups || DEFAULTS.customizationGroups;
 
-  stageId = parseInt(stageId, 10) || null;
+  stageId = knownStageId(parseInt(stageId, 10));
   supportBonus = parseFloat(supportBonus) || null;
-  params = params
-    ? deserializeIds(params)
-    : getDefaultParams(Stages.getById(stageId) || FALLBACK_STAGE);
+  params = params ? deserializeIds(params) : getDefaultParams(getStage(stageId));
   pItemIds = deserializeIds(pItemIds);
   skillCardIdGroups = skillCardIdGroups.split("_").map(deserializeIds);
   customizationGroups = customizationGroups
