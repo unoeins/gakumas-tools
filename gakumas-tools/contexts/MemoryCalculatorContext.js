@@ -7,8 +7,10 @@ import {
   useState,
 } from "react";
 import { SkillCards } from "gakumas-data";
-
-const MEMORY_CALCULATOR_STORAGE_KEY = "gakumas-tools.memoryCalculator";
+import {
+  loadMemoryCalculatorState,
+  saveMemoryCalculatorState,
+} from "@/utils/memoryCalculatorStorage";
 
 const MemoryCalculatorContext = createContext();
 
@@ -21,30 +23,24 @@ export function MemoryCalculatorContextProvider({ children }) {
   const [rank, setRank] = useState("SS+");
 
   useEffect(() => {
-    const stored = localStorage.getItem(MEMORY_CALCULATOR_STORAGE_KEY);
-    if (stored) {
-      const data = JSON.parse(stored);
-      if (data.targetSkillCardIds) _setTargetSkillCardIds(data.targetSkillCardIds);
-      if (data.alternateSkillCardIds) _setAlternateSkillCardIds(data.alternateSkillCardIds);
-      if (data.targetNegations) _setTargetNegations(data.targetNegations);
-      if (data.acquiredSkillCardIds) _setAcquiredSkillCardIds(data.acquiredSkillCardIds);
-      if (data.rank) setRank(data.rank);
-    }
+    const data = loadMemoryCalculatorState();
+    if (data.targetSkillCardIds) _setTargetSkillCardIds(data.targetSkillCardIds);
+    if (data.alternateSkillCardIds) _setAlternateSkillCardIds(data.alternateSkillCardIds);
+    if (data.targetNegations) _setTargetNegations(data.targetNegations);
+    if (data.acquiredSkillCardIds) _setAcquiredSkillCardIds(data.acquiredSkillCardIds);
+    if (data.rank) setRank(data.rank);
     setLoaded(true);
   }, []);
 
   useEffect(() => {
     if (!loaded) return;
-    localStorage.setItem(
-      MEMORY_CALCULATOR_STORAGE_KEY,
-      JSON.stringify({
-        targetSkillCardIds,
-        alternateSkillCardIds,
-        targetNegations,
-        acquiredSkillCardIds,
-        rank,
-      })
-    );
+    saveMemoryCalculatorState({
+      targetSkillCardIds,
+      alternateSkillCardIds,
+      targetNegations,
+      acquiredSkillCardIds,
+      rank,
+    });
   }, [
     loaded,
     targetSkillCardIds,

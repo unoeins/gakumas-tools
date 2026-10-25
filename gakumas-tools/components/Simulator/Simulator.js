@@ -113,7 +113,11 @@ export default function Simulator() {
 
   useEffect(() => {
     // Seed a hardware-scaled default only when the user has no saved value.
-    if (localStorage.getItem(NUM_RUNS_KEY) == null) {
+    let savedNumRuns = null;
+    try {
+      savedNumRuns = localStorage.getItem(NUM_RUNS_KEY);
+    } catch {}
+    if (savedNumRuns == null) {
       setNumRuns(Math.round(workerCount() / 2) * 1000);
     }
     return retainWorkerPool();
