@@ -53,13 +53,22 @@ test("corrupt JSON loads nothing", () => {
   }
 });
 
+test("unknown rank is dropped", () => {
+  for (const rank of [5, "X", "toString"]) {
+    const storage = createMemoryStorage({
+      [MEMORY_CALCULATOR_STORAGE_KEY]: JSON.stringify({ ...STATE, rank }),
+    });
+    assert.equal(loadMemoryCalculatorState(storage).rank, undefined, String(rank));
+  }
+});
+
 test("wrong-typed fields are dropped and the rest kept", () => {
   const storage = createMemoryStorage({
     [MEMORY_CALCULATOR_STORAGE_KEY]: JSON.stringify({
       ...STATE,
       targetSkillCardIds: "abc",
       alternateSkillCardIds: { 0: [13] },
-      rank: 5,
+      rank: "X",
     }),
   });
   assert.deepEqual(loadMemoryCalculatorState(storage), {

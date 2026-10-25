@@ -1,3 +1,5 @@
+import { COST_RANGES_BY_RANK } from "./contestPower";
+
 export const MEMORY_CALCULATOR_STORAGE_KEY = "gakumas-tools.memoryCalculator";
 
 const ARRAY_FIELDS = [
@@ -23,7 +25,7 @@ export function loadMemoryCalculatorState(storage) {
   for (const field of ARRAY_FIELDS) {
     if (Array.isArray(data[field])) state[field] = data[field];
   }
-  if (typeof data.rank === "string") state.rank = data.rank;
+  if (Object.hasOwn(COST_RANGES_BY_RANK, data.rank)) state.rank = data.rank;
   return state;
 }
 
