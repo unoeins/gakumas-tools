@@ -1,6 +1,6 @@
 export const MAX_MEMORIES_PER_USER = 3000;
 export const MAX_LOADOUTS_PER_USER = 1000;
-export const MAX_NAME_LENGTH = 100;
+export const MAX_NAME_LENGTH = 1000;
 const MAX_IDS = MAX_MEMORIES_PER_USER;
 const MAX_ITEMS = 100;
 

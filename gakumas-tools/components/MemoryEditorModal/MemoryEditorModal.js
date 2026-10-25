@@ -15,6 +15,7 @@ import StagePItems from "@/components/StagePItems";
 import StageSkillCards from "@/components/StageSkillCards";
 import MemoryContext from "@/contexts/MemoryContext";
 import WorkspaceContext from "@/contexts/WorkspaceContext";
+import { MAX_NAME_LENGTH } from "@/utils/apiValidation";
 import { calculateContestPowerBreakdown } from "@/utils/contestPower";
 import c from "@/utils/classNames";
 import styles from "./MemoryEditorModal.module.scss";
@@ -79,7 +80,12 @@ function MemoryEditorModal() {
     <Modal>
       <div className={styles.memoryEditor}>
         <div className={styles.name}>
-          <Input placeholder={t("name")} value={name} onChange={setName} />
+          <Input
+            placeholder={t("name")}
+            value={name}
+            onChange={setName}
+            maxLength={MAX_NAME_LENGTH}
+          />
         </div>
 
         <PIdolSelect selected={pIdolId} onChange={setPIdolId} />
