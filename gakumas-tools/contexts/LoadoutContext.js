@@ -13,9 +13,13 @@ import { Stages, StrategyCustomizations } from "gakumas-data";
 import { usePathname } from "@/i18n/routing";
 import LoadoutUrlContext from "@/contexts/LoadoutUrlContext";
 import WorkspaceContext from "@/contexts/WorkspaceContext";
-import { getDefaultParams, getSimulatorUrl } from "@/utils/simulator";
+import {
+  getDefaultParams,
+  getSimulatorUrl,
+  getStage,
+  knownStageId,
+} from "@/utils/simulator";
 import { getMemoryParamContribution } from "@/utils/stamina";
-import { FALLBACK_STAGE } from "@/simulator/constants";
 import { fixCustomizations } from "@/utils/customizations";
 import { DEFAULTS } from "@/utils/simulator";
 import { deserializeIds } from "@/utils/ids";
@@ -86,16 +90,11 @@ export function LoadoutContextProvider({ children }) {
   const pIdolId = inferPIdolId(pItemIds, skillCardIdGroups);
 
   const stage = useMemo(() => {
-    let stage = FALLBACK_STAGE;
-    if (stageId == "custom") {
-      stage = customStage;
-    } else if (stageId) {
-      stage = Stages.getById(stageId);
-      if (stage.type == "exam") {
-        stage = getExamStage(stageId, pIdolId);
-      } else if (stage.type === "idolRoad") {
-        stage = getIdolRoadStage(stageId, pIdolId);
-      }
+    let stage = getStage(stageId, customStage);
+    if (stage.type == "exam") {
+      stage = getExamStage(stageId, pIdolId);
+    } else if (stage.type === "idolRoad") {
+      stage = getIdolRoadStage(stageId, pIdolId);
     }
     return stage;
   }, [stageId, customStage, pIdolId]);
@@ -160,7 +159,7 @@ export function LoadoutContextProvider({ children }) {
   );
 
   const setLoadout = useCallback((loadout) => {
-    setStageId(loadout.stageId);
+    setStageId(knownStageId(loadout.stageId));
     if (loadout.stageId == "custom") {
       let custom = loadout.customStage;
       if (Array.isArray(custom.firstTurns)) {
@@ -625,8 +624,7 @@ export function LoadoutContextProvider({ children }) {
     );
     setStageId(stageId);
     setCustomStage(customStage);
-    const nextStage =
-      stageId == "custom" ? customStage : Stages.getById(stageId);
+    const nextStage = getStage(stageId, customStage);
     if (hasDefaultParams) {
       setParams(getDefaultParams(nextStage));
     }

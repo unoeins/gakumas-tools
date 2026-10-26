@@ -3,13 +3,14 @@ import gkImg from "gakumas-images";
 import { formatStageShortName } from "@/utils/stages";
 import { iconSrc } from "./iconSrc";
 import PreviewIcon from "./PreviewIcon";
+import { MAX_DRINKS } from "./previewIcons";
 import styles, { ITEM_SIZE } from "./Preview.styles";
 
 export default function PreviewPDrinks({ drinkIds, imageMap, stage }) {
   return (
     <div style={styles.row}>
       {drinkIds
-        .slice(0, 4)
+        .slice(0, MAX_DRINKS)
         .map(PDrinks.getById)
         .map((item, index) => (
           <PreviewIcon

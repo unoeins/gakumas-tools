@@ -124,7 +124,11 @@ export default function Simulator() {
 
   useEffect(() => {
     // Seed a hardware-scaled default only when the user has no saved value.
-    if (localStorage.getItem(NUM_RUNS_KEY) == null) {
+    let savedNumRuns = null;
+    try {
+      savedNumRuns = localStorage.getItem(NUM_RUNS_KEY);
+    } catch {}
+    if (savedNumRuns == null) {
       setNumRuns(Math.round(workerCount() / 2) * 1000);
     }
     return retainWorkerPool();
@@ -369,7 +373,7 @@ export default function Simulator() {
             href="https://github.com/gakumas-tools/gakumas-tools/blob/master/gakumas-tools/simulator/CHANGELOG.md"
             target="_blank"
           >
-            2026-10-20
+            2026-10-25
           </a>
         </div>
       </div>

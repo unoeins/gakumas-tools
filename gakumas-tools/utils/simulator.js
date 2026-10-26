@@ -54,11 +54,23 @@ export function getDefaultParams(stage) {
   return [...params, DEFAULT_STAMINA];
 }
 
-const SIMULATOR_BASE_URL = "https://gktools.unoeins.org/simulator";
+export function getStage(stageId, customStage) {
+  if (stageId == "custom") return customStage;
+  return (stageId && Stages.getById(stageId)) || FALLBACK_STAGE;
+}
+
+export function knownStageId(stageId) {
+  if (stageId == "custom" || (stageId && Stages.getById(stageId))) {
+    return stageId;
+  }
+  return null;
+}
+
+const SIMULATOR_BASE_URL = "https://gktools.ris.moe/simulator";
 
 export function getSimulatorUrl(loadout, loadouts, pathname) {
-  if (loadout.stageId === "custom") return null;
   const stage = Stages.getById(loadout.stageId);
+  if (!stage) return null;
   let searchParams;
   if (stage.type === "linkContest") {
     searchParams = loadoutsToSearchParams(loadouts);
@@ -119,11 +131,9 @@ export function loadoutFromSearchParams(searchParams, suffix = "") {
   priorityCustomizations = priorityCustomizations || DEFAULTS.priorityCustomizations;
   priorityValues = priorityValues || DEFAULTS.priorityValues;
 
-  stageId = parseInt(stageId, 10) || null;
+  stageId = knownStageId(parseInt(stageId, 10));
   supportBonus = parseFloat(supportBonus) || null;
-  params = params
-    ? deserializeIds(params)
-    : getDefaultParams(Stages.getById(stageId) || FALLBACK_STAGE);
+  params = params ? deserializeIds(params) : getDefaultParams(getStage(stageId));
   pItemIds = deserializeIds(pItemIds);
   skillCardIdGroups = skillCardIdGroups.split("_").map(deserializeIds);
   customizationGroups = customizationGroups

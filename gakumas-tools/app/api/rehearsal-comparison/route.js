@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/utils/auth";
+import { clientIp } from "@/utils/clientIp";
 import { connect } from "@/utils/mongodb";
 import { validateComparison } from "@/utils/rehearsalComparison";
 
@@ -10,7 +11,7 @@ const RATE_LIMIT = 20;
 const RATE_WINDOW_MS = 60 * 60 * 1000;
 const MAX_TRACKED_CLIENTS = 10_000;
 
-const recentPuts = (global.rehearsalComparisonPuts ??= new Map());
+const recentWrites = (global.rehearsalComparisonWrites ??= new Map());
 
 function pseudonym(value) {
   return createHash("sha256")
@@ -19,21 +20,15 @@ function pseudonym(value) {
     .slice(0, 16);
 }
 
-function clientIp(request) {
-  return (
-    request.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown"
-  );
-}
-
 function rateLimited(key) {
   const now = Date.now();
-  if (recentPuts.size > MAX_TRACKED_CLIENTS) recentPuts.clear();
-  const times = (recentPuts.get(key) || []).filter(
+  if (recentWrites.size > MAX_TRACKED_CLIENTS) recentWrites.clear();
+  const times = (recentWrites.get(key) || []).filter(
     (t) => now - t < RATE_WINDOW_MS,
   );
   const limited = times.length >= RATE_LIMIT;
   if (!limited) times.push(now);
-  recentPuts.set(key, times);
+  recentWrites.set(key, times);
   return limited;
 }
 
@@ -48,8 +43,8 @@ async function readBody(request) {
 }
 
 export async function PUT(request) {
-  const ipHash = pseudonym(`ip:${clientIp(request)}`);
-  if (rateLimited(ipHash)) {
+  const ipHash = pseudonym(`ip:${clientIp(request.headers)}`);
+  if (rateLimited(`put:${ipHash}`)) {
     return new Response("Too many comparisons", { status: 429 });
   }
 
@@ -78,6 +73,11 @@ export async function PUT(request) {
 }
 
 export async function DELETE(request) {
+  const ipHash = pseudonym(`ip:${clientIp(request.headers)}`);
+  if (rateLimited(`delete:${ipHash}`)) {
+    return new Response("Too many deletions", { status: 429 });
+  }
+
   const { id } = (await readBody(request)) || {};
   if (typeof id != "string") return new Response("Missing id", { status: 400 });
 

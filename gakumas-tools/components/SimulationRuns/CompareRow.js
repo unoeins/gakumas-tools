@@ -15,6 +15,7 @@ import Collapse from "@/components/Collapse";
 import Image from "@/components/Image";
 import LoadoutSummary from "@/components/LoadoutHistory/LoadoutSummary";
 import { FALLBACK_STAGE } from "@/simulator/constants";
+import { MAX_NAME_LENGTH } from "@/utils/apiValidation";
 import c from "@/utils/classNames";
 import { formatRelative } from "@/utils/simulationRun";
 import { formatStageName } from "@/utils/stages";
@@ -216,6 +217,7 @@ function CompareRow({
               ref={inputRef}
               className={styles.nameInput}
               value={draft}
+              maxLength={MAX_NAME_LENGTH}
               onChange={(e) => setDraft(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={t("savePrompt")}

@@ -14,6 +14,8 @@ export const OG_CONTENT_TYPE = "image/png";
 export const PREVIEW_CACHE_CONTROL =
   "public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400";
 
+export const PREVIEW_RETRY_CACHE_CONTROL = "public, max-age=60, s-maxage=60";
+
 // resvg refuses anything over 32767px per side, and well below that a render
 // can still take minutes and hundreds of MB.
 const MAX_IMAGE_PIXELS = 720 * 4000;

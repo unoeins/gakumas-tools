@@ -2,6 +2,7 @@ import { SkillCards } from "gakumas-data";
 import { Raised } from "@/components/OgImage/parts";
 import { COLORS } from "@/components/OgImage/theme";
 import PreviewSkillCard from "./PreviewSkillCard";
+import { MAX_CARDS_PER_GROUP } from "./previewIcons";
 import styles from "./Preview.styles";
 
 export default function PreviewSkillCardGroup({
@@ -13,7 +14,7 @@ export default function PreviewSkillCardGroup({
   showCost,
 }) {
   const cost = cards
-    .slice(0, 6)
+    .slice(0, MAX_CARDS_PER_GROUP)
     .filter((id) => id)
     .map(SkillCards.getById)
     .reduce(
@@ -25,7 +26,7 @@ export default function PreviewSkillCardGroup({
     <div style={styles.cardGroup}>
       <div style={styles.row}>
         {cards
-          .slice(0, 6)
+          .slice(0, MAX_CARDS_PER_GROUP)
           .map(SkillCards.getById)
           .map((card, index) => (
             <PreviewSkillCard

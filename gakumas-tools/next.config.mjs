@@ -16,6 +16,69 @@ const LOCALE_PREFIXES = ["", "/en", "/zh-Hans", "/ko"];
 
 const gkImgBaseUrl = process.env.NEXT_PUBLIC_GK_IMG_BASE_URL;
 const gkImgHostname = gkImgBaseUrl && new URL(gkImgBaseUrl).hostname;
+const gkImgOrigin = gkImgBaseUrl && new URL(gkImgBaseUrl).origin;
+const isDev = process.env.NODE_ENV !== "production";
+
+const GOOGLE_ANALYTICS = [
+  "https://*.googletagmanager.com",
+  "https://*.google-analytics.com",
+  "https://*.analytics.google.com",
+];
+// tesseract.js fetches its worker, core and language data from jsDelivr.
+const JSDELIVR = "https://cdn.jsdelivr.net";
+
+const CSP_DIRECTIVES = {
+  "default-src": ["'self'"],
+  "script-src": [
+    "'self'",
+    "'unsafe-inline'",
+    "'wasm-unsafe-eval'",
+    isDev && "'unsafe-eval'",
+    "https://*.googletagmanager.com",
+    JSDELIVR,
+  ],
+  "style-src": ["'self'", "'unsafe-inline'"],
+  "img-src": [
+    "'self'",
+    "data:",
+    "blob:",
+    "https://cdn.discordapp.com",
+    "https://authjs.dev",
+    gkImgOrigin,
+    ...GOOGLE_ANALYTICS,
+  ],
+  "font-src": ["'self'"],
+  "connect-src": [
+    "'self'",
+    isDev && "ws:",
+    JSDELIVR,
+    ...GOOGLE_ANALYTICS,
+  ],
+  "media-src": ["'self'", "blob:"],
+  "worker-src": ["'self'", "blob:"],
+  "frame-src": ["https://www.youtube.com"],
+  "object-src": ["'none'"],
+  "base-uri": ["'self'"],
+  // next-auth's built-in sign-in page posts a form that redirects to Discord.
+  "form-action": ["'self'", "https://discord.com"],
+  "frame-ancestors": ["'none'"],
+};
+
+const CONTENT_SECURITY_POLICY = Object.entries(CSP_DIRECTIVES)
+  .map(([name, sources]) => [name, ...sources.filter(Boolean)].join(" "))
+  .join("; ");
+
+const SECURITY_HEADERS = [
+  { key: "Content-Security-Policy-Report-Only", value: CONTENT_SECURITY_POLICY },
+  { key: "X-Frame-Options", value: "DENY" },
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  {
+    key: "Permissions-Policy",
+    value:
+      "camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()",
+  },
+];
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -27,6 +90,9 @@ const nextConfig = {
         : []),
     ],
     unoptimized: true,
+  },
+  async headers() {
+    return [{ source: "/:path*", headers: SECURITY_HEADERS }];
   },
   async redirects() {
     return LEGACY_REDIRECTS.flatMap(([from, to]) =>
@@ -48,6 +114,12 @@ const nextConfig = {
       ...config.resolve.alias,
       "gakumas-images$": require.resolve(`gakumas-images/${entry}`),
     };
+
+    config.module.rules.push({
+      test: /\.csv$/,
+      type: "json",
+      loader: path.resolve("loaders/csvLoader.js"),
+    });
 
     if (!gkImgBaseUrl) {
       config.module.rules = config.module.rules.filter(

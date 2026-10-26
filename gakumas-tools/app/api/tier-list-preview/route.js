@@ -1,6 +1,5 @@
 import { readFile } from "fs/promises";
 import path from "path";
-import sharp from "sharp";
 import TierListPreview from "@/components/TierListPreview";
 import {
   ITEM_SIZE,
@@ -12,41 +11,18 @@ import {
   EntityTypes,
   resolveEntityIcon,
 } from "@/utils/entities";
-import { loadFonts, PREVIEW_CACHE_CONTROL, renderImage } from "@/utils/og";
+import {
+  loadFonts,
+  PREVIEW_CACHE_CONTROL,
+  PREVIEW_RETRY_CACHE_CONTROL,
+  renderImage,
+} from "@/utils/og";
+import { createPngCache, fetchAsPng } from "@/utils/pngCache";
 import { clampList, decodeList, EMPTY_LIST } from "@/utils/tierList";
 
 const MAX_ITEMS_PER_TIER = 16;
 
-const PNG_CACHE_LIMIT = 500;
-const pngCache = new Map();
-
-async function fetchAsPng(url) {
-  const cached = pngCache.get(url);
-  if (cached !== undefined) {
-    pngCache.delete(url);
-    pngCache.set(url, cached);
-    return cached;
-  }
-  let dataUrl = null;
-  try {
-    const res = await fetch(url);
-    if (res.ok) {
-      const buf = Buffer.from(await res.arrayBuffer());
-      const png = await sharp(buf)
-        .resize(ITEM_SIZE, ITEM_SIZE, { fit: "inside", withoutEnlargement: true })
-        .png()
-        .toBuffer();
-      dataUrl = `data:image/png;base64,${png.toString("base64")}`;
-    }
-  } catch (err) {
-    console.warn(`tier-list-preview: failed ${url}:`, err?.message || err);
-  }
-  pngCache.set(url, dataUrl);
-  if (pngCache.size > PNG_CACHE_LIMIT) {
-    pngCache.delete(pngCache.keys().next().value);
-  }
-  return dataUrl;
-}
+const cachedPng = createPngCache(500);
 
 function iconToFetchUrl(icon, origin) {
   if (!icon) return null;
@@ -54,27 +30,17 @@ function iconToFetchUrl(icon, origin) {
   return `${origin}${icon.src}`;
 }
 
-async function loadRankPng(rank) {
-  const cacheKey = `rank:${rank}`;
-  const cached = pngCache.get(cacheKey);
-  if (cached !== undefined) {
-    pngCache.delete(cacheKey);
-    pngCache.set(cacheKey, cached);
-    return cached;
-  }
-  let dataUrl = null;
-  try {
-    const file = path.join(process.cwd(), "public", "ranks", `${rank}.png`);
-    const buf = await readFile(file);
-    dataUrl = `data:image/png;base64,${buf.toString("base64")}`;
-  } catch (err) {
-    console.warn(`tier-list-preview: rank ${rank}:`, err?.message || err);
-  }
-  pngCache.set(cacheKey, dataUrl);
-  if (pngCache.size > PNG_CACHE_LIMIT) {
-    pngCache.delete(pngCache.keys().next().value);
-  }
-  return dataUrl;
+function loadRankPng(rank) {
+  return cachedPng(`rank:${rank}`, async () => {
+    try {
+      const file = path.join(process.cwd(), "public", "ranks", `${rank}.png`);
+      const buf = await readFile(file);
+      return `data:image/png;base64,${buf.toString("base64")}`;
+    } catch (err) {
+      console.warn(`tier-list-preview: rank ${rank}:`, err?.message || err);
+      return null;
+    }
+  });
 }
 
 function iconKey(icon) {
@@ -82,11 +48,13 @@ function iconKey(icon) {
   return typeof icon === "string" ? icon : icon.src;
 }
 
-async function fetchAll(entries) {
-  const arr = await Promise.all(
-    entries.map(async ([k, url]) => [k, await fetchAsPng(url)]),
+function fetchAll(entries) {
+  return Promise.all(
+    entries.map(async ([k, url]) => [
+      k,
+      await cachedPng(url, () => fetchAsPng(url, ITEM_SIZE)),
+    ]),
   );
-  return Object.fromEntries(arr.filter(([, v]) => v));
 }
 
 export async function GET(request) {
@@ -117,11 +85,13 @@ export async function GET(request) {
     }
   }
 
-  const [rankPairs, iconCache] = await Promise.all([
+  const [rankPairs, iconPairs] = await Promise.all([
     Promise.all(list.tiers.map(async (r) => [r, await loadRankPng(r)])),
     fetchAll(itemEntries.map(([, key, fetchUrl]) => [key, fetchUrl])),
   ]);
   const rankSrc = Object.fromEntries(rankPairs.filter(([, v]) => v));
+  const iconCache = Object.fromEntries(iconPairs.filter(([, v]) => v));
+  const anyFailed = [...rankPairs, ...iconPairs].some(([, v]) => !v);
 
   const itemSrc = {};
   for (const [id, key] of itemEntries) {
@@ -134,7 +104,11 @@ export async function GET(request) {
       width: PREVIEW_WIDTH,
       height: previewHeight(list),
       fonts: await loadFonts(),
-      headers: { "Cache-Control": PREVIEW_CACHE_CONTROL },
+      headers: {
+        "Cache-Control": anyFailed
+          ? PREVIEW_RETRY_CACHE_CONTROL
+          : PREVIEW_CACHE_CONTROL,
+      },
     },
   );
 }

@@ -2,6 +2,16 @@ import { getServerSession } from "next-auth/next";
 import { ObjectId } from "mongodb";
 import { authOptions } from "@/utils/auth";
 import { connect } from "@/utils/mongodb";
+import {
+  MAX_LOADOUTS_PER_USER,
+  isName,
+  isObjectId,
+  isObjectIdList,
+  readJsonBody,
+  validateLoadout,
+} from "@/utils/apiValidation";
+
+const MAX_BODY_BYTES = 100_000;
 
 export async function POST(request) {
   const session = await getServerSession(authOptions);
@@ -9,6 +19,10 @@ export async function POST(request) {
     return new Response("Unauthorized", { status: 401 });
   }
   const userId = session.user.id;
+  const { body, error, status } = await readJsonBody(request, MAX_BODY_BYTES);
+  if (error) return new Response(error, { status });
+  const invalid = validateLoadout(body);
+  if (invalid) return new Response(invalid, { status: 400 });
   const {
     name,
     stageId,
@@ -35,10 +49,14 @@ export async function POST(request) {
     prioritySkillCardIds,
     priorityCustomizations,
     priorityValues,
-  } = await request.json();
+  } = body;
 
   const { db } = await connect();
-  const result = await db.collection("loadouts").insertOne({
+  const collection = db.collection("loadouts");
+  if ((await collection.countDocuments({ userId })) >= MAX_LOADOUTS_PER_USER) {
+    return new Response("Too many loadouts", { status: 409 });
+  }
+  const result = await collection.insertOne({
     name,
     stageId,
     customStage,
@@ -94,16 +112,17 @@ export async function PATCH(request) {
     return new Response("Unauthorized", { status: 401 });
   }
   const userId = session.user.id;
-  const { id, name } = await request.json();
-  if (!id) {
-    return new Response("Missing id", { status: 400 });
-  }
+  const { body, error, status } = await readJsonBody(request, MAX_BODY_BYTES);
+  if (error) return new Response(error, { status });
+  const { id, name } = body;
+  if (!isObjectId(id)) return new Response("Invalid id", { status: 400 });
+  if (!isName(name)) return new Response("Invalid name", { status: 400 });
 
   const { db } = await connect();
-  await db.collection("loadouts").updateOne(
-    { _id: new ObjectId(id), userId },
-    { $set: { name } },
-  );
+  const { matchedCount } = await db
+    .collection("loadouts")
+    .updateOne({ _id: new ObjectId(id), userId }, { $set: { name } });
+  if (!matchedCount) return new Response("Not found", { status: 404 });
 
   return new Response(null, { status: 204 });
 }
@@ -114,11 +133,15 @@ export async function DELETE(request) {
     return new Response("Unauthorized", { status: 401 });
   }
   const userId = session.user.id;
-  const { ids } = await request.json();
+  const { body, error, status } = await readJsonBody(request, MAX_BODY_BYTES);
+  if (error) return new Response(error, { status });
+  if (!isObjectIdList(body.ids)) {
+    return new Response("Invalid ids", { status: 400 });
+  }
 
   const { db } = await connect();
   await db.collection("loadouts").deleteMany({
-    _id: { $in: ids.map((id) => new ObjectId(id)) },
+    _id: { $in: body.ids.map((id) => new ObjectId(id)) },
     userId,
   });
 

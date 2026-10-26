@@ -5,6 +5,7 @@ import { COLORS } from "@/components/OgImage/theme";
 import PreviewPItems from "./PreviewPItems";
 import PreviewSkillCardGroup from "./PreviewSkillCardGroup";
 import PreviewPDrinks from "./PreviewPDrinks";
+import { MAX_GROUPS } from "./previewIcons";
 import styles, { FOOTER_SIZE } from "./Preview.styles";
 
 export default function Preview({
@@ -29,9 +30,9 @@ export default function Preview({
         }}
       >
         <div style={styles.card}>
-          <PreviewPItems itemIds={itemIds.slice(0, 4)} imageMap={imageMap} stage={stage} />
+          <PreviewPItems itemIds={itemIds} imageMap={imageMap} stage={stage} />
           <div style={styles.groups}>
-            {skillCardIdGroups.slice(0, 4).map((cards, groupIndex) => (
+            {skillCardIdGroups.slice(0, MAX_GROUPS).map((cards, groupIndex) => (
               <PreviewSkillCardGroup
                 key={groupIndex}
                 cards={cards}
@@ -58,9 +59,9 @@ export default function Preview({
         }}
       >
         <div style={styles.card}>
-          <PreviewPItems itemIds={itemIds.slice(0, 8)} imageMap={imageMap} />
+          <PreviewPItems itemIds={itemIds} imageMap={imageMap} />
           <div style={styles.groups}>
-            {[...Array(Math.min(4, Math.ceil(skillCardIdGroups[0].length/6)))].map((_, i) => (
+            {[...Array(Math.min(MAX_GROUPS, Math.ceil(skillCardIdGroups[0].length/6)))].map((_, i) => (
               <PreviewSkillCardGroup
                 key={i}
                 cards={skillCardIdGroups[0].slice(i*6, i*6+6)}
