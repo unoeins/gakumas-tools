@@ -55,6 +55,8 @@ export default function useRehearsalParser() {
   const [data, setData] = useState([]);
   const [icons, setIcons] = useState(null);
   const ocrPoolRef = useRef(null);
+  const dataRef = useRef(data);
+  const unmountedRef = useRef(false);
 
   const getOcrPool = useCallback(() => {
     ocrPoolRef.current ??= createWorkerPool({
@@ -66,9 +68,16 @@ export default function useRehearsalParser() {
   }, []);
 
   useEffect(() => {
+    dataRef.current = data;
+  }, [data]);
+
+  useEffect(() => {
+    unmountedRef.current = false;
     return () => {
+      unmountedRef.current = true;
       ocrPoolRef.current?.close();
       ocrPoolRef.current = null;
+      revokeRowSources(dataRef.current);
     };
   }, []);
 
@@ -217,6 +226,10 @@ export default function useRehearsalParser() {
 
       await Promise.all([csvPromise, ocrPromise]);
       if (DEBUG) console.timeEnd("All results parsed");
+      if (unmountedRef.current) {
+        revokeRowSources(results);
+        return;
+      }
       setIcons(results.find((r) => r.icons)?.icons ?? null);
       setData(results.map(({ icons, ...row }) => row));
     },
