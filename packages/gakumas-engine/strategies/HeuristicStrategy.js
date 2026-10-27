@@ -147,6 +147,7 @@ export default class HeuristicStrategy extends BaseStrategy {
     }
 
     let score = 0;
+    const previewScore = this.getStateScore(previewState);
 
     // Effects -- TODO: make this not suck
     const effectsDiff = previewState[S.effects].length - this.rootEffectCount;
@@ -175,8 +176,7 @@ export default class HeuristicStrategy extends BaseStrategy {
         null,
         true
       );
-      const scoreDelta =
-        this.getStateScore(postEffectState) - this.getStateScore(previewState);
+      const scoreDelta = this.getStateScore(postEffectState) - previewScore;
       score += 3 * scoreDelta * Math.min(limit, 6);
     }
 
@@ -189,7 +189,7 @@ export default class HeuristicStrategy extends BaseStrategy {
         Math.floor(previewState[S.turnsRemaining] / 13);
     }
 
-    score += this.getStateScore(previewState);
+    score += previewScore;
 
     this.depth--;
     return { score: Math.round(score), state: previewState };
