@@ -29,7 +29,7 @@ export function MemoryContextProvider({ children }) {
     {},
     {},
   ]);
-  const { fetchMemories } = useContext(DataContext);
+  const { putMemories } = useContext(DataContext);
 
   useEffect(() => {
     // If fewer than 4 pItems, pad with 0s
@@ -66,17 +66,14 @@ export function MemoryContextProvider({ children }) {
         if (!response.ok) {
           throw new Error(`${method} ${url} failed with ${response.status}`);
         }
-        if (isNew) {
-          const { ids } = await response.json();
-          setId(ids[0]);
-        }
+        const savedId = isNew ? (await response.json()).ids[0] : id;
+        setId(savedId);
         setSaveState("saved");
+        putMemories([{ ...memory, _id: savedId }]);
       } catch (error) {
         console.error(error);
         setSaveState("error");
-        return;
       }
-      fetchMemories();
     },
     [
       id,
@@ -86,7 +83,7 @@ export function MemoryContextProvider({ children }) {
       pItemIds,
       skillCardIds,
       customizations,
-      fetchMemories,
+      putMemories,
     ]
   );
 
