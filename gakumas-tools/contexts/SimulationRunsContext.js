@@ -34,6 +34,7 @@ export function SimulationRunsContextProvider({ children }) {
   const [savedRuns, setSavedRuns] = useState([]);
   const [savedLoading, setSavedLoading] = useState(true);
   const [savedError, setSavedError] = useState(false);
+  const [savedWanted, setSavedWanted] = useState(false);
   const didInitRef = useRef(false);
 
   useEffect(() => {
@@ -98,14 +99,16 @@ export function SimulationRunsContextProvider({ children }) {
     [fetchSaved],
   );
 
+  const requestSaved = useCallback(() => setSavedWanted(true), []);
+
   useEffect(() => {
     if (status === "authenticated") {
-      fetchSaved();
+      if (savedWanted) fetchSaved();
     } else if (status === "unauthenticated") {
       setSavedRuns([]);
       setSavedLoading(false);
     }
-  }, [status, fetchSaved]);
+  }, [status, savedWanted, fetchSaved]);
 
   const pushRun = useCallback(({ loadout, loadouts, scores }) => {
     const base = extractLoadoutFields(loadout);
@@ -197,6 +200,7 @@ export function SimulationRunsContextProvider({ children }) {
       deleteSaved,
       renameSaved,
       loadRun,
+      requestSaved,
       refetchSaved: fetchSaved,
     }),
     [
@@ -211,6 +215,7 @@ export function SimulationRunsContextProvider({ children }) {
       deleteSaved,
       renameSaved,
       loadRun,
+      requestSaved,
       fetchSaved,
     ],
   );
