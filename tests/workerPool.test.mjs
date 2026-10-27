@@ -97,3 +97,20 @@ test("a failed create rejects the task and frees the slot", async () => {
   assert.equal(await pool.run(async () => "ok"), "ok");
   pool.close();
 });
+
+test("close rejects queued tasks and later runs, but lets busy ones finish", async () => {
+  const { pool } = trackedPool({ size: 1 });
+  const busy = pool.run(async () => {
+    await sleep(10);
+    return "done";
+  });
+  const queued = pool.run(async () => "never");
+  await sleep(0);
+  pool.close();
+  await assert.rejects(queued, /closed/);
+  await assert.rejects(
+    pool.run(async () => "late"),
+    /closed/,
+  );
+  assert.equal(await busy, "done");
+});
