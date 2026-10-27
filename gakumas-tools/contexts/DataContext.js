@@ -67,7 +67,10 @@ export function DataContextProvider({ children }) {
   );
 
   const putMemories = useCallback((saved) => {
-    if (!loadedRef.current) return;
+    if (!loadedRef.current) {
+      fetchMemories();
+      return;
+    }
     setMemories((cur) => {
       const byId = new Map(saved.map((memory) => [memory._id, memory]));
       const next = cur.map((memory) => {
@@ -77,7 +80,7 @@ export function DataContextProvider({ children }) {
       });
       return next.concat([...byId.values()]);
     });
-  }, []);
+  }, [fetchMemories]);
 
   const uploadMemories = useCallback(
     async (memories) => {
