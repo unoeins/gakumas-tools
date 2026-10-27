@@ -59,3 +59,21 @@ test("rejects with the first failure and stops pulling", async () => {
   );
   assert.equal(pulled, 2);
 });
+
+test("stops pulling once a call fails while the next item is still coming", async () => {
+  let pulled = 0;
+  async function* slowItems() {
+    for (let i = 0; i < 5; i++) {
+      pulled++;
+      await sleep(5);
+      yield i;
+    }
+  }
+  await assert.rejects(
+    mapWithLimit(slowItems(), 2, async (i) => {
+      if (i === 0) throw new Error("boom");
+    }),
+    /boom/,
+  );
+  assert.equal(pulled, 2);
+});
