@@ -12,13 +12,15 @@ const BRIGHTNESS_SAMPLE_SIZE = 64;
 // transition to capture the previous frame at full resolution. Each frame
 // gets its own canvas, so consumers may hold it while iteration continues.
 //
-// `onProgress(analyzed, total)` fires after each analyzed sample.
+// `onProgress(analyzed, total)` fires after each analyzed sample. Aborting
+// `signal` stops the scan before the next seek.
 export async function* streamCandidateFrames(
   videoFile,
   {
     intervalMs = 500,
     brightnessThreshold = 180,
     onProgress,
+    signal,
   } = {},
 ) {
   const { video, blobURL } = await loadVideo(videoFile);
@@ -39,6 +41,7 @@ export async function* streamCandidateFrames(
     let found = 0;
 
     for (let i = 0; i < frameCount; i++) {
+      signal?.throwIfAborted();
       await seekTo(video, timeOf(i));
       sampleCtx.drawImage(
         video,

@@ -88,12 +88,14 @@ export default function useRehearsalParser() {
       // Frames are OCR'd while scanning continues. Capping the frames in
       // flight keeps peak memory flat however long the video is.
       const pool = getOcrPool();
+      const scan = new AbortController();
       let found = 0;
       let scanStarted = false;
       let lastStatusAt = 0;
       const { streamCandidateFrames, getScoresFromImage } =
         await loadOcrModules();
       const frames = streamCandidateFrames(videoFile, {
+        signal: scan.signal,
         intervalMs: FRAME_INTERVAL_MS,
         brightnessThreshold: BRIGHTNESS_THRESHOLD,
         onProgress: (analyzed, frameTotal) => {
@@ -134,6 +136,9 @@ export default function useRehearsalParser() {
               icons,
               src: await canvasToObjectURL(canvas),
             };
+          } catch (err) {
+            scan.abort(err);
+            throw err;
           } finally {
             canvas.width = canvas.height = 0;
           }
