@@ -9,11 +9,8 @@ const BRIGHTNESS_SAMPLE_SIZE = 64;
 // Stream candidate frames — the dark frame immediately before each
 // dark→bright brightness transition. Emits each frame as it's found in a
 // single pass through the video, plus one extra re-seek per detected
-// transition to capture the previous frame at full resolution.
-//
-// The same canvas is reused across yields, so consumers must finish with a
-// frame (synchronously read its pixels, or pass it to an async API that
-// captures the data synchronously) before resuming iteration.
+// transition to capture the previous frame at full resolution. Each frame
+// gets its own canvas, so consumers may hold it while iteration continues.
 //
 // `onProgress(analyzed, total)` fires after each analyzed sample.
 export async function* streamCandidateFrames(
@@ -36,9 +33,6 @@ export async function* streamCandidateFrames(
     const sampleCtx = sampleCanvas.getContext("2d", {
       willReadFrequently: true,
     });
-    const frameCanvas = createCanvas(video.videoWidth, video.videoHeight);
-    const frameCtx = frameCanvas.getContext("2d");
-
     // Start above the threshold so the first sample isn't treated as a
     // transition even if the video opens on a bright frame.
     let prevBrightness = 255;
@@ -63,7 +57,10 @@ export async function* streamCandidateFrames(
         // The rehearsal result screen is the DARK frame before the flash,
         // not the bright one. Re-seek back one interval to capture it.
         await seekTo(video, timeOf(i - 1));
-        frameCtx.drawImage(video, 0, 0, frameCanvas.width, frameCanvas.height);
+        const frameCanvas = createCanvas(video.videoWidth, video.videoHeight);
+        frameCanvas
+          .getContext("2d")
+          .drawImage(video, 0, 0, frameCanvas.width, frameCanvas.height);
         found++;
         yield frameCanvas;
       }
@@ -76,6 +73,8 @@ export async function* streamCandidateFrames(
       );
     }
   } finally {
+    video.removeAttribute("src");
+    video.load();
     URL.revokeObjectURL(blobURL);
   }
 }
