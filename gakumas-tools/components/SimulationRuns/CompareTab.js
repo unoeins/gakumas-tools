@@ -36,7 +36,12 @@ function CompareTab({ currentRun, onAfterLoad }) {
     deleteSaved,
     renameSaved,
     loadRun,
+    requestSaved,
   } = useContext(SimulationRunsContext);
+
+  useEffect(() => {
+    requestSaved();
+  }, [requestSaved]);
 
   const [subTab, setSubTab] = usePersistedState(
     "gakumas-tools.compare.subTab",

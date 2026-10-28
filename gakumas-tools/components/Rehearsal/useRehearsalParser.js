@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { DEBUG } from "@/utils/imageProcessing/common";
+import { mapWithLimit } from "@/utils/mapWithLimit";
 import { createWorkerPool } from "@/utils/workerPool";
 import {
   bucketFiles,
@@ -56,6 +57,8 @@ export default function useRehearsalParser() {
   const [icons, setIcons] = useState(null);
   const [liteMode, setLiteMode] = useState(false);
   const ocrPoolRef = useRef(null);
+  const dataRef = useRef(data);
+  const unmountedRef = useRef(false);
 
   const getOcrPool = useCallback(() => {
     ocrPoolRef.current ??= createWorkerPool({
@@ -67,25 +70,33 @@ export default function useRehearsalParser() {
   }, []);
 
   useEffect(() => {
+    dataRef.current = data;
+  }, [data]);
+
+  useEffect(() => {
+    unmountedRef.current = false;
     return () => {
+      unmountedRef.current = true;
       ocrPoolRef.current?.close();
       ocrPoolRef.current = null;
+      revokeRowSources(dataRef.current);
     };
   }, []);
 
   const processVideo = useCallback(
     async (videoFile) => {
       setProcessingStatus(t("analyzingVideo"));
-      // Frames are OCR'd one at a time: seeking dominates runtime, OCR is
-      // fast, and streaming keeps peak memory flat (one canvas instead of N
-      // candidates on mobile).
+      // Frames are OCR'd while scanning continues. Capping the frames in
+      // flight keeps peak memory flat however long the video is.
       const pool = getOcrPool();
-      const results = [];
+      const scan = new AbortController();
+      let found = 0;
       let scanStarted = false;
       let lastStatusAt = 0;
       const { streamCandidateFrames, getScoresFromImage } =
         await loadOcrModules();
-      for await (const canvas of streamCandidateFrames(videoFile, {
+      const frames = streamCandidateFrames(videoFile, {
+        signal: scan.signal,
         intervalMs: FRAME_INTERVAL_MS,
         brightnessThreshold: BRIGHTNESS_THRESHOLD,
         onProgress: (analyzed, frameTotal) => {
@@ -105,23 +116,36 @@ export default function useRehearsalParser() {
             t("scanningVideo", {
               analyzed,
               total: frameTotal,
-              found: results.length,
+              found,
             }),
           );
         },
-      })) {
-        const { scores, flags, icons } = await pool.run((worker) =>
-          getScoresFromImage(canvas, worker),
-        );
-        if (scores && scores.some((stage) => stage.some((v) => v))) {
-          results.push({
-            scores,
-            flags,
-            icons,
-            ...(!liteMode && { src: await canvasToObjectURL(canvas) }),
-          });
-        }
-      }
+      });
+      const scored = await mapWithLimit(
+        frames,
+        getOcrPoolSize() * 2,
+        async (canvas) => {
+          try {
+            const { scores, flags, icons } = await pool.run((worker) =>
+              getScoresFromImage(canvas, worker),
+            );
+            if (!scores?.some((stage) => stage.some((v) => v))) return null;
+            found++;
+            return {
+              scores,
+              flags,
+              icons,
+              ...(!liteMode && { src: await canvasToObjectURL(canvas) }),
+            };
+          } catch (err) {
+            scan.abort(err);
+            throw err;
+          } finally {
+            canvas.width = canvas.height = 0;
+          }
+        },
+      );
+      const results = scored.filter(Boolean);
       setProcessingStatus(t("videoComplete", { count: results.length }));
       return { results, scanStarted };
     },
@@ -218,6 +242,10 @@ export default function useRehearsalParser() {
 
       await Promise.all([csvPromise, ocrPromise]);
       if (DEBUG) console.timeEnd("All results parsed");
+      if (unmountedRef.current) {
+        revokeRowSources(results);
+        return;
+      }
       setIcons(results.find((r) => r.icons)?.icons ?? null);
       setData(results.map(({ icons, ...row }) => row));
     },
