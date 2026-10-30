@@ -1346,15 +1346,23 @@ export default class CardManager extends EngineComponent {
     const card = cards[this.pickRandomCardIndex(state, cards, cards.length)];
     const pile = this.findCardPile(state, card);
     if (!pile) return;
+    const prevUsedCard = state[S.usedCard];
+    const prevPhase = state[S.phase];
+    state[S.phase] = undefined;
     state[S.freeCardUses]++;
     this.useCard(state, card, pile);
     state[S.freeCardUses]--;
+    state[S.usedCard] = prevUsedCard;
+    state[S.phase] = prevPhase;
   }
 
   useAllCardsFree(state, targetRule) {
     const targetCards = this.getTargetRuleCards(state, targetRule);
     if (!targetCards.size) return;
     // Use all matching cards (check pile each time as cards may move)
+    const prevUsedCard = state[S.usedCard];
+    const prevPhase = state[S.phase];
+    state[S.phase] = undefined;
     for (const card of targetCards) {
       const pile = this.findCardPile(state, card);
       if (pile) {
@@ -1363,6 +1371,8 @@ export default class CardManager extends EngineComponent {
         state[S.freeCardUses]--;
       }
     }
+    state[S.usedCard] = prevUsedCard;
+    state[S.phase] = prevPhase;
   }
 
   useSelectedCard(state, targetRule, num = 1) {
@@ -1379,6 +1389,9 @@ export default class CardManager extends EngineComponent {
     );
     if (!indicesToUse || indicesToUse.length === 0) return;
 
+    const prevUsedCard = state[S.usedCard];
+    const prevPhase = state[S.phase];
+    state[S.phase] = undefined;
     for (let j = 0; j < indicesToUse.length; j++) {
       const card = cards[indicesToUse[j]];
       const pile = this.findCardPile(state, card);
@@ -1394,6 +1407,8 @@ export default class CardManager extends EngineComponent {
         }
       }
     }
+    state[S.usedCard] = prevUsedCard;
+    state[S.phase] = prevPhase;
   }
 
   useSelectedCardFree(state, targetRule, num = 1) {
@@ -1410,6 +1425,9 @@ export default class CardManager extends EngineComponent {
     );
     if (!indicesToUse || indicesToUse.length === 0) return;
 
+    const prevUsedCard = state[S.usedCard];
+    const prevPhase = state[S.phase];
+    state[S.phase] = undefined;
     for (let j = 0; j < indicesToUse.length; j++) {
       const card = cards[indicesToUse[j]];
       const pile = this.findCardPile(state, card);
@@ -1419,6 +1437,8 @@ export default class CardManager extends EngineComponent {
         state[S.freeCardUses]--;
       }
     }
+    state[S.usedCard] = prevUsedCard;
+    state[S.phase] = prevPhase;
   }
 
   removeCardByTarget(state, targetRule) {
