@@ -608,4 +608,9 @@ export default class HeuristicStrategy extends BaseStrategy {
   selectRandomInsertIndex(state, cards) {
     return Math.floor(getRand(state) * (cards.length + 1));
   }
+
+  pickCardsToGrow(state, cards, num = 1, optional = false) {
+    return this.pickCardsToHold(state, cards, num, optional);
+  }
+
 }

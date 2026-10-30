@@ -690,6 +690,7 @@
     "selectCardsToUseFree": "Select {num} {num, plural, =1 {card} other {cards}} to use free",
     "selectCardsToUse": "Select {num} {num, plural, =1 {card} other {cards}} to use",
     "selectCardsToCopy": "Select {num} {num, plural, =1 {card} other {cards}} to copy",
+    "selectCardsToGrow": "Select {num} {num, plural, =1 {card} other {cards}} to grow",
     "selectRandomCards": "Select {num} {num, plural, =1 {card} other {cards}}",
     "selectPositionToInsertCard": "Select position to insert card",
     "confirm": "Confirm"

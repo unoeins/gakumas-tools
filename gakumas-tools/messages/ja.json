@@ -699,6 +699,7 @@
     "selectCardsToUseFree": "コストを消費せず使用するカードを{num}枚選択",
     "selectCardsToUse": "コストを消費して使用するカードを{num}枚選択",
     "selectCardsToCopy": "コピーするカードを{num}枚選択",
+    "selectCardsToGrow": "成長させるカードを{num}枚選択",
     "selectRandomCards": "{num}枚のカードを選択",
     "selectPositionToInsertCard": "カードを挿入する箇所を選択",
     "confirm": "確認"
