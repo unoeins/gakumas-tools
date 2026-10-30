@@ -1245,8 +1245,8 @@ export default class CardManager extends EngineComponent {
 
   moveHeldCardsToHand(state) {
     const movedCards = [];
-    while (state[S.heldCards].length) {
-      const card = state[S.heldCards].pop();
+    while (state[S.heldCards].length && state[S.handCards].length < 5) {
+      const card = state[S.heldCards].shift();
       state[S.handCards].push(card);
       movedCards.push(card);
     }
