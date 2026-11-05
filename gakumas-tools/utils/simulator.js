@@ -13,6 +13,7 @@ import { LISTENER_KEYS } from "gakumas-engine/constants";
 import { FALLBACK_STAGE, MIN_BUCKET_SIZE } from "@/simulator/constants";
 import {
   deserializeCustomizations,
+  fixCustomizationGroups,
   serializeCustomizations,
 } from "./customizations";
 import { deserializeIds, serializeIds } from "./ids";
@@ -65,6 +66,14 @@ export function knownStageId(stageId) {
   return null;
 }
 
+function knownPItemId(id) {
+  return PItems.getById(id) ? id : 0;
+}
+
+function knownSkillCardId(id) {
+  return SkillCards.getById(id) ? id : 0;
+}
+
 const SIMULATOR_BASE_URL = "https://gktools.ris.moe/simulator";
 
 export function getSimulatorUrl(loadout, loadouts, pathname) {
@@ -107,8 +116,14 @@ export function loadoutFromSearchParams(searchParams, suffix = "") {
   let prioritySkillCardIds = searchParams.get("pri_cards" + suffix);
   let priorityCustomizations = searchParams.get("pri_customs" + suffix);
   let priorityValues = searchParams.get("pri_values" + suffix);
+  const enterPercents = searchParams.get("enter_percents") == "1";
   const hasDataFromParams =
-    stageId || params || pItemIds || skillCardIdGroups || customizationGroups || 
+    stageId ||
+    params ||
+    pItemIds ||
+    skillCardIdGroups ||
+    customizationGroups ||
+    enterPercents || 
     pDrinkIds || hifAbilityIds || startingEffects || 
     skillCardIdOrderGroups || customizationOrderGroups || turnTypeOrder;
   const enableSkillCardOrder = 
@@ -134,8 +149,10 @@ export function loadoutFromSearchParams(searchParams, suffix = "") {
   supportBonus = parseFloat(supportBonus);
   if (isNaN(supportBonus)) supportBonus = null;
   params = params ? deserializeIds(params) : getDefaultParams(getStage(stageId));
-  pItemIds = deserializeIds(pItemIds);
-  skillCardIdGroups = skillCardIdGroups.split("_").map(deserializeIds);
+  pItemIds = deserializeIds(pItemIds).map(knownPItemId);
+  skillCardIdGroups = skillCardIdGroups
+    .split("_")
+    .map((group) => deserializeIds(group).map(knownSkillCardId));
   customizationGroups = customizationGroups
     .split("_")
     .map(deserializeCustomizations);
@@ -201,6 +218,10 @@ export function loadoutFromSearchParams(searchParams, suffix = "") {
   if (skillCardIdGroups.length != customizationGroups.length) {
     customizationGroups = skillCardIdGroups.map((g) => g.map(() => ({})));
   }
+  customizationGroups = fixCustomizationGroups(
+    skillCardIdGroups,
+    customizationGroups
+  );
 
   // Ensure customization order are same shape as skill card order
   if (skillCardIdOrderGroups.length != customizationOrderGroups.length) {
@@ -209,6 +230,7 @@ export function loadoutFromSearchParams(searchParams, suffix = "") {
 
   return {
     stageId,
+    enterPercents,
     supportBonus,
     params,
     pItemIds,
@@ -243,6 +265,7 @@ export function loadoutsFromSearchParamsLegacy(searchParams) {
 export function loadoutToSearchParams(loadout) {
   const {
     stageId,
+    enterPercents,
     supportBonus,
     params,
     pItemIds,
@@ -265,6 +288,7 @@ export function loadoutToSearchParams(loadout) {
   } = loadout;
   const searchParams = new URLSearchParams();
   searchParams.set("stage", stageId);
+  if (enterPercents) searchParams.set("enter_percents", "1");
   if (supportBonus != null) {
     searchParams.set("support_bonus", supportBonus);
   }
@@ -315,7 +339,12 @@ export function loadoutsFromSearchParams(searchParams) {
   let firstLoadout = null;
   const loadoutParams = searchParams.getAll("loadout");
   for (let param of loadoutParams) {
-    const paramString = decodeURIComponent(param);
+    let paramString;
+    try {
+      paramString = decodeURIComponent(param);
+    } catch {
+      continue;
+    }
     const paramSearchParams = new URLSearchParams(paramString);
     const loadout = loadoutFromSearchParams(paramSearchParams);
     loadouts.push(loadout);
@@ -364,7 +393,9 @@ export function bucketScores(scores) {
   const keys = Object.keys(data);
   const minKey = Math.min(...keys);
   const maxKey = Math.max(...keys);
-  for (let i = minKey - 1; i <= maxKey + 1; i++) {
+  // Pad an empty bucket on each side, but none below 0: scores aren't
+  // negative, and a "-1" key would be listed after every positive one.
+  for (let i = Math.max(minKey - 1, 0); i <= maxKey + 1; i++) {
     if (!data[i]) data[i] = 0;
   }
 
@@ -593,6 +624,12 @@ export function accumulateCardUsage(logs, cardUsage) {
         turnData[key] = { id, c: c || null, use: 0, draw: 0 };
       }
       turnData[key].use++;
+      // The played copy has left the hand, so a copy drawn later this turn
+      // counts as a new draw.
+      drawCountThisTurn.set(
+        key,
+        Math.max(0, (drawCountThisTurn.get(key) || 0) - 1),
+      );
     }
 
     if (selectedIndex == null) {
@@ -759,30 +796,39 @@ function ensureScoreTurn(turns, i) {
   return turns[i];
 }
 
-export function mergeGraphDatas(graphDatas, runCounts) {
+export function createGraphAverage() {
   const sums = GRAPHED_FIELDS.reduce((acc, cur) => {
     acc[cur] = [];
     return acc;
   }, {});
   const graphRunCounts = [];
 
-  graphDatas.forEach((graphData, g) => {
+  function add(graphData, runCounts) {
     const length = graphData[GRAPHED_FIELDS[0]].length;
     for (let i = 0; i < length; i++) {
-      const count = runCounts ? runCounts[g][i] : 1;
+      const count = runCounts ? runCounts[i] : 1;
       graphRunCounts[i] = (graphRunCounts[i] || 0) + count;
       for (let field of GRAPHED_FIELDS) {
         sums[field][i] = (sums[field][i] || 0) + graphData[field][i] * count;
       }
     }
-  });
-
-  const graphData = {};
-  for (let field of GRAPHED_FIELDS) {
-    graphData[field] = sums[field].map((sum, i) => sum / graphRunCounts[i]);
   }
 
-  return { graphData, graphRunCounts };
+  function result() {
+    const graphData = {};
+    for (let field of GRAPHED_FIELDS) {
+      graphData[field] = sums[field].map((sum, i) => sum / graphRunCounts[i]);
+    }
+    return { graphData, graphRunCounts: [...graphRunCounts] };
+  }
+
+  return { add, result };
+}
+
+export function mergeGraphDatas(graphDatas, runCounts) {
+  const average = createGraphAverage();
+  graphDatas.forEach((graphData, g) => average.add(graphData, runCounts?.[g]));
+  return average.result();
 }
 
 export function mergeListenerDatas(listenerDatas) {

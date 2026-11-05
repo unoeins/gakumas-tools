@@ -105,7 +105,11 @@ export default function HoldModal({ decision, onDecision, idolId }) {
         style="blue"
         fill
         onClick={() => onDecision(selectedIndices)}
-        disabled={!optional && selectedIndices.length < num}
+        disabled={
+          optional
+            ? selectedIndices.length > num
+            : selectedIndices.length !== num
+        }
       >
         {t("confirm")} ({selectedIndices.length}/{num})
       </Button>

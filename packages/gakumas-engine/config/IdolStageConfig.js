@@ -86,16 +86,21 @@ export default class IdolStageConfig {
       if (stageConfig.season >= 4) {
         return [];
       }
-      return EVENT_DEFAULT_CARD_IDS_BY_RECOMMENDED_EFFECT[
-        RECOMMENDED_EFFECT_MAPPINGS[idolConfig.pIdolId] ||
-        idolConfig.recommendedEffect
+      // Recommended effects without an event deck here (preservation) use
+      // their plan's contest deck below.
+      const eventCardIds =
+        EVENT_DEFAULT_CARD_IDS_BY_RECOMMENDED_EFFECT[
+          RECOMMENDED_EFFECT_MAPPINGS[idolConfig.pIdolId] ||
+          idolConfig.recommendedEffect
       ];
+      if (eventCardIds) return eventCardIds;
     } else if (defaultCardSet == "idolRoad" && idolConfig.recommendedEffect) {
       return IDOL_ROAD_DEFAULT_CARD_IDS_BY_RECOMMENDED_EFFECT[
         RECOMMENDED_EFFECT_MAPPINGS[idolConfig.pIdolId] ||
         idolConfig.recommendedEffect
       ];
-    } else if (idolConfig.plan) {
+    }
+    if (idolConfig.plan) {
       return CONTEST_DEFAULT_CARD_IDS_BY_PLAN[idolConfig.plan];
     } else if (stageConfig.plan != "free") {
       return CONTEST_DEFAULT_CARD_IDS_BY_PLAN[stageConfig.plan];

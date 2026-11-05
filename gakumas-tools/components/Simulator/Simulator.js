@@ -41,6 +41,7 @@ import {
 } from "@/simulator/workerPool";
 import c from "@/utils/classNames";
 import { createProgressStore } from "@/utils/progressStore";
+import { extractLoadoutFields } from "@/utils/simulationRun";
 import { bucketScores, getMedianScore, mergeResults } from "@/utils/simulator";
 import usePersistedState from "@/utils/usePersistedState";
 import ManualPlay from "./ManualPlay";
@@ -60,6 +61,7 @@ export default function Simulator() {
     loadout,
     simulatorUrl,
     setSupportBonus,
+    setEnterPercents,
     loadouts,
     setLoadout,
     currentLoadoutIndex,
@@ -75,7 +77,7 @@ export default function Simulator() {
     NUM_RUNS_KEY,
     DEFAULT_NUM_RUNS,
   );
-  const [enterPercents, setEnterPercents] = useState(false);
+  const { enterPercents } = loadout;
   const [listenerConfig, setListenerConfig] = useState({
     enableUseStats: false,
     enableConditionalUseStats: false,
@@ -98,10 +100,13 @@ export default function Simulator() {
     return new IdolStageConfig(idolConfig, stageConfig, enterPercents, simulatorConfig);
   }, [loadout, stage, enterPercents, listenerConfig]);
 
-  const manualInputCallback = useCallback((decision) => {
-    return new Promise((resolve) => {
+  const manualInputCallback = useCallback((decision, signal) => {
+    return new Promise((resolve, reject) => {
       setPendingDecision(decision);
       resolveDecisionRef.current = resolve;
+      signal.addEventListener("abort", () => reject(signal.reason), {
+        once: true,
+      });
     });
   }, []);
 
@@ -135,25 +140,49 @@ export default function Simulator() {
     return retainWorkerPool();
   }, []);
 
+  useEffect(() => () => abortRef.current?.abort(), []);
+
   const setResult = useCallback(
-    (result) => {
+    (result, input) => {
       const { bucketedScores, bucketSize } = bucketScores(result.scores);
       const medianScore = getMedianScore(result.scores);
 
       console.timeEnd("simulation");
 
-      setSimulatorData({ bucketedScores, medianScore, bucketSize, ...result });
-      setListenerData(result.listenerData);
-      setRunning(false);
-
-      pushRun({
-        loadout,
-        loadouts: stage.type === "linkContest" ? loadouts : null,
+      const run = pushRun({
+        loadout: input.loadout,
+        loadouts: input.loadouts,
         scores: result.scores,
       });
+      setSimulatorData({
+        bucketedScores,
+        medianScore,
+        bucketSize,
+        ...result,
+        input,
+        run,
+      });
+      setListenerData(result.listenerData);
+      setRunning(false);
     },
-    [setSimulatorData, setRunning, pushRun, loadout, loadouts, stage],
+    [pushRun],
   );
+
+  function getInput() {
+    // Link loadouts get their stage and params replaced in place on edits.
+    return {
+      loadout: extractLoadoutFields(loadout),
+      loadouts:
+        stage.type === "linkContest"
+          ? loadouts.map(extractLoadoutFields)
+          : null,
+      config,
+      linkConfigs,
+      enterPercents,
+      idolId: config.idol.idolId || idolId,
+      plan: config.idol.plan || plan,
+    };
+  }
 
   function failSimulation(err) {
     console.error(err);
@@ -162,19 +191,23 @@ export default function Simulator() {
   }
 
   async function startManualPlay() {
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+    const input = getInput();
     setRunning(true);
     setSimError(null);
     setSimulatorData(null);
     setPendingDecision(null);
 
     pushRun({
-      loadout,
-      loadouts: stage.type === "linkContest" ? loadouts : null,
+      loadout: input.loadout,
+      loadouts: input.loadouts,
       scores: null,
     });
 
     try {
-      const engine = new StageEngine(config, linkConfigs);
+      const engine = new StageEngine(input.config, input.linkConfigs);
 
       const wrappedInputCallback = async (decision) => {
         const currentLogs = engine.logger.getLogs(decision.state);
@@ -182,8 +215,8 @@ export default function Simulator() {
           ...currentLogs[currentLogs.length - 1],
           isPending: true,
         };
-        setSimulatorData({ logs: currentLogs });
-        return await manualInputCallback(decision);
+        setSimulatorData({ logs: currentLogs, input });
+        return await manualInputCallback(decision, controller.signal);
       };
 
       const ManualStrategy = STRATEGIES["ManualStrategy"];
@@ -192,20 +225,22 @@ export default function Simulator() {
 
       const player = new StagePlayer(engine, strategy);
       const result = await player.play();
-      setSimulatorData({ logs: result.logs });
+      setSimulatorData({ logs: result.logs, input });
     } catch (err) {
+      if (controller.signal.aborted) return;
       setPendingDecision(null);
       failSimulation(err);
-    } finally {
-      setRunning(false);
     }
+    setRunning(false);
   }
 
   const startSimulation = useCallback(() => runSimulationRef.current(), []);
 
   async function runSimulation() {
+    abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
+    const input = getInput();
     setRunning(true);
     setSimError(null);
     progress.set(0);
@@ -216,8 +251,8 @@ export default function Simulator() {
       let result;
       if (SYNC) {
         result = await simulate(
-          config,
-          linkConfigs,
+          input.config,
+          input.linkConfigs,
           strategy,
           numRuns,
           (completed) => progress.set(completed),
@@ -225,8 +260,8 @@ export default function Simulator() {
       } else {
         const results = await runOnWorkers(
           {
-            idolStageConfig: config,
-            linkConfigs,
+            idolStageConfig: input.config,
+            linkConfigs: input.linkConfigs,
             strategyName: strategy,
             numRuns,
           },
@@ -235,7 +270,8 @@ export default function Simulator() {
         );
         result = mergeResults(results);
       }
-      startTransition(() => setResult(result));
+      if (controller.signal.aborted) return;
+      startTransition(() => setResult(result, input));
     } catch (err) {
       console.timeEnd("simulation");
       if (controller.signal.aborted) return;
@@ -389,7 +425,7 @@ export default function Simulator() {
             href="https://github.com/gakumas-tools/gakumas-tools/blob/master/gakumas-tools/simulator/CHANGELOG.md"
             target="_blank"
           >
-            2026-10-31
+            2026-11-02
           </a>
         </div>
       </div>
@@ -399,7 +435,7 @@ export default function Simulator() {
           logs={simulatorData.logs}
           pendingDecision={pendingDecision}
           onDecision={handleDecision}
-          idolId={config.idol.idolId || idolId}
+          idolId={simulatorData.input.idolId}
         />
       )}
 
@@ -408,10 +444,14 @@ export default function Simulator() {
           pending={running}
           data={simulatorData}
           config={config}
-          enterPercents={enterPercents}
+          stale={
+            simulatorData.input.config !== config ||
+            simulatorData.input.linkConfigs !== linkConfigs
+          }
+          enterPercents={simulatorData.input.enterPercents}
           listenerData={listenerData}
-          idolId={config.idol.idolId || idolId}
-          plan={config.idol.plan || plan}
+          idolId={simulatorData.input.idolId}
+          plan={simulatorData.input.plan}
         />
       )}
 

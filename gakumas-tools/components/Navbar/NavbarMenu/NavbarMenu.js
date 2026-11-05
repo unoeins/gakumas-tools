@@ -1,6 +1,7 @@
 "use client";
-import { memo, useEffect, useState } from "react";
+import { memo, Suspense, useEffect, useState } from "react";
 import { useSession, signIn, signOut } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { FaCircleUser, FaGithub, FaXTwitter } from "react-icons/fa6";
 import { SiKofi } from "react-icons/si";
@@ -13,11 +14,37 @@ import styles from "./NavbarMenu.module.scss";
 
 const discordSignIn = () => signIn("discord");
 
+const LANGUAGES = [
+  ["en", "English"],
+  ["ja", "日本語"],
+  ["zh-Hans", "简体中文"],
+  ["ko", "한국어"],
+];
+
+function LanguageLinks({ locale, query }) {
+  const pathname = usePathname();
+  return LANGUAGES.filter(([value]) => value != locale).map(
+    ([value, label]) => (
+      <Link key={value} href={{ pathname, query }} locale={value} prefetch={false}>
+        {label}
+      </Link>
+    )
+  );
+}
+
+// Keep the query string when switching languages: some tools (the tier
+// list) keep their whole state in it.
+function LanguageLinksWithQuery({ locale }) {
+  const searchParams = useSearchParams();
+  return (
+    <LanguageLinks locale={locale} query={Object.fromEntries(searchParams)} />
+  );
+}
+
 function NavbarMenu() {
   const t = useTranslations("NavbarMenu");
 
   const locale = useLocale();
-  const pathname = usePathname();
   const { data: session, status } = useSession();
   const [expanded, setExpanded] = useState(false);
 
@@ -120,26 +147,9 @@ function NavbarMenu() {
             </div>
           </div>
 
-          {locale != "en" && (
-            <Link href={pathname} locale="en" prefetch={false}>
-              English
-            </Link>
-          )}
-          {locale != "ja" && (
-            <Link href={pathname} locale="ja" prefetch={false}>
-              日本語
-            </Link>
-          )}
-          {locale != "zh-Hans" && (
-            <Link href={pathname} locale="zh-Hans" prefetch={false}>
-              简体中文
-            </Link>
-          )}
-          {locale != "ko" && (
-            <Link href={pathname} locale="ko" prefetch={false}>
-              한국어
-            </Link>
-          )}
+          <Suspense fallback={<LanguageLinks locale={locale} />}>
+            <LanguageLinksWithQuery locale={locale} />
+          </Suspense>
 
           {status == "authenticated" && (
             <button onClick={signOut}>{t("signOut")}</button>

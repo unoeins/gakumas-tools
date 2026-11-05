@@ -1,4 +1,12 @@
-import { PDrinks, PIdols, PItems, SkillCards } from "gakumas-data";
+import {
+  HIDDEN_CARD_IDS,
+  HIDDEN_ITEM_IDS,
+  HIDDEN_DRINK_IDS,
+  PDrinks,
+  PIdols,
+  PItems,
+  SkillCards,
+} from "gakumas-data";
 import gkImg from "gakumas-images";
 import {
   comparePDrinks,
@@ -34,11 +42,6 @@ export const SIGNATURE_CARD_BY_PIDOL = SkillCards.getAll().reduce((acc, sc) => {
   if (sc.pIdolId && !sc.upgraded && !acc[sc.pIdolId]) acc[sc.pIdolId] = sc;
   return acc;
 }, {});
-
-// Entities that should be hidden from any user-facing browser/picker.
-export const HIDDEN_ITEM_IDS = new Set([506, 508]);
-export const HIDDEN_CARD_IDS = new Set([915, 917, 919, 921]);
-export const HIDDEN_DRINK_IDS = new Set([]);
 
 export function isEntityHidden(type, id) {
   if (type === EntityTypes.SKILL_CARD) return HIDDEN_CARD_IDS.has(id);

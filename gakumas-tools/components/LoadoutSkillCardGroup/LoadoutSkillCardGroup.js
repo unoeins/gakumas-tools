@@ -58,9 +58,8 @@ function LoadoutSkillCardGroup({
     setSkillCardIdGroups,
     setCustomizationGroups,
   } = useContext(LoadoutContext);
-  const { setTargetSkillCardIds, setAcquiredSkillCardIds } = useContext(
-    MemoryCalculatorContext,
-  );
+  const { clearTargetCardIds, setTargetSkillCardIds, setAcquiredSkillCardIds } =
+    useContext(MemoryCalculatorContext);
   const { setModal, closeModal } = useContext(ModalContext);
   const [expanded, setExpanded] = useState(false);
   const [costExpanded, setCostExpanded] = useState(false);
@@ -147,6 +146,9 @@ function LoadoutSkillCardGroup({
           (id) => !!id && SkillCards.getById(id).sourceType != "pIdol" &&
                   !["N", "T", "L"].includes(SkillCards.getById(id).rarity)
         );
+        // Start a fresh query: alternates and negations are kept by slot,
+        // so earlier ones would attach to these cards.
+        clearTargetCardIds();
         if (!isExam) {
           setTargetSkillCardIds(() => nonPidolSkillCardIds);
         }

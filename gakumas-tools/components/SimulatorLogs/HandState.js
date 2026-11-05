@@ -25,13 +25,14 @@ const BUFFS_MAP = {
   [S.handDecreases]: "handDecrease",
 };
 
+// Same as FLAT_BUFF_LOG_TYPES in Logs.js.
 const FLAT_BUFFS = {
   [S.enthusiasms]: true,
   [S.enthusiasmBonusBuffs]: true,
   [S.goodImpressionTurnsTimesBuffs]: true,
-  [S.motivationAdditionBuffs]: true,
   [S.goodConditionTurnsAdditionBuffs]: true,
   [S.concentrationAdditionBuffs]: true,
+  [S.motivationAdditionBuffs]: true,
   [S.handDecreases]: true,
 };
 
