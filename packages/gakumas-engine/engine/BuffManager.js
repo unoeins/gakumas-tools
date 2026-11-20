@@ -35,10 +35,13 @@ const BUFF_TYPES = [
   { action: "setFullPowerChargeBuff", field: S.fullPowerChargeBuffs },
   { action: "setFullPowerEffectBuff", field: S.fullPowerEffectBuffs },
   { action: "setStrengthEffectBuff", field: S.strengthEffectBuffs },
+  // 手札減少: draw this many fewer cards at the start of each turn it lasts.
+  // UNVERIFIED: not yet checked against a capture.
   { action: "setHandDecrease", field: S.handDecreases },
 ];
 
-const DEBUFF_ACTION_FIELDS = [S.scoreDebuffs, S.handDecreases];
+// Debuffs kept as buff lists; each entry counts as one debuff.
+const DEBUFF_LIST_FIELDS = [S.scoreDebuffs, S.handDecreases];
 
 export default class BuffManager extends EngineComponent {
   constructor(engine) {
@@ -221,7 +224,7 @@ export default class BuffManager extends EngineComponent {
         fresh: !state[S.unfreshPhase],
         instanceId,
       });
-      if (DEBUFF_ACTION_FIELDS.includes(field)) {
+      if (DEBUFF_LIST_FIELDS.includes(field)) {
         state[S.debuffOrder].push({field, instanceId});
       }
     }
@@ -236,7 +239,7 @@ export default class BuffManager extends EngineComponent {
       if (DEBUFF_FIELDS.includes(debuff) && state[debuff] > 0) {
         state[debuff] = 0;
         state[S.debuffOrder].splice(state[S.debuffOrder].lastIndexOf(debuff), 1);
-      } else if (DEBUFF_ACTION_FIELDS.includes(debuff.field)) {
+      } else if (DEBUFF_LIST_FIELDS.includes(debuff.field)) {
         state[debuff.field] = state[debuff.field].filter((b) => b.instanceId !== debuff.instanceId);
         state[S.debuffOrder] = state[S.debuffOrder].filter((d) => d.instanceId !== debuff.instanceId);
       }
@@ -276,7 +279,7 @@ export default class BuffManager extends EngineComponent {
         else if (b.turns) nb = { ...b, turns: b.turns - 1 };
         else nb = b;
         if (nb.turns !== 0) next.push(nb);
-        if (nb.turns === 0 && DEBUFF_ACTION_FIELDS.includes(field)) {
+        if (nb.turns === 0 && DEBUFF_LIST_FIELDS.includes(field)) {
           state[S.debuffOrder] = state[S.debuffOrder].filter((d) => d.instanceId !== nb.instanceId);
         }
       }
@@ -363,6 +366,38 @@ export default class BuffManager extends EngineComponent {
     state[S.stance] = "none";
   }
 
+  countDebuffs(state) {
+    let count = 0;
+    for (let i = 0; i < DEBUFF_FIELDS.length; i++) {
+      if (state[DEBUFF_FIELDS[i]] > 0) count++;
+    }
+    for (let i = 0; i < DEBUFF_LIST_FIELDS.length; i++) {
+      count += state[DEBUFF_LIST_FIELDS[i]].length;
+    }
+    return count;
+  }
+
+  getHandDecrease(state) {
+    return state[S.handDecreases].reduce((acc, buff) => acc + buff.amount, 0);
+  }
+
+  // Raises the use limit of the P-idol's own p-item (the one that comes with
+  // the P-idol card), including one already used up.
+  // UNVERIFIED: not yet checked against a capture.
+  incrementPIdolPItemLimit(state, amount) {
+    for (let i = 0; i < state[S.effects].length; i++) {
+      const effect = state[S.effects][i];
+      if (!isPIdolPItemEffect(effect)) continue;
+      // Effects are shared between cloned states; replace, don't mutate.
+      state[S.effects][i] = { ...effect, limit: effect.limit + amount };
+      this.logger.log(state, "incrementPIdolPItemLimit", {
+        type: "pItem",
+        id: effect.source.id,
+        amount,
+      });
+    }
+  }
+
   extendEnthusiasmTurns(state, amount) {
     const newBuffs = state[S.enthusiasms].map((b) => ({
       ...b,
@@ -375,19 +410,10 @@ export default class BuffManager extends EngineComponent {
       turns: amount,
     });
   }
+}
 
-  incrementPIdolPItemLimit(state, amount) {
-    for (let i = 0; i < state[S.effects].length; i++) {
-      const e = state[S.effects][i];
-      if (e.limit != null && e.source?.type === "pItem" && e.source?.primary) {
-        const pItem = PItems.getById(e.source?.id);
-        if (pItem?.sourceType === "pIdol") {
-          // Replace the effect with a incremented copy; effects are
-          // shared across states via cloneValue's ref-share fast path.
-          state[S.effects][i] = { ...e, limit: e.limit + amount };
-          this.logger.log(state, "incrementPIdolPItemLimit");
-        }
-      }
-    }
-  }
+export function isPIdolPItemEffect(effect) {
+  if (effect?.limit == null) return false;
+  if (effect.source?.type !== "pItem" || !effect.source.primary) return false;
+  return PItems.getById(effect.source.id)?.sourceType === "pIdol";
 }

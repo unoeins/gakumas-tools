@@ -4,6 +4,7 @@ import { STARTING_EFFECTS } from "gakumas-engine/constants";
 export default class StageConfig {
   constructor(stage, startingEffects = []) {
     const {
+      id,
       type,
       plan,
       season,
@@ -14,6 +15,7 @@ export default class StageConfig {
       effects,
       linkTurnCounts,
     } = stage;
+    this.id = id;
     this.type = type;
     this.plan = plan;
     this.defaultCardSet = defaultCardSet;

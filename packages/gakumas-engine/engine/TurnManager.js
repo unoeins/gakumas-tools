@@ -165,11 +165,10 @@ export default class TurnManager extends EngineComponent {
     this.engine.effectManager.triggerEffectsForPhase(state, "startOfTurn");
 
     // Draw cards
-    const handDecrease = state[S.handDecreases].reduce(
-      (acc, cur) => acc + cur.amount,
+    const cardsToDraw = Math.max(
+      3 - this.engine.buffManager.getHandDecrease(state),
       0,
     );
-    const cardsToDraw = Math.max(3 - handDecrease, 0);
     for (let i = 0; i < cardsToDraw; i++) {
       this.engine.cardManager.drawCard(state);
     }

@@ -1,6 +1,7 @@
 import { PItems, SkillCards } from "gakumas-data";
 import { DEFAULT_EFFECTS, EFFECT_SOURCES, S } from "../constants";
 import EngineComponent from "./EngineComponent";
+import { isPIdolPItemEffect } from "./BuffManager";
 import { shallowCopy } from "../utils";
 import { normalizeEffect } from "../normalizeEffect";
 
@@ -136,13 +137,14 @@ export default class EffectManager extends EngineComponent {
 
   clearExpiredEffects(state) {
     state[S.effects] = state[S.effects].map((effect) => {
-      // keey primary pItem effects for idol road staee 22 (incrementPIdolPItemLimit)
-      if (effect.limit != null && effect.limit < 1 && (
-        !effect.source || (
-          effect.source?.type !== "pItem" &&
-          !effect.source?.primary
-        ))
-      ) return {};
+      // A used-up P-idol p-item stays registered so that
+      // incrementPIdolPItemLimit can give it more uses.
+      if (
+        effect.limit != null &&
+        effect.limit < 1 &&
+        !isPIdolPItemEffect(effect)
+      )
+        return {};
       if (effect.ttl != null && effect.ttl < 0) return {};
       return effect;
     });

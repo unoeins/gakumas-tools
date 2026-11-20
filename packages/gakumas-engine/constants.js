@@ -182,6 +182,7 @@ export const ALL_FIELDS = [
   "prevStance",
   "lockStanceTurns",
   "strengthEffectBuffs",
+  "handDecreases",
   "fullPowerCharge",
   "fullPowerChargeBuffs",
   "fullPowerEffectBuffs",
@@ -192,7 +193,6 @@ export const ALL_FIELDS = [
   "enthusiasmBonusBuffs",
   "enthusiasmBuffs",
   "strengthEffectBuffs",
-  "handDecreases",
   "strengthTimes",
   "preservationTimes",
   "leisureTimes",
@@ -289,6 +289,7 @@ export const BUFF_LIST_FIELDS = [
   S.fullPowerChargeBuffs,
   S.fullPowerEffectBuffs,
   S.strengthEffectBuffs,
+  S.handDecreases,
 ];
 
 // Slots whose writers always replace the value rather than mutate it, so

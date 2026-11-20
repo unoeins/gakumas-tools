@@ -53,6 +53,10 @@ export default class PlayerStrategy {
     return this.pickCardsInternal("MOVE_TO_TOP_OF_DECK_SELECTION", state, cards, num, optional);
   }
 
+  pickCardsToCopy(state, cards, num = 1, optional = false) {
+    return this.pickCardsToHold(state, cards, num, optional);
+  }
+
   pickCardsToUseFree(state, cards, num = 1) {
     return this.pickCardsInternal("USE_CARD_FREE_SELECTION", state, cards, num);
   }

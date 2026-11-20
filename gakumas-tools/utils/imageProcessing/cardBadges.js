@@ -1,5 +1,7 @@
+import { SkillCards } from "gakumas-data";
 import BADGE_TEMPLATES from "./cardBadgeDigits.json";
 import { inferCustomizations } from "../inferCustomizations";
+import { getOtherVersionId } from "../upgrades";
 import { readBottomIcon } from "./effectIcons";
 import {
   classifyGlyph,
@@ -13,11 +15,11 @@ export const CONTEST_LAYOUT = {
   digit: [0.08, 0.24],
   scoreDigit: [0.13, 0.28],
   dot: { x: [0.36, 0.7], y: [0.66, 1.06], diameter: [0.17, 0.3] },
-  score: { x: [0.03, 0.4], y: [0.03, 0.3] },
+  score: { x: [0.03, 0.4], y: [0, 0.3] },
   genki: { x: [0.62, 1.02], y: [-0.03, 0.32] },
   cost: { x: [0.62, 1], y: [0.66, 1.08] },
   plainCost: { x: [0.68, 1], y: [0.77, 1] },
-  icon: { x: 0.17, half: 0.16, bottom: [0.72, 0.95] },
+  icon: { x: 0.17, half: 0.17, bottom: [0.72, 0.95] },
 };
 
 export const MEMORY_LAYOUT = {
@@ -110,12 +112,18 @@ function findDot(imageData, box, { dot }) {
   );
 }
 
-function findBadge(imageData, box, region, color, rightPad = BADGE_PAD) {
+function findBadge(
+  imageData,
+  box,
+  region,
+  color,
+  { rightPad = BADGE_PAD, minFill = MIN_BADGE_FILL } = {},
+) {
   const found = blobs(imageData, area(box, region, imageData), color);
   if (!found.length) return null;
   const parts = found.filter(({ n }) => n >= 0.15 * found[0].n);
   const total = parts.reduce((sum, { n }) => sum + n, 0);
-  if (total < MIN_BADGE_FILL * box.width * box.height) return null;
+  if (total < minFill * box.width * box.height) return null;
   const pad = Math.round(BADGE_PAD * box.width);
   const right = Math.round(rightPad * box.width);
   return {
@@ -178,8 +186,19 @@ export function badgeGlyphs(imageData, box, layout) {
     });
   const dot = findDot(imageData, box, layout);
   const shield = findBadge(imageData, box, layout.genki, isShieldBlue);
+  let genki = shield && white(shield);
+  // Two digits leave less blue background visible.
+  if (!shield) {
+    const smallShield = findBadge(imageData, box, layout.genki, isShieldBlue, {
+      minFill: 0.019,
+    });
+    const digits = smallShield && white(smallShield);
+    if (digits?.length > 1) genki = digits;
+  }
   // A cost's last digit can stick out past the right of its heart.
-  const heart = findBadge(imageData, box, layout.cost, isHeart, COST_BADGE_PAD);
+  const heart = findBadge(imageData, box, layout.cost, isHeart, {
+    rightPad: COST_BADGE_PAD,
+  });
   const cost = (predicate) =>
     adjacentRun(
       heart
@@ -197,7 +216,7 @@ export function badgeGlyphs(imageData, box, layout) {
       }),
       false,
     ),
-    genki: shield && white(shield),
+    genki,
     cost: cost(isCostWhite),
     // The stricter mask can thin an antialiased digit away.
     costFallback: cost(isWhite),
@@ -256,7 +275,16 @@ export function readLoadoutCards(imageData, boxGroups, idGroups) {
   );
   const shared = greyed[1][0];
   const skillCardIdGroups = idGroups.map((ids, row) =>
-    ids.map((id, i) => (greyed[row][i] ? 0 : id)),
+    ids.map((id, i) => {
+      if (greyed[row][i]) return 0;
+      const card = SkillCards.getById(id);
+      const box = boxGroups[row][i];
+      if (card?.upgraded || !box || !findDot(imageData, box, CONTEST_LAYOUT)) {
+        return id;
+      }
+      // Customization badges only appear on upgraded cards.
+      return getOtherVersionId(SkillCards, card) ?? id;
+    }),
   );
   const customizationGroups = skillCardIdGroups.map((ids, row) =>
     ids.map((id, i) =>

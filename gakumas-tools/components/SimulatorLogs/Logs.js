@@ -59,6 +59,7 @@ const ADD_CARD_LOG_TYPES = {
   addCardToDiscarded: "addedCardToDiscarded",
   addCardToTopOfDeck: "addedCardToTopOfDeck",
   addCardToBottomOfDeck: "addedCardToBottomOfDeck",
+  addCardToDiscarded: "addedCardToDiscarded",
   addCardToDeckAtRandom: "addedCardToDeckAtRandom",
   upgradeRandomCardInHand: "upgradedCard",
   growth: "cardGrowth",

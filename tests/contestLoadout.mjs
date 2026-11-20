@@ -3,13 +3,15 @@
  *
  * Fixtures are hand-labeled ground truth (tests/contestLoadout.jsonl), so
  * failures mean the parser is wrong, not that the baseline needs updating.
- * Stat numbers and stage inference must be exact; icon classification must
- * stay at or above MIN_ICON_ACCURACY.
+ * Stat numbers and stage inference must be exact. Icons, badges and
+ * customizations must be exact too, except for the misses listed in KNOWN:
+ * a miss that isn't listed fails, and so does a listed one that no longer
+ * happens, so the list only ever shrinks.
  *
  * Usage:
  *   pnpm test:contest-loadout              # check against labels
  *   pnpm test:contest-loadout --visualize  # also write box overlays
- *   pnpm test:contest-loadout --digits     # rebuild digit templates from labels
+ *   pnpm test:contest-loadout --digits     # rebuild param digit templates from labels
  *
  * Badges are labeled as shown, [dot, score, genki, cost, bottom icon?], null
  * when absent.
@@ -30,23 +32,22 @@ import {
   classifyCrops,
   firstPItemFilter,
   ICON_SIZE,
+  samePlanFilter,
+  slotFilters,
 } from "../gakumas-tools/utils/imageProcessing/entityClassifier.js";
 import {
-  badgeGlyphs,
   CONTEST_LAYOUT,
   readBadges,
   readLoadoutCards,
 } from "../gakumas-tools/utils/imageProcessing/cardBadges.js";
 import {
   addGlyphs,
-  BADGE_KEYS,
-  buildBadgeTemplates,
   compareBadges,
-  labeledContestCards,
   loadContestFixture,
   loadImage,
   writeTemplates,
 } from "./badges.mjs";
+import { CROPS_OUT, isTrainingScreen, writeCrop } from "./classifierCrops.mjs";
 import { findStageCandidates } from "../gakumas-tools/utils/supportBonus.js";
 
 const bestStage = (...args) => findStageCandidates(...args)[0] ?? null;
@@ -59,14 +60,12 @@ const DIGITS_PATH = join(
   REPO_ROOT,
   "gakumas-tools/utils/imageProcessing/contestLoadoutDigits.json",
 );
-const BADGE_DIGITS_PATH = join(
-  REPO_ROOT,
-  "gakumas-tools/utils/imageProcessing/cardBadgeDigits.json",
-);
-const MIN_ICON_ACCURACY = 0.98;
-const MAX_BADGE_MISREAD_RATE = 0.005;
-const MIN_CUSTOMIZATION_ACCURACY = 0.98;
 const MIN_ICON_READ_ACCURACY = 0.75;
+// Each checked against its screenshot.
+const KNOWN = new Set([
+  "customization: tests/fixtures/contest_loadout/21.webp #2 inferred badges 1,,,5,motivation shown 2,,,5",
+  "customization: tests/fixtures/contest_loadout/26.webp #8 inferred badges 1,,,0,cardUses shown 1,,,1",
+]);
 
 const args = process.argv.slice(2);
 const VISUALIZE = args.includes("--visualize");
@@ -84,7 +83,7 @@ async function loadModel(name) {
 }
 
 // Pads boxes that overhang the image edge, like canvas drawImage does.
-async function crop(image, box) {
+async function padded(image, box) {
   const left = Math.max(0, box.x);
   const top = Math.max(0, box.y);
   const right = Math.min(image.width, box.x + box.width);
@@ -101,25 +100,30 @@ async function crop(image, box) {
       background: { r: 0, g: 0, b: 0, alpha: 0 },
     })
     .toBuffer();
-  return sharp(extracted, {
-    raw: { width: box.width, height: box.height, channels: 4 },
-  })
+  return { data: extracted, raw: { width: box.width, height: box.height, channels: 4 } };
+}
+
+async function crop(image, box) {
+  const { data, raw } = await padded(image, box);
+  return sharp(data, { raw })
     .resize(ICON_SIZE, ICON_SIZE, { fit: "fill" })
     .removeAlpha()
     .raw()
     .toBuffer();
 }
 
-async function classify(image, boxes, { session, classes }, allowed) {
+async function classify(image, boxes, { session, classes }, allowed, refine) {
   const slots = boxes.flatMap((box, i) => (box ? [i] : []));
   const crops = await Promise.all(slots.map((i) => crop(image, boxes[i])));
+  const filters = slotFilters(slots, boxes.length, allowed, refine);
   const ids = await classifyCrops(
     ort,
     session,
     classes,
     crops,
     3,
-    allowed && ((id, i) => allowed(id, slots[i])),
+    filters.allowed,
+    filters.refine,
   );
   return boxes.map((box) => (box ? ids.shift() : 0));
 }
@@ -167,14 +171,6 @@ async function buildDigitTemplates(fixture) {
   writeTemplates(sums, DIGITS_PATH);
 }
 
-async function badgeSamples(fixture) {
-  const samples = [];
-  for await (const { image, box, label } of labeledContestCards(fixture)) {
-    samples.push({ glyphs: badgeGlyphs(image, box, CONTEST_LAYOUT), label });
-  }
-  return samples;
-}
-
 function planOf(params, pItemIds, skillCardIdGroups) {
   return new IdolConfig({ params, pItemIds, skillCardIdGroups }).plan;
 }
@@ -198,7 +194,8 @@ async function main() {
   const fixture = loadContestFixture();
   if (DIGITS) {
     await buildDigitTemplates(fixture);
-    await buildBadgeTemplates(await badgeSamples(fixture), BADGE_DIGITS_PATH);
+    // Card badge templates also need the memory screens' labels.
+    console.log("Card badge templates: pnpm test:memory --digits");
     return;
   }
 
@@ -229,7 +226,16 @@ async function main() {
     }
 
     const cardBoxes = [...boxes.mainBoxes, ...boxes.subBoxes];
-    const classified = await classify(image, cardBoxes, skillCardModel);
+    const classified = await classify(
+      image,
+      cardBoxes,
+      skillCardModel,
+      undefined,
+      samePlanFilter([
+        ...boxes.mainBoxes.map(() => 0),
+        ...boxes.subBoxes.map(() => 1),
+      ]),
+    );
     const pItems = await classify(
       image,
       boxes.pItemBoxes,
@@ -246,6 +252,13 @@ async function main() {
     );
     const cards = skillCards.flat();
     const labeledIds = entry.skillCards.flat();
+    if (CROPS_OUT && isTrainingScreen(entry.file)) {
+      for (const [i, box] of cardBoxes.entries()) {
+        if (!box || !labeledIds[i]) continue;
+        await writeCrop(skillCardModel, entry.file, i, labeledIds[i], await padded(image, box), await crop(image, box));
+      }
+      continue;
+    }
     iconSlots += entry.pItems.length + labeledIds.length;
     iconErrors.push(
       ...compareIcons(entry.file, "pItems", entry.pItems, pItems, pItemName),
@@ -319,9 +332,15 @@ async function main() {
 
   const accuracy = 1 - iconErrors.length / iconSlots;
   const badgeAccuracy = 1 - inconsistentCards.length / badgeCards;
-  for (const error of iconErrors) console.log(`  icon: ${error}`);
-  for (const misread of misreadBadges) console.log(`  badge: ${misread}`);
-  for (const card of inconsistentCards) console.log(`  customization: ${card}`);
+  const misses = [
+    ...iconErrors.map((error) => `icon: ${error}`),
+    ...misreadBadges.map((misread) => `badge: ${misread}`),
+    ...inconsistentCards.map((card) => `customization: ${card}`),
+  ];
+  const newMisses = misses.filter((miss) => !KNOWN.has(miss));
+  const fixed = [...KNOWN].filter((miss) => !misses.includes(miss));
+  for (const miss of misses) console.log(`  ${miss}${KNOWN.has(miss) ? " (known)" : ""}`);
+  for (const miss of fixed) console.error(`✗ now right, remove from KNOWN: ${miss}`);
   for (const failure of readFailures) console.error(`✗ ${failure}`);
   for (const failure of failures) console.error(`✗ ${failure}`);
   console.log(
@@ -336,11 +355,8 @@ async function main() {
   if (
     failures.length ||
     readFailures.length ||
-    accuracy < MIN_ICON_ACCURACY ||
-    misreadBadges.length >
-      MAX_BADGE_MISREAD_RATE *
-        (BADGE_KEYS.length * badgeCards - unreadBadges) ||
-    badgeAccuracy < MIN_CUSTOMIZATION_ACCURACY ||
+    newMisses.length ||
+    fixed.length ||
     iconsRead < MIN_ICON_READ_ACCURACY * iconCards
   ) {
     process.exit(1);

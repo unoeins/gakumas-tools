@@ -25,6 +25,7 @@ import LoadoutUrlContext from "@/contexts/LoadoutUrlContext";
 import WorkspaceContext from "@/contexts/WorkspaceContext";
 import {
   getMemorySlotCustomizations,
+  getMemorySlotSkillCardIds,
   setMemorySlot,
 } from "@/utils/memorySlots";
 import { synchronizeLinkLoadouts } from "@/utils/linkLoadouts";
@@ -55,8 +56,11 @@ export function LoadoutContextProvider({ children }) {
   const [skillCardIdGroups, setSkillCardIdGroups] = useState(
     initialLoadout.skillCardIdGroups
   );
-  const [customizationGroups, setCustomizationGroups] = useState(
-    initialLoadout.customizationGroups
+  const [customizationGroups, setCustomizationGroups] = useState(() =>
+    fixCustomizationGroups(
+      skillCardIdGroups,
+      initialLoadout.customizationGroups,
+    ),
   );
   const [pDrinkIds, setPDrinkIds] = useState(initialLoadout.pDrinkIds);
   const [hifAbilityIds, setHifAbilityIds] = useState(initialLoadout.hifAbilityIds);
@@ -191,12 +195,10 @@ export function LoadoutContextProvider({ children }) {
     setPDrinkIds(loadout.pDrinkIds || deserializeIds(DEFAULTS.pDrinkIds));
     setHifAbilityIds(loadout.hifAbilityIds || deserializeIds(DEFAULTS.hifAbilityIds));
     setStartingEffects(loadout.startingEffects || deserializeIds(DEFAULTS.startingEffects));
-    setSkillCardIdGroups(loadout.skillCardIdGroups);
+    const groups = loadout.skillCardIdGroups;
+    setSkillCardIdGroups(groups);
     setCustomizationGroups(
-      fixCustomizationGroups(
-        loadout.skillCardIdGroups,
-        loadout.customizationGroups
-      )
+      fixCustomizationGroups(groups, loadout.customizationGroups),
     );
     setEnableSkillCardOrder(!!loadout.enableSkillCardOrder);
     if (loadout.skillCardIdOrderGroups) {
@@ -884,7 +886,7 @@ export function LoadoutContextProvider({ children }) {
     }
     setSkillCardIdGroups((cur) => {
       const next = [...cur];
-      next[index] = memory.skillCardIds;
+      next[index] = getMemorySlotSkillCardIds(memory);
       return next;
     });
     setCustomizationGroups((cur) => {
