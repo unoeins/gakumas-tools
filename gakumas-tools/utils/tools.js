@@ -6,8 +6,8 @@ import {
   FaGamepad,
   FaPercent,
   FaTrophy,
+  FaUsers,
 } from "react-icons/fa6";
-import { GrOptimize } from "react-icons/gr";
 
 export const TOOLS = {
   produceRankCalculator: {
@@ -45,9 +45,9 @@ export const TOOLS = {
     path: "/rehearsal",
     pinnable: true,
   },
-  estimator: {
-    icon: <GrOptimize />,
-    path: "/estimator",
+  sharedRuns: {
+    icon: <FaUsers />,
+    path: "/shared",
     pinnable: true,
   },
 };

@@ -3,6 +3,8 @@ import { useLocale, useTranslations } from "next-intl";
 import {
   FaChevronDown,
   FaCheck,
+  FaEye,
+  FaEyeSlash,
   FaLinkSlash,
   FaPenToSquare,
   FaRegFloppyDisk,
@@ -42,10 +44,14 @@ function CompareRow({
   shareId,
   onShare,
   onUnshare,
+  listed,
+  opened,
+  onToggleListed,
   error,
 }) {
   const t = useTranslations("CompareTab");
   const tStage = useTranslations("StageSummary");
+  const tRun = useTranslations("SharedRun");
   const locale = useLocale();
 
   const { loadout, derived, stats, name, createdAt } = run;
@@ -202,6 +208,14 @@ function CompareRow({
         }),
       });
     }
+    if (onToggleListed && shareId) {
+      items.push({
+        key: "listed",
+        icon: listed ? FaEyeSlash : FaEye,
+        label: listed ? t("unlistFromStage") : t("listOnStage"),
+        onClick: closeMenuAfter(() => onToggleListed(run, !listed)),
+      });
+    }
     if (onUnshare && shareId) {
       items.push({
         key: "unshare",
@@ -264,7 +278,27 @@ function CompareRow({
       <div className={styles.stageCell}>
         <div className={styles.tagRow}>
           {current && <span className={styles.tag}>{t("current")}</span>}
-          {shareId && <span className={styles.tag}>{t("shared")}</span>}
+          {shareId && (
+            <span className={styles.tag}>
+              {listed ? t("listed") : t("shared")}
+            </span>
+          )}
+          {shareId && opened?.count > 0 && (
+            <span
+              className={styles.opened}
+              title={tRun(opened.more ? "openedByMore" : "openedBy", {
+                count: opened.count,
+              })}
+            >
+              <FaEye aria-hidden="true" />
+              {opened.more ? `${opened.count}+` : opened.count}
+              <span className={styles.srOnly}>
+                {tRun(opened.more ? "openedByMore" : "openedBy", {
+                  count: opened.count,
+                })}
+              </span>
+            </span>
+          )}
           {copied && <span className={styles.time}>{t("linkCopied")}</span>}
           {relative && <span className={styles.time}>{relative}</span>}
         </div>

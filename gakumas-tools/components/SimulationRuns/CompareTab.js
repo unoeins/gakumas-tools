@@ -17,6 +17,7 @@ import {
 } from "@/utils/simulationRun";
 import c from "@/utils/classNames";
 import { copyWhenReady, sharedRunUrl } from "@/utils/sharedRunUrl";
+import { isListableStageId } from "@/utils/stageListing";
 import usePersistedState from "@/utils/usePersistedState";
 import AxisRow from "./AxisRow";
 import CompareRow from "./CompareRow";
@@ -38,8 +39,11 @@ function CompareTab({ currentRun, onAfterLoad }) {
     deleteSaved,
     renameSaved,
     sharedIds,
+    listedIds,
+    openers,
     shareSaved,
     unshareSaved,
+    setSavedListed,
     loadRun,
     requestSaved,
   } = useContext(SimulationRunsContext);
@@ -260,6 +264,17 @@ function CompareTab({ currentRun, onAfterLoad }) {
     );
   }
 
+  // Shows the shared run on its stage's page, or takes it off.
+  async function handleToggleListed(run, listed) {
+    clearRowError(run);
+    try {
+      await setSavedListed(run._id || run.id, listed);
+    } catch (err) {
+      console.error(err);
+      setRowError(run, t("listFailed"));
+    }
+  }
+
   const filterCls = (v) => c(styles.filter, v !== "all" && styles.filterActive);
 
   const hasActiveFilters =
@@ -412,6 +427,18 @@ function CompareTab({ currentRun, onAfterLoad }) {
               }
               onShare={subTab === "saved" ? handleShare : undefined}
               onUnshare={subTab === "saved" ? handleUnshare : undefined}
+              listed={!!listedIds[sharedIds[run._id || run.id]]}
+              opened={
+                subTab === "saved"
+                  ? openers[sharedIds[run._id || run.id]]
+                  : undefined
+              }
+              onToggleListed={
+                subTab === "saved" &&
+                isListableStageId(run.loadout?.stageId)
+                  ? handleToggleListed
+                  : undefined
+              }
             />
           ))}
           {hasActiveFilters && hiddenCount > 0 && (

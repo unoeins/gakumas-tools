@@ -22,6 +22,7 @@ const PATHS = [
   "/simulator",
   "/contest-player",
   "/rehearsal",
+  "/shared",
   "/estimator",
 ];
 

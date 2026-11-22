@@ -58,6 +58,10 @@
       "title": "Rehearsal Parser",
       "description": "Parse scores from rehearsal screenshots"
     },
+    "sharedRuns": {
+      "title": "Shared Runs",
+      "description": "Browse simulator runs other players listed on their stages"
+    },
     "contestPlayer": {
       "title": "Contest Player",
       "description": "Create contest loadouts, actually play contests"
@@ -230,7 +234,34 @@
     "exportFailed": "Couldn't export image.",
     "shareToX": "Share to X",
     "shareTweetText": "My Gakumas {type} tier list",
-    "confirmLeave": "You'll lose this tier list if you switch tabs. Continue?"
+    "confirmLeave": "You'll lose this tier list if you switch tabs. Continue?",
+    "compareWithMine": "Compare with mine",
+    "keepMine": "Keep mine",
+    "useTheirs": "Use this list",
+    "compareAgreement": "Same rank as your list for {same} of {common} ({percent}%)",
+    "compareNoCommon": "Nothing here is in your list yet"
+  },
+  "CommunityTierList": {
+    "title": "Community tier list",
+    "loading": "Loading…",
+    "failed": "Couldn't load the community tier list.",
+    "tooFew": "{count, plural, =0 {No players have} one {# player has} other {# players have}} added a list so far. It shows once {min} have.",
+    "fromLists": "Combined from {count, plural, one {# player's list} other {# players' lists}}",
+    "openInEditor": "Open in the editor",
+    "itemTitle": "Ranked in {n} of {lists} lists",
+    "howToRead": "Each item sits in the middle tier of the lists that rank it. A range like SS–A shows where the middle half of lists put it.",
+    "howToPublish": "Add your own list from Share. Only lists their players chose to add are counted, and no one's list is shown by name.",
+    "publishTitle": "Community tier list",
+    "publishHelp": "Add this list to the community tier list? It counts toward the combined list, never under your name.",
+    "publishedThis": "This list is in the community tier list.",
+    "publishedOther": "Your list in the community tier list is a different one.",
+    "publish": "Add to the community tier list",
+    "replacePublished": "Replace it with this list",
+    "unpublish": "Take my list out",
+    "emptyList": "Place some items first.",
+    "signInToPublish": "Sign in to add your list to the community tier list.",
+    "signIn": "Sign in",
+    "publishFailed": "Couldn't update the community tier list."
   },
   "PIdolCollection": {
     "collected": "Collected",
@@ -415,7 +446,9 @@
     "failed": "Import failed. Check the screenshots and try again.",
     "unreadable": "Couldn't read: {files}",
     "selectScreenshots": "Select screenshots",
-    "dropHint": "Tap to select, or drop screenshots here"
+    "dropHint": "Tap to select, or drop screenshots here",
+    "covered": "The menu bar covered some cards, so they were left empty. Pick them yourself:",
+    "coveredSlots": "{name}: card {slots}"
   },
   "Simulator": {
     "supportBonus": "Support bonus %",
@@ -600,7 +633,11 @@
     "shareFailed": "Share failed",
     "unshareFailed": "Stop sharing failed",
     "copyThisLink": "Copy this link",
-    "confirmDeleteShared": "Delete this run? Its shared link will stop working too."
+    "confirmDeleteShared": "Delete this run? Its shared link will stop working too.",
+    "listOnStage": "Show on the stage's page",
+    "unlistFromStage": "Hide from the stage's page",
+    "listed": "Listed",
+    "listFailed": "Couldn't change where it's shown"
   },
   "SharedRun": {
     "untitled": "Shared run",
@@ -617,7 +654,45 @@
     "signInPrompt": "Saving requires sign-in. Continue to Discord?",
     "hint": "Open in simulator puts this run in your history, so the Compare tab shows it beside your own runs.",
     "metaDescription": "A shared simulator run: mean {mean}, median {median}.",
-    "metaDescriptionNoScores": "A shared simulator loadout."
+    "metaDescriptionNoScores": "A shared simulator loadout.",
+    "moreForStage": "More shared runs for this stage",
+    "openedBy": "{count, plural, one {Opened by # player} other {Opened by # players}}",
+    "openedByMore": "Opened by {count}+ players"
+  },
+  "SharedRunsBrowse": {
+    "title": "Shared runs",
+    "hint": "Simulator runs players listed on their stages, newest first. Pick a stage to see its runs on one score axis; open one to run it beside your own. Scores are the site's own simulation of each run.",
+    "stage": "Stage",
+    "allStages": "All stages",
+    "stageOption": "{name} ({count})",
+    "sort": {
+      "new": "Newest",
+      "top": "Top score"
+    },
+    "scores": "Average {mean} · Median {median}",
+    "empty": "No listed runs here yet. To list yours, share a saved run in the simulator's Compare tab and choose \"Show on the stage's page\".",
+    "older": "Older runs",
+    "newest": "Back to newest"
+  },
+  "StageSharedRuns": {
+    "title": "Shared runs for this stage",
+    "loading": "Loading…",
+    "empty": "No one has listed a run for this stage yet.",
+    "failed": "Couldn't load shared runs.",
+    "untitled": "Untitled run",
+    "yourRun": "Your run (this result)",
+    "place": "#{rank} of {count} with yours",
+    "belowTop": "Below the top {count} listed",
+    "howToList": "To list yours, share a saved run in Compare and choose \"Show on the stage's page\".",
+    "seeAll": "See them all",
+    "listYours": "List it here",
+    "namePlaceholder": "Name (optional)",
+    "list": "List",
+    "listing": "Listing…",
+    "cancel": "Cancel",
+    "listFailed": "Couldn't list it. Try again.",
+    "signInToList": "Listing a run requires sign-in. Continue to Discord?",
+    "listedNote": "Listed. It's saved in Compare, where you can take it off this page."
   },
   "SimulatorStats": {
     "total": "Total",
