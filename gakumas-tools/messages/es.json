@@ -61,6 +61,14 @@
     "sharedRuns": {
       "title": "Simulaciones compartidas",
       "description": "Explora las simulaciones que otros jugadores muestran en sus etapas"
+    },
+    "contestPlayer": {
+      "title": "Contest Player",
+      "description": "Create contest loadouts, actually play contests"
+    },
+    "estimator": {
+      "title": "Parameter Optimizer",
+      "description": "Estimate optimal parameter distribution from simulator scores"
     }
   },
   "NavbarMenu": {
@@ -337,6 +345,8 @@
   "DraftPickImporterModal": {
     "title": "Importar elección de carta desde captura",
     "instructions": "Sube una captura de la pantalla de elección de cartas de habilidad del juego. Las 3 cartas que aparecen se detectarán y cargarán automáticamente.",
+    "readFromClipboard": "Import draft pick from image in clipboard",
+    "noImageInClipboard": "No image in clipboard",
     "processing": "Procesando captura...",
     "error": "No se ha podido importar"
   },
@@ -465,12 +475,14 @@
     "contest": "Concurso",
     "linkContest": "Concurso Link",
     "event": "Evento",
+    "exam": "Exam",
     "idolRoad": "Idol Road",
     "custom": "Personalizada"
   },
   "StageSummary": {
     "contestStageName": "Temporada {season} - Etapa {stage}",
     "eventStageName": "{name} - Etapa {stage} - Ronda {round}",
+    "idolRoadStageName": "Idol Road Stage {stage}",
     "custom": "Personalizada",
     "activeSeason": "Temporada actual"
   },
@@ -493,17 +505,22 @@
   },
   "LoadoutSkillCardGroup": {
     "cost": "Coste",
+    "cardCount": "Card count",
     "memoryCalculator": "Calculadora de memorias",
     "memories": "Memorias",
     "importMemory": "Importar memoria desde captura",
     "addRow": "Añadir fila",
     "moveUp": "Subir",
     "moveDown": "Bajar",
-    "removeRow": "Quitar fila"
+    "removeRow": "Quitar fila",
+    "sort": "Sort"
   },
   "SimulatorSubTools": {
     "costRanges": "Rangos de coste",
-    "defaultCards": "Cartas predeterminadas"
+    "defaultCards": "Cartas predeterminadas",
+    "initialCards": "Initial cards",
+    "addCards": "Add skill cards",
+    "extensions": "Extensions"
   },
   "CostRanges": {
     "rank": "Rango",
@@ -516,11 +533,18 @@
     "share": "Compartir",
     "openLoadouts": "Formaciones",
     "import": "Importar",
-    "copyFailed": "No se ha podido copiar la URL"
+    "copyFailed": "No se ha podido copiar la URL",
+    "readLoadoutFromUrl": "Read URL",
+    "invalidUrl": "Invalid URL.",
+    "invalidLoadout": "Cannot load loadout from URL.",
+    "clipboardError": "Cannot read from clipboard.",
+    "confirmSetLoadout": "Are you sure you want to set loadout from clipboard URL?"
   },
   "SimulatorLoadoutImporterModal": {
     "title": "Importar formación desde captura",
     "instructions": "Sube una captura de la pantalla de formación de concurso del juego. Se cargarán los parámetros, los objetos P y las cartas de habilidad, y la etapa y la bonificación de apoyo se deducirán de los multiplicadores por tipo.",
+    "readFromClipboard": "Read loadout from image in clipboard",
+    "noImageInClipboard": "No image in clipboard",
     "processing": "Procesando captura...",
     "error": "No se ha podido importar",
     "matchingStages": "Etapas coincidentes",
@@ -557,7 +581,11 @@
     "optimizeFailed": "No se puede optimizar",
     "optimizeNeedsSimulation": "Simula primero la formación actual",
     "staleResults": "Estos resultados son de una formación anterior",
-    "rehearsal": "Ensayo"
+    "rehearsal": "Ensayo",
+    "useStats": "Usage count",
+    "conditionalUseStats": "Conditional usage count",
+    "priorityStats": "Priority comparison",
+    "scoreStats": "Score statistics"
   },
   "CompareTab": {
     "saved": "Guardadas",
@@ -676,6 +704,10 @@
   "SimulatorResultGraphs": {
     "score": "Puntuación"
   },
+  "SimulatorResultTools": {
+    "downloadScores": "Download scores",
+    "estimateParameters": "Estimate optimal parameters"
+  },
   "stage": {
     "turnsRemaining": "Turnos restantes",
     "cardUsesRemaining": "Usos de cartas restantes",
@@ -692,6 +724,7 @@
     "strengthTimes": "Posturas de fuerza",
     "preservationTimes": "Posturas de conservación",
     "fullPowerTimes": "Posturas de máxima potencia",
+    "leisureTimes": "Leisure stances",
     "stanceChangedTimes": "Cambios de postura",
     "stance": "Postura",
     "none": "Ninguna",
@@ -727,6 +760,7 @@
     "noFullPowerChargeTurns": "Sin cartas con efecto de máxima potencia",
     "noCardUseTurns": "Sin uso de cartas",
     "uneaseTurns": "Inquietud",
+    "slumpTurns": "Slump",
     "metamorphosis": "Metamorfosis",
     "metamorphosisPreparation": "Metamorfosis (preparación)",
     "metamorphosisPerformance": "Metamorfosis (actuación)",
@@ -751,7 +785,10 @@
     "cardDrawn": "Carta robada",
     "upgradedHand": "Mejoradas todas las cartas de la mano",
     "exchangedHand": "Cambiadas todas las cartas de la mano",
+    "extendEnthusiasmTurns": "Enthusiasm extension",
+    "incrementPIdolPItemLimit": "Idol-specific P-item activation count +1",
     "setEffect": "Efecto aplicado",
+    "setReservation": "Set reservation",
     "addedCardToHand": "Carta añadida a la mano",
     "addedCardToTopOfDeck": "Carta añadida a la parte superior del mazo",
     "addedCardToBottomOfDeck": "Carta añadida al fondo del mazo",
@@ -768,8 +805,11 @@
     "removedCard": "Carta eliminada",
     "effect": "Efecto",
     "stageEffect": "Efecto de etapa",
+    "reservation": "Reservation",
     "skillCard": "Carta de habilidad",
     "pItem": "Objeto P",
+    "pDrink": "P-drink",
+    "hifAbility": "H.I.F Special Ability",
     "numTurns": "{num} {num, plural, =1 {turno} other {turnos}}",
     "hand": "Mano",
     "turnN": "Turno {n}",
@@ -780,6 +820,12 @@
     "selectCardsToHold": "Selecciona {num} {num, plural, =1 {carta} other {cartas}} para reservar",
     "selectCardsToMoveToHand": "Selecciona {num} {num, plural, =1 {carta} other {cartas}} para mover a la mano",
     "selectCardsToMoveToTopOfDeck": "Selecciona {num} {num, plural, =1 {carta} other {cartas}} para mover a la parte superior del mazo",
+    "selectCardsToUseFree": "Select {num} {num, plural, =1 {card} other {cards}} to use free",
+    "selectCardsToUse": "Select {num} {num, plural, =1 {card} other {cards}} to use",
+    "selectCardsToCopy": "Select {num} {num, plural, =1 {card} other {cards}} to copy",
+    "selectCardsToGrow": "Select {num} {num, plural, =1 {card} other {cards}} to grow",
+    "selectRandomCards": "Select {num} {num, plural, =1 {card} other {cards}}",
+    "selectPositionToInsertCard": "Select position to insert card",
     "confirm": "Confirmar"
   },
   "BoxPlot": {
@@ -794,6 +840,7 @@
     "addScreenshots": "Añade capturas de la pantalla de resultados del ensayo para extraer sus puntuaciones.",
     "accuracyNotGuaranteed": "No se garantiza la precisión. Se recomienda verificar los resultados a mano comparándolos con tus capturas.",
     "dropFiles": "Toca para seleccionar o suelta aquí capturas, grabaciones o archivos CSV",
+    "liteMode": "Lite mode",
     "stage": "Etapa {n}",
     "score": "Puntuación",
     "progress": "Progreso: {progress}/{total}",
@@ -920,5 +967,190 @@
     "back": "Volver a {category}",
     "open": "Abrir página",
     "customizations": "Personalizaciones"
+  },
+  "SimulatorExtensions": {
+    "enableSkillCardOrder": "Specify skill card order and turn order",
+    "enableUseStats": "Count skill card usage",
+    "enableConditionalUseStats": "Count skill card usage when a specific skill card is drawn",
+    "enablePriorityStats": "Count skill card priority usage",
+    "enableScoreStats": "Aggregate score statistics",
+    "enableSelectRandomCards": "Enable manual selection of effects that randomly select skill cards",
+    "enableStrategyCustomization": "Enable simulator customizations",
+    "maxDepth": " Lookahead moves",
+    "nextDepth": "Re-evaluation moves",
+    "scoreMultiplier": "Score evaluation multiplier%",
+    "goodConditionTurnsMultiplier": "Good condition turns multiplier%",
+    "concentrationMultiplier": "Concentration multiplier%",
+    "goodImpressionTurnsMultiplier": "Good impression turns multiplier%",
+    "motivationMultiplier": "Motivation multiplier%",
+    "fullPowerMultiplier": "Full power multiplier%",
+    "enableEffectScore": "Evaluate effect scores",
+    "effectScoreMultiplier": "Effect score evaluation multiplier%",
+    "fixScoreBonusOnHolding": "Fix score bonus on holding",
+    "enableCardPriorities": "Change skill card priorities (%)",
+    "reset": "Reset",
+    "confirmResetCustomizations": "Are you sure you want to reset the simulator customizations?",
+    "confirmResetPriorities": "Are you sure you want to reset the skill card priorities?",
+    "readFromUrl": "Read URL",
+    "invalidUrl": "Invalid URL.",
+    "invalidLoadout": "Cannot load loadout from URL.",
+    "clipboardError": "Cannot read from clipboard.",
+    "confirmSetCustomizations": "Are you sure you want to set the simulator customizations from clipboard URL?",
+    "confirmSetPriorities": "Are you sure you want to set the skill card priorities from clipboard URL?"
+  },
+  "SkillCardOrderGroups": {
+    "Nth_order": "{n}th Card Order",
+    "removed_card_order_header": "If the specified card was removed:",
+    "removed_card_random": "Insert another random card",
+    "removed_card_skip": "Skip card insertion",
+    "clearOrders": "Clear card and turn order",
+    "confirmClearOrders": "Are you sure you want to clear the card and turn order?"
+  },
+  "TurnTypeOrder": {
+    "turn_type_order": "Turn Type Order"
+  },
+  "SimulatorUseStats": {
+    "useStats": "Skill Card Usage Count",
+    "turn": "Turn {turn}",
+    "total": "Total",
+    "sortByRatio": "Sort by usage ratio when skill card is drawn"
+  },
+  "SimulatorConditionalUseStats": {
+    "conditionalUseStats": "Skill Card Usage Count When Specific Card Is Drawn",
+    "turn": "Turn {turn}",
+    "sortByRatio": "Sort by usage ratio when skill card is drawn"
+  },
+  "SimulatorPriorityStats": {
+    "priorityStats": "Skill Card Priority Usage Count",
+    "turn": "Turn {turn}"
+  },
+  "SimulatorScoreStats": {
+    "scoreStats": "Score stats",
+    "turn": "{turn} turns",
+    "total": "Total",
+    "turnTypeScore": "Show turn type scores"
+  },
+  "ContestPlayer": {
+    "startStage": "Iniciar",
+    "restartStage": "Reiniciar",
+    "skip": "Omitir",
+    "logs": "Registros",
+    "turnsRemaining": "Turnos restantes",
+    "cardUsesRemaining": "Usos de cartas restantes",
+    "stamina": "Resistencia",
+    "genki": "Genki",
+    "score": "Puntuación",
+    "goodConditionTurns": "Buen estado",
+    "perfectConditionTurns": "Estado perfecto",
+    "concentration": "Concentración",
+    "goodImpressionTurns": "Buena impresión",
+    "motivation": "Motivación",
+    "prideTurns": "Orgullo",
+    "stance": "Postura",
+    "none": "Ninguna",
+    "preservation": "Conservación 1",
+    "preservation2": "Conservación 2",
+    "leisure": "Calma",
+    "strength": "Fuerza 1",
+    "strength2": "Fuerza 2",
+    "fullPower": "Máxima potencia",
+    "fullPowerCharge": "Carga de máxima potencia",
+    "cumulativeFullPowerCharge": "Carga de máxima potencia acumulada",
+    "lockStanceTurns": "Turnos de postura fija",
+    "enthusiasm": "Entusiasmo",
+    "enthusiasms": "Entusiasmo",
+    "enthusiasmBonusBuffs": "Entusiasmo adicional",
+    "halfCostTurns": "Turnos de coste a la mitad",
+    "doubleCostTurns": "Turnos de coste doble",
+    "doubleBuffCostTurns": "Turnos de coste doble de mejoras",
+    "costReduction": "Reducción de coste",
+    "costIncrease": "Aumento de coste",
+    "doubleCardEffectCards": "Repetición de efectos de carta",
+    "nullifyGenkiTurns": "Turnos de genki anulado",
+    "nullifyDebuff": "Anulación de penalizaciones",
+    "poorConditionTurns": "Mal estado",
+    "nullifyCostCards": "Cartas sin coste",
+    "nullifyCostActiveCards": "Cartas activas sin coste",
+    "noActiveTurns": "Sin cartas activas",
+    "noMentalTurns": "Sin cartas mentales",
+    "noGoodConditionTurnsTurns": "Sin cartas con efecto de buen estado",
+    "noConcentrationTurns": "Sin cartas con efecto de concentración",
+    "noGoodImpressionTurnsTurns": "Sin cartas con efecto de buena impresión",
+    "noMotivationTurns": "Sin cartas con efecto de motivación",
+    "noStrengthTurns": "Sin cartas con efecto de fuerza",
+    "noFullPowerChargeTurns": "Sin cartas con efecto de máxima potencia",
+    "noCardUseTurns": "Sin uso de cartas",
+    "uneaseTurns": "Inquietud",
+    "slumpTurns": "Slump",
+    "metamorphosis": "Metamorfosis",
+    "metamorphosisPreparation": "Metamorfosis (preparación)",
+    "metamorphosisPerformance": "Metamorfosis (actuación)",
+    "scoreBuffs": "Mejora de puntuación",
+    "scoreDebuffs": "Penalización de puntuación",
+    "goodImpressionTurnsBuffs": "Mejora de buena impresión",
+    "goodImpressionTurnsEffectBuffs": "Potenciación de buena impresión",
+    "goodImpressionTurnsTimesBuffs": "Activación extra de buena impresión",
+    "motivationBuffs": "Mejora de motivación",
+    "motivationAdditionBuffs": "Bonificación de motivación",
+    "goodConditionTurnsBuffs": "Mejora de turnos de buen estado",
+    "goodConditionTurnsAdditionBuffs": "Bonificación de turnos de buen estado",
+    "concentrationBuffs": "Mejora de concentración",
+    "concentrationAdditionBuffs": "Bonificación de concentración",
+    "concentrationEffectBuffs": "Potenciación de concentración",
+    "enthusiasmBuffs": "Mejora de entusiasmo",
+    "fullPowerChargeBuffs": "Mejora de carga de máxima potencia",
+    "fullPowerEffectBuffs": "Potenciación de máxima potencia",
+    "strengthEffectBuffs": "Potenciación de fuerza",
+    "handDecreases": "Reducción de mano",
+    "turn": "Turno",
+    "numTurns": "{num} {num, plural, =1 {turno} other {turnos}}",
+    "hand": "Mano",
+    "turnN": "Turno {n}",
+    "unplayable": "No jugable",
+    "handCards": "Mano",
+    "deckCards": "Mazo",
+    "discardedCards": "Carta descartada",
+    "removedCards": "Carta eliminada",
+    "heldCards": "Carta reservada",
+    "pDrinks": "Bebidas P",
+    "requestForData": "Request for data"
+  },
+  "StageStartingEffects": {
+    "startingEffects": "Starting Effects",
+    "goodConditionTurns": "Good Condition",
+    "concentration": "Concentration",
+    "goodImpressionTurns": "Good Impression",
+    "motivation": "Motivation",
+    "genki": "Genki",
+    "costReduction": "Cost Reduction",
+    "fullPowerCharge": "Full Power Charge",
+    "allScores": "All Parameter Increase",
+    "strengthScores": "Strength Parameter Increase",
+    "fullPowerScores": "Full Power Parameter Increase",
+    "goodConditionTurnsBuff": "Good Condition Increase Amount Increase%",
+    "concentrationBuff": "Concentration Increase Amount Increase%",
+    "goodImpressionTurnsBuff": "Good Impression Increase Amount Increase%",
+    "motivationBuff": "Motivation Increase Amount Increase%",
+    "scoreBuff": "Parameter Increase Amount Increase%",
+    "preservation": "Preservation",
+    "nullifyGenkiTurns": "Nullify Genki",
+    "slumpTurns": "Slump"
+  },
+  "StageHifAbilities": {
+    "hifAbilities": "H.I.F Special Abilities"
+  },
+  "ParameterEstimator": {
+    "note": "※Input data can be imported from simulation results (recommended)",
+    "notContestWarning": "Warning: The selected stage is not a contest. Please select a contest stage.",
+    "supportBonus": "Support bonus %",
+    "totalParams": "Total parameters",
+    "maxParams": "Max parameters",
+    "minParams": "Min parameters",
+    "extraTurns": "Extra turns",
+    "scores": "Score gained per turn (before score bonus)",
+    "estimate": "Estimate optimal parameters",
+    "estimatedParams": "Estimated parameters",
+    "estimatedScore": "Estimated score",
+    "reflectParametersAndGoToSimulator": "Apply parameters and go to simulator"
   }
 }
