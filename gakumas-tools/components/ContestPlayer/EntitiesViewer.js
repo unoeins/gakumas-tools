@@ -8,6 +8,7 @@ import styles from "./ContestPlayer.module.scss";
 
 function EntitiesViewer({
     state,
+    ids,
     type,
     name,
     scores,
@@ -23,7 +24,7 @@ function EntitiesViewer({
     styles[name]
   );
 
-  let entities = state[S[name]];
+  let entities = ids ? ids : state[S[name]];
   if (reverse) {
     entities = [...entities].reverse();
   }

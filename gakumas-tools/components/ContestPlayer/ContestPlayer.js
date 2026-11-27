@@ -33,12 +33,16 @@ import { structureLogs } from "@/utils/simulator";
 import Alert from "@/components/Alert";
 import Button from "@/components/Button";
 import ButtonGroup from "@/components/ButtonGroup";
+import IdolRoadDataNotice from "@/components/IdolRoadDataNotice";
 import Input from "@/components/Input";
 import LoadoutEditor from "@/components/LoadoutEditor";
 import LoadoutSummary from "@/components/LoadoutHistory/LoadoutSummary";
 import Logs from "@/components/SimulatorLogs/Logs";
 import TurnIndicator from "@/components/SimulatorLogs/TurnIndicator";
 import StageSelect from "@/components/StageSelect";
+import StagePDrinks from "@/components/StagePDrinks";
+import StageStartStamina from "@/components/StageStartStamina";
+import TurnOrder from "@/components/TurnOrder";
 import LoadoutContext from "@/contexts/LoadoutContext";
 import SimulationRunsContext from "@/contexts/SimulationRunsContext";
 import WorkspaceContext from "@/contexts/WorkspaceContext";
@@ -273,7 +277,7 @@ export default function ContestPlayer() {
   async function drink(selectedIndex) {
     if (!running) return;
     const state = deepCopy(getState());
-    const decision = { drink: selectedIndex };
+    const decision = { pDrink: selectedIndex };
     const nextState = await executeDecision(engine, state, decision);
 
     pushState(nextState);
@@ -298,6 +302,12 @@ export default function ContestPlayer() {
     if (previousState[S.turnsRemaining] > 0) {
       setRunning(true);
     }
+  }
+
+  function getHeldPDrinks() {
+    const state = getState();
+    const { pDrinkIds } = engine.getConfig(state).idol;
+    return (state[S.pDrinks] || []).map((slot) => pDrinkIds[slot]);
   }
 
   function getHandCardScores() {
@@ -358,6 +368,18 @@ export default function ContestPlayer() {
       <div className={styles.configurator}>
         {stage.preview && <Alert>{t("previewNote")}</Alert>}
         <StageSelect />
+        <IdolRoadDataNotice stage={stage} pIdolId={config.idol.pIdolId} />
+        {stage.type == "produceExam" && (
+          <>
+            <TurnOrder />
+            <StagePDrinks
+              mode="contestPlayer"
+              pDrinkIds={loadout.pDrinkIds}
+              size={"fill"}
+            />
+            <StageStartStamina />
+          </>
+        )}
         {stage.type !== "contest" ? (
           <>
             <Alert>{t("enterPercents")}</Alert>
@@ -420,6 +442,7 @@ export default function ContestPlayer() {
                 </button>
                 {index === currentLoadoutIndex ? (
                   <LoadoutEditor
+                    mode="contestPlayer"
                     config={config}
                     idolId={config.idol.idolId || idolId}
                   />
@@ -439,6 +462,7 @@ export default function ContestPlayer() {
           </div>
         ) : (
           <LoadoutEditor
+            mode="contestPlayer"
             config={config}
             idolId={config.idol.idolId || idolId}
           />
@@ -504,7 +528,7 @@ export default function ContestPlayer() {
             />
             {stage.type === "exam" && (
               <EntitiesViewer
-                state={getState()}
+                ids={getHeldPDrinks()}
                 type={EntityTypes.P_DRINK}
                 name="pDrinks"
                 onClick={(selectedIndex) => drink(selectedIndex)}

@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { useTranslations } from "next-intl";
-import { PItems, PDrinks, SkillCards } from "gakumas-data";
+import { PDrinks, PItems, SkillCards } from "gakumas-data";
 import gkImg from "gakumas-images";
 import Image from "@/components/Image";
 import Logs from "./Logs";

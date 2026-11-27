@@ -1,8 +1,33 @@
 import { G, GROWTH_FIELDS, S } from "../constants";
-import { deepCopy, getRand } from "../utils";
+import { deepCopy, shuffle, getRand } from "../utils";
 import BaseStrategy from "./BaseStrategy";
 
 const DEFAULT_MAX_DEPTH = 3;
+
+// On a stage with checks, decisions in the turns just before one are
+// made by playing the best few options out to the end of the stage.
+const ROLLOUT_WINDOW = 2; // turns before a check
+const ROLLOUT_CANDIDATES = 3; // best plays by the heuristic, plus ending the turn
+const ROLLOUT_PLAYOUTS = 2; // per option
+
+// The turns at which a stage checks a resource at the start of the turn
+// ("turn N starts with X >= T"): what a play has to build towards.
+function stageCheckTurns(stage) {
+  const turns = [];
+  for (const effect of stage.effects || []) {
+    if (effect.phase != "startOfTurn" || effect.conditions?.length != 2)
+      continue;
+    const turn = effect.conditions.find(
+      (c) => c.left?.name == "turnsElapsed" && c.op == "==",
+    );
+    const check = effect.conditions.find(
+      (c) => c.left?.type == "identifier" && c.left.name != "turnsElapsed",
+    );
+    if (turn && check && turn.right?.type == "number")
+      turns.push(turn.right.value);
+  }
+  return [...new Set(turns)].sort((a, b) => a - b);
+}
 
 // Shared "sum amount × (turns || turnsRemaining)" for the buff-weighting
 // used across getStateScore. A tight for-loop is notably faster than
@@ -51,6 +76,7 @@ export default class HeuristicStrategy extends BaseStrategy {
     // getStateScore doesn't rebuild them on every call (it fires several
     // times per useCard speculation, thousands of times per run).
     this._configCache = new Map();
+    this._rollingOut = false;
 
     if (engine.config.simulator.enableStrategyCustomizations) {
       this.maxDepth = engine.config.simulator.maxDepth;
@@ -129,6 +155,7 @@ export default class HeuristicStrategy extends BaseStrategy {
       motivationMultiplier,
       fullPowerMultiplier,
       averageTypeMultiplier,
+      checkTurns: stageCheckTurns(stage),
     };
     this._configCache.set(linkPhase, cache);
     return cache;
@@ -157,11 +184,21 @@ export default class HeuristicStrategy extends BaseStrategy {
     const futures = state[S.handCards].map((card) =>
       this.getFuture(state, nextState, card)
     );
+    // Drinking a held P-drink is a move like playing a card: it can come
+    // before any card in the turn, and the turn goes on after it.
+    const drinkFutures = this.getDrinkFutures(state);
 
     const scores = futures.map((f) => (f ? f.score : -Infinity));
     let maxScore = Math.max(...scores);
     let selectedIndex = null;
-    if (maxScore > 0) {
+    const rolled =
+      this.depth == 0 &&
+      !this._rollingOut &&
+      this.rollout(state, futures, scores, drinkFutures);
+    if (rolled) {
+      selectedIndex = rolled.index;
+      nextState = rolled.state;
+    } else if (maxScore > 0) {
       selectedIndex = scores.indexOf(maxScore);
       if (this.depth < this.nextDepth) {
         nextState = futures[selectedIndex].nextState;
@@ -173,8 +210,16 @@ export default class HeuristicStrategy extends BaseStrategy {
       }
       maxScore = this.getStateScore(endTurnState);
     }
+    if (!rolled && drinkFutures.length) {
+      const drink = this.pickDrink(state, nextState, maxScore, drinkFutures);
+      if (drink) {
+        maxScore = Math.max(maxScore, drink.score);
+        nextState = drink.state;
+        selectedIndex = null;
+      }
+    }
 
-    if (handLog !== null) {
+    if (handLog) {
       handLog.data = {
         handCards: state[S.handCards].map((card) => ({
           id: state[S.cardMap][card].id,
@@ -187,6 +232,224 @@ export default class HeuristicStrategy extends BaseStrategy {
     }
 
     return { score: maxScore, state: nextState, nextState: nextState };
+  }
+
+  // Before a stage check, pick between the best few plays by playing each
+  // out to the end of the stage a few times and keeping the best mean score.
+  rollout(state, futures, scores, drinkFutures = []) {
+    const { checkTurns } = this._getScoringConfig(state);
+    if (!checkTurns.length) return null;
+    const elapsed = state[S.turnsElapsed];
+    if (!checkTurns.some((t) => t > elapsed && t - elapsed <= ROLLOUT_WINDOW))
+      return null;
+
+    const candidates = scores
+      .map((score, index) => ({ score, index }))
+      .filter((c) => c.score > -Infinity)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, ROLLOUT_CANDIDATES)
+      .map((c) => ({ index: c.index, state: futures[c.index].state }));
+    for (const drink of drinkFutures) {
+      candidates.push({ index: null, state: drink.state });
+    }
+    candidates.push({ index: null, state: null });
+    if (candidates.length < 2) return null;
+
+    const logger = this.engine.logger;
+    const wasDisabled = logger.disabled;
+    logger.disable();
+    this._rollingOut = true;
+    let best = null;
+    try {
+      for (const candidate of candidates) {
+        let total = 0;
+        for (let p = 0; p < ROLLOUT_PLAYOUTS; p++) {
+          // The deck order is in the state; a player doesn't know it, so
+          // each playout draws from a reshuffled copy.
+          let s = deepCopy(candidate.state || state);
+          shuffle(s[S.deckCards]);
+          if (!candidate.state) s = this.engine.endTurn(s);
+          while (s[S.turnsRemaining] > 0) s = this.evaluate(s).state;
+          total += s[S.score];
+        }
+        if (!best || total > best.total) best = { ...candidate, total };
+      }
+    } finally {
+      this._rollingOut = false;
+      if (!wasDisabled) logger.enable();
+    }
+    if (best.index == null)
+      return { index: null, state: this.engine.endTurn(state) };
+    return best;
+  }
+
+  // Drink now, or play on (to nextState, scored maxScore). A drink is drunk
+  // when drinking it and playing on scores better. One set for this turn
+  // (or an earlier one) that is still held when the play would end the
+  // turn is drunk first, so it lands in its turn.
+  pickDrink(state, nextState, maxScore, drinkFutures) {
+    let best = null;
+    for (const drink of drinkFutures) {
+      if (drink.score > (best ? best.score : maxScore)) best = drink;
+    }
+    if (best) return best;
+    const endsTurn =
+      nextState[S.turnsElapsed] > state[S.turnsElapsed] ||
+      nextState[S.turnsRemaining] == 0;
+    if (!endsTurn) return null;
+    for (const drink of drinkFutures) {
+      if (drink.turn == null || drink.turn > state[S.turnsElapsed] + 1)
+        continue;
+      if (!best || drink.score > best.score) best = drink;
+    }
+    return best;
+  }
+
+  // One future per distinct held drink that may be drunk now (no turn set
+  // for it, or this turn or an earlier one): drink it, then play on as
+  // evaluate would (the rest of the turn, up to MAX_DEPTH moves in all).
+  getDrinkFutures(state) {
+    const held = this.engine.getHeldPDrinks(state);
+    if (!held.length) return [];
+    const turn = state[S.turnsElapsed] + 1;
+    const futures = [];
+    const seen = new Set();
+    for (let i = 0; i < held.length; i++) {
+      const drinkTurn = this.engine.getPDrinkTurn(state, i);
+      if (drinkTurn != null && drinkTurn > turn) continue;
+      const key = `${held[i]}:${drinkTurn}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      if (!this.engine.canUsePDrink(state, i)) continue;
+      const previewState = this.engine.usePDrink(state, i);
+      this.depth++;
+      let future;
+      if (previewState[S.turnsRemaining] > 0 && this.depth < this.maxDepth) {
+        future = this.evaluate(previewState);
+      } else {
+        future = {
+          score: this.getStateScore(previewState),
+          state: previewState,
+        };
+      }
+      this.depth--;
+      futures.push({
+        index: i,
+        turn: drinkTurn,
+        score: future.score,
+        state: future.state,
+      });
+    }
+    return futures;
+  }
+
+  // Before a stage check, pick between the best few plays by playing each
+  // out to the end of the stage a few times and keeping the best mean score.
+  rollout(state, futures, scores, drinkFutures = []) {
+    const { checkTurns } = this._getScoringConfig(state);
+    if (!checkTurns.length) return null;
+    const elapsed = state[S.turnsElapsed];
+    if (!checkTurns.some((t) => t > elapsed && t - elapsed <= ROLLOUT_WINDOW))
+      return null;
+
+    const candidates = scores
+      .map((score, index) => ({ score, index }))
+      .filter((c) => c.score > -Infinity)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, ROLLOUT_CANDIDATES)
+      .map((c) => ({ index: c.index, state: futures[c.index].state }));
+    for (const drink of drinkFutures) {
+      candidates.push({ index: null, state: drink.state });
+    }
+    candidates.push({ index: null, state: null });
+    if (candidates.length < 2) return null;
+
+    const logger = this.engine.logger;
+    const wasDisabled = logger.disabled;
+    logger.disable();
+    this._rollingOut = true;
+    let best = null;
+    try {
+      for (const candidate of candidates) {
+        let total = 0;
+        for (let p = 0; p < ROLLOUT_PLAYOUTS; p++) {
+          // The deck order is in the state; a player doesn't know it, so
+          // each playout draws from a reshuffled copy.
+          let s = deepCopy(candidate.state || state);
+          shuffle(s[S.deckCards]);
+          if (!candidate.state) s = this.engine.endTurn(s);
+          while (s[S.turnsRemaining] > 0) s = this.evaluate(s).state;
+          total += s[S.score];
+        }
+        if (!best || total > best.total) best = { ...candidate, total };
+      }
+    } finally {
+      this._rollingOut = false;
+      if (!wasDisabled) logger.enable();
+    }
+    if (best.index == null)
+      return { index: null, state: this.engine.endTurn(state) };
+    return best;
+  }
+
+  // Drink now, or play on (to nextState, scored maxScore). A drink is drunk
+  // when drinking it and playing on scores better. One set for this turn
+  // (or an earlier one) that is still held when the play would end the
+  // turn is drunk first, so it lands in its turn.
+  pickDrink(state, nextState, maxScore, drinkFutures) {
+    let best = null;
+    for (const drink of drinkFutures) {
+      if (drink.score > (best ? best.score : maxScore)) best = drink;
+    }
+    if (best) return best;
+    const endsTurn =
+      nextState[S.turnsElapsed] > state[S.turnsElapsed] ||
+      nextState[S.turnsRemaining] == 0;
+    if (!endsTurn) return null;
+    for (const drink of drinkFutures) {
+      if (drink.turn == null || drink.turn > state[S.turnsElapsed] + 1)
+        continue;
+      if (!best || drink.score > best.score) best = drink;
+    }
+    return best;
+  }
+
+  // One future per distinct held drink that may be drunk now (no turn set
+  // for it, or this turn or an earlier one): drink it, then play on as
+  // evaluate would (the rest of the turn, up to MAX_DEPTH moves in all).
+  getDrinkFutures(state) {
+    const held = this.engine.getHeldPDrinks(state);
+    if (!held.length) return [];
+    const turn = state[S.turnsElapsed] + 1;
+    const futures = [];
+    const seen = new Set();
+    for (let i = 0; i < held.length; i++) {
+      const drinkTurn = this.engine.getPDrinkTurn(state, i);
+      if (drinkTurn != null && drinkTurn > turn) continue;
+      const key = `${held[i]}:${drinkTurn}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      if (!this.engine.canUsePDrink(state, i)) continue;
+      const previewState = this.engine.usePDrink(state, i);
+      this.depth++;
+      let future;
+      if (previewState[S.turnsRemaining] > 0 && this.depth < this.maxDepth) {
+        future = this.evaluate(previewState);
+      } else {
+        future = {
+          score: this.getStateScore(previewState),
+          state: previewState,
+        };
+      }
+      this.depth--;
+      futures.push({
+        index: i,
+        turn: drinkTurn,
+        score: future.score,
+        state: future.state,
+      });
+    }
+    return futures;
   }
 
   getFuture(state, nextState, card) {

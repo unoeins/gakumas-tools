@@ -28,12 +28,12 @@ export function formatStageName(stage, t) {
       stage: stage.stage,
       round: stage.round,
     });
-  } else if (stage.type == "exam") {
+  } else if (stage.type == "idolRoad") {
+    // The name as the game shows it, from stages.csv, after the road's
+    // name so it reads as an Idol Road stage wherever it's listed.
+    stageName = t("idolRoadStageName", { name: stage.name });
+  } else if (stage.type == "produceExam" || stage.type == "exam") {
     stageName = stage.name;
-  } else if (stage.type === "idolRoad") {
-    stageName = t("idolRoadStageName", {
-      stage: stage.stage,
-    });
   }
   if (stage.preview) {
     stageName += "*";
@@ -48,6 +48,15 @@ export function formatStageName(stage, t) {
     );
   }
   return stageName;
+}
+
+// The stage's name as plain text (titles, meta tags): a link contest without
+// its icon.
+export function formatStageNameText(stage, t) {
+  if (stage.type == "linkContest") {
+    return formatStageName({ ...stage, type: "contest" }, t);
+  }
+  return formatStageName(stage, t);
 }
 
 export function formatStageShortName(stage, t) {
@@ -68,6 +77,8 @@ export function formatStageShortName(stage, t) {
     const splitName = stage.name.split(" ");
     stageName = splitName[splitName.length - 1];
   } else if (stage.type === "idolRoad") {
+    stageName = stage.name;
+  } else if (stage.type == "produceExam") {
     stageName = stage.name;
   }
   return stageName;

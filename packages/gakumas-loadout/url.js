@@ -1,11 +1,17 @@
-import { PItems, SkillCards, Stages } from "gakumas-data";
+import { PDrinks, PItems, SkillCards, Stages, ProduceExams } from "gakumas-data";
 import {
   deserializeCustomizations,
   fixCustomizationGroups,
   serializeCustomizations,
 } from "./customizations";
 import { deserializeIds, serializeIds } from "./ids";
-import { getDefaultParams, getStage, knownStageId } from "./stages";
+import {
+  getDefaultParams,
+  getStage,
+  knownStageId,
+  produceExamIdOf,
+  TURN_TYPES,
+} from "./stages";
 import {
   StrategyCustomizations,
   deserializeStrategyCustomizations,
@@ -13,6 +19,21 @@ import {
 } from "gakumas-loadout";
 
 const SIMULATOR_BASE_URL = "https://gktools.unoeins.org/simulator";
+
+// Turn order of a produce exam in the URL: "vo-da-vi-...".
+const TURN_TYPE_CODES = { vocal: "vo", dance: "da", visual: "vi" };
+
+export function serializeTurnTypes(turnTypes) {
+  return turnTypes.map((type) => TURN_TYPE_CODES[type]).join("-");
+}
+
+export function deserializeTurnTypes(value) {
+  if (!value) return null;
+  const types = value
+    .split("-")
+    .map((code) => TURN_TYPES.find((type) => TURN_TYPE_CODES[type] == code));
+  return types.every(Boolean) ? types : null;
+}
 
 export const DEFAULTS = {
   stageId: Stages.findLast((s) => s.type == "contest" && !s.preview).id,
@@ -37,13 +58,43 @@ function knownPItemId(id) {
   return PItems.getById(id) ? id : 0;
 }
 
+function knownPDrinkId(id) {
+  return PDrinks.getById(id) ? id : 0;
+}
+
+// P-drinks are held only in produce exams: 3 slots, "drinks=5-11-18".
+export const P_DRINK_SLOTS = 4;
+
+export function deserializePDrinkIds(value) {
+  const ids = value ? deserializeIds(value).map(knownPDrinkId) : [];
+  return Array.from({ length: P_DRINK_SLOTS }, (_, i) => ids[i] || 0);
+}
+
+// The turn each drink is drunk on: "drink_turns=0-11-1", 1-based, 0 (or
+// missing) for auto, where the simulator plans the turn.
+export function deserializePDrinkTurns(value) {
+  const turns = value ? deserializeIds(value) : [];
+  return Array.from({ length: P_DRINK_SLOTS }, (_, i) =>
+    Math.max(0, turns[i] || 0),
+  );
+}
+
+// The 体力 a produce exam starts at ("start_stamina=26"): a produce exam starts
+// at the 体力 the run had, which can be below max. null = start at max.
+export function deserializeStartStamina(value) {
+  const stamina = parseInt(value, 10);
+  return stamina >= 0 ? stamina : null;
+}
+
 function knownSkillCardId(id) {
   return SkillCards.getById(id) ? id : 0;
 }
 
 export function getSimulatorUrl(loadout, loadouts, pathname) {
-  const stage = Stages.getById(loadout.stageId);
-  if (!stage) return null;
+  if (loadout.stageId == "custom" || !knownStageId(loadout.stageId)) {
+    return null;
+  }
+  const stage = getStage(loadout.stageId, loadout.customStage);
   let searchParams;
   if (stage.type === "linkContest") {
     searchParams = loadoutsToSearchParams(loadouts);
@@ -110,10 +161,23 @@ export function loadoutFromSearchParams(searchParams, suffix = "") {
   priorityCustomizations = priorityCustomizations || DEFAULTS.priorityCustomizations;
   priorityValues = priorityValues || DEFAULTS.priorityValues;
 
-  stageId = knownStageId(parseInt(stageId, 10));
+  const isProduceExam = !!produceExamIdOf(stageId);
+  stageId = knownStageId(isProduceExam ? stageId : parseInt(stageId, 10));
+  const turnTypes = isProduceExam
+    ? deserializeTurnTypes(searchParams.get("turns"))
+    : null;
+  const customStage = turnTypes ? { turnTypes } : {};
+  const pDrinkTurns = deserializePDrinkTurns(
+    isProduceExam ? searchParams.get("drink_turns") : null
+  );
+  const startStamina = deserializeStartStamina(
+    isProduceExam ? searchParams.get("start_stamina") : null,
+  );
   supportBonus = parseFloat(supportBonus);
   if (isNaN(supportBonus)) supportBonus = null;
-  params = params ? deserializeIds(params) : getDefaultParams(getStage(stageId));
+  params = params
+    ? deserializeIds(params)
+    : getDefaultParams(getStage(stageId, customStage));
   pItemIds = deserializeIds(pItemIds).map(knownPItemId);
   skillCardIdGroups = skillCardIdGroups
     .split("_")
@@ -121,7 +185,7 @@ export function loadoutFromSearchParams(searchParams, suffix = "") {
   customizationGroups = customizationGroups
     .split("_")
     .map(deserializeCustomizations);
-  pDrinkIds = deserializeIds(pDrinkIds);
+  pDrinkIds = deserializePDrinkIds(pDrinkIds);
   hifAbilityIds = deserializeIds(hifAbilityIds);
   startingEffects = deserializeIds(startingEffects);
   removedCardOrder = removedCardOrder == "1" ? "skip" : "random";
@@ -139,11 +203,11 @@ export function loadoutFromSearchParams(searchParams, suffix = "") {
       .map(deserializeIds);
   } else {
     const stage = Stages.getById(stageId);
-    if (stageId === "custom" || stage.type === "contest" || stage.type === "event") {
+    if (stageId === "custom" || stage?.type === "contest" || stage?.type === "event") {
       skillCardIdOrderGroups = [new Array(20).fill(0)];
-    } else if (stage.type === "linkContest") {
+    } else if (stage?.type === "linkContest") {
       skillCardIdOrderGroups = [new Array(12).fill(0)];
-    } else if (stage.type === "exam") {
+    } else if (stage?.type === "exam") {
       skillCardIdOrderGroups = [new Array(skillCardIdGroups[0].length).fill(0)];
     } else {
       skillCardIdOrderGroups = [new Array(20).fill(0)];
@@ -155,11 +219,11 @@ export function loadoutFromSearchParams(searchParams, suffix = "") {
       .map(deserializeCustomizations);
   } else {
     const stage = Stages.getById(stageId);
-    if (stageId === "custom" || stage.type === "contest" || stage.type === "event") {
+    if (stageId === "custom" || stage?.type === "contest" || stage?.type === "event") {
       customizationOrderGroups = [new Array(20).fill({})];
-    } else if (stage.type === "linkContest") {
+    } else if (stage?.type === "linkContest") {
       customizationOrderGroups = [new Array(12).fill({})];
-    } else if (stage.type === "exam") {
+    } else if (stage?.type === "exam") {
       customizationOrderGroups = [new Array(skillCardIdGroups[0].length).fill({})];
     } else {
       customizationOrderGroups = [new Array(20).fill({})];
@@ -171,12 +235,22 @@ export function loadoutFromSearchParams(searchParams, suffix = "") {
       .map((i) => ["none", "vocal", "dance", "visual"][i]);
   } else {
     // init turn type order by stage
-    if (stageId == null || stageId == "custom") {
-      turnTypeOrder = new Array(12).fill("none");
+    let turnCounts = null;
+    if (stageId === "custom") {
+      turnCounts = 12;
     } else {
-      const turnCounts = Stages.getById(stageId).turnCounts;
-      turnTypeOrder = new Array(turnCounts.vocal + turnCounts.dance + turnCounts.visual).fill("none");
+      const stage = Stages.getById(stageId);
+      if (stage) {
+        turnCounts = stage.turnCounts;
+      } else {
+        const examStageId = produceExamIdOf(stageId);
+        if (examStageId) {
+          turnCounts = ProduceExams.getById(examStageId).turnCounts;
+        }
+      }
     }
+    const totalTurns = turnCounts ? turnCounts.vocal + turnCounts.dance + turnCounts.visual : 12;
+    turnTypeOrder = new Array(totalTurns).fill("none");
   }
 
   // Ensure customizations are same shape as skill cards
@@ -195,10 +269,14 @@ export function loadoutFromSearchParams(searchParams, suffix = "") {
 
   return {
     stageId,
+    customStage,
     enterPercents,
     supportBonus,
     params,
     pItemIds,
+    pDrinkIds,
+    pDrinkTurns,
+    startStamina,
     skillCardIdGroups,
     customizationGroups,
     pDrinkIds,
@@ -230,13 +308,16 @@ export function loadoutsFromSearchParamsLegacy(searchParams) {
 export function loadoutToSearchParams(loadout) {
   const {
     stageId,
+    customStage,
     enterPercents,
     supportBonus,
     params,
     pItemIds,
+    pDrinkIds,
+    pDrinkTurns,
+    startStamina,
     skillCardIdGroups,
     customizationGroups,
-    pDrinkIds,
     hifAbilityIds,
     startingEffects,
     enableSkillCardOrder,
@@ -253,6 +334,22 @@ export function loadoutToSearchParams(loadout) {
   } = loadout;
   const searchParams = new URLSearchParams();
   searchParams.set("stage", stageId);
+  if (produceExamIdOf(stageId)) {
+    const { turnTypes } = getStage(stageId, customStage);
+    searchParams.set("turns", serializeTurnTypes(turnTypes));
+    if (pDrinkIds?.some((id) => id)) {
+      searchParams.set("drinks", serializeIds(pDrinkIds));
+      if (pDrinkTurns?.some((turn, i) => pDrinkIds[i] && turn > 0)) {
+        searchParams.set(
+          "drink_turns",
+          serializeIds(pDrinkIds.map((id, i) => (id && pDrinkTurns[i]) || 0)),
+        );
+      }
+    }
+    if (startStamina != null) {
+      searchParams.set("start_stamina", startStamina);
+    }
+  }
   if (enterPercents) searchParams.set("enter_percents", "1");
   if (supportBonus != null) {
     searchParams.set("support_bonus", supportBonus);
@@ -266,7 +363,7 @@ export function loadoutToSearchParams(loadout) {
       .map((_, i) => serializeCustomizations(customizationGroups?.[i]))
       .join("_")
   );
-  if (Stages.getById(stageId).type === "exam") {
+  if (Stages.getById(stageId)?.type === "exam") {
     searchParams.set("drinks", serializeIds(pDrinkIds));
     searchParams.set("effects", serializeIds(startingEffects));
     searchParams.set("hif_abilities", serializeIds(hifAbilityIds));

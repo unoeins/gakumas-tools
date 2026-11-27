@@ -1,3 +1,4 @@
+import { PDrinks } from "gakumas-data";
 import { ALL_FIELDS, S, EVENTS } from "../constants";
 import BuffManager from "./BuffManager";
 import CardManager from "./CardManager";
@@ -40,7 +41,7 @@ export default class StageEngine {
 
     // General
     state[S.cardUsesRemaining] = 0;
-    state[S.stamina] = this.getConfig(state).idol.params.stamina;
+    state[S.stamina] = this.getConfig(state).idol.startStamina;
     state[S.consumedStamina] = 0;
     state[S.genki] = 0;
     state[S.consumedGenki] = 0;
@@ -55,6 +56,11 @@ export default class StageEngine {
 
     // Skill cards
     this.cardManager.initializeState(state);
+
+    // P-drinks
+    state[S.pDrinks] = (this.getConfig(state).idol.pDrinkIds || []).map(
+      (_, slot) => slot,
+    );
 
     // Effects
     if (skipEffects) {
@@ -93,6 +99,49 @@ export default class StageEngine {
     return state;
   }
 
+  // P-drinks (produce exams). The drinks held going into the exam; each can
+  // be drunk once, at any time during a turn, as in the game, where a drink
+  // is tapped between card plays. Drinking applies the drink's actions
+  // exactly as the fidelity harness's drinksBefore does
+  // (effectManager.triggerEffects on the drink's actions). When to drink is
+  // the strategy's choice (a decision { pDrink: index }, index into the
+  // drinks still held). A drink may have a turn set for it (pDrinkTurns,
+  // 1-based): the strategy then drinks it during that turn.
+  getHeldPDrinks(state) {
+    const { pDrinkIds } = this.getConfig(state).idol;
+    return (state[S.pDrinks] || []).map((slot) => pDrinkIds[slot]);
+  }
+
+  // The turn set for a held drink (1-based), or null if it's the strategy's
+  // to choose.
+  getPDrinkTurn(state, index) {
+    const slot = state[S.pDrinks][index];
+    return this.getConfig(state).idol.pDrinkTurns?.[slot] || null;
+  }
+
+  canUsePDrink(state, index) {
+    return (
+      state[S.turnsRemaining] > 0 &&
+      index >= 0 &&
+      index < (state[S.pDrinks] || []).length
+    );
+  }
+
+  usePDrink(prevState, index) {
+    if (!this.canUsePDrink(prevState, index)) {
+      throw new Error(`P-drink ${index} can't be drunk`);
+    }
+    const state = deepCopy(prevState);
+    const pDrink = PDrinks.getById(this.getHeldPDrinks(state)[index]);
+    state[S.pDrinks] = state[S.pDrinks].filter((_, i) => i != index);
+    const source = { type: "pDrink", id: pDrink.id };
+    this.logger.log(state, "entityStart", source);
+    this.effectManager.triggerEffects(state, pDrink.actions);
+    this.logger.log(state, "entityEnd", source);
+    this.endIfPassed(state);
+    return state;
+  }
+
   isCardUsable(state, card) {
     return this.cardManager.isCardUsable(state, card);
   }
@@ -101,6 +150,8 @@ export default class StageEngine {
     // console.log("executeDecision", decision);
     if (decision.state) {
       return decision.state;
+    } else if (decision.pDrink != null) {
+      return this.usePDrink(state, decision.pDrink);
     } else if (decision.card != null) {
       return this.useCard(state, decision.card);
     } else if (decision.drink != null) {
@@ -115,6 +166,7 @@ export default class StageEngine {
   useCard(prevState, card) {
     const state = deepCopy(prevState);
     this.cardManager.useCard(state, card);
+    this.endIfPassed(state);
     // this.listenerManager.triggerEvent(EVENTS.CARD_USED, state, card);
     return state;
   }
@@ -128,7 +180,17 @@ export default class StageEngine {
   endTurn(prevState) {
     const state = deepCopy(prevState);
     this.turnManager.endTurn(state);
+    this.endIfPassed(state);
     // this.listenerManager.triggerEvent(EVENTS.TURN_ENDED, state);
     return state;
+  }
+
+  // A produce exam ends as soon as the score reaches its 合格条件 score,
+  // with the turns left unplayed.
+  endIfPassed(state) {
+    const { passScore } = this.getConfig(state).stage;
+    if (passScore && state[S.score] >= passScore) {
+      state[S.turnsRemaining] = 0;
+    }
   }
 }

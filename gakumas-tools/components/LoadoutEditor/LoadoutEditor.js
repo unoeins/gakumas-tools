@@ -46,7 +46,7 @@ function animateGroups(elements, { tops, sourceOf, lifted }) {
   });
 }
 
-function LoadoutEditor({ config, idolId }) {
+function LoadoutEditor({ config, idolId, mode }) {
   const t = useTranslations("Simulator");
 
   const {
@@ -162,6 +162,7 @@ function LoadoutEditor({ config, idolId }) {
               indications={pItemIndications}
               stage={stage}
               size="medium"
+              produceExam={!!stage.produceExamId}
             />
           </div>
           <span className={styles.stageTag}>
@@ -194,11 +195,12 @@ function LoadoutEditor({ config, idolId }) {
             <div className={styles.pDrinksRow}>
               <div className={styles.pDrinks}>
                 <StagePDrinks
+                  mode={mode}
                   pDrinkIds={loadout.pDrinkIds}
                   replacePDrinkId={replacePDrinkId}
                   swapPDrinkIds={swapPDrinkIds}
                   indications={pDrinkIndications}
-                  size="medium"
+                  size="fill"
                 />
               </div>
             </div>

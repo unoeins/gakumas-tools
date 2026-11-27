@@ -66,6 +66,14 @@ export default class BaseStrategy {
   }
 
   /**
+   * Given a state and list of cards, selects cards to grow.
+   * Returns the indices of the cards to grow. Picks like holding by default.
+   */
+  pickCardsToGrow(state, cards, num = 1, optional = false) {
+    throw new Error("pickCardsToGrow is not implemented!");
+  }
+
+  /**
    * Handles exceptions that occur while executing a decision.
    * Returns the next state.
    * Can be async for strategies that need to await user input.
@@ -82,10 +90,6 @@ export default class BaseStrategy {
 
   selectRandomInsertIndex(state, cards) {
     throw new Error("selectRandomInsertIndex is not implemented!");
-  }
-  
-  pickCardsToGrow(state, cards, num = 1, optional = false) {
-    throw new Error("pickCardsToGrow is not implemented!");
   }
 
 }

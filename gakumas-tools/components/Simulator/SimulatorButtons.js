@@ -18,7 +18,7 @@ import Button from "@/components/Button";
 import ConfirmModal from "@/components/ConfirmModal";
 import ModalLoading from "@/components/Modal/ModalLoading";
 import LoadoutsModal from "@/components/SimulationRuns/LoadoutsModal";
-import ShareModal from "@/components/ShareModal";
+import useSimulatorShare from "@/components/ShareModal/useSimulatorShare";
 import LoadoutContext from "@/contexts/LoadoutContext";
 import ModalContext from "@/contexts/ModalContext";
 import styles from "./Simulator.module.scss";
@@ -28,12 +28,14 @@ const SimulatorLoadoutImporterModal = dynamic(
   { ssr: false, loading: ModalLoading },
 );
 
-function SimulatorButtons() {
+// `run`: the result on screen, if any, so Share can offer its link too.
+function SimulatorButtons({ run }) {
   const t = useTranslations("SimulatorButtons");
 
   const { clear, loadout, setLoadout, simulatorUrl, setLoadouts, currentLoadoutIndex } =
     useContext(LoadoutContext);
   const { setModal } = useContext(ModalContext);
+  const openShare = useSimulatorShare(run);
   const [copyStatus, setCopyStatus] = useState(null);
   const copiedTimerRef = useRef(null);
 
@@ -154,7 +156,7 @@ function SimulatorButtons() {
           <Button
             style="blue-secondary"
             size="sm"
-            onClick={() => setModal(<ShareModal url={simulatorUrl} />)}
+            onClick={() => openShare("loadout")}
           >
             <FaShareNodes />
             <span className={styles.buttonText}>{t("share")}</span>

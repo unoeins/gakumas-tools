@@ -155,6 +155,7 @@ export const ALL_FIELDS = [
   "noFullPowerChargeTurns",
   "poorConditionTurns",
   "uneaseTurns",
+  "timidity",
   "slumpTurns",
   "scoreBuffs",
   "scoreDebuffs",
@@ -239,6 +240,7 @@ export const ALL_FIELDS = [
   "paidCardUses",
   "unfreshPhase",
   "buffCostConsumed",
+  "pDrinks",
 
   // Delta
   "goodImpressionTurnsDelta",
@@ -489,6 +491,7 @@ export const LOGGED_FIELDS = [
   S.noFullPowerChargeTurns,
   S.noCardUseTurns,
   S.uneaseTurns,
+  S.timidity,
   S.slumpTurns,
 ];
 

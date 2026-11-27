@@ -1,5 +1,14 @@
-import { Customizations, PIdols, PItems, SkillCards, Stages } from "gakumas-data";
+import {
+  Customizations,
+  PDrinks,
+  PIdols,
+  PItems,
+  SkillCards,
+  Stages,
+} from "gakumas-data";
 import { getBaseId, isUniqueCard } from "../utils";
+
+export const MAX_P_DRINKS = 4;
 
 export default class IdolConfig {
   constructor(loadout) {
@@ -9,8 +18,10 @@ export default class IdolConfig {
       supportBonus,
       pItemIds,
       pDrinkIds,
+      pDrinkTurns,
       skillCardIdGroups,
       customizationGroups,
+      startStamina,
       skillCardIdOrderGroups = [],
       customizationOrderGroups = [],
       removedCardOrder = "random",
@@ -66,8 +77,19 @@ export default class IdolConfig {
 
     // P-items, P-drinks, and skill cards
     this.pItemIds = [...new Set(pItemIds.filter((id) => id))];
+    // P-drinks (produce exams only). Up to 3, as in the game's drink slots;
+    // the same drink may be held more than once, so no dedupe. Each may have
+    // a turn set for it (pDrinkTurns, 1-based); one with none (null) is the
+    // strategy's to time (StageEngine.usePDrink).
+    const drinks = (pDrinkIds || [])
+      .map((id, i) => ({ id, turn: parseInt(pDrinkTurns?.[i], 10) || null }))
+      .filter((drink) => PDrinks.getById(drink.id))
+      .slice(0, MAX_P_DRINKS);
+    this.pDrinkIds = drinks.map((drink) => drink.id);
+    this.pDrinkTurns = drinks.map((drink) =>
+      drink.turn > 0 ? drink.turn : null,
+    );
     const stage = Stages.getById(stageId);
-    this.pDrinkIds = stage?.type === "exam" ? [...pDrinkIds.filter((id) => id)] : [];
     this.hifAbilityIds = 
       stage?.type === "exam" &&
       (stage.season === 7 || stage.season === 8) ?
@@ -95,6 +117,10 @@ export default class IdolConfig {
     // Params
     const [vocal, dance, visual, stamina] = params.map((p) => p || 0);
     this.params = { vocal, dance, visual, stamina };
+    // The 体力 the stage starts at. A produce exam starts at the 体力 the run
+    // had, which can be below max; heals still cap at params.stamina.
+    this.startStamina =
+      startStamina == null ? stamina : Math.max(0, Math.min(startStamina, stamina));
     this.supportBonus = supportBonus || 0;
 
     this.turnTypeOrder = turnTypeOrder || [];

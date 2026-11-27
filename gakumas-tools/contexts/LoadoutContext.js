@@ -9,16 +9,21 @@ import {
   useState,
 } from "react";
 import { STARTING_EFFECTS } from "gakumas-engine/constants";
-import { Stages } from "gakumas-data";
+import { Stages, IdolRoad, ProduceExams } from "gakumas-data";
 import {
   fixCustomizationGroups,
   getDefaultParams,
   getSimulatorUrl,
   getStage,
+  deserializePDrinkIds,
+  deserializePDrinkTurns,
+  deserializeStartStamina,
   knownStageId,
+  produceExamIdOf,
   deserializeIds,
   StrategyCustomizations,
   DEFAULTS,
+  produceExamStageId,
 } from "gakumas-loadout";
 import { usePathname } from "@/i18n/routing";
 import LoadoutUrlContext from "@/contexts/LoadoutUrlContext";
@@ -29,6 +34,7 @@ import {
   setMemorySlot,
 } from "@/utils/memorySlots";
 import { synchronizeLinkLoadouts } from "@/utils/linkLoadouts";
+import { fitPItemSlots } from "@/utils/pItemSlots";
 import { inferPIdolId, getExamStage } from "@/utils/exams";
 import { getIdolRoadStage } from "@/utils/idolRoad";
 
@@ -49,10 +55,25 @@ export function LoadoutContextProvider({ children }) {
   const [enterPercents, setEnterPercents] = useState(
     !!initialLoadout.enterPercents
   );
-  const [customStage, setCustomStage] = useState(null);
+  // A custom stage, or a produce exam's turn order ({ turnTypes }).
+  const [customStage, setCustomStage] = useState(
+    produceExamIdOf(initialLoadout.stageId) ? initialLoadout.customStage : null,
+  );
   const [supportBonus, setSupportBonus] = useState(initialLoadout.supportBonus);
   const [params, setParams] = useState(initialLoadout.params);
   const [pItemIds, setPItemIds] = useState(initialLoadout.pItemIds);
+  // Held only in produce exams; kept while another stage is picked so going
+  // back to the exam restores them, but never passed to other stages.
+  const [pDrinkIds, setPDrinkIds] = useState(() =>
+    deserializePDrinkIds(initialLoadout.pDrinkIds?.join("-")),
+  );
+  const [pDrinkTurns, setPDrinkTurns] = useState(() =>
+    deserializePDrinkTurns(initialLoadout.pDrinkTurns?.join("-")),
+  );
+  // The 体力 a produce exam starts at (null = max). Held like the drinks.
+  const [startStamina, setStartStamina] = useState(
+    initialLoadout.startStamina ?? null,
+  );
   const [skillCardIdGroups, setSkillCardIdGroups] = useState(
     initialLoadout.skillCardIdGroups
   );
@@ -62,7 +83,6 @@ export function LoadoutContextProvider({ children }) {
       initialLoadout.customizationGroups,
     ),
   );
-  const [pDrinkIds, setPDrinkIds] = useState(initialLoadout.pDrinkIds);
   const [hifAbilityIds, setHifAbilityIds] = useState(initialLoadout.hifAbilityIds);
   const [startingEffects, setStartingEffects] = useState(
     initialLoadout.startingEffects
@@ -106,7 +126,11 @@ export function LoadoutContextProvider({ children }) {
     if (stage.type == "exam") {
       stage = getExamStage(stageId, pIdolId);
     } else if (stage.type === "idolRoad") {
-      stage = getIdolRoadStage(stageId, pIdolId);
+      if (stage.id < 10000) {
+        stage = IdolRoad.resolveStage({ ...stage }, pIdolId);
+      } else {
+        stage = getIdolRoadStage(stageId, pIdolId);
+      }
     }
     return stage;
   }, [stageId, customStage, pIdolId]);
@@ -115,10 +139,18 @@ export function LoadoutContextProvider({ children }) {
     () => ({
       stageId,
       enterPercents,
-      customStage: stageId == "custom" ? customStage : {},
+      customStage:
+        stageId == "custom"
+          ? customStage
+          : produceExamIdOf(stageId)
+            ? { turnTypes: stage.turnTypes }
+            : {},
       supportBonus,
       params,
       pItemIds,
+      pDrinkIds: produceExamIdOf(stageId) ? pDrinkIds : [0, 0, 0],
+      pDrinkTurns: produceExamIdOf(stageId) ? pDrinkTurns : [0, 0, 0],
+      startStamina: produceExamIdOf(stageId) ? startStamina : null,
       skillCardIdGroups,
       customizationGroups,
       pDrinkIds,
@@ -140,9 +172,13 @@ export function LoadoutContextProvider({ children }) {
       stageId,
       enterPercents,
       customStage,
+      stage,
       supportBonus,
       params,
       pItemIds,
+      pDrinkIds,
+      pDrinkTurns,
+      startStamina,
       skillCardIdGroups,
       customizationGroups,
       pDrinkIds,
@@ -187,12 +223,18 @@ export function LoadoutContextProvider({ children }) {
         }, {});
       }
       setCustomStage(custom);
+    } else if (produceExamIdOf(loadout.stageId)) {
+      setCustomStage({ turnTypes: loadout.customStage?.turnTypes });
     }
     setSupportBonus(loadout.supportBonus);
     setMemorySlots([null, null]);
     setParams(loadout.params);
     setPItemIds(loadout.pItemIds);
-    setPDrinkIds(loadout.pDrinkIds || deserializeIds(DEFAULTS.pDrinkIds));
+    if (produceExamIdOf(loadout.stageId)) {
+      setPDrinkIds(deserializePDrinkIds(loadout.pDrinkIds?.join("-")));
+      setPDrinkTurns(deserializePDrinkTurns(loadout.pDrinkTurns?.join("-")));
+      setStartStamina(deserializeStartStamina(loadout.startStamina));
+    }
     setHifAbilityIds(loadout.hifAbilityIds || deserializeIds(DEFAULTS.hifAbilityIds));
     setStartingEffects(loadout.startingEffects || deserializeIds(DEFAULTS.startingEffects));
     const groups = loadout.skillCardIdGroups;
@@ -232,9 +274,22 @@ export function LoadoutContextProvider({ children }) {
     if (loadout.turnTypeOrder) {
       setTurnTypeOrder(loadout.turnTypeOrder);
     } else {
-      const turnCounts = loadout.stageId === "custom" ? loadout.customStage.turnCounts :
-        Stages.getById(loadout.stageId).turnCounts; 
-      setTurnTypeOrder(new Array(turnCounts.vocal + turnCounts.dance + turnCounts.visual).fill("none"));
+      let turnCounts = null;
+      if (loadout.stageId === "custom") {
+        turnCounts = loadout.customStage.turnCounts;
+      } else {
+        const stage = Stages.getById(loadout.stageId);
+        if (stage) {
+          turnCounts = stage.turnCounts;
+        } else {
+          const examStageId = produceExamIdOf(stageId);
+          if (examStageId) {
+            turnCounts = ProduceExams.getById(examStageId).turnCounts;
+          }
+        }
+      }
+      const totalTurns = turnCounts ? turnCounts.vocal + turnCounts.dance + turnCounts.visual : 12;
+      setTurnTypeOrder(new Array(totalTurns).fill("none"));
     }
     setEnableStrategyCustomizations(!!loadout.enableStrategyCustomizations);
     setStrategyCustomizations(loadout.strategyCustomizations || StrategyCustomizations.getDefaults());
@@ -270,10 +325,8 @@ export function LoadoutContextProvider({ children }) {
   }, [loadout, currentLoadoutIndex, stage]);
 
   useEffect(() => {
-    // If fewer than 4 pItems, pad with 0s
-    if (pItemIds.length < 4) {
-      setPItemIds((cur) => cur.concat(new Array(4 - cur.length).fill(0)));
-    }
+    // 4 slots, or in a produce exam one empty slot after the last filled one.
+    setPItemIds((cur) => fitPItemSlots(cur, !!produceExamIdOf(stageId)));
     // If fewer than 4 pDrinkIds, pad with 0s
     if (pDrinkIds.length < 4) {
       setPDrinkIds((cur) => cur.concat(new Array(4 - cur.length).fill(0)));
@@ -298,6 +351,9 @@ export function LoadoutContextProvider({ children }) {
     setMemorySlots([null, null]);
     setParams(getDefaultParams(stageRef.current));
     setPItemIds((cur) => new Array(cur.length).fill(0));
+    setPDrinkIds((cur) => new Array(cur.length).fill(0));
+    setPDrinkTurns((cur) => new Array(cur.length).fill(0));
+    setStartStamina(null);
     if (stage.type === "exam") {
       setSkillCardIdGroups([[0]]);
       setCustomizationGroups([[{}]]);
@@ -311,7 +367,6 @@ export function LoadoutContextProvider({ children }) {
         [{}, {}, {}, {}, {}, {}],
       ]);
     }
-    setPDrinkIds((cur) => new Array(cur.length).fill(0));
     setHifAbilityIds((cur) => new Array(cur.length).fill(0));
     setStartingEffects((cur) => new Array(cur.length).fill(0));
     const size = stage.type === "linkContest" ? 12 : stage.type === "exam" ? 1 : 20;
@@ -345,18 +400,26 @@ export function LoadoutContextProvider({ children }) {
     });
   }, []);
 
-  const swapPItemIds = useCallback((indexA, indexB) => {
-    setPItemIds((cur) => {
-      const next = [...cur];
-      [next[indexA], next[indexB]] = [next[indexB], next[indexA]];
-      return next;
-    });
-  }, []);
-
   const replacePDrinkId = useCallback((index, drinkId) => {
     setPDrinkIds((cur) => {
       const next = [...cur];
       next[index] = drinkId;
+      return next;
+    });
+  }, []);
+
+  const setPDrinkTurn = useCallback((index, turn) => {
+    setPDrinkTurns((cur) => {
+      const next = [...cur];
+      next[index] = turn;
+      return next;
+    });
+  }, []);
+
+  const swapPItemIds = useCallback((indexA, indexB) => {
+    setPItemIds((cur) => {
+      const next = [...cur];
+      [next[indexA], next[indexB]] = [next[indexB], next[indexA]];
       return next;
     });
   }, []);
@@ -869,6 +932,13 @@ export function LoadoutContextProvider({ children }) {
     });
   }, []);
 
+  // The turn order a produce exam shows in game, one entry per turn.
+  const setTurnType = useCallback((turnIndex, type) => {
+    const turnTypes = [...stageRef.current.turnTypes];
+    turnTypes[turnIndex] = type;
+    setCustomStage({ turnTypes });
+  }, []);
+
   const setMemory = useCallback((memory, index) => {
     const stage = stageRef.current;
     const multiplier = stage.type !== "linkContest" && index ? 0.2 : 1;
@@ -901,10 +971,14 @@ export function LoadoutContextProvider({ children }) {
       setLoadout,
       setMemory,
       selectStage,
+      setTurnType,
       setSupportBonus,
       setEnterPercents,
       setParams,
       replacePItemId,
+      replacePDrinkId,
+      setPDrinkTurn,
+      setStartStamina,
       swapPItemIds,
       replacePDrinkId,
       swapPDrinkIds,
@@ -946,7 +1020,10 @@ export function LoadoutContextProvider({ children }) {
       setLoadout,
       setMemory,
       selectStage,
+      setTurnType,
       replacePItemId,
+      replacePDrinkId,
+      setPDrinkTurn,
       swapPItemIds,
       replacePDrinkId,
       swapPDrinkIds,

@@ -7,7 +7,14 @@ import Loader from "@/components/Loader";
 import Modal from "@/components/Modal";
 import styles from "./ScreenshotImporterModal.module.scss";
 
-function ScreenshotImporterModal({ translationNamespace, importFn, onSuccess }) {
+// importFn takes the chosen file, or with maxFiles > 1 an array of up to
+// maxFiles of them.
+function ScreenshotImporterModal({
+  translationNamespace,
+  importFn,
+  onSuccess,
+  maxFiles = 1,
+}) {
   const t = useTranslations(translationNamespace);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -27,16 +34,17 @@ function ScreenshotImporterModal({ translationNamespace, importFn, onSuccess }) 
         setLoading(false);
       }
     },
-    [importFn, onSuccess],
+    [importFn, onSuccess, maxFiles],
   );
 
   const handleFile = useCallback(
     async (e) => {
-      const file = e.target.files[0];
+      const files = [...e.target.files].slice(0, maxFiles);
       // Clear the input so choosing the same file again (to retry) fires
       // another change.
       e.target.value = "";
-      handleItem(file);
+      if (!files.length) return;
+      handleItem(maxFiles > 1 ? files : files[0]);
     },
     [handleItem],
   );
@@ -94,6 +102,7 @@ function ScreenshotImporterModal({ translationNamespace, importFn, onSuccess }) 
         className={styles.file}
         type="file"
         accept="image/*"
+        multiple={maxFiles > 1}
         onChange={handleFile}
         disabled={loading}
       />

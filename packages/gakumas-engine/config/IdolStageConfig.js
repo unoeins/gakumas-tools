@@ -85,9 +85,13 @@ export default class IdolStageConfig {
   }
 
   getDefaultCardIds(idolConfig, stageConfig) {
-    if (stageConfig.type === "linkContest" ||
-        stageConfig.type === "exam" ||
-        idolConfig.plan === "free") {
+    // A produce exam plays the produce's own deck, which the player enters.
+    if (
+      stageConfig.type === "linkContest" ||
+      stageConfig.type === "exam" ||
+      idolConfig.plan === "free" ||
+      stageConfig.type === "produceExam"
+    ) {
       return [];
     }
     const defaultCardSet = stageConfig.defaultCardSet || stageConfig.type;
