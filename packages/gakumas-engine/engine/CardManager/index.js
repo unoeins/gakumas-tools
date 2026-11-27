@@ -348,8 +348,6 @@ export default class CardManager extends EngineComponent {
       state[S.cardPriorities] = {...this.initialCardMap.cardPriorities};
     }
 
-    state[S.pDrinks] = [...config.idol.pDrinkIds];
-
     this.changeIdol(state);
 
     state[S.heldCards] = [];

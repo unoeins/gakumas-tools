@@ -16,6 +16,14 @@ All notable changes to the contest simulator will be documented in this file.
 
 
 
+## 2026-11-27
+
+- Update unbalance tsubame
+- Update unbalance mao
+- Update unbalance support card 勝たしてもらうで！
+- Add unbalance tsubame portrait
+- Add unbalance mao portrait
+
 ## 2026-11-26
 
 - Preview unbalance support card 勝たしてもらうで！

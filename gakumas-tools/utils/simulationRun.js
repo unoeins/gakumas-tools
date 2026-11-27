@@ -14,7 +14,6 @@ const LOADOUT_FIELDS = [
   "pDrinkTurns",
   "skillCardIdGroups",
   "customizationGroups",
-  "pDrinkIds",
   "hifAbilityIds",
   "startingEffects",
   "enableSkillCardOrder",

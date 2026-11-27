@@ -132,7 +132,9 @@ export function LoadoutContextProvider({ children }) {
         stage = getIdolRoadStage(stageId, pIdolId);
       }
     }
-    return stage;
+    const turnCount = 
+      stage.turnCounts.vocal + stage.turnCounts.dance + stage.turnCounts.visual;
+    return { ...stage, turnCount };
   }, [stageId, customStage, pIdolId]);
 
   const loadout = useMemo(
@@ -148,12 +150,11 @@ export function LoadoutContextProvider({ children }) {
       supportBonus,
       params,
       pItemIds,
-      pDrinkIds: produceExamIdOf(stageId) ? pDrinkIds : [0, 0, 0],
-      pDrinkTurns: produceExamIdOf(stageId) ? pDrinkTurns : [0, 0, 0],
-      startStamina: produceExamIdOf(stageId) ? startStamina : null,
+      pDrinkIds: stage?.type == "exam" || produceExamIdOf(stageId) ? pDrinkIds : [0, 0, 0, 0],
+      pDrinkTurns: stage?.type == "exam" || produceExamIdOf(stageId) ? pDrinkTurns : [0, 0, 0, 0],
+      startStamina: stage?.type == "exam" || produceExamIdOf(stageId) ? startStamina : null,
       skillCardIdGroups,
       customizationGroups,
-      pDrinkIds,
       hifAbilityIds,
       startingEffects,
       enableSkillCardOrder,
@@ -181,7 +182,6 @@ export function LoadoutContextProvider({ children }) {
       startStamina,
       skillCardIdGroups,
       customizationGroups,
-      pDrinkIds,
       hifAbilityIds,
       startingEffects,
       enableSkillCardOrder,

@@ -81,6 +81,7 @@ export default class IdolConfig {
     // the same drink may be held more than once, so no dedupe. Each may have
     // a turn set for it (pDrinkTurns, 1-based); one with none (null) is the
     // strategy's to time (StageEngine.usePDrink).
+    const stage = Stages.getById(stageId);
     const drinks = (pDrinkIds || [])
       .map((id, i) => ({ id, turn: parseInt(pDrinkTurns?.[i], 10) || null }))
       .filter((drink) => PDrinks.getById(drink.id))
@@ -89,7 +90,6 @@ export default class IdolConfig {
     this.pDrinkTurns = drinks.map((drink) =>
       drink.turn > 0 ? drink.turn : null,
     );
-    const stage = Stages.getById(stageId);
     this.hifAbilityIds = 
       stage?.type === "exam" &&
       (stage.season === 7 || stage.season === 8) ?
