@@ -53,15 +53,20 @@ function ScreenshotImporterModal({
     async () => {
       try {
         const items = await navigator.clipboard.read();
-        for (const item of items) {
-          const imageType = item.types.find(type => type.startsWith('image/'));
-          if (imageType) {
-            const blob = await item.getType(imageType);
-            handleItem(blob);
-            return;
-          }
+        const files = await Promise.all(items
+          .map(item => {
+            const imageType = item.types.find(type => type.startsWith('image/'));
+            if (imageType) {
+              return item.getType(imageType);
+            }
+            return null;
+          })
+          .filter(blob => blob));
+        if (!files.length) {
+          setError(t("noImageInClipboard"));
+          return;
         }
-        setError(t("noImageInClipboard"));
+        handleItem(maxFiles > 1 ? files : files[0]);
       } catch (err) {
         console.error(err);
       }
@@ -74,13 +79,14 @@ function ScreenshotImporterModal({
       const pasteHandler = async (e) => {
         try {
           const items = e.clipboardData.items;
-          for (const item of items) {
-            if (item.type.startsWith('image/')) {
-              handleItem(item.getAsFile());
-              return;
-            }
+          const files = [...items]
+            .filter(item => item.type.startsWith('image/'))
+            .map(item => item.getAsFile());
+          if (!files.length) {
+            setError(t("noImageInClipboard"));
+            return;
           }
-          setError(t("noImageInClipboard"));
+          handleItem(maxFiles > 1 ? files : files[0]);
         } catch (err) {
           console.error(err);
         }
